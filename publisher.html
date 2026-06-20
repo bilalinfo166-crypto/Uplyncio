@@ -3,44 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <title>Uplyncio Publisher Portal</title>
-<script>
-firebase.initializeApp({
-  apiKey:"AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
-  authDomain:"uplyncio-platform.firebaseapp.com",
-  projectId:"uplyncio-platform",
-  storageBucket:"uplyncio-platform.firebasestorage.app",
-  messagingSenderId:"371948125554",
-  appId:"1:371948125554:web:a596451f5cc56b460271eb"
-});
-var _auth=firebase.auth();
-_auth.onAuthStateChanged(function(user){
-  if(user){
-    try{
-      var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-      if(!s['settName']&&user.displayName) s['settName']=user.displayName;
-      if(!s['settEmail']&&user.email) s['settEmail']=user.email;
-      localStorage.setItem('uplyncio_settings',JSON.stringify(s));
-      var pn=document.getElementById('profileName');
-      var pe=document.getElementById('profileEmail');
-      var av=document.getElementById('profileAvatar');
-      var nm=s['settName']||user.displayName||'Publisher';
-      if(pn)pn.textContent=nm;
-      if(pe)pe.textContent=s['settEmail']||user.email||'';
-      if(av){var pts=nm.trim().split(' ');av.textContent=(pts.length>=2?pts[0][0]+pts[pts.length-1][0]:nm.slice(0,2)).toUpperCase();}
-    }catch(e){}
-  }
-});
-function firebaseLogout(){
-  _auth.signOut().then(function(){
-    localStorage.removeItem('uplyncio_user');
-    window.location.href='uplyncio-full.html';
-  }).catch(function(){window.location.href='uplyncio-full.html';});
-}
-</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -252,7 +216,7 @@ html,body{overflow-x:hidden;max-width:100vw}
               <div id="activityThumb" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div>
             </div>
           </div>
-          <div onclick="closeProfileMenu();firebaseLogout()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#ef4444;font-weight:600;transition:background .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
+          <div onclick="closeProfileMenu();localStorage.removeItem('uplyncio_loggedIn');localStorage.removeItem('uplyncio_user');window.location.href='uplyncio-full.html'" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#ef4444;font-weight:600;transition:background .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
             >🚪 Log Out</div>
         </div>
       </div>
