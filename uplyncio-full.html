@@ -1121,7 +1121,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
         <li><span class="ck">✓</span> Live URL report</li>
         <li><span class="ck">✓</span> Email support</li>
       </ul>
-      <a href="#" class="btn btn-ghost" style="width:100%;justify-content:center">Get Started</a>
+      <a href="#" onclick="openSignup();return false" class="btn btn-ghost" style="width:100%;justify-content:center">Get Started</a>
     </div>
     <div class="price-c feat">
       <div class="plan-nm">Growth</div>
@@ -1135,7 +1135,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
         <li><span class="ck">✓</span> Detailed reports</li>
         <li><span class="ck">✓</span> Priority support</li>
       </ul>
-      <a href="#" class="btn btn-accent" style="width:100%;justify-content:center">Get Started</a>
+      <a href="#" onclick="openSignup();return false" class="btn btn-accent" style="width:100%;justify-content:center">Get Started</a>
     </div>
     <div class="price-c">
       <div class="plan-nm">Authority</div>
@@ -1149,7 +1149,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
         <li><span class="ck">✓</span> White-label reports</li>
         <li><span class="ck">✓</span> Dedicated manager</li>
       </ul>
-      <a href="#" class="btn btn-ghost" style="width:100%;justify-content:center">Get Started</a>
+      <a href="#" onclick="openSignup();return false" class="btn btn-ghost" style="width:100%;justify-content:center">Get Started</a>
     </div>
   </div>
 </div>
@@ -1438,7 +1438,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
         <span style="font-family:'Manrope',sans-serif;font-size:26px;font-weight:800;color:var(--accent)" id="mPrice"></span>
       </div>
       <button class="btn-cfm" onclick="confirmOrder()" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px">
-        <span>Get Started</span>
+        <span onclick="openSignup()" style="cursor:pointer">Get Started</span>
         <span style="background:#fff;color:var(--accent);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800">↗</span>
       </button>
     </div>
@@ -1565,9 +1565,9 @@ window.addEventListener('resize',()=>{buildDots();goTo(Math.min(cur,maxIdx()))})
 buildDots();
 </script>
 <!-- LOGIN MODAL -->
-<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
+<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
 <div style="background:#f0f4f8;border-radius:24px;width:440px;max-width:95vw;padding:40px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.3)">
-  <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,.08);cursor:pointer;font-size:16px;color:#444;display:flex;align-items:center;justify-content:center">✕</button>
+  <button onclick="handleLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,.08);cursor:pointer;font-size:16px;color:#444;display:flex;align-items:center;justify-content:center">✕</button>
 
   <!-- Logo -->
   <div style="text-align:center;margin-bottom:24px">
@@ -1633,7 +1633,7 @@ buildDots();
 </div>
 
 <!-- SIGNUP MODAL -->
-<div id="signupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeSignup()">
+<div id="signupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeSignup()">
 <div style="background:#f0f4f8;border-radius:24px;width:480px;max-width:95vw;padding:40px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.3)">
   <button onclick="closeSignup()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,.08);cursor:pointer;font-size:16px;color:#444;display:flex;align-items:center;justify-content:center">✕</button>
 
@@ -1800,6 +1800,78 @@ function openPublisherSignup(){ _selectedRole='publisher'; document.getElementBy
 function openBuyerSignup(){ _selectedRole='buyer'; document.getElementById('roleModal').style.display='flex'; document.body.style.overflow='hidden'; }
 function closeRoleModal(){ document.getElementById('roleModal').style.display='none'; document.body.style.overflow=''; }
 function closeSignupStep2(){ document.getElementById('signupStep2Modal').style.display='none'; document.body.style.overflow=''; }
+
+function openLogin(){
+  var m=document.getElementById('loginModal');
+  if(m){m.style.display='flex';document.body.style.overflow='hidden';}
+}
+function closeLogin(){
+  var m=document.getElementById('loginModal');
+  if(m){m.style.display='none';document.body.style.overflow='';}
+}
+function handleLogin(){
+  var email=document.getElementById('loginEmail');
+  var pass=document.getElementById('loginPass');
+  if(!email||!email.value.trim()){alert('Please enter your email.');return;}
+  if(!pass||!pass.value.trim()){alert('Please enter your password.');return;}
+  closeLogin();
+  window.location.href='publisher.html';
+}
+function openSignup(){
+  openPublisherSignup();
+}
+function closeSignup(){
+  closeRoleModal();
+  closeSignupStep2();
+  var m=document.getElementById('signupModal');
+  if(m){m.style.display='none';document.body.style.overflow='';}
+}
+function completeSignupSocial(provider){
+  closeSignupStep2();
+  setTimeout(function(){
+    if(window._selectedRole==='publisher'){
+      window.location.href='publisher.html';
+    } else {
+      document.getElementById('roleModal').style.display='none';
+      document.body.style.overflow='';
+      var el=document.getElementById('marketplace');
+      if(el) el.scrollIntoView({behavior:'smooth'});
+    }
+  },300);
+}
+function completeSignup(){
+  var name=document.getElementById('su2Name');
+  var email=document.getElementById('su2Email');
+  var pass=document.getElementById('su2Pass');
+  if(!name||!name.value.trim()){alert('Please enter your name.');return;}
+  if(!email||!email.value.trim()){alert('Please enter your email.');return;}
+  if(!pass||!pass.value.trim()||pass.value.length<8){alert('Password must be at least 8 characters.');return;}
+  closeSignupStep2();
+  if(window._selectedRole==='publisher'){
+    window.location.href='publisher.html';
+  } else {
+    var el=document.getElementById('marketplace');
+    if(el) el.scrollIntoView({behavior:'smooth'});
+  }
+}
+
+function openLogin(){
+  var m = document.getElementById('loginModal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+}
+  var m = document.getElementById('loginModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function openSignup(){
+  // Show role selection first
+  openPublisherSignup();
+}
+function closeSignup(){
+  var m = document.getElementById('signupModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+  closeRoleModal();
+  closeSignupStep2();
+}
 
 function selectRole(role){
   _selectedRole = role;
