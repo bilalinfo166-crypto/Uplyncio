@@ -1449,6 +1449,89 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 
 <div class="toast" id="toast">✅ Order received! We'll reach out within 24 hours.</div>
 
+<!-- FIREBASE AUTH -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
+  authDomain: "uplyncio-platform.firebaseapp.com",
+  projectId: "uplyncio-platform",
+  storageBucket: "uplyncio-platform.firebasestorage.app",
+  messagingSenderId: "371948125554",
+  appId: "1:371948125554:web:a596451f5cc56b460271eb"
+});
+var _auth = firebase.auth();
+var _gProv = new firebase.auth.GoogleAuthProvider();
+var _fProv = new firebase.auth.FacebookAuthProvider();
+
+function googleLogin(){
+  _auth.signInWithPopup(_gProv).then(function(r){
+    _saveUser(r.user);
+    _goPortal();
+  }).catch(function(e){ alert(e.message); });
+}
+function facebookLogin(){
+  _auth.signInWithPopup(_fProv).then(function(r){
+    _saveUser(r.user);
+    _goPortal();
+  }).catch(function(e){ alert(e.message); });
+}
+function handleLogin(){
+  var em = document.getElementById('loginEmail');
+  var pw = document.getElementById('loginPass');
+  if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
+  if(!pw||!pw.value.trim()){ alert('Please enter your password.'); return; }
+  var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
+  if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
+  _auth.signInWithEmailAndPassword(em.value.trim(), pw.value.trim())
+    .then(function(r){ _saveUser(r.user); _goPortal(); })
+    .catch(function(e){
+      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
+      alert(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'?'Incorrect email or password.':e.message);
+    });
+}
+function completeSignup(){
+  var n=document.getElementById('su2Name');
+  var e=document.getElementById('su2Email');
+  var p=document.getElementById('su2Pass');
+  if(!n||!n.value.trim()){ alert('Please enter your name.'); return; }
+  if(!e||!e.value.trim()){ alert('Please enter your email.'); return; }
+  if(!p||!p.value.trim()||p.value.length<8){ alert('Password must be at least 8 characters.'); return; }
+  var btn=document.getElementById('signupCompleteBtn');
+  if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
+  _auth.createUserWithEmailAndPassword(e.value.trim(), p.value.trim())
+    .then(function(r){ return r.user.updateProfile({displayName:n.value.trim()}); })
+    .then(function(){
+      _saveUser(_auth.currentUser);
+      if(typeof closeSignupStep2==='function') closeSignupStep2();
+      _goPortal();
+    })
+    .catch(function(er){
+      if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+      if(er.code==='auth/email-already-in-use'){ alert('Email already registered. Please login.'); if(typeof openLogin==='function') openLogin(); }
+      else alert(er.message);
+    });
+}
+function completeSignupSocial(p){
+  if(p==='google') googleLogin();
+  else if(p==='facebook') facebookLogin();
+}
+function _saveUser(user){
+  try{
+    var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    s['settName']=user.displayName||'';
+    s['settEmail']=user.email||'';
+    localStorage.setItem('uplyncio_settings',JSON.stringify(s));
+    localStorage.setItem('uplyncio_user',JSON.stringify({name:user.displayName,email:user.email,photo:user.photoURL,uid:user.uid}));
+  }catch(e){}
+  if(typeof closeLogin==='function') closeLogin();
+  if(typeof closeRoleModal==='function') closeRoleModal();
+  if(typeof closeSignupStep2==='function') closeSignupStep2();
+}
+function _goPortal(){ window.location.href='publisher.html'; }
+</script>
+
 <script>
 const sites=[
   {n:"TechBullion",u:"https://techbullion.com",da:72,dr:68,tr:48000,trD:"48K",niche:"Tech, Finance, Business",price:120,ahrefs:"48K",sw:"180K",semrush:41},
@@ -1720,187 +1803,6 @@ document.addEventListener('click',function(e){
 </script>
 
 
-<!-- Firebase SDK — loaded before body closes -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script>
-(function(){
-  var firebaseConfig = {
-    apiKey: "AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
-    authDomain: "uplyncio-platform.firebaseapp.com",
-    projectId: "uplyncio-platform",
-    storageBucket: "uplyncio-platform.firebasestorage.app",
-    messagingSenderId: "371948125554",
-    appId: "1:371948125554:web:a596451f5cc56b460271eb"
-  };
-
-  if(!firebase.apps || !firebase.apps.length){
-    firebase.initializeApp(firebaseConfig);
-  }
-  var auth = firebase.auth();
-
-  var googleProvider   = new firebase.auth.GoogleAuthProvider();
-  var facebookProvider = new firebase.auth.FacebookAuthProvider();
-  googleProvider.addScope('email');
-  googleProvider.addScope('profile');
-  facebookProvider.addScope('email');
-
-  // Auth state
-  auth.onAuthStateChanged(function(user){
-    if(user){
-      try{
-        var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-        if(!s['settName']  && user.displayName) s['settName']  = user.displayName;
-        if(!s['settEmail'] && user.email)        s['settEmail'] = user.email;
-        localStorage.setItem('uplyncio_settings', JSON.stringify(s));
-        localStorage.setItem('uplyncio_user', JSON.stringify({
-          name: user.displayName, email: user.email,
-          photo: user.photoURL,   uid: user.uid
-        }));
-      }catch(e){}
-    }
-  });
-
-  // Google Login
-  window.googleLogin = function(){
-    auth.signInWithPopup(googleProvider)
-      .then(function(result){
-        var user = result.user;
-        try{
-          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-          s['settName']  = user.displayName||'';
-          s['settEmail'] = user.email||'';
-          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
-          localStorage.setItem('uplyncio_user', JSON.stringify({
-            name: user.displayName, email: user.email,
-            photo: user.photoURL,   uid: user.uid
-          }));
-        }catch(e){}
-        if(typeof closeLogin==='function') closeLogin();
-        if(typeof closeSignupStep2==='function') closeSignupStep2();
-        if(typeof closeRoleModal==='function') closeRoleModal();
-        window.location.href = 'publisher.html';
-      })
-      .catch(function(err){
-        alert('Google login error: ' + err.message);
-      });
-  };
-
-  // Facebook Login
-  window.facebookLogin = function(){
-    auth.signInWithPopup(facebookProvider)
-      .then(function(result){
-        var user = result.user;
-        try{
-          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-          s['settName']  = user.displayName||'';
-          s['settEmail'] = user.email||'';
-          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
-          localStorage.setItem('uplyncio_user', JSON.stringify({
-            name: user.displayName, email: user.email,
-            photo: user.photoURL,   uid: user.uid
-          }));
-        }catch(e){}
-        if(typeof closeLogin==='function') closeLogin();
-        if(typeof closeSignupStep2==='function') closeSignupStep2();
-        if(typeof closeRoleModal==='function') closeRoleModal();
-        window.location.href = 'publisher.html';
-      })
-      .catch(function(err){
-        alert('Facebook login error: ' + err.message);
-      });
-  };
-
-  // Email/Password Login
-  window.handleLogin = function(){
-    var emailEl = document.getElementById('loginEmail');
-    var passEl  = document.getElementById('loginPass');
-    if(!emailEl||!emailEl.value.trim()){ alert('Please enter your email.'); return; }
-    if(!passEl||!passEl.value.trim()){   alert('Please enter your password.'); return; }
-
-    var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
-    if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
-
-    auth.signInWithEmailAndPassword(emailEl.value.trim(), passEl.value.trim())
-      .then(function(result){
-        var user = result.user;
-        try{
-          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-          s['settEmail'] = user.email||'';
-          if(user.displayName) s['settName'] = user.displayName;
-          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
-          localStorage.setItem('uplyncio_user', JSON.stringify({
-            name: user.displayName||user.email,
-            email: user.email, uid: user.uid
-          }));
-        }catch(e){}
-        if(typeof closeLogin==='function') closeLogin();
-        window.location.href = 'publisher.html';
-      })
-      .catch(function(err){
-        if(btn){
-          btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">↗</span>';
-          btn.disabled=false;
-        }
-        if(err.code==='auth/user-not-found'||err.code==='auth/wrong-password'||err.code==='auth/invalid-credential'){
-          alert('Incorrect email or password. Please try again.');
-        } else {
-          alert('Login error: '+err.message);
-        }
-      });
-  };
-
-  // Email/Password Signup
-  window.completeSignup = function(){
-    var nameEl  = document.getElementById('su2Name');
-    var emailEl = document.getElementById('su2Email');
-    var passEl  = document.getElementById('su2Pass');
-    if(!nameEl||!nameEl.value.trim()){  alert('Please enter your name.'); return; }
-    if(!emailEl||!emailEl.value.trim()){ alert('Please enter your email.'); return; }
-    if(!passEl||!passEl.value.trim()||passEl.value.length<8){ alert('Password must be at least 8 characters.'); return; }
-
-    var btn = document.getElementById('signupCompleteBtn');
-    if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
-
-    auth.createUserWithEmailAndPassword(emailEl.value.trim(), passEl.value.trim())
-      .then(function(result){
-        return result.user.updateProfile({ displayName: nameEl.value.trim() });
-      })
-      .then(function(){
-        var user = auth.currentUser;
-        try{
-          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-          s['settName']  = nameEl.value.trim();
-          s['settEmail'] = emailEl.value.trim();
-          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
-          localStorage.setItem('uplyncio_user', JSON.stringify({
-            name: nameEl.value.trim(), email: emailEl.value.trim(),
-            uid: user?user.uid:''
-          }));
-        }catch(e){}
-        if(typeof closeSignupStep2==='function') closeSignupStep2();
-        window.location.href = 'publisher.html';
-      })
-      .catch(function(err){
-        if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
-        if(err.code==='auth/email-already-in-use'){
-          alert('This email is already registered. Please login instead.');
-          if(typeof closeSignupStep2==='function') closeSignupStep2();
-          if(typeof openLogin==='function') openLogin();
-        } else {
-          alert('Signup error: '+err.message);
-        }
-      });
-  };
-
-  // Social signup buttons
-  window.completeSignupSocial = function(provider){
-    if(provider==='google')   window.googleLogin();
-    else if(provider==='facebook') window.facebookLogin();
-  };
-
-})();
-</script>
 </body>
 </html>
 
