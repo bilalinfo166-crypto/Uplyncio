@@ -294,10 +294,12 @@ function restoreState(){
   } else if(page==='trending'){
     showTrending();
   } else {
-    // Default: my platforms (step 1)
-    showMain();
-    if(extra.step && extra.step>1){
+    // Default: my platforms
+    if(extra && extra.step && extra.step>1){
       go(extra.step);
+    } else {
+      go(1);
+      if(typeof renderSites==='function') renderSites();
     }
   }
 }
@@ -2091,6 +2093,8 @@ function go(n){
     var e=document.getElementById('s'+i);
     if(e) e.style.display=(i==n)?'block':'none';
   }
+  // Always render sites on step 1 so empty state shows
+  if(n===1 && typeof renderSites==='function') renderSites();
   window.scrollTo(0,0);
 }
 // Initialization handled by DOMContentLoaded above
@@ -4561,6 +4565,8 @@ function showMain(){
   go(1);
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
   document.querySelector('.si').classList.add('on');
+  // Always render sites so empty state shows correctly
+  renderSites();
 }
 
 function showTrending(){
