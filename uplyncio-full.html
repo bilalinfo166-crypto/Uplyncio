@@ -47,6 +47,12 @@ function showLoginError(field, msg){
   if(wrap){ wrap.style.background='rgba(239,68,68,.15)'; wrap.style.border='1.5px solid #ef4444'; }
   if(err){ err.textContent='⚠ '+msg; err.style.display='block'; }
 }
+function clearSignupEmailErr(){
+  var inp=document.getElementById('su2Email');
+  var err=document.getElementById('su2EmailErr');
+  if(inp){ inp.style.borderColor='rgba(255,255,255,.1)'; inp.style.background='rgba(255,255,255,.06)'; }
+  if(err){ err.style.display='none'; err.textContent=''; }
+}
 function clearLoginError(){
   ['Email','Pass'].forEach(function(f){
     var wrap=document.getElementById('login'+f+'Wrap');
@@ -153,9 +159,11 @@ function completeSignup(){
 
   // Check duplicate
   if(findUser(email)){
-    alert('⚠️ An account with this email already exists.\nPlease login instead.');
-    if(typeof closeSignupStep2==='function') closeSignupStep2();
-    setTimeout(openLogin, 300);
+    // Show inline error on email field
+    var emailInp = document.getElementById('su2Email');
+    var emailErr = document.getElementById('su2EmailErr');
+    if(emailInp){ emailInp.style.borderColor='#ef4444'; emailInp.style.background='rgba(239,68,68,.1)'; }
+    if(emailErr){ emailErr.innerHTML='⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>'; emailErr.style.display='block'; }
     return;
   }
 
@@ -2290,7 +2298,8 @@ window.addEventListener('load', function(){
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
         <input type="text" id="su2Name" placeholder="Full Name" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
-        <input type="email" id="su2Email" placeholder="Email Address" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <input type="email" id="su2Email" placeholder="Email Address" oninput="clearSignupEmailErr()" style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <div id="su2EmailErr" style="display:none;font-size:12px;color:#ef4444;font-weight:600;padding:4px 2px"></div>
         <input type="password" id="su2Pass" placeholder="Create Password (min 8 chars)" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
       </div>
       <button onclick="completeSignup()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">Create Account & Go to Dashboard →</button>
