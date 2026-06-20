@@ -152,54 +152,6 @@ html,body{overflow-x:hidden;max-width:100vw}
   to   { transform: translateX(0);     opacity:1; }
 }
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script>
-  var firebaseConfig = {
-    apiKey: "AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
-    authDomain: "uplyncio-platform.firebaseapp.com",
-    projectId: "uplyncio-platform",
-    storageBucket: "uplyncio-platform.firebasestorage.app",
-    messagingSenderId: "371948125554",
-    appId: "1:371948125554:web:a596451f5cc56b460271eb"
-  };
-  if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  var auth = firebase.auth();
-
-  // Load user info from Firebase or localStorage
-  auth.onAuthStateChanged(function(user){
-    if(user){
-      try{
-        var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-        if(!s['settName'] && user.displayName) s['settName'] = user.displayName;
-        if(!s['settEmail'] && user.email) s['settEmail'] = user.email;
-        localStorage.setItem('uplyncio_settings', JSON.stringify(s));
-        // Update avatar + profile
-        var pn = document.getElementById('profileName');
-        var pe = document.getElementById('profileEmail');
-        var av = document.getElementById('profileAvatar');
-        if(pn && user.displayName) pn.textContent = user.displayName;
-        if(pe && user.email) pe.textContent = user.email;
-        if(av && user.displayName){
-          var parts = user.displayName.trim().split(' ');
-          av.textContent = (parts.length>=2 ? parts[0][0]+parts[parts.length-1][0] : user.displayName.slice(0,2)).toUpperCase();
-        }
-      }catch(e){}
-    } else {
-      // Not logged in — redirect to home
-      // window.location.href = 'uplyncio-full.html'; // uncomment when ready
-    }
-  });
-
-  // Logout
-  function firebaseLogout(){
-    auth.signOut().then(function(){
-      localStorage.removeItem('uplyncio_user');
-      window.location.href = 'uplyncio-full.html';
-    });
-  }
-</script>
 </head>
 <body>
 
@@ -5021,5 +4973,57 @@ function toast(msg,bg){
   </div>
 </div>
 
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+(function(){
+  var firebaseConfig = {
+    apiKey: "AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
+    authDomain: "uplyncio-platform.firebaseapp.com",
+    projectId: "uplyncio-platform",
+    storageBucket: "uplyncio-platform.firebasestorage.app",
+    messagingSenderId: "371948125554",
+    appId: "1:371948125554:web:a596451f5cc56b460271eb"
+  };
+  if(!firebase.apps||!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+
+  // On load — sync Firebase user to portal
+  auth.onAuthStateChanged(function(user){
+    if(user){
+      try{
+        var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+        if(!s['settName']  && user.displayName) s['settName']  = user.displayName;
+        if(!s['settEmail'] && user.email)        s['settEmail'] = user.email;
+        localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+        // Update UI
+        var pn = document.getElementById('profileName');
+        var pe = document.getElementById('profileEmail');
+        var av = document.getElementById('profileAvatar');
+        var nameVal  = s['settName']  || user.displayName || 'Publisher';
+        var emailVal = s['settEmail'] || user.email       || '';
+        if(pn) pn.textContent = nameVal;
+        if(pe) pe.textContent = emailVal;
+        if(av){
+          var parts = nameVal.trim().split(' ');
+          av.textContent = (parts.length>=2?parts[0][0]+parts[parts.length-1][0]:nameVal.slice(0,2)).toUpperCase();
+        }
+      }catch(e){}
+    }
+  });
+
+  // Logout
+  window.firebaseLogout = function(){
+    auth.signOut().then(function(){
+      localStorage.removeItem('uplyncio_user');
+      window.location.href = 'uplyncio-full.html';
+    }).catch(function(){
+      window.location.href = 'uplyncio-full.html';
+    });
+  };
+})();
+</script>
 </body>
 </html>
