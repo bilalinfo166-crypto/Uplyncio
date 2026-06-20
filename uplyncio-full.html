@@ -4,141 +4,200 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-// ── UPLYNCIO COMPLETE AUTH SYSTEM ──
+// ── UPLYNCIO AUTH SYSTEM v3 ──
 
-// ── HELPERS ──
-function getUsers(){ return JSON.parse(localStorage.getItem('uplyncio_users')||'[]'); }
-function saveUsers(u){ localStorage.setItem('uplyncio_users', JSON.stringify(u)); }
-function findUser(email){ return getUsers().find(function(u){ return u.email.toLowerCase()===email.toLowerCase(); }); }
-function genCode(){ return Math.floor(100000+Math.random()*900000).toString(); }
-function getUserData(uid){
-  // Per-user data storage
-  return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{"sites":[],"orders":[],"balance":0,"reserved":0,"bonus":0}');
+function getUsers(){ 
+  try{ return JSON.parse(localStorage.getItem('uplyncio_users')||'[]'); }
+  catch(e){ return []; }
 }
-function saveUserData(uid, data){
-  localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data));
+function saveUsers(u){ 
+  try{ localStorage.setItem('uplyncio_users', JSON.stringify(u)); }
+  catch(e){}
+}
+function findUser(email){ 
+  if(!email) return null;
+  return getUsers().find(function(u){ 
+    return u.email.toLowerCase()===email.toLowerCase().trim(); 
+  })||null; 
+}
+function genCode(){ 
+  return Math.floor(100000+Math.random()*900000).toString(); 
+}
+function getUserData(uid){
+  try{ return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{"sites":[],"orders":[],"balance":0}'); }
+  catch(e){ return {sites:[],orders:[],balance:0}; }
+}
+function saveUserData(uid,data){
+  try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data)); }
+  catch(e){}
 }
 
 // ── SHOW/HIDE PASSWORD ──
 function togglePwd(inputId, btn){
   var inp = document.getElementById(inputId);
   if(!inp) return;
-  if(inp.type==='password'){
-    inp.type='text';
-    if(btn) btn.textContent='Hide';
-  } else {
-    inp.type='password';
-    if(btn) btn.textContent='Show';
-  }
+  if(inp.type==='password'){ inp.type='text'; if(btn) btn.textContent='Hide'; }
+  else { inp.type='password'; if(btn) btn.textContent='Show'; }
 }
 
-// ── LOGIN ──
+// ── LOGIN — strict validation ──
 function handleLogin(){
-  var em = document.getElementById('loginEmail');
-  var pw = document.getElementById('loginPass');
-  if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
-  if(!pw||!pw.value.trim()){ alert('Please enter your password.'); return; }
+  var emEl = document.getElementById('loginEmail');
+  var pwEl = document.getElementById('loginPass');
+  
+  if(!emEl || !emEl.value.trim()){ 
+    alert('Please enter your email address.'); 
+    return; 
+  }
+  if(!pwEl || !pwEl.value.trim()){ 
+    alert('Please enter your password.'); 
+    return; 
+  }
+
+  var email    = emEl.value.trim().toLowerCase();
+  var password = pwEl.value.trim();
 
   var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
-  if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
+  if(btn){ 
+    btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; 
+    btn.disabled=true; 
+  }
+
+  function resetBtn(){
+    if(btn){ 
+      btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; 
+      btn.disabled=false; 
+    }
+  }
 
   setTimeout(function(){
-    var user = findUser(em.value.trim());
+    // Step 1: Check account exists
+    var user = findUser(email);
     if(!user){
-      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
-      alert('No account found with this email.\nPlease create a new account first.');
+      resetBtn();
+      alert('❌ No account found with this email.\n\nPlease sign up first to create an account.');
       return;
     }
-    if(user.password !== pw.value.trim()){
-      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
-      alert('Incorrect password. Please try again.');
+
+    // Step 2: Check password
+    if(user.password !== password){
+      resetBtn();
+      alert('❌ Incorrect password. Please try again.');
       return;
     }
+
+    // Step 3: Check verified
     if(!user.verified){
-      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
-      closeLogin();
-      user.verifyCode = genCode();
+      resetBtn();
+      // Regenerate code and show verify modal
       var users = getUsers();
-      var idx = users.findIndex(function(u){ return u.email.toLowerCase()===user.email.toLowerCase(); });
-      if(idx>-1){ users[idx]=user; saveUsers(users); }
+      var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email; });
+      if(idx > -1){
+        users[idx].verifyCode = genCode();
+        saveUsers(users);
+        user = users[idx];
+      }
+      closeLogin();
       openVerifyModal(user.email, false);
       return;
     }
+
+    // All checks passed — login!
+    resetBtn();
     _loginSuccess(user);
-  }, 700);
+  }, 600);
 }
 
-// ── SIGNUP ──
+// ── SIGNUP — strict validation ──
 function completeSignup(){
-  var n = document.getElementById('su2Name');
-  var e = document.getElementById('su2Email');
-  var p = document.getElementById('su2Pass');
-  if(!n||!n.value.trim()){ alert('Please enter your name.'); return; }
-  if(!e||!e.value.trim()){ alert('Please enter your email.'); return; }
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value.trim())){ alert('Please enter a valid email address.'); return; }
-  if(!p||!p.value.trim()||p.value.length<8){ alert('Password must be at least 8 characters.'); return; }
+  var nEl = document.getElementById('su2Name');
+  var eEl = document.getElementById('su2Email');
+  var pEl = document.getElementById('su2Pass');
+  
+  if(!nEl || !nEl.value.trim()){ 
+    alert('Please enter your full name.'); 
+    return; 
+  }
+  if(!eEl || !eEl.value.trim()){ 
+    alert('Please enter your email address.'); 
+    return; 
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eEl.value.trim())){ 
+    alert('Please enter a valid email address.'); 
+    return; 
+  }
+  if(!pEl || !pEl.value.trim() || pEl.value.trim().length < 8){ 
+    alert('Password must be at least 8 characters.'); 
+    return; 
+  }
 
-  if(findUser(e.value.trim())){
-    alert('This email is already registered.\nPlease login instead.');
+  var name     = nEl.value.trim();
+  var email    = eEl.value.trim().toLowerCase();
+  var password = pEl.value.trim();
+
+  // Check duplicate
+  if(findUser(email)){
+    alert('⚠️ An account with this email already exists.\nPlease login instead.');
     if(typeof closeSignupStep2==='function') closeSignupStep2();
-    openLogin();
+    setTimeout(openLogin, 300);
     return;
   }
 
   var btn = document.getElementById('signupCompleteBtn');
   if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
 
-  var uid = 'user_'+Date.now();
+  var uid  = 'user_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
   var code = genCode();
+
   var newUser = {
-    uid: uid,
-    name: n.value.trim(),
-    email: e.value.trim(),
-    password: p.value.trim(),
-    role: window._selectedRole||'publisher',
-    verified: false,
+    uid:       uid,
+    name:      name,
+    email:     email,
+    password:  password,
+    role:      window._selectedRole||'publisher',
+    verified:  false,
     verifyCode: code,
     createdAt: new Date().toISOString()
   };
 
-  // Init empty user data
+  // Init empty data for this user
   saveUserData(uid, {sites:[], orders:[], balance:0, reserved:0, bonus:0});
 
   var users = getUsers();
   users.push(newUser);
   saveUsers(users);
 
-  setTimeout(function(){
-    if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
-    if(typeof closeSignupStep2==='function') closeSignupStep2();
-    openVerifyModal(newUser.email, true);
-  }, 700);
+  if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+  if(typeof closeSignupStep2==='function') closeSignupStep2();
+  
+  // Show verification
+  setTimeout(function(){ openVerifyModal(email, true); }, 300);
 }
 
 // ── VERIFY MODAL ──
 function openVerifyModal(email, isNew){
   window._verifyingEmail = email;
   window._verifyIsNew    = isNew;
+  
   var user = findUser(email);
-  if(!user) return;
+  if(!user){ alert('User not found. Please sign up again.'); return; }
 
   var msgEl = document.getElementById('verifyMsg');
-  if(msgEl) msgEl.innerHTML =
-    '<div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px">'+
-      (isNew ? 'Account created! ' : '') +
-      'A verification code has been sent to <strong style="color:#fff">'+email+'</strong>'+
-    '</div>'+
-    '<div style="background:rgba(79,124,255,.15);border:2px dashed #4f7cff;border-radius:12px;padding:16px;text-align:center">'+
-      '<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">📧 From: info@uplyncio.com</div>'+
-      '<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px">Your Uplyncio verification code:</div>'+
-      '<div style="font-family:monospace;font-size:36px;font-weight:900;color:#4f7cff;letter-spacing:10px">'+user.verifyCode+'</div>'+
-      '<div style="font-size:11px;color:#64748b;margin-top:8px">Valid for 10 minutes</div>'+
-    '</div>';
+  if(msgEl){
+    msgEl.innerHTML =
+      '<div style="font-size:13px;color:rgba(255,255,255,.65);margin-bottom:14px;line-height:1.7">'+(isNew?'Account created! ✅<br>':'')+'Verification code sent to <strong style="color:#fff">'+user.email+'</strong></div>'+
+      '<div style="background:rgba(79,124,255,.12);border:2px dashed #4f7cff;border-radius:12px;padding:16px;text-align:center">'+
+        '<div style="font-size:11px;color:#64748b;margin-bottom:6px">📧 info@uplyncio.com</div>'+
+        '<div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:10px">Your verification code:</div>'+
+        '<div style="font-family:monospace;font-size:38px;font-weight:900;color:#4f7cff;letter-spacing:10px">'+user.verifyCode+'</div>'+
+        '<div style="font-size:11px;color:#475569;margin-top:8px">Valid for 10 minutes</div>'+
+      '</div>';
+  }
 
   var inp = document.getElementById('verifyCodeInput');
-  if(inp) inp.value='';
+  if(inp){ inp.value=''; inp.style.borderColor='rgba(255,255,255,.15)'; }
   var err = document.getElementById('verifyError');
-  if(err) err.style.display='none';
+  if(err){ err.style.display='none'; err.textContent=''; }
 
   var modal = document.getElementById('verifyModal');
   if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
@@ -151,35 +210,41 @@ function closeVerifyModal(){
 
 function submitVerifyCode(){
   var inp = document.getElementById('verifyCodeInput');
-  if(!inp||!inp.value.trim()){ alert('Please enter the verification code.'); return; }
+  if(!inp || !inp.value.trim()){ alert('Please enter the 6-digit code.'); return; }
 
+  var email = window._verifyingEmail||'';
   var users = getUsers();
-  var idx   = users.findIndex(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
+  var idx   = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+  
   if(idx===-1){ alert('User not found. Please sign up again.'); closeVerifyModal(); return; }
+  
   var user = users[idx];
-
   if(inp.value.trim() === user.verifyCode){
-    user.verified = true;
+    user.verified  = true;
     user.verifyCode = '';
     users[idx] = user;
     saveUsers(users);
     closeVerifyModal();
     _loginSuccess(user);
   } else {
-    inp.style.borderColor='#ef4444';
+    inp.style.borderColor = '#ef4444';
     var err = document.getElementById('verifyError');
-    if(err){ err.textContent='Incorrect code. Please try again.'; err.style.display='block'; }
-    setTimeout(function(){ inp.style.borderColor='rgba(255,255,255,.15)'; if(err) err.style.display='none'; },2500);
+    if(err){ err.textContent='❌ Incorrect code. Please try again.'; err.style.display='block'; }
+    setTimeout(function(){ 
+      inp.style.borderColor='rgba(255,255,255,.15)'; 
+      if(err) err.style.display='none'; 
+    }, 2500);
   }
 }
 
 function resendCode(){
+  var email = window._verifyingEmail||'';
   var users = getUsers();
-  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
+  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
   if(idx===-1) return;
   users[idx].verifyCode = genCode();
   saveUsers(users);
-  openVerifyModal(window._verifyingEmail, window._verifyIsNew);
+  openVerifyModal(email, window._verifyIsNew);
 }
 
 // ── FORGOT PASSWORD ──
@@ -193,38 +258,25 @@ function openForgotModal(){
   document.getElementById('forgotStep2').style.display='none';
   document.getElementById('forgotStep3').style.display='none';
 }
-
 function closeForgotModal(){
-  var m = document.getElementById('forgotModal');
+  var m=document.getElementById('forgotModal');
   if(m){ m.style.display='none'; document.body.style.overflow=''; }
 }
-
 function sendForgotCode(){
   var em = document.getElementById('forgotEmail');
   if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
   var user = findUser(em.value.trim());
   if(!user){ alert('No account found with this email.'); return; }
-
   var code = genCode();
   var users = getUsers();
   var idx = users.findIndex(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
-  users[idx].resetCode = code;
-  saveUsers(users);
-  window._resetEmail = em.value.trim();
-
-  // Show code
-  var codeBox = document.getElementById('forgotCodeBox');
-  if(codeBox) codeBox.innerHTML =
-    '<div style="background:rgba(79,124,255,.15);border:2px dashed #4f7cff;border-radius:12px;padding:14px;text-align:center;margin:12px 0">'+
-      '<div style="font-size:11px;color:#94a3b8;margin-bottom:4px">📧 From: info@uplyncio.com</div>'+
-      '<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px">Your password reset code:</div>'+
-      '<div style="font-family:monospace;font-size:32px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+code+'</div>'+
-    '</div>';
-
+  if(idx>-1){ users[idx].resetCode=code; saveUsers(users); }
+  window._resetEmail = em.value.trim().toLowerCase();
+  var box = document.getElementById('forgotCodeBox');
+  if(box) box.innerHTML='<div style="background:rgba(79,124,255,.12);border:2px dashed #4f7cff;border-radius:10px;padding:14px;text-align:center;margin:12px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">📧 info@uplyncio.com</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px">Password reset code:</div><div style="font-family:monospace;font-size:30px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+code+'</div></div>';
   document.getElementById('forgotStep1').style.display='none';
   document.getElementById('forgotStep2').style.display='block';
 }
-
 function verifyResetCode(){
   var inp = document.getElementById('resetCodeInput');
   if(!inp||!inp.value.trim()){ alert('Please enter the code.'); return; }
@@ -233,21 +285,17 @@ function verifyResetCode(){
   if(inp.value.trim()!==user.resetCode){ alert('Incorrect code. Please try again.'); return; }
   document.getElementById('forgotStep2').style.display='none';
   document.getElementById('forgotStep3').style.display='block';
-  document.getElementById('newPass1').value='';
-  document.getElementById('newPass2').value='';
 }
-
 function submitNewPassword(){
-  var p1 = document.getElementById('newPass1');
-  var p2 = document.getElementById('newPass2');
-  if(!p1||!p1.value.trim()||p1.value.length<8){ alert('Password must be at least 8 characters.'); return; }
-  if(p1.value !== p2.value){ alert('Passwords do not match. Please try again.'); return; }
-
-  var users = getUsers();
-  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===(window._resetEmail||'').toLowerCase(); });
+  var p1=document.getElementById('newPass1');
+  var p2=document.getElementById('newPass2');
+  if(!p1||p1.value.trim().length<8){ alert('Password must be at least 8 characters.'); return; }
+  if(p1.value!==p2.value){ alert('Passwords do not match.'); return; }
+  var users=getUsers();
+  var idx=users.findIndex(function(u){ return u.email.toLowerCase()===(window._resetEmail||''); });
   if(idx===-1){ alert('User not found.'); return; }
-  users[idx].password  = p1.value;
-  users[idx].resetCode = '';
+  users[idx].password=p1.value.trim();
+  users[idx].resetCode='';
   saveUsers(users);
   closeForgotModal();
   alert('✅ Password reset successfully! Please login with your new password.');
@@ -257,7 +305,6 @@ function submitNewPassword(){
 // ── LOGIN SUCCESS ──
 function _loginSuccess(user){
   try{
-    // Save current user settings
     var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
     s['settName']  = user.name||'';
     s['settEmail'] = user.email||'';
@@ -265,17 +312,15 @@ function _loginSuccess(user){
     localStorage.setItem('uplyncio_loggedIn', '1');
     localStorage.setItem('uplyncio_currentUid', user.uid||'');
     localStorage.setItem('uplyncio_user', JSON.stringify(user));
-
-    // Load this user's data into active storage
+    // Load user's personal data
     var userData = getUserData(user.uid);
-    localStorage.setItem('uplyncio_orders',  JSON.stringify(userData.orders||[]));
-    localStorage.setItem('uplyncio_sites',   JSON.stringify(userData.sites||[]));
+    localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
   }catch(ex){}
   window.location.href='publisher.html';
 }
 
-function googleLogin(){  alert('Google login requires backend setup. Please use Email/Password for now.'); }
-function facebookLogin(){ alert('Facebook login requires backend setup. Please use Email/Password for now.'); }
+function googleLogin(){ alert('Google login requires backend setup. Please use Email/Password.'); }
+function facebookLogin(){ alert('Facebook login requires backend setup. Please use Email/Password.'); }
 function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else facebookLogin(); }
 </script>
 
