@@ -337,6 +337,185 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 @media(max-width:960px){.svc-grid,.pricing-grid,.testi-grid{grid-template-columns:1fr 1fr}.how-grid{grid-template-columns:1fr 1fr}.niche-grid{grid-template-columns:repeat(4,1fr)}.footer-g{grid-template-columns:1fr 1fr}.stats-bar{grid-template-columns:repeat(3,1fr)}.filter-row-1{grid-template-columns:repeat(4,1fr)}.filter-row-2{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.nav{padding:0 18px}.nav-links{display:none}.hero{padding:100px 18px 56px}.sec{padding:60px 18px}.svc-grid,.pricing-grid,.testi-grid,.how-grid{grid-template-columns:1fr}.niche-grid{grid-template-columns:repeat(2,1fr)}.footer-g{grid-template-columns:1fr}.stats-bar{grid-template-columns:1fr 1fr}.filter-row-1,.filter-row-2{grid-template-columns:1fr 1fr}footer{padding:44px 18px 0}.stats-wrap{padding:52px 18px 0}}
 </style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
+    authDomain: "uplyncio-platform.firebaseapp.com",
+    projectId: "uplyncio-platform",
+    storageBucket: "uplyncio-platform.firebasestorage.app",
+    messagingSenderId: "371948125554",
+    appId: "1:371948125554:web:a596451f5cc56b460271eb"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+
+  // Google Provider
+  var googleProvider = new firebase.auth.GoogleAuthProvider();
+  googleProvider.addScope('email');
+  googleProvider.addScope('profile');
+
+  // Facebook Provider
+  var facebookProvider = new firebase.auth.FacebookAuthProvider();
+  facebookProvider.addScope('email');
+  facebookProvider.addScope('public_profile');
+
+  // Auth state observer
+  auth.onAuthStateChanged(function(user){
+    if(user){
+      // User logged in — update UI
+      var btn = document.getElementById('navSignIn');
+      var btn2 = document.getElementById('navGetStarted');
+      if(btn) btn.textContent = user.displayName ? user.displayName.split(' ')[0] : 'Account';
+      if(btn2) btn2.textContent = 'Dashboard';
+      if(btn2) btn2.onclick = function(){ window.location.href='publisher.html'; return false; };
+    }
+  });
+
+  // Google Login
+  function googleLogin(){
+    auth.signInWithPopup(googleProvider)
+      .then(function(result){
+        var user = result.user;
+        // Save to localStorage for publisher portal
+        try{
+          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+          s['settName']  = user.displayName||'';
+          s['settEmail'] = user.email||'';
+          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+          localStorage.setItem('uplyncio_user', JSON.stringify({
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+            uid: user.uid
+          }));
+        }catch(e){}
+        closeLogin();
+        closeSignupStep2();
+        closeRoleModal();
+        window.location.href = 'publisher.html';
+      })
+      .catch(function(error){
+        alert('Google login failed: ' + error.message);
+      });
+  }
+
+  // Facebook Login
+  function facebookLogin(){
+    auth.signInWithPopup(facebookProvider)
+      .then(function(result){
+        var user = result.user;
+        try{
+          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+          s['settName']  = user.displayName||'';
+          s['settEmail'] = user.email||'';
+          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+          localStorage.setItem('uplyncio_user', JSON.stringify({
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+            uid: user.uid
+          }));
+        }catch(e){}
+        closeLogin();
+        closeSignupStep2();
+        closeRoleModal();
+        window.location.href = 'publisher.html';
+      })
+      .catch(function(error){
+        alert('Facebook login failed: ' + error.message);
+      });
+  }
+
+  // Email/Password Login
+  function handleLogin(){
+    var email = document.getElementById('loginEmail');
+    var pass  = document.getElementById('loginPass');
+    if(!email||!email.value.trim()){ alert('Please enter your email.'); return; }
+    if(!pass||!pass.value.trim()){ alert('Please enter your password.'); return; }
+    
+    var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
+    if(btn){ btn.innerHTML = '<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
+
+    auth.signInWithEmailAndPassword(email.value.trim(), pass.value.trim())
+      .then(function(result){
+        var user = result.user;
+        try{
+          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+          s['settEmail'] = user.email||'';
+          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+          localStorage.setItem('uplyncio_user', JSON.stringify({
+            name: user.displayName||user.email,
+            email: user.email,
+            uid: user.uid
+          }));
+        }catch(e){}
+        closeLogin();
+        window.location.href = 'publisher.html';
+      })
+      .catch(function(error){
+        if(btn){ btn.innerHTML = '<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">↗</span>'; btn.disabled=false; }
+        if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential'){
+          alert('Incorrect email or password. Please try again.');
+        } else {
+          alert('Login failed: ' + error.message);
+        }
+      });
+  }
+
+  // Email/Password Signup
+  function completeSignup(){
+    var name  = document.getElementById('su2Name');
+    var email = document.getElementById('su2Email');
+    var pass  = document.getElementById('su2Pass');
+    if(!name||!name.value.trim()){ alert('Please enter your name.'); return; }
+    if(!email||!email.value.trim()){ alert('Please enter your email.'); return; }
+    if(!pass||!pass.value.trim()||pass.value.length<8){ alert('Password must be at least 8 characters.'); return; }
+
+    var btn = document.getElementById('signupCompleteBtn');
+    if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
+
+    auth.createUserWithEmailAndPassword(email.value.trim(), pass.value.trim())
+      .then(function(result){
+        return result.user.updateProfile({ displayName: name.value.trim() });
+      })
+      .then(function(){
+        var user = auth.currentUser;
+        try{
+          var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+          s['settName']  = name.value.trim();
+          s['settEmail'] = email.value.trim();
+          localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+          localStorage.setItem('uplyncio_user', JSON.stringify({
+            name: name.value.trim(),
+            email: email.value.trim(),
+            uid: user ? user.uid : ''
+          }));
+        }catch(e){}
+        closeSignupStep2();
+        window.location.href = 'publisher.html';
+      })
+      .catch(function(error){
+        if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+        if(error.code === 'auth/email-already-in-use'){
+          alert('This email is already registered. Please login instead.');
+          closeSignupStep2();
+          openLogin();
+        } else {
+          alert('Signup failed: ' + error.message);
+        }
+      });
+  }
+
+  // Social signup (from step 2 modal)
+  function completeSignupSocial(provider){
+    if(provider==='google') googleLogin();
+    else if(provider==='facebook') facebookLogin();
+  }
+</script>
 </head>
 <body>
 
@@ -1581,13 +1760,13 @@ buildDots();
 
   <!-- Social buttons -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-    <button style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+    <button onclick="googleLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
       <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-      Sign Up
+      Continue with Google
     </button>
-    <button style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+    <button onclick="facebookLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
       <svg width="18" height="18" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/></svg>
-      Sign Up
+      Continue with Facebook
     </button>
   </div>
 
