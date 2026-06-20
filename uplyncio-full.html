@@ -4,7 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-// ── UPLYNCIO PROPER AUTH SYSTEM ──
+// ── UPLYNCIO COMPLETE AUTH SYSTEM ──
+
+// ── HELPERS ──
+function getUsers(){ return JSON.parse(localStorage.getItem('uplyncio_users')||'[]'); }
+function saveUsers(u){ localStorage.setItem('uplyncio_users', JSON.stringify(u)); }
+function findUser(email){ return getUsers().find(function(u){ return u.email.toLowerCase()===email.toLowerCase(); }); }
+function genCode(){ return Math.floor(100000+Math.random()*900000).toString(); }
+function getUserData(uid){
+  // Per-user data storage
+  return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{"sites":[],"orders":[],"balance":0,"reserved":0,"bonus":0}');
+}
+function saveUserData(uid, data){
+  localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data));
+}
+
+// ── SHOW/HIDE PASSWORD ──
+function togglePwd(inputId, btn){
+  var inp = document.getElementById(inputId);
+  if(!inp) return;
+  if(inp.type==='password'){
+    inp.type='text';
+    if(btn) btn.textContent='Hide';
+  } else {
+    inp.type='password';
+    if(btn) btn.textContent='Show';
+  }
+}
 
 // ── LOGIN ──
 function handleLogin(){
@@ -13,16 +39,14 @@ function handleLogin(){
   if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
   if(!pw||!pw.value.trim()){ alert('Please enter your password.'); return; }
 
-  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var user  = users.find(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
-
   var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
   if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
 
   setTimeout(function(){
+    var user = findUser(em.value.trim());
     if(!user){
       if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
-      alert('No account found with this email. Please sign up first.');
+      alert('No account found with this email.\nPlease create a new account first.');
       return;
     }
     if(user.password !== pw.value.trim()){
@@ -32,12 +56,14 @@ function handleLogin(){
     }
     if(!user.verified){
       if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
-      // Show verification modal
       closeLogin();
-      openVerifyModal(user.email);
+      user.verifyCode = genCode();
+      var users = getUsers();
+      var idx = users.findIndex(function(u){ return u.email.toLowerCase()===user.email.toLowerCase(); });
+      if(idx>-1){ users[idx]=user; saveUsers(users); }
+      openVerifyModal(user.email, false);
       return;
     }
-    // All good — login!
     _loginSuccess(user);
   }, 700);
 }
@@ -52,10 +78,8 @@ function completeSignup(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value.trim())){ alert('Please enter a valid email address.'); return; }
   if(!p||!p.value.trim()||p.value.length<8){ alert('Password must be at least 8 characters.'); return; }
 
-  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var exists = users.find(function(u){ return u.email.toLowerCase()===e.value.trim().toLowerCase(); });
-  if(exists){
-    alert('This email is already registered. Please login instead.');
+  if(findUser(e.value.trim())){
+    alert('This email is already registered.\nPlease login instead.');
     if(typeof closeSignupStep2==='function') closeSignupStep2();
     openLogin();
     return;
@@ -64,10 +88,10 @@ function completeSignup(){
   var btn = document.getElementById('signupCompleteBtn');
   if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
 
-  // Generate 6-digit verification code
-  var code = Math.floor(100000 + Math.random()*900000).toString();
-
+  var uid = 'user_'+Date.now();
+  var code = genCode();
   var newUser = {
+    uid: uid,
     name: n.value.trim(),
     email: e.value.trim(),
     password: p.value.trim(),
@@ -76,116 +100,185 @@ function completeSignup(){
     verifyCode: code,
     createdAt: new Date().toISOString()
   };
-  users.push(newUser);
-  localStorage.setItem('uplyncio_users', JSON.stringify(users));
 
-  // Simulate sending email — show code in modal
+  // Init empty user data
+  saveUserData(uid, {sites:[], orders:[], balance:0, reserved:0, bonus:0});
+
+  var users = getUsers();
+  users.push(newUser);
+  saveUsers(users);
+
   setTimeout(function(){
     if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
     if(typeof closeSignupStep2==='function') closeSignupStep2();
     openVerifyModal(newUser.email, true);
-  }, 800);
+  }, 700);
 }
 
 // ── VERIFY MODAL ──
 function openVerifyModal(email, isNew){
-  var modal = document.getElementById('verifyModal');
-  if(!modal) return;
-  var emailEl = document.getElementById('verifyEmail');
-  var titleEl = document.getElementById('verifyTitle');
-  var msgEl   = document.getElementById('verifyMsg');
-  if(emailEl) emailEl.textContent = email;
-  if(titleEl) titleEl.textContent = isNew ? 'Verify Your Email' : 'Email Not Verified';
-
-  // Get code
-  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var user  = users.find(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
-
-  if(isNew && user){
-    // Show simulated email with code
-    if(msgEl) msgEl.innerHTML = 'A verification code has been sent to <strong>'+email+'</strong>.<br><br>'+
-      '<div style="background:#f0f4ff;border:2px dashed #4f7cff;border-radius:10px;padding:14px;text-align:center;margin:10px 0">'+
-        '<div style="font-size:11px;color:#64748b;margin-bottom:6px">📧 Email from: info@uplyncio.com</div>'+
-        '<div style="font-size:13px;color:#0f172a;margin-bottom:8px">Your Uplyncio verification code is:</div>'+
-        '<div style="font-family:monospace;font-size:32px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+user.verifyCode+'</div>'+
-        '<div style="font-size:11px;color:#94a3b8;margin-top:6px">This code expires in 10 minutes</div>'+
-      '</div>';
-  } else {
-    if(msgEl) msgEl.innerHTML = 'Your email is not verified yet. Enter the code sent to <strong>'+email+'</strong>.';
-  }
-
-  // Clear input
-  var inp = document.getElementById('verifyCodeInput');
-  if(inp) inp.value = '';
-
-  // Store email for verification
   window._verifyingEmail = email;
+  window._verifyIsNew    = isNew;
+  var user = findUser(email);
+  if(!user) return;
 
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+  var msgEl = document.getElementById('verifyMsg');
+  if(msgEl) msgEl.innerHTML =
+    '<div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px">'+
+      (isNew ? 'Account created! ' : '') +
+      'A verification code has been sent to <strong style="color:#fff">'+email+'</strong>'+
+    '</div>'+
+    '<div style="background:rgba(79,124,255,.15);border:2px dashed #4f7cff;border-radius:12px;padding:16px;text-align:center">'+
+      '<div style="font-size:11px;color:#94a3b8;margin-bottom:6px">📧 From: info@uplyncio.com</div>'+
+      '<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px">Your Uplyncio verification code:</div>'+
+      '<div style="font-family:monospace;font-size:36px;font-weight:900;color:#4f7cff;letter-spacing:10px">'+user.verifyCode+'</div>'+
+      '<div style="font-size:11px;color:#64748b;margin-top:8px">Valid for 10 minutes</div>'+
+    '</div>';
+
+  var inp = document.getElementById('verifyCodeInput');
+  if(inp) inp.value='';
+  var err = document.getElementById('verifyError');
+  if(err) err.style.display='none';
+
+  var modal = document.getElementById('verifyModal');
+  if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
 }
 
 function closeVerifyModal(){
-  var modal = document.getElementById('verifyModal');
-  if(modal){ modal.style.display='none'; document.body.style.overflow=''; }
+  var m = document.getElementById('verifyModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
 }
 
 function submitVerifyCode(){
   var inp = document.getElementById('verifyCodeInput');
   if(!inp||!inp.value.trim()){ alert('Please enter the verification code.'); return; }
 
-  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var user  = users.find(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
-
-  if(!user){ alert('User not found. Please sign up again.'); closeVerifyModal(); return; }
+  var users = getUsers();
+  var idx   = users.findIndex(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
+  if(idx===-1){ alert('User not found. Please sign up again.'); closeVerifyModal(); return; }
+  var user = users[idx];
 
   if(inp.value.trim() === user.verifyCode){
-    // Mark verified
     user.verified = true;
-    localStorage.setItem('uplyncio_users', JSON.stringify(users));
+    user.verifyCode = '';
+    users[idx] = user;
+    saveUsers(users);
     closeVerifyModal();
     _loginSuccess(user);
   } else {
-    inp.style.border = '2px solid #ef4444';
-    var errEl = document.getElementById('verifyError');
-    if(errEl){ errEl.textContent='Incorrect code. Please try again.'; errEl.style.display='block'; }
-    setTimeout(function(){ inp.style.border=''; if(errEl) errEl.style.display='none'; }, 2000);
+    inp.style.borderColor='#ef4444';
+    var err = document.getElementById('verifyError');
+    if(err){ err.textContent='Incorrect code. Please try again.'; err.style.display='block'; }
+    setTimeout(function(){ inp.style.borderColor='rgba(255,255,255,.15)'; if(err) err.style.display='none'; },2500);
   }
 }
 
 function resendCode(){
-  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var user  = users.find(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
-  if(!user) return;
-  // Generate new code
-  user.verifyCode = Math.floor(100000+Math.random()*900000).toString();
-  localStorage.setItem('uplyncio_users', JSON.stringify(users));
-  openVerifyModal(user.email, true);
+  var users = getUsers();
+  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
+  if(idx===-1) return;
+  users[idx].verifyCode = genCode();
+  saveUsers(users);
+  openVerifyModal(window._verifyingEmail, window._verifyIsNew);
 }
 
+// ── FORGOT PASSWORD ──
+function openForgotModal(){
+  closeLogin();
+  var m = document.getElementById('forgotModal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+  var inp = document.getElementById('forgotEmail');
+  if(inp) inp.value='';
+  document.getElementById('forgotStep1').style.display='block';
+  document.getElementById('forgotStep2').style.display='none';
+  document.getElementById('forgotStep3').style.display='none';
+}
+
+function closeForgotModal(){
+  var m = document.getElementById('forgotModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+
+function sendForgotCode(){
+  var em = document.getElementById('forgotEmail');
+  if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
+  var user = findUser(em.value.trim());
+  if(!user){ alert('No account found with this email.'); return; }
+
+  var code = genCode();
+  var users = getUsers();
+  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
+  users[idx].resetCode = code;
+  saveUsers(users);
+  window._resetEmail = em.value.trim();
+
+  // Show code
+  var codeBox = document.getElementById('forgotCodeBox');
+  if(codeBox) codeBox.innerHTML =
+    '<div style="background:rgba(79,124,255,.15);border:2px dashed #4f7cff;border-radius:12px;padding:14px;text-align:center;margin:12px 0">'+
+      '<div style="font-size:11px;color:#94a3b8;margin-bottom:4px">📧 From: info@uplyncio.com</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px">Your password reset code:</div>'+
+      '<div style="font-family:monospace;font-size:32px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+code+'</div>'+
+    '</div>';
+
+  document.getElementById('forgotStep1').style.display='none';
+  document.getElementById('forgotStep2').style.display='block';
+}
+
+function verifyResetCode(){
+  var inp = document.getElementById('resetCodeInput');
+  if(!inp||!inp.value.trim()){ alert('Please enter the code.'); return; }
+  var user = findUser(window._resetEmail||'');
+  if(!user){ alert('User not found.'); return; }
+  if(inp.value.trim()!==user.resetCode){ alert('Incorrect code. Please try again.'); return; }
+  document.getElementById('forgotStep2').style.display='none';
+  document.getElementById('forgotStep3').style.display='block';
+  document.getElementById('newPass1').value='';
+  document.getElementById('newPass2').value='';
+}
+
+function submitNewPassword(){
+  var p1 = document.getElementById('newPass1');
+  var p2 = document.getElementById('newPass2');
+  if(!p1||!p1.value.trim()||p1.value.length<8){ alert('Password must be at least 8 characters.'); return; }
+  if(p1.value !== p2.value){ alert('Passwords do not match. Please try again.'); return; }
+
+  var users = getUsers();
+  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===(window._resetEmail||'').toLowerCase(); });
+  if(idx===-1){ alert('User not found.'); return; }
+  users[idx].password  = p1.value;
+  users[idx].resetCode = '';
+  saveUsers(users);
+  closeForgotModal();
+  alert('✅ Password reset successfully! Please login with your new password.');
+  openLogin();
+}
+
+// ── LOGIN SUCCESS ──
 function _loginSuccess(user){
   try{
+    // Save current user settings
     var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
     s['settName']  = user.name||'';
     s['settEmail'] = user.email||'';
     localStorage.setItem('uplyncio_settings', JSON.stringify(s));
     localStorage.setItem('uplyncio_loggedIn', '1');
+    localStorage.setItem('uplyncio_currentUid', user.uid||'');
     localStorage.setItem('uplyncio_user', JSON.stringify(user));
+
+    // Load this user's data into active storage
+    var userData = getUserData(user.uid);
+    localStorage.setItem('uplyncio_orders',  JSON.stringify(userData.orders||[]));
+    localStorage.setItem('uplyncio_sites',   JSON.stringify(userData.sites||[]));
   }catch(ex){}
-  window.location.href = 'publisher.html';
+  window.location.href='publisher.html';
 }
 
-function googleLogin(){
-  alert('Google login requires backend integration. Please use Email/Password signup for now.');
-}
-function facebookLogin(){
-  alert('Facebook login requires backend integration. Please use Email/Password signup for now.');
-}
-function completeSignupSocial(pr){
-  if(pr==='google') googleLogin();
-  else facebookLogin();
-}
+function googleLogin(){  alert('Google login requires backend setup. Please use Email/Password for now.'); }
+function facebookLogin(){ alert('Facebook login requires backend setup. Please use Email/Password for now.'); }
+function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else facebookLogin(); }
 </script>
+
 
 
 <title>Uplyncio – Premium Guest Post & Link Building Marketplace</title>
@@ -1800,7 +1893,7 @@ buildDots();
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#718096" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#718096" stroke-width="2"/></svg>
       <input type="password" placeholder="Password" id="loginPass" style="background:transparent;border:none;outline:none;font-size:14px;color:#2d3748;width:100%;font-family:'Plus Jakarta Sans',sans-serif">
     </div>
-    <button onclick="togglePwd('loginPwd',this)" style="background:none;border:none;cursor:pointer;font-size:13px;color:#4f7cff;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif">Show</button>
+    <button onclick="togglePwd('loginPass',this)" style="background:none;border:none;cursor:pointer;font-size:13px;color:#4f7cff;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif">Show</button>
   </div>
 
   <!-- Remember + Forgot -->
@@ -1809,7 +1902,7 @@ buildDots();
       <input type="checkbox" style="width:16px;height:16px;border-radius:4px;accent-color:#4f7cff">
       Remember me
     </label>
-    <a href="#" style="font-size:13px;color:#4f7cff;font-weight:600;text-decoration:none">Lost password?</a>
+    <a href="#" onclick="openForgotModal();return false" style="font-size:13px;color:#4f7cff;font-weight:600;text-decoration:none">Lost password?</a>
   </div>
 
   <!-- Login button -->
@@ -1910,35 +2003,58 @@ document.addEventListener('click',function(e){
 
 
 
+
 <!-- VERIFY EMAIL MODAL -->
-<div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
-  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:460px;padding:36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
-    <button onclick="closeVerifyModal()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='rgba(255,0,0,.2)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">✕</button>
-
-    <!-- Icon -->
+<div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;padding:32px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+    <button onclick="closeVerifyModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:15px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='rgba(239,68,68,.2)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">✕</button>
     <div style="text-align:center;margin-bottom:20px">
-      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px">✉️</div>
-      <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px" id="verifyTitle">Verify Your Email</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.5)">Sent to: <span id="verifyEmail" style="color:#4f7cff;font-weight:600"></span></div>
+      <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px">✉️</div>
+      <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">Verify Your Email</div>
+    </div>
+    <div id="verifyMsg" style="margin-bottom:18px"></div>
+    <input id="verifyCodeInput" type="text" maxlength="6" placeholder="Enter 6-digit code" onkeydown="if(event.key==='Enter')submitVerifyCode()" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:14px;font-size:24px;font-family:monospace;letter-spacing:8px;color:#fff;outline:none;text-align:center;box-sizing:border-box;margin-bottom:8px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+    <div id="verifyError" style="display:none;font-size:12px;color:#ef4444;text-align:center;margin-bottom:10px"></div>
+    <button onclick="submitVerifyCode()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">✅ Verify & Continue to Dashboard</button>
+    <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.4)">Didn't get the code? <a href="#" onclick="resendCode();return false" style="color:#4f7cff;font-weight:600;text-decoration:none">Resend</a></div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgotModal" onclick="if(event.target===this)closeForgotModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:420px;padding:32px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+    <button onclick="closeForgotModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:15px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-size:36px;margin-bottom:10px">🔑</div>
+      <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#fff">Reset Password</div>
     </div>
 
-    <!-- Message / Code display -->
-    <div id="verifyMsg" style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:20px;text-align:center"></div>
-
-    <!-- Code input -->
-    <div style="margin-bottom:8px">
-      <input id="verifyCodeInput" type="text" maxlength="6" placeholder="Enter 6-digit code" onkeydown="if(event.key==='Enter')submitVerifyCode()" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:14px;font-size:22px;font-family:monospace;letter-spacing:8px;color:#fff;outline:none;text-align:center;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+    <!-- Step 1: Enter email -->
+    <div id="forgotStep1">
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;text-align:center">Enter your email and we will send you a reset code</div>
+      <input id="forgotEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendForgotCode()" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box;margin-bottom:14px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+      <button onclick="sendForgotCode()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Reset Code →</button>
     </div>
-    <div id="verifyError" style="display:none;font-size:12px;color:#ef4444;text-align:center;margin-bottom:8px"></div>
 
-    <!-- Submit -->
-    <button onclick="submitVerifyCode()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-      ✅ Verify & Continue
-    </button>
+    <!-- Step 2: Enter code -->
+    <div id="forgotStep2" style="display:none">
+      <div id="forgotCodeBox"></div>
+      <input id="resetCodeInput" type="text" maxlength="6" placeholder="Enter 6-digit code" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px;font-size:22px;font-family:monospace;letter-spacing:6px;color:#fff;outline:none;text-align:center;box-sizing:border-box;margin-bottom:14px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+      <button onclick="verifyResetCode()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Verify Code →</button>
+    </div>
 
-    <!-- Resend -->
-    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,.4)">
-      Didn't receive the code? <a href="#" onclick="resendCode();return false" style="color:#4f7cff;font-weight:600;text-decoration:none">Resend Code</a>
+    <!-- Step 3: New password -->
+    <div id="forgotStep3" style="display:none">
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;text-align:center">Enter your new password</div>
+      <div style="position:relative;margin-bottom:12px">
+        <input id="newPass1" type="password" placeholder="New password (min 8 chars)" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 50px 12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        <button onclick="togglePwd('newPass1',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+      </div>
+      <div style="position:relative;margin-bottom:14px">
+        <input id="newPass2" type="password" placeholder="Confirm new password" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 50px 12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        <button onclick="togglePwd('newPass2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+      </div>
+      <button onclick="submitNewPassword()" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✅ Reset Password</button>
     </div>
   </div>
 </div>
