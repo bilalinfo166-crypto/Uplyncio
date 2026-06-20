@@ -27,7 +27,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tb-dt{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rd);border:2px solid var(--wh)}
 .tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--tl));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
 /* MAIN */
-.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px}
+.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
 /* BREADCRUMB */
 .bc{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);margin-bottom:6px}
 .bc a{color:var(--mu);text-decoration:none;cursor:pointer}
@@ -137,14 +137,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .bg{background:transparent;color:var(--t2);border:1px solid var(--br)}
 .bg:hover{color:var(--tx);border-color:#cbd5e1}
 /* FOOTER */
-.pf{margin-top:36px;padding:18px 0;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.pf{position:fixed;bottom:0;left:210px;right:0;padding:12px 28px;border-top:1px solid var(--br);background:var(--wh);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;z-index:100}
 .pl{font-size:11px;font-weight:700;background:var(--wh);border:1px solid var(--br);border-radius:5px;padding:4px 10px;color:var(--t2)}
 .fla{display:flex;gap:14px}
 .fla a{font-size:12px;color:var(--mu);text-decoration:none}
 .fla a:hover{color:var(--ac)}
 
 *{min-width:0}
-html{overflow-x:hidden}
+html,body{overflow-x:hidden;max-width:100vw}
 .main *{max-width:100%;word-break:break-word}
 
 @keyframes slideIn {
@@ -160,8 +160,8 @@ html{overflow-x:hidden}
     <div class="sb-ic">&#128279;</div>
     <div class="sb-tx">Up<em>lyncio</em></div>
   </div>
-  <a class="si on" href="#">&#127760;&nbsp; My Platforms</a>
-  <a class="si" href="#">&#128293;&nbsp; Trending</a>
+  <a class="si on" href="#" onclick="showMain();return false">&#127760;&nbsp; My Platforms</a>
+  <a class="si" href="#" onclick="showTrending();return false">&#128293;&nbsp; Trending</a>
   <a class="si" href="#" onclick="showOrders();return false">&#128230;&nbsp; Orders</a>
   <a class="si" href="#" onclick="showReferral();return false">&#128279;&nbsp; Referral Program</a>
   <div class="sb-bot">
@@ -188,7 +188,7 @@ html{overflow-x:hidden}
     <div style="position:relative">
       <div class="tb-av" onclick="toggleProfileMenu()" style="cursor:pointer;user-select:none" id="profileAvatar">?</div>
       <!-- PROFILE DROPDOWN -->
-      <div id="profileMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.12);width:240px;z-index:9999;overflow:hidden">
+      <div id="profileMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
         <!-- User Info -->
         <div style="padding:16px 18px;border-bottom:1px solid #f1f5f9">
           <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Publisher</div>
@@ -201,8 +201,7 @@ html{overflow-x:hidden}
             >💰 Balance</div>
           <div onclick="closeProfileMenu();showSettings()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#0f172a;font-weight:500;transition:background .15s" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''"
             >⚙️ Account Settings</div>
-          <div onclick="closeProfileMenu();showRating()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#0f172a;font-weight:500;transition:background .15s" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''"
-            >⭐ My Rating &amp; Reviews</div>
+          <div onclick="closeProfileMenu();showRating()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#0f172a;font-weight:500;transition:background .15s" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''">⭐ My Rating &amp; Reviews</div>
           <div onclick="closeProfileMenu();showReferral()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#0f172a;font-weight:500;transition:background .15s" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''"
             >🔗 Referral Program</div>
           <div onclick="closeProfileMenu()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#4f7cff;font-weight:600;transition:background .15s" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''"
@@ -370,9 +369,8 @@ html{overflow-x:hidden}
         <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.65">Your earnings are credited to your Uplyncio wallet after each completed order. Minimum withdrawal: <strong style="color:var(--text)">$60 USD</strong>. Payments processed on 5th-10th and 20th-25th of each month.</p>
       </div>
       <div class="pay-grid">
-        <div class="pay-card"><h4>&#128179; PayPal</h4><ul><li>3.9% Uplyncio service fee</li><li>We cover PayPal commission</li><li>1-2 business days</li><li>Min: $60 USD</li></ul></div>
-        <div class="pay-card"><h4>&#127970; Wise / Bank</h4><ul><li>3.9% Uplyncio service fee</li><li>2-3 business days</li><li>Available worldwide</li><li>Min: $60 USD</li></ul></div>
-        <div class="pay-card"><h4>&#129812; USDT</h4><ul><li>3.9% + 1.5% network fee</li><li>Same day processing</li><li>Correct wallet required</li><li>Min: $60 USD</li></ul></div>
+        <div class="pay-card"><h4>💳 PayPal</h4><ul><li>7.9% Uplyncio commission</li><li>We cover PayPal fees</li><li>1-2 business days</li><li>Min: $60 USD</li></ul></div>
+        <div class="pay-card"><h4>🪙 USDT (TRC20/ERC20)</h4><ul><li>9% total commission</li><li>Platform + network fee</li><li>Same day processing</li><li>Min: $60 USD</li></ul></div>
       </div>
     <div style="display:flex;gap:10px;margin-top:8px">
       <button class="btn bg" onclick="go(1)">&#8592; Back</button>
@@ -601,10 +599,8 @@ html{overflow-x:hidden}
         </div>
       </div>
       <div class="cl">
-        <div class="fsec">Special requirements</div>
-        <div class="fg"><label class="fl">Special requirements</label><textarea class="ta" placeholder="Describe topics you accept, writing style, any restrictions..."></textarea></div>
-        <div class="fsec" style="margin-top:4px">Product special requirements</div>
-        <div class="fg"><label class="fl">Product requirements</label><textarea class="ta" placeholder="Any specific product-level requirements for advertisers..."></textarea></div>
+        <div class="fsec">Special Requirements</div>
+        <div class="fg"><label class="fl">Special requirements</label><textarea class="ta" placeholder="Describe topics you accept, writing style, content restrictions, anchor text rules, any specific requirements for advertisers..." style="min-height:140px;resize:vertical"></textarea></div>
         <div class="cb2">
           <input type="checkbox">
           <span>Besides paid posts, I may consider placing an article for free if it's high-quality and meets all my requirements.</span>
@@ -1560,7 +1556,7 @@ html{overflow-x:hidden}
           </div>
           <div style="display:flex;gap:8px;font-size:12px;color:var(--t2);line-height:1.6">
             <span style="color:var(--ac);font-weight:800;flex-shrink:0">6.</span>
-            <span>You are responsible for providing <strong>correct and valid payment details</strong> (PayPal email, bank account, or crypto wallet address). Uplyncio is not liable for funds sent to incorrect addresses provided by the publisher.</span>
+            <span>You are responsible for providing <strong>correct and valid payment details</strong> (PayPal email or USDT wallet address). Uplyncio is not liable for funds sent to incorrect addresses provided by the publisher.</span>
           </div>
           <div style="display:flex;gap:8px;font-size:12px;color:var(--t2);line-height:1.6">
             <span style="color:var(--ac);font-weight:800;flex-shrink:0">7.</span>
@@ -1670,6 +1666,30 @@ html{overflow-x:hidden}
       </div>
       <button onclick="submitWithdraw()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#6b8fff);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Submit Withdrawal Request</button>
     </div>
+  </div>
+</div>
+
+<!-- TRENDING PAGE -->
+<div id="trendingPage" style="display:none">
+  <div class="bc"><a onclick="showMain()">Home</a><span>›</span><span class="cu">Trending</span></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h1 style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:var(--tx)">Trending Sites</h1>
+    <div style="font-size:13px;color:var(--mu)">🔥 Most ordered sites this week</div>
+  </div>
+  <!-- Trending filters -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+    <button class="opill on" onclick="setTrendTab(this,'all')" style="padding:7px 16px;border-radius:100px;border:2px solid var(--ac);background:#f0f4ff;color:var(--ac);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">All Niches</button>
+    <button class="opill" onclick="setTrendTab(this,'tech')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Tech</button>
+    <button class="opill" onclick="setTrendTab(this,'finance')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Finance</button>
+    <button class="opill" onclick="setTrendTab(this,'health')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Health</button>
+    <button class="opill" onclick="setTrendTab(this,'business')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Business</button>
+  </div>
+  <!-- Trending list -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);overflow:hidden">
+    <div style="padding:10px 20px;border-bottom:1px solid var(--br);background:#f8faff;display:grid;grid-template-columns:40px 2fr 80px 80px 80px 80px 100px;gap:12px;font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px">
+      <div>#</div><div>Site</div><div>DA</div><div>DR</div><div>Traffic</div><div>Price</div><div>Orders</div>
+    </div>
+    <div id="trendingList"></div>
   </div>
 </div>
 
@@ -3031,9 +3051,9 @@ document.addEventListener('click', function(e){
 var currentTxnFilter = 'all';
 
 function showBalance(){
-  for(var i=1;i<=5;i++){var e=document.getElementById('s'+i);if(e)e.style.display='none';}
-  document.getElementById('ordersPage').style.display='none';
-  document.getElementById('balancePage').style.display='block';
+  hideAllPages();
+  var bp=document.getElementById('balancePage');
+  if(bp) bp.style.display='block';
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
   renderBalancePage();
   checkWithdrawWindow();
@@ -3278,10 +3298,9 @@ var twoFaOn = true;
 var settingsData = {};
 
 function showSettings(){
-  for(var i=1;i<=5;i++){var e=document.getElementById('s'+i);if(e)e.style.display='none';}
-  document.getElementById('ordersPage').style.display='none';
-  document.getElementById('balancePage').style.display='none';
-  document.getElementById('settingsPage').style.display='block';
+  hideAllPages();
+  var sp=document.getElementById('settingsPage');
+  if(sp) sp.style.display='block';
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
   // Load saved settings
   try{
@@ -3775,11 +3794,9 @@ var publisherReviews = [];
 var removedLinks = 0; // tracks how many links were removed
 
 function showRating(){
-  for(var i=1;i<=5;i++){var e=document.getElementById('s'+i);if(e)e.style.display='none';}
-  ['ordersPage','balancePage','settingsPage'].forEach(function(id){
-    var e=document.getElementById(id); if(e) e.style.display='none';
-  });
-  document.getElementById('ratingPage').style.display='block';
+  hideAllPages();
+  var rp=document.getElementById('ratingPage');
+  if(rp) rp.style.display='block';
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
   renderRatingPage();
 }
@@ -3992,19 +4009,79 @@ function closePublisherRules(){
 
 
 // ── REFERRAL PROGRAM ──
-function showReferral(){
-  for(var i=1;i<=5;i++){var e=document.getElementById('s'+i);if(e)e.style.display='none';}
-  ['ordersPage','balancePage','settingsPage','ratingPage'].forEach(function(id){
+function hideAllPages(){
+  // Hide all special pages
+  ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.style.display='none';
   });
-  document.getElementById('referralPage').style.display='block';
-  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
-  // Set active on Referral sidebar item
+  // Hide onboarding steps
+  for(var i=1;i<=5;i++){var el=document.getElementById('s'+i);if(el)el.style.display='none';}
+  // Hide sites dashboard
+  var sd=document.getElementById('sitesList'); if(sd) sd.style.display='none';
+  var se=document.getElementById('emptyState'); if(se) se.style.display='none';
+}
+
+function setActiveSidebar(text){
   document.querySelectorAll('.si').forEach(function(s){
-    if(s.textContent.includes('Referral')) s.classList.add('on');
+    s.classList.remove('on');
+    if(s.textContent.trim().includes(text)) s.classList.add('on');
   });
+}
+
+function showReferral(){
+  hideAllPages();
+  var rfp=document.getElementById('referralPage');
+  if(rfp) rfp.style.display='block';
+  setActiveSidebar('Referral');
   loadReferralPage();
 }
+
+function setTrendTab(el, tab){
+  document.querySelectorAll('#trendingPage .opill').forEach(function(t){
+    t.style.border='1px solid var(--br)'; t.style.background='var(--wh)'; t.style.color='var(--t2)'; t.style.borderWidth='1px';
+  });
+  el.style.border='2px solid var(--ac)'; el.style.background='#f0f4ff'; el.style.color='var(--ac)';
+  renderTrending(tab);
+}
+
+var trendingSites = [
+  {rank:1, url:'techbullion.com', da:72, dr:68, traffic:'48K', price:120, orders:47, cat:'Tech'},
+  {rank:2, url:'finextra.com', da:78, dr:74, traffic:'95K', price:200, orders:38, cat:'Finance'},
+  {rank:3, url:'hackernoon.com', da:88, dr:85, traffic:'320K', price:300, orders:35, cat:'Tech'},
+  {rank:4, url:'healthline.com', da:94, dr:91, traffic:'8.5M', price:700, orders:29, cat:'Health'},
+  {rank:5, url:'startupbonsai.com', da:61, dr:58, traffic:'32K', price:90, orders:26, cat:'Business'},
+  {rank:6, url:'entrepreneur.com', da:92, dr:89, traffic:'4.2M', price:650, orders:24, cat:'Business'},
+  {rank:7, url:'coindesk.com', da:91, dr:88, traffic:'2.8M', price:580, orders:22, cat:'Finance'},
+  {rank:8, url:'webmd.com', da:95, dr:92, traffic:'12M', price:900, orders:19, cat:'Health'},
+  {rank:9, url:'searchengineland.com', da:87, dr:83, traffic:'1.1M', price:420, orders:18, cat:'Tech'},
+  {rank:10, url:'forbes.com', da:95, dr:93, traffic:'85M', price:1200, orders:15, cat:'Business'},
+];
+
+function renderTrending(filter){
+  var el = document.getElementById('trendingList');
+  if(!el) return;
+  var filtered = filter==='all' ? trendingSites : trendingSites.filter(function(s){ return s.cat.toLowerCase()===filter; });
+  if(filtered.length===0){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--mu)">No sites found in this category</div>'; return; }
+  el.innerHTML='';
+  filtered.forEach(function(s,i){
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:13px 20px;border-bottom:1px solid #f1f5f9;display:grid;grid-template-columns:40px 2fr 80px 80px 80px 80px 100px;gap:12px;align-items:center;transition:background .15s';
+    row.onmouseenter = function(){ this.style.background='#f8faff'; };
+    row.onmouseleave = function(){ this.style.background=''; };
+    row.innerHTML =
+      '<div style="font-size:14px;font-weight:800;color:'+(i<3?'#f59e0b':'#94a3b8')+'">'+s.rank+'</div>'+
+      '<div style="font-size:13.5px;font-weight:700;color:var(--ac)">'+s.url+'</div>'+
+      '<div><span style="background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">'+s.da+'</span></div>'+
+      '<div><span style="background:#ccfbf1;color:#0d9488;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">'+s.dr+'</span></div>'+
+      '<div style="font-size:12px;color:var(--t2)">'+s.traffic+'</div>'+
+      '<div style="font-size:14px;font-weight:800;color:var(--tx)">$'+s.price+'</div>'+
+      '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">🔥</span><span style="font-size:13px;font-weight:700;color:var(--tx)">'+s.orders+'</span><span style="font-size:11px;color:var(--mu)"> this week</span></div>';
+    el.appendChild(row);
+  });
+}
+
+// Init trending on first load
+setTimeout(function(){ renderTrending('all'); }, 100);
 
 function loadReferralPage(){
   // Generate unique ref link from task ID or random
@@ -4241,29 +4318,33 @@ var statusConfig={
 };
 
 function showOrders(){
-  for(var i=1;i<=5;i++){var e=document.getElementById('s'+i);if(e)e.style.display='none';}
-  document.getElementById('ordersPage').style.display='block';
-  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  hideAllPages();
+  var op=document.getElementById('ordersPage');
+  if(op){ op.style.display='block'; }
+  setActiveSidebar('Orders');
   renderOrders();
-  // Simulate new order notification for acceptance orders
   if(Array.isArray(sampleOrders)){
-    var newOrders = sampleOrders.filter(function(o){return o.status==='acceptance';});
+    var newOrders=sampleOrders.filter(function(o){return o.status==='acceptance';});
     if(newOrders.length>0) sendOrderNotification(newOrders[0]);
   }
 }
 
 function showMain(){
-  document.getElementById('ordersPage').style.display='none';
-  document.getElementById('balancePage').style.display='none';
-  var sp = document.getElementById('settingsPage');
-  if(sp) sp.style.display='none';
-  var rp = document.getElementById('ratingPage');
-  if(rp) rp.style.display='none';
-  var refP = document.getElementById('referralPage');
-  if(refP) refP.style.display='none';
+  // Hide all special pages
+  ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.style.display='none';
+  });
   go(1);
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
   document.querySelector('.si').classList.add('on');
+}
+
+function showTrending(){
+  hideAllPages();
+  var tp=document.getElementById('trendingPage');
+  if(tp) tp.style.display='block';
+  setActiveSidebar('Trending');
+  renderTrending('all');
 }
 
 function setOTab(el,tab){
