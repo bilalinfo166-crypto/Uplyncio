@@ -304,8 +304,11 @@ function restoreState(){
 
 // Restore on page load
 window.addEventListener('DOMContentLoaded', function(){
-  // Small delay to let everything init
-  setTimeout(restoreState, 150);
+  setTimeout(function(){
+    restoreState();
+    updateBalance();
+    updateInboxDot();
+  }, 200);
 });
 </script>
 <div class="sb">
@@ -2062,15 +2065,17 @@ window.addEventListener('DOMContentLoaded', function(){
 
 <script>
 function go(n){
-  saveState("main", {step:n});
+  // Only save step if it's a real navigation (not init)
+  if(n>1) saveState("main",{step:n});
+  else saveState("main",{step:1});
   for(var i=1;i<=5;i++){
     var e=document.getElementById('s'+i);
     if(e) e.style.display=(i==n)?'block':'none';
   }
   window.scrollTo(0,0);
 }
-// Run on page load
-go(1);
+// Run on page load — only if no saved state
+if(!loadState()) go(1);
 function stab(el,id){
   document.querySelectorAll('.utab').forEach(function(t){t.classList.remove('on');});
   ['t1','t2','t3','t4'].forEach(function(t){var e=document.getElementById(t);if(e)e.style.display='none';});
@@ -4316,7 +4321,8 @@ function shareRef(platform){
 }
 
 
-go(1);
+// State restored by restoreState() on DOMContentLoaded
+if(!loadState()) go(1);
 updateBalance();
 updateInboxDot();
 
@@ -4532,7 +4538,7 @@ function showOrders(){
 }
 
 function showMain(){
-  saveState("main");
+  saveState("main",{step:1});
   // Hide all special pages
   ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.style.display='none';
