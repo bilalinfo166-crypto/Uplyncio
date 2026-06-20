@@ -44,14 +44,14 @@ function togglePwd(inputId, btn){
 function showLoginError(field, msg){
   var wrap = document.getElementById('login'+field+'Wrap');
   var err  = document.getElementById('login'+field+'Err');
-  if(wrap){ wrap.style.background='#fed7d7'; wrap.style.border='1.5px solid #fc8181'; }
+  if(wrap){ wrap.style.background='rgba(239,68,68,.15)'; wrap.style.border='1.5px solid #ef4444'; }
   if(err){ err.textContent='⚠ '+msg; err.style.display='block'; }
 }
 function clearLoginError(){
   ['Email','Pass'].forEach(function(f){
     var wrap=document.getElementById('login'+f+'Wrap');
     var err=document.getElementById('login'+f+'Err');
-    if(wrap){ wrap.style.background='#e8edf5'; wrap.style.border='none'; }
+    if(wrap){ wrap.style.background='rgba(255,255,255,.08)'; wrap.style.border='1px solid rgba(255,255,255,.12)'; }
     if(err){ err.style.display='none'; err.textContent=''; }
   });
 }
@@ -1910,26 +1910,26 @@ buildDots();
 </script>
 <!-- LOGIN MODAL -->
 <div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
-<div style="background:#f0f4f8;border-radius:28px;width:440px;max-width:95vw;padding:40px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.3)">
-  <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.background='#fee2e2';this.style.color='#ef4444'" onmouseout="this.style.background='#fff';this.style.color='#64748b'">✕</button>
+<div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;padding:32px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+  <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.05)';this.style.color='rgba(255,255,255,.6)'">✕</button>
 
   <!-- Logo -->
   <div style="text-align:center;margin-bottom:24px">
     <div style="display:inline-flex;align-items:center;gap:8px">
       <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:18px">🔗</div>
-      <span style="font-family:'Manrope',sans-serif;font-size:26px;font-weight:900;color:#0a1628;letter-spacing:-0.8px">Uplyncio</span>
+      <span style="font-family:'Manrope',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-0.8px">Uplyncio</span>
     </div>
   </div>
 
-  <h2 style="font-family:'Manrope',sans-serif;font-size:36px;font-weight:800;color:#0a1628;text-align:center;margin-bottom:28px;letter-spacing:-1px">Log In</h2>
+  <h2 style="font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;color:#fff;text-align:center;margin-bottom:22px;letter-spacing:-1px">Log In</h2>
 
   <!-- Social buttons -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-    <button onclick="googleLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+    <button onclick="googleLogin()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
       <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
       Continue with Google
     </button>
-    <button onclick="facebookLogin()" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:12px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+    <button onclick="facebookLogin()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
       <svg width="18" height="18" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/></svg>
       Continue with Facebook
     </button>
@@ -1937,35 +1937,35 @@ buildDots();
 
   <!-- Divider -->
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-    <div style="flex:1;height:1px;background:#cbd5e0"></div>
-    <span style="font-size:13px;color:#718096;font-weight:500">Or continue with</span>
-    <div style="flex:1;height:1px;background:#cbd5e0"></div>
+    <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
+    <span style="font-size:12px;color:rgba(255,255,255,.35);font-weight:500">Or continue with</span>
+    <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
   </div>
 
   <!-- Email -->
-  <div id="loginEmailWrap" style="background:#e8edf5;border-radius:12px;padding:14px 16px;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:all .2s">
+  <div id="loginEmailWrap" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 16px;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:all .2s">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#718096" stroke-width="2"/><polyline points="22,6 12,13 2,6" stroke="#718096" stroke-width="2"/></svg>
-    <input id="loginEmail" type="email" placeholder="your@email.com" style="background:transparent;border:none;outline:none;font-size:14px;color:#2d3748;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
+    <input id="loginEmail" type="email" placeholder="your@email.com" style="background:transparent;border:none;outline:none;font-size:14px;color:#fff;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
   </div>
   <div id="loginEmailErr" style="display:none;font-size:12px;color:#e53e3e;margin-bottom:8px;padding-left:4px;font-weight:600"></div>
 
   <!-- Password -->
-  <div id="loginPassWrap" style="background:#e8edf5;border-radius:12px;padding:14px 16px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;transition:all .2s">
+  <div id="loginPassWrap" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 16px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;transition:all .2s">
     <div style="display:flex;align-items:center;gap:10px;flex:1">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#718096" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#718096" stroke-width="2"/></svg>
-      <input type="password" placeholder="Password" id="loginPass" style="background:transparent;border:none;outline:none;font-size:14px;color:#2d3748;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
+      <input type="password" placeholder="Password" id="loginPass" style="background:transparent;border:none;outline:none;font-size:14px;color:#fff;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
     </div>
-    <button onclick="togglePwd('loginPass',this)" style="background:none;border:none;cursor:pointer;font-size:13px;color:#4f7cff;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif">Show</button>
+    <button onclick="togglePwd('loginPass',this)" style="background:none;border:none;cursor:pointer;font-size:12px;color:#4f7cff;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif">Show</button>
   </div>
   <div id="loginPassErr" style="display:none;font-size:12px;color:#e53e3e;margin-bottom:12px;padding-left:4px;font-weight:600"></div>
 
   <!-- Remember + Forgot -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#718096">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.5)">
       <input type="checkbox" style="width:16px;height:16px;border-radius:4px;accent-color:#4f7cff">
       Remember me
     </label>
-    <a href="#" onclick="openForgotModal();return false" style="font-size:13px;color:#4f7cff;font-weight:600;text-decoration:none">Lost password?</a>
+    <a href="#" onclick="openForgotModal();return false" style="font-size:13px;color:#4f7cff;font-weight:700;text-decoration:none">Lost password?</a>
   </div>
 
   <!-- Login button -->
@@ -1974,7 +1974,7 @@ buildDots();
     <span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">↗</span>
   </button>
 
-  <p style="text-align:center;margin-top:16px;font-size:13px;color:#718096">No account yet? <a href="#" onclick="closeLogin();openSignup();return false" style="color:#4f7cff;font-weight:600;text-decoration:none">Create a new account</a></p>
+  <p style="text-align:center;margin-top:14px;font-size:13px;color:rgba(255,255,255,.4)">No account yet? <a href="#" onclick="closeLogin();openSignup();return false" style="color:#4f7cff;font-weight:700;text-decoration:none">Create a new account</a></p>
 </div>
 </div>
 
@@ -2185,7 +2185,7 @@ window.addEventListener('load', function(){
 
 <!-- SIGNUP STEP 2 - After role selected -->
 <div id="signupStep2Modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeSignupStep2()">
-  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(0,0,0,.5)">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;box-shadow:0 32px 80px rgba(0,0,0,.5)">
     <div style="padding:28px 28px 24px;position:relative">
       <button onclick="closeSignupStep2();document.getElementById('roleModal').style.display='flex'" style="position:absolute;top:20px;left:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">←</button>
       <button onclick="closeSignupStep2()" style="position:absolute;top:20px;right:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:15px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
