@@ -28,7 +28,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tb-dt{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rd);border:2px solid var(--wh)}
 .tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--tl));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
 /* MAIN */
-.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}.main-hidden{visibility:hidden;pointer-events:none}
+.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
 /* BREADCRUMB */
 .bc{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);margin-bottom:6px}
 .bc a{color:var(--mu);text-decoration:none;cursor:pointer}
@@ -304,25 +304,27 @@ function restoreState(){
 
 // Restore on page load
 window.addEventListener('DOMContentLoaded', function(){
-  // Immediately hide s1 to prevent flash
-  var s1 = document.getElementById('s1');
-  if(s1) s1.style.display='none';
-
-  // Check if we have a saved state
-  var state = loadState();
-
-  if(!state){
-    // No state — show default (s1)
-    if(s1) s1.style.display='block';
+  var mc = document.getElementById('mainContainer');
+  
+  // Hide all step pages first to prevent any flash
+  for(var i=1;i<=5;i++){
+    var el=document.getElementById('s'+i);
+    if(el) el.style.display='none';
   }
+  ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
 
-  // Restore state immediately (no delay)
+  // Restore correct page
+  var state = loadState();
   if(state) restoreState();
   else go(1);
 
-  // Show main container (remove hidden)
-  var mc = document.getElementById('mainContainer');
-  if(mc) mc.classList.remove('main-hidden');
+  // Fade in smoothly
+  if(mc){ 
+    mc.style.opacity='1';
+  }
 
   updateBalance();
   updateInboxDot();
@@ -398,7 +400,7 @@ window.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<div class="main main-hidden" id="mainContainer">
+<div class="main" id="mainContainer" style="opacity:0;transition:opacity 0.1s">
 
 <!-- STEP 1 -->
 <div id="s1">
