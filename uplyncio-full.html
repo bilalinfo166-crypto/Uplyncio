@@ -396,8 +396,8 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
   <h1>Build Backlinks That<br><span class="grad">Actually Move Rankings</span></h1>
   <p class="hero-sub">The fastest way to buy guest posts on verified, high-authority sites. Filter by DA, niche, country, and price. Your link goes live within days.</p>
   <div class="hero-cta">
-    <a href="#marketplace" class="btn btn-accent btn-xl">Browse Publisher Sites</a>
-    <a href="#pricing" class="btn btn-ghost btn-xl">View Pricing</a>
+    <a href="#" onclick="openPublisherSignup();return false" class="btn btn-accent btn-xl" style="display:flex;align-items:center;gap:9px">🌐 Become a Publisher</a>
+    <a href="#" onclick="openBuyerSignup();return false" class="btn btn-ghost btn-xl" style="display:flex;align-items:center;gap:9px">📈 Buy Guest Posts</a>
   </div>
   <div class="hero-trust">
     <div class="trust-item"><span class="trust-check">✓</span> Dofollow links guaranteed</div>
@@ -1081,18 +1081,21 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
       </div>
       <p style="font-size:12px;color:rgba(255,255,255,.35);margin-top:12px">No spam. Unsubscribe anytime. 100% free.</p>
     </div>
-    <div style="position:relative;height:320px">
-      <div style="position:absolute;left:0;top:50%;transform:translateY(-50%);background:#fff;border-radius:20px;padding:24px 22px;width:200px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-        <div style="font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:#0a1628;line-height:1.2;margin-bottom:10px">Technical<br><span style="color:var(--accent)">SEO:</span></div>
-        <div style="font-size:13px;color:#4b5563;line-height:1.6">to make sure your site is properly indexed by search engines</div>
+    <div style="position:relative;height:340px;min-width:280px">
+      <!-- Technical SEO — left center -->
+      <div style="position:absolute;left:0;top:50%;transform:translateY(-50%);background:#fff;border-radius:18px;padding:22px 20px;width:190px;box-shadow:0 16px 48px rgba(0,0,0,.25);z-index:1">
+        <div style="font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:#0a1628;line-height:1.2;margin-bottom:8px">Technical<br><span style="color:var(--accent)">SEO:</span></div>
+        <div style="font-size:12.5px;color:#4b5563;line-height:1.6">to make sure your site is properly indexed by search engines</div>
       </div>
-      <div style="position:absolute;right:0;top:10px;background:#fff;border-radius:20px;padding:24px 22px;width:200px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-        <div style="font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:#0a1628;line-height:1.2;margin-bottom:10px">On-Page<br><span style="color:var(--teal)">SEO:</span></div>
-        <div style="font-size:13px;color:#4b5563;line-height:1.6">to drive relevant traffic to your site through optimized content</div>
+      <!-- On-Page SEO — right top -->
+      <div style="position:absolute;right:0;top:0;background:#fff;border-radius:18px;padding:22px 20px;width:190px;box-shadow:0 16px 48px rgba(0,0,0,.25);z-index:2">
+        <div style="font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:#0a1628;line-height:1.2;margin-bottom:8px">On-Page<br><span style="color:var(--teal)">SEO:</span></div>
+        <div style="font-size:12.5px;color:#4b5563;line-height:1.6">to drive relevant traffic to your site through optimized content</div>
       </div>
-      <div style="position:absolute;right:0;bottom:10px;background:#fff;border-radius:20px;padding:24px 22px;width:200px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-        <div style="font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:#0a1628;line-height:1.2;margin-bottom:10px">Off-Page<br><span style="color:#7c3aed">SEO:</span></div>
-        <div style="font-size:13px;color:#4b5563;line-height:1.6">to prove your site's authority and trustworthiness to search engines</div>
+      <!-- Off-Page SEO — right bottom -->
+      <div style="position:absolute;right:0;bottom:0;background:#fff;border-radius:18px;padding:22px 20px;width:190px;box-shadow:0 16px 48px rgba(0,0,0,.25);z-index:2">
+        <div style="font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:#0a1628;line-height:1.2;margin-bottom:8px">Off-Page<br><span style="color:#7c3aed">SEO:</span></div>
+        <div style="font-size:12.5px;color:#4b5563;line-height:1.6">to prove your site's authority and trustworthiness to search engines</div>
       </div>
     </div>
   </div>
@@ -1167,6 +1170,116 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
   </div>
 </div></div>
 
+<!-- JOIN AS PUBLISHER OR BUYER -->
+<div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:80px 40px">
+  <div style="max-width:1100px;margin:0 auto">
+    <!-- Heading -->
+    <div style="text-align:center;margin-bottom:48px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);border-radius:100px;padding:6px 16px;margin-bottom:16px">
+        <span style="font-size:13px;font-weight:700;color:var(--accent)">Join Uplyncio Today</span>
+      </div>
+      <h2 style="font-family:'Manrope',sans-serif;font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;color:var(--text);margin-bottom:12px">Who are you?</h2>
+      <p style="font-size:15px;color:var(--text2);max-width:480px;margin:0 auto;line-height:1.7">Join as a Publisher to monetize your sites, or as a Buyer to get powerful guest posts</p>
+    </div>
+
+    <!-- Two Cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:0 auto">
+
+      <!-- PUBLISHER CARD -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 20px 60px rgba(0,0,0,.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+        <!-- Card top gradient -->
+        <div style="background:linear-gradient(135deg,#1e3a5f,#0f172a);padding:28px 28px 24px">
+          <div style="width:52px;height:52px;border-radius:14px;background:rgba(79,124,255,.2);border:1px solid rgba(79,124,255,.3);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px">🌐</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Become a Publisher</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">Monetize your website by accepting guest posts and earning money from advertisers worldwide</div>
+        </div>
+        <div style="padding:24px 28px">
+          <!-- Benefits -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,124,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              List your sites and set your own prices
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,124,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Accept or reject orders — you're in full control
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,124,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Get paid via PayPal or USDT
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,124,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Upload single site or 1000+ sites via bulk sheet
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,124,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Real-time order tracking & chat with buyers
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(79,124,255,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Earn referral bonuses by inviting other publishers
+            </div>
+          </div>
+          <!-- Earnings example -->
+          <div style="background:rgba(79,124,255,.07);border:1px solid rgba(79,124,255,.15);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:12px;color:var(--text2)">Average publisher earns</div>
+            <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:900;color:var(--accent)">$500–$3K<span style="font-size:12px;font-weight:500;color:var(--text2)">/mo</span></div>
+          </div>
+          <a href="#" onclick="openPublisherSignup();return false" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;font-family:'Manrope',sans-serif" onmouseover="this.style.background='#3d6aff'" onmouseout="this.style.background='var(--accent)'">
+            🌐 Join as Publisher — It's Free
+          </a>
+        </div>
+      </div>
+
+      <!-- BUYER CARD -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 20px 60px rgba(0,0,0,.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+        <div style="background:linear-gradient(135deg,#064e3b,#0f172a);padding:28px 28px 24px">
+          <div style="width:52px;height:52px;border-radius:14px;background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.3);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px">📈</div>
+          <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Buy Guest Posts</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">Get powerful backlinks from real, verified sites with high DA, DR and organic traffic to boost your rankings</div>
+        </div>
+        <div style="padding:24px 28px">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              8,500+ verified publisher sites across all niches
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Filter by DA, DR, traffic, niche, country & price
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Content writing included at no extra cost
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Dofollow links — permanent placement guaranteed
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Track every order in real-time dashboard
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text2)">
+              <span style="width:20px;height:20px;border-radius:50%;background:rgba(16,185,129,.1);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">✓</span>
+              Managed white-label service available for agencies
+            </div>
+          </div>
+          <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:12px;color:var(--text2)">Guest posts starting from</div>
+            <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:900;color:#10b981">$30<span style="font-size:12px;font-weight:500;color:var(--text2)">/post</span></div>
+          </div>
+          <a href="#marketplace" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#10b981;color:#fff;border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;font-family:'Manrope',sans-serif" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+            📈 Start Buying — Browse Sites
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- CTA -->
 <div class="cta-outer">
   <div class="cta-in">
@@ -1208,7 +1321,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
       <li><a href="https://uplyncio.com/blog/">Blog</a></li>
       <li><a href="https://uplyncio.com/case-studies/">Case Studies</a></li>
       <li><a href="https://uplyncio.com/contact-us/">Contact Us</a></li>
-      <li><a href="#">Become a Publisher</a></li>
+      <li><a href="#" onclick="openPublisherSignup();return false">Become a Publisher</a></li>
       <li><a href="#">Affiliate Program</a></li>
     </ul></div>
     <div class="f-col"><h4>Support</h4><ul>
@@ -1217,7 +1330,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
       <li><a href="https://uplyncio.com/privacy-policy/">Privacy Policy</a></li>
       <li><a href="#">Terms of Service</a></li>
       <li><a href="https://wa.me/923001234567">Live Chat</a></li>
-      <li><a href="mailto:hello@uplyncio.com">hello@uplyncio.com</a></li>
+      <li><a href="#contact">Contact Us</a></li>
     </ul></div>
   </div>
   <div class="footer-bot">
@@ -1607,3 +1720,127 @@ document.addEventListener('click',function(e){
 
 </body>
 </html>
+
+<!-- ROLE SELECTION MODAL -->
+<div id="roleModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeRoleModal()">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5)">
+    <div style="padding:32px 32px 0;text-align:center;position:relative">
+      <button onclick="closeRoleModal()" style="position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px">🔗</div>
+      <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Welcome to Uplyncio</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.45);margin-bottom:28px">Choose how you want to use Uplyncio</div>
+    </div>
+    <div style="padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+      <div onclick="selectRole('publisher')" style="background:rgba(79,124,255,.1);border:1.5px solid rgba(79,124,255,.3);border-radius:16px;padding:22px 18px;cursor:pointer;transition:all .2s;text-align:center" onmouseover="this.style.background='rgba(79,124,255,.2)';this.style.borderColor='#4f7cff'" onmouseout="this.style.background='rgba(79,124,255,.1)';this.style.borderColor='rgba(79,124,255,.3)'">
+        <div style="font-size:36px;margin-bottom:12px">🌐</div>
+        <div style="font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:8px">Publisher</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.65">I have websites and want to earn money from guest posts</div>
+        <div style="margin-top:12px;background:#4f7cff;color:#fff;border-radius:8px;padding:8px;font-size:12px;font-weight:700">Earn $500–$3K/mo →</div>
+      </div>
+      <div onclick="selectRole('buyer')" style="background:rgba(16,185,129,.1);border:1.5px solid rgba(16,185,129,.3);border-radius:16px;padding:22px 18px;cursor:pointer;transition:all .2s;text-align:center" onmouseover="this.style.background='rgba(16,185,129,.2)';this.style.borderColor='#10b981'" onmouseout="this.style.background='rgba(16,185,129,.1)';this.style.borderColor='rgba(16,185,129,.3)'">
+        <div style="font-size:36px;margin-bottom:12px">📈</div>
+        <div style="font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:8px">Buyer</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.65">I want to buy guest posts and build powerful backlinks</div>
+        <div style="margin-top:12px;background:#10b981;color:#fff;border-radius:8px;padding:8px;font-size:12px;font-weight:700">Browse 8,500+ Sites →</div>
+      </div>
+    </div>
+    <div style="padding:0 32px 28px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,.3)">already have an account?</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+      </div>
+      <button onclick="closeRoleModal();openLogin()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">Sign In to Your Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP STEP 2 - After role selected -->
+<div id="signupStep2Modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeSignupStep2()">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(0,0,0,.5)">
+    <div style="padding:28px 28px 24px;position:relative">
+      <button onclick="closeSignupStep2();document.getElementById('roleModal').style.display='flex'" style="position:absolute;top:20px;left:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">←</button>
+      <button onclick="closeSignupStep2()" style="position:absolute;top:20px;right:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:15px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
+      <div style="text-align:center;margin-bottom:22px">
+        <div style="font-size:32px;margin-bottom:10px" id="step2Icon">🌐</div>
+        <div style="font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;color:#fff;margin-bottom:4px" id="step2Title">Create Publisher Account</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4)">Fill in your details to get started for free</div>
+      </div>
+      <!-- Social -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <button onclick="completeSignupSocial('google')" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:11px 8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Google
+        </button>
+        <button onclick="completeSignupSocial('facebook')" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(24,119,242,.15);border:1px solid rgba(24,119,242,.3);color:#fff;border-radius:10px;padding:11px 8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#1877F2" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/></svg>
+          Facebook
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,.3)">or with email</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+        <input type="text" id="su2Name" placeholder="Full Name" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <input type="email" id="su2Email" placeholder="Email Address" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <input type="password" id="su2Pass" placeholder="Create Password (min 8 chars)" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <button onclick="completeSignup()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">Create Account & Go to Dashboard →</button>
+      <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.3)">Already have an account? <a href="#" onclick="closeSignupStep2();openLogin()" style="color:#4f7cff;text-decoration:none;font-weight:600">Sign In</a></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _selectedRole = 'publisher';
+
+function openPublisherSignup(){ _selectedRole='publisher'; document.getElementById('roleModal').style.display='flex'; document.body.style.overflow='hidden'; }
+function openBuyerSignup(){ _selectedRole='buyer'; document.getElementById('roleModal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeRoleModal(){ document.getElementById('roleModal').style.display='none'; document.body.style.overflow=''; }
+function closeSignupStep2(){ document.getElementById('signupStep2Modal').style.display='none'; document.body.style.overflow=''; }
+
+function selectRole(role){
+  _selectedRole = role;
+  closeRoleModal();
+  // Update step 2 modal
+  var icon  = document.getElementById('step2Icon');
+  var title = document.getElementById('step2Title');
+  if(role==='publisher'){
+    if(icon)  icon.textContent  = '🌐';
+    if(title) title.textContent = 'Create Publisher Account';
+  } else {
+    if(icon)  icon.textContent  = '📈';
+    if(title) title.textContent = 'Create Buyer Account';
+  }
+  document.getElementById('signupStep2Modal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function completeSignup(){
+  var name  = (document.getElementById('su2Name')||{value:''}).value.trim();
+  var email = (document.getElementById('su2Email')||{value:''}).value.trim();
+  var pass  = (document.getElementById('su2Pass')||{value:''}).value.trim();
+  if(!name||!email||!pass){ alert('Please fill in all fields.'); return; }
+  if(pass.length<8){ alert('Password must be at least 8 characters.'); return; }
+  closeSignupStep2();
+  // Redirect to dashboard
+  if(_selectedRole==='publisher'){
+    window.location.href = 'publisher.html';
+  } else {
+    window.location.href = '#marketplace';
+  }
+}
+
+function completeSignupSocial(provider){
+  closeSignupStep2();
+  setTimeout(function(){
+    if(_selectedRole==='publisher'){
+      window.location.href = 'publisher.html';
+    } else {
+      window.location.href = '#marketplace';
+    }
+  }, 300);
+}
+</script>
