@@ -2058,6 +2058,31 @@ document.addEventListener('click',function(e){
     </div>
   </div>
 </div>
+
+<script>
+// ── HOME PAGE STATE PERSISTENCE ──
+// Save scroll position before unload
+window.addEventListener('beforeunload', function(){
+  try{
+    sessionStorage.setItem('uplyncio_home_scroll', window.scrollY);
+    // Save any open modal
+    var loginOpen   = document.getElementById('loginModal');
+    var signupOpen  = document.getElementById('signupStep2Modal');
+    if(loginOpen  && loginOpen.style.display==='flex')  sessionStorage.setItem('uplyncio_home_modal','login');
+    else if(signupOpen && signupOpen.style.display==='flex') sessionStorage.setItem('uplyncio_home_modal','signup');
+    else sessionStorage.removeItem('uplyncio_home_modal');
+  }catch(e){}
+});
+
+// Restore scroll on load
+window.addEventListener('load', function(){
+  try{
+    var scroll = sessionStorage.getItem('uplyncio_home_scroll');
+    if(scroll) window.scrollTo(0, parseInt(scroll));
+  }catch(e){}
+});
+</script>
+
 </body>
 </html>
 
