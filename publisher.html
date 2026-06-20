@@ -28,7 +28,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tb-dt{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rd);border:2px solid var(--wh)}
 .tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--tl));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
 /* MAIN */
-.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
+.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}.main-hidden{visibility:hidden;pointer-events:none}
 /* BREADCRUMB */
 .bc{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);margin-bottom:6px}
 .bc a{color:var(--mu);text-decoration:none;cursor:pointer}
@@ -304,11 +304,28 @@ function restoreState(){
 
 // Restore on page load
 window.addEventListener('DOMContentLoaded', function(){
-  setTimeout(function(){
-    restoreState();
-    updateBalance();
-    updateInboxDot();
-  }, 200);
+  // Immediately hide s1 to prevent flash
+  var s1 = document.getElementById('s1');
+  if(s1) s1.style.display='none';
+
+  // Check if we have a saved state
+  var state = loadState();
+
+  if(!state){
+    // No state — show default (s1)
+    if(s1) s1.style.display='block';
+  }
+
+  // Restore state immediately (no delay)
+  if(state) restoreState();
+  else go(1);
+
+  // Show main container (remove hidden)
+  var mc = document.getElementById('mainContainer');
+  if(mc) mc.classList.remove('main-hidden');
+
+  updateBalance();
+  updateInboxDot();
 });
 </script>
 <div class="sb">
@@ -381,7 +398,7 @@ window.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<div class="main">
+<div class="main main-hidden" id="mainContainer">
 
 <!-- STEP 1 -->
 <div id="s1">
@@ -2074,8 +2091,7 @@ function go(n){
   }
   window.scrollTo(0,0);
 }
-// Run on page load — only if no saved state
-if(!loadState()) go(1);
+// Initialization handled by DOMContentLoaded above
 function stab(el,id){
   document.querySelectorAll('.utab').forEach(function(t){t.classList.remove('on');});
   ['t1','t2','t3','t4'].forEach(function(t){var e=document.getElementById(t);if(e)e.style.display='none';});
@@ -4321,10 +4337,7 @@ function shareRef(platform){
 }
 
 
-// State restored by restoreState() on DOMContentLoaded
-if(!loadState()) go(1);
-updateBalance();
-updateInboxDot();
+// Initialization handled by DOMContentLoaded above
 
 function downloadTemplate(){
   window.open('https://docs.google.com/spreadsheets/d/1XVWW_4o2MKhir3PZFVKnKyp0iSuXll48x-_TWHuB2eQ/edit?gid=1138458576#gid=1138458576','_blank');
