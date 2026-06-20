@@ -1826,18 +1826,20 @@ function closeSignup(){
   var m=document.getElementById('signupModal');
   if(m){m.style.display='none';document.body.style.overflow='';}
 }
-function completeSignupSocial(provider){
-  closeSignupStep2();
-  setTimeout(function(){
-    if(window._selectedRole==='publisher'){
-      window.location.href='publisher.html';
-    } else {
-      document.getElementById('roleModal').style.display='none';
-      document.body.style.overflow='';
-      var el=document.getElementById('marketplace');
-      if(el) el.scrollIntoView({behavior:'smooth'});
-    }
-  },300);
+function selectRole(role){
+  _selectedRole=role;
+  closeRoleModal();
+  var icon=document.getElementById('step2Icon');
+  var title=document.getElementById('step2Title');
+  if(role==='publisher'){
+    if(icon) icon.textContent='🌐';
+    if(title) title.textContent='Create Publisher Account';
+  } else {
+    if(icon) icon.textContent='📈';
+    if(title) title.textContent='Create Buyer Account';
+  }
+  document.getElementById('signupStep2Modal').style.display='flex';
+  document.body.style.overflow='hidden';
 }
 function completeSignup(){
   var name=document.getElementById('su2Name');
@@ -1847,72 +1849,22 @@ function completeSignup(){
   if(!email||!email.value.trim()){alert('Please enter your email.');return;}
   if(!pass||!pass.value.trim()||pass.value.length<8){alert('Password must be at least 8 characters.');return;}
   closeSignupStep2();
-  if(window._selectedRole==='publisher'){
+  if(_selectedRole==='publisher'){
     window.location.href='publisher.html';
   } else {
     var el=document.getElementById('marketplace');
     if(el) el.scrollIntoView({behavior:'smooth'});
   }
 }
-
-function openLogin(){
-  var m = document.getElementById('loginModal');
-  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
-}
-  var m = document.getElementById('loginModal');
-  if(m){ m.style.display='none'; document.body.style.overflow=''; }
-}
-function openSignup(){
-  // Show role selection first
-  openPublisherSignup();
-}
-function closeSignup(){
-  var m = document.getElementById('signupModal');
-  if(m){ m.style.display='none'; document.body.style.overflow=''; }
-  closeRoleModal();
-  closeSignupStep2();
-}
-
-function selectRole(role){
-  _selectedRole = role;
-  closeRoleModal();
-  // Update step 2 modal
-  var icon  = document.getElementById('step2Icon');
-  var title = document.getElementById('step2Title');
-  if(role==='publisher'){
-    if(icon)  icon.textContent  = '🌐';
-    if(title) title.textContent = 'Create Publisher Account';
-  } else {
-    if(icon)  icon.textContent  = '📈';
-    if(title) title.textContent = 'Create Buyer Account';
-  }
-  document.getElementById('signupStep2Modal').style.display='flex';
-  document.body.style.overflow='hidden';
-}
-
-function completeSignup(){
-  var name  = (document.getElementById('su2Name')||{value:''}).value.trim();
-  var email = (document.getElementById('su2Email')||{value:''}).value.trim();
-  var pass  = (document.getElementById('su2Pass')||{value:''}).value.trim();
-  if(!name||!email||!pass){ alert('Please fill in all fields.'); return; }
-  if(pass.length<8){ alert('Password must be at least 8 characters.'); return; }
-  closeSignupStep2();
-  // Redirect to dashboard
-  if(_selectedRole==='publisher'){
-    window.location.href = 'publisher.html';
-  } else {
-    window.location.href = '#marketplace';
-  }
-}
-
 function completeSignupSocial(provider){
   closeSignupStep2();
   setTimeout(function(){
     if(_selectedRole==='publisher'){
-      window.location.href = 'publisher.html';
+      window.location.href='publisher.html';
     } else {
-      window.location.href = '#marketplace';
+      var el=document.getElementById('marketplace');
+      if(el) el.scrollIntoView({behavior:'smooth'});
     }
-  }, 300);
+  },300);
 }
 </script>
