@@ -4,79 +4,163 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-// ── UPLYNCIO AUTH SYSTEM ──
-// Simple auth using localStorage — Firebase can be added via backend later
+// ── UPLYNCIO PROPER AUTH SYSTEM ──
 
+// ── LOGIN ──
 function handleLogin(){
   var em = document.getElementById('loginEmail');
   var pw = document.getElementById('loginPass');
   if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
   if(!pw||!pw.value.trim()){ alert('Please enter your password.'); return; }
+
+  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var user  = users.find(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
+
   var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
   if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
 
-  // Check saved users
-  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var user  = users.find(function(u){ return u.email===em.value.trim(); });
-
   setTimeout(function(){
-    if(user && user.password===pw.value.trim()){
-      _loginSuccess(user);
-    } else {
+    if(!user){
       if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
-      alert('Incorrect email or password. Please try again.');
+      alert('No account found with this email. Please sign up first.');
+      return;
     }
-  }, 800);
+    if(user.password !== pw.value.trim()){
+      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
+      alert('Incorrect password. Please try again.');
+      return;
+    }
+    if(!user.verified){
+      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
+      // Show verification modal
+      closeLogin();
+      openVerifyModal(user.email);
+      return;
+    }
+    // All good — login!
+    _loginSuccess(user);
+  }, 700);
 }
 
+// ── SIGNUP ──
 function completeSignup(){
   var n = document.getElementById('su2Name');
   var e = document.getElementById('su2Email');
   var p = document.getElementById('su2Pass');
   if(!n||!n.value.trim()){ alert('Please enter your name.'); return; }
   if(!e||!e.value.trim()){ alert('Please enter your email.'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.value.trim())){ alert('Please enter a valid email address.'); return; }
   if(!p||!p.value.trim()||p.value.length<8){ alert('Password must be at least 8 characters.'); return; }
 
   var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-  var exists = users.find(function(u){ return u.email===e.value.trim(); });
-  if(exists){ alert('This email is already registered. Please login.'); if(typeof openLogin==='function')openLogin(); return; }
+  var exists = users.find(function(u){ return u.email.toLowerCase()===e.value.trim().toLowerCase(); });
+  if(exists){
+    alert('This email is already registered. Please login instead.');
+    if(typeof closeSignupStep2==='function') closeSignupStep2();
+    openLogin();
+    return;
+  }
 
   var btn = document.getElementById('signupCompleteBtn');
   if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
+
+  // Generate 6-digit verification code
+  var code = Math.floor(100000 + Math.random()*900000).toString();
 
   var newUser = {
     name: n.value.trim(),
     email: e.value.trim(),
     password: p.value.trim(),
     role: window._selectedRole||'publisher',
+    verified: false,
+    verifyCode: code,
     createdAt: new Date().toISOString()
   };
   users.push(newUser);
   localStorage.setItem('uplyncio_users', JSON.stringify(users));
 
+  // Simulate sending email — show code in modal
   setTimeout(function(){
-    _loginSuccess(newUser);
+    if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
     if(typeof closeSignupStep2==='function') closeSignupStep2();
-  }, 600);
+    openVerifyModal(newUser.email, true);
+  }, 800);
 }
 
-function googleLogin(){
-  // Simulate Google login — real OAuth needs backend
-  var mockUser = {
-    name: 'Google User',
-    email: 'user@gmail.com',
-    role: window._selectedRole||'publisher'
-  };
-  alert('Google login requires backend setup. Please use Email/Password for now.');
+// ── VERIFY MODAL ──
+function openVerifyModal(email, isNew){
+  var modal = document.getElementById('verifyModal');
+  if(!modal) return;
+  var emailEl = document.getElementById('verifyEmail');
+  var titleEl = document.getElementById('verifyTitle');
+  var msgEl   = document.getElementById('verifyMsg');
+  if(emailEl) emailEl.textContent = email;
+  if(titleEl) titleEl.textContent = isNew ? 'Verify Your Email' : 'Email Not Verified';
+
+  // Get code
+  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var user  = users.find(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+
+  if(isNew && user){
+    // Show simulated email with code
+    if(msgEl) msgEl.innerHTML = 'A verification code has been sent to <strong>'+email+'</strong>.<br><br>'+
+      '<div style="background:#f0f4ff;border:2px dashed #4f7cff;border-radius:10px;padding:14px;text-align:center;margin:10px 0">'+
+        '<div style="font-size:11px;color:#64748b;margin-bottom:6px">📧 Email from: info@uplyncio.com</div>'+
+        '<div style="font-size:13px;color:#0f172a;margin-bottom:8px">Your Uplyncio verification code is:</div>'+
+        '<div style="font-family:monospace;font-size:32px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+user.verifyCode+'</div>'+
+        '<div style="font-size:11px;color:#94a3b8;margin-top:6px">This code expires in 10 minutes</div>'+
+      '</div>';
+  } else {
+    if(msgEl) msgEl.innerHTML = 'Your email is not verified yet. Enter the code sent to <strong>'+email+'</strong>.';
+  }
+
+  // Clear input
+  var inp = document.getElementById('verifyCodeInput');
+  if(inp) inp.value = '';
+
+  // Store email for verification
+  window._verifyingEmail = email;
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
-function facebookLogin(){
-  alert('Facebook login requires backend setup. Please use Email/Password for now.');
+function closeVerifyModal(){
+  var modal = document.getElementById('verifyModal');
+  if(modal){ modal.style.display='none'; document.body.style.overflow=''; }
 }
 
-function completeSignupSocial(provider){
-  if(provider==='google') googleLogin();
-  else facebookLogin();
+function submitVerifyCode(){
+  var inp = document.getElementById('verifyCodeInput');
+  if(!inp||!inp.value.trim()){ alert('Please enter the verification code.'); return; }
+
+  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var user  = users.find(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
+
+  if(!user){ alert('User not found. Please sign up again.'); closeVerifyModal(); return; }
+
+  if(inp.value.trim() === user.verifyCode){
+    // Mark verified
+    user.verified = true;
+    localStorage.setItem('uplyncio_users', JSON.stringify(users));
+    closeVerifyModal();
+    _loginSuccess(user);
+  } else {
+    inp.style.border = '2px solid #ef4444';
+    var errEl = document.getElementById('verifyError');
+    if(errEl){ errEl.textContent='Incorrect code. Please try again.'; errEl.style.display='block'; }
+    setTimeout(function(){ inp.style.border=''; if(errEl) errEl.style.display='none'; }, 2000);
+  }
+}
+
+function resendCode(){
+  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var user  = users.find(function(u){ return u.email.toLowerCase()===(window._verifyingEmail||'').toLowerCase(); });
+  if(!user) return;
+  // Generate new code
+  user.verifyCode = Math.floor(100000+Math.random()*900000).toString();
+  localStorage.setItem('uplyncio_users', JSON.stringify(users));
+  openVerifyModal(user.email, true);
 }
 
 function _loginSuccess(user){
@@ -88,12 +172,21 @@ function _loginSuccess(user){
     localStorage.setItem('uplyncio_loggedIn', '1');
     localStorage.setItem('uplyncio_user', JSON.stringify(user));
   }catch(ex){}
-  if(typeof closeLogin==='function') closeLogin();
-  if(typeof closeRoleModal==='function') closeRoleModal();
-  if(typeof closeSignupStep2==='function') closeSignupStep2();
   window.location.href = 'publisher.html';
 }
+
+function googleLogin(){
+  alert('Google login requires backend integration. Please use Email/Password signup for now.');
+}
+function facebookLogin(){
+  alert('Facebook login requires backend integration. Please use Email/Password signup for now.');
+}
+function completeSignupSocial(pr){
+  if(pr==='google') googleLogin();
+  else facebookLogin();
+}
 </script>
+
 
 <title>Uplyncio – Premium Guest Post & Link Building Marketplace</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1816,6 +1909,39 @@ document.addEventListener('click',function(e){
 </script>
 
 
+
+<!-- VERIFY EMAIL MODAL -->
+<div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:460px;padding:36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+    <button onclick="closeVerifyModal()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='rgba(255,0,0,.2)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">✕</button>
+
+    <!-- Icon -->
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px">✉️</div>
+      <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px" id="verifyTitle">Verify Your Email</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5)">Sent to: <span id="verifyEmail" style="color:#4f7cff;font-weight:600"></span></div>
+    </div>
+
+    <!-- Message / Code display -->
+    <div id="verifyMsg" style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:20px;text-align:center"></div>
+
+    <!-- Code input -->
+    <div style="margin-bottom:8px">
+      <input id="verifyCodeInput" type="text" maxlength="6" placeholder="Enter 6-digit code" onkeydown="if(event.key==='Enter')submitVerifyCode()" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:14px;font-size:22px;font-family:monospace;letter-spacing:8px;color:#fff;outline:none;text-align:center;box-sizing:border-box;transition:border-color .2s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+    </div>
+    <div id="verifyError" style="display:none;font-size:12px;color:#ef4444;text-align:center;margin-bottom:8px"></div>
+
+    <!-- Submit -->
+    <button onclick="submitVerifyCode()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+      ✅ Verify & Continue
+    </button>
+
+    <!-- Resend -->
+    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,.4)">
+      Didn't receive the code? <a href="#" onclick="resendCode();return false" style="color:#4f7cff;font-weight:600;text-decoration:none">Resend Code</a>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
