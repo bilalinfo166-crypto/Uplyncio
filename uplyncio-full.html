@@ -2174,14 +2174,7 @@ function closeLogin(){
   var m=document.getElementById('loginModal');
   if(m){m.style.display='none';document.body.style.overflow='';}
 }
-function handleLogin(){
-  var email=document.getElementById('loginEmail');
-  var pass=document.getElementById('loginPass');
-  if(!email||!email.value.trim()){alert('Please enter your email.');return;}
-  if(!pass||!pass.value.trim()){alert('Please enter your password.');return;}
-  closeLogin();
-  window.location.href='publisher.html';
-}
+
 function openSignup(){
   openPublisherSignup();
 }
@@ -2206,30 +2199,6 @@ function selectRole(role){
   document.getElementById('signupStep2Modal').style.display='flex';
   document.body.style.overflow='hidden';
 }
-function completeSignup(){
-  var name=document.getElementById('su2Name');
-  var email=document.getElementById('su2Email');
-  var pass=document.getElementById('su2Pass');
-  if(!name||!name.value.trim()){alert('Please enter your name.');return;}
-  if(!email||!email.value.trim()){alert('Please enter your email.');return;}
-  if(!pass||!pass.value.trim()||pass.value.length<8){alert('Password must be at least 8 characters.');return;}
-  closeSignupStep2();
-  if(_selectedRole==='publisher'){
-    window.location.href='publisher.html';
-  } else {
-    var el=document.getElementById('marketplace');
-    if(el) el.scrollIntoView({behavior:'smooth'});
-  }
-}
-function completeSignupSocial(provider){
-  closeSignupStep2();
-  setTimeout(function(){
-    if(_selectedRole==='publisher'){
-      window.location.href='publisher.html';
-    } else {
-      var el=document.getElementById('marketplace');
-      if(el) el.scrollIntoView({behavior:'smooth'});
-    }
-  },300);
-}
+
+
 </script>
