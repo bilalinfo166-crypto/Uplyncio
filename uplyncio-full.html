@@ -3,78 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Firebase — must load synchronously before any other script -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyADQChMSCIN8e2zsr38mvV9ztwX8_HeOAo",
-  authDomain:"uplyncio-platform.firebaseapp.com",
-  projectId:"uplyncio-platform",
-  storageBucket:"uplyncio-platform.firebasestorage.app",
-  messagingSenderId:"371948125554",
-  appId:"1:371948125554:web:a596451f5cc56b460271eb"
-});
-var _auth=firebase.auth();
-var _gp=new firebase.auth.GoogleAuthProvider();
-var _fp=new firebase.auth.FacebookAuthProvider();
+// ── UPLYNCIO AUTH SYSTEM ──
+// Simple auth using localStorage — Firebase can be added via backend later
+
+function handleLogin(){
+  var em = document.getElementById('loginEmail');
+  var pw = document.getElementById('loginPass');
+  if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
+  if(!pw||!pw.value.trim()){ alert('Please enter your password.'); return; }
+  var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
+  if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; btn.disabled=true; }
+
+  // Check saved users
+  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var user  = users.find(function(u){ return u.email===em.value.trim(); });
+
+  setTimeout(function(){
+    if(user && user.password===pw.value.trim()){
+      _loginSuccess(user);
+    } else {
+      if(btn){ btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; btn.disabled=false; }
+      alert('Incorrect email or password. Please try again.');
+    }
+  }, 800);
+}
+
+function completeSignup(){
+  var n = document.getElementById('su2Name');
+  var e = document.getElementById('su2Email');
+  var p = document.getElementById('su2Pass');
+  if(!n||!n.value.trim()){ alert('Please enter your name.'); return; }
+  if(!e||!e.value.trim()){ alert('Please enter your email.'); return; }
+  if(!p||!p.value.trim()||p.value.length<8){ alert('Password must be at least 8 characters.'); return; }
+
+  var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var exists = users.find(function(u){ return u.email===e.value.trim(); });
+  if(exists){ alert('This email is already registered. Please login.'); if(typeof openLogin==='function')openLogin(); return; }
+
+  var btn = document.getElementById('signupCompleteBtn');
+  if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
+
+  var newUser = {
+    name: n.value.trim(),
+    email: e.value.trim(),
+    password: p.value.trim(),
+    role: window._selectedRole||'publisher',
+    createdAt: new Date().toISOString()
+  };
+  users.push(newUser);
+  localStorage.setItem('uplyncio_users', JSON.stringify(users));
+
+  setTimeout(function(){
+    _loginSuccess(newUser);
+    if(typeof closeSignupStep2==='function') closeSignupStep2();
+  }, 600);
+}
 
 function googleLogin(){
-  _auth.signInWithPopup(_gp).then(function(r){_saveUser(r.user);}).catch(function(e){alert(e.message);});
+  // Simulate Google login — real OAuth needs backend
+  var mockUser = {
+    name: 'Google User',
+    email: 'user@gmail.com',
+    role: window._selectedRole||'publisher'
+  };
+  alert('Google login requires backend setup. Please use Email/Password for now.');
 }
+
 function facebookLogin(){
-  _auth.signInWithPopup(_fp).then(function(r){_saveUser(r.user);}).catch(function(e){alert(e.message);});
+  alert('Facebook login requires backend setup. Please use Email/Password for now.');
 }
-function handleLogin(){
-  var em=document.getElementById('loginEmail');
-  var pw=document.getElementById('loginPass');
-  if(!em||!em.value.trim()){alert('Please enter your email.');return;}
-  if(!pw||!pw.value.trim()){alert('Please enter your password.');return;}
-  var btn=document.querySelector('#loginModal button[onclick="handleLogin()"]');
-  if(btn){btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>';btn.disabled=true;}
-  _auth.signInWithEmailAndPassword(em.value.trim(),pw.value.trim())
-    .then(function(r){_saveUser(r.user);})
-    .catch(function(e){
-      if(btn){btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>';btn.disabled=false;}
-      alert(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'?'Incorrect email or password.':e.message);
-    });
+
+function completeSignupSocial(provider){
+  if(provider==='google') googleLogin();
+  else facebookLogin();
 }
-function completeSignup(){
-  var n=document.getElementById('su2Name');
-  var e=document.getElementById('su2Email');
-  var p=document.getElementById('su2Pass');
-  if(!n||!n.value.trim()){alert('Please enter your name.');return;}
-  if(!e||!e.value.trim()){alert('Please enter your email.');return;}
-  if(!p||!p.value.trim()||p.value.length<8){alert('Password must be at least 8 characters.');return;}
-  var btn=document.getElementById('signupCompleteBtn');
-  if(btn){btn.textContent='Creating account...';btn.disabled=true;}
-  _auth.createUserWithEmailAndPassword(e.value.trim(),p.value.trim())
-    .then(function(r){return r.user.updateProfile({displayName:n.value.trim()});})
-    .then(function(){_saveUser(_auth.currentUser);if(typeof closeSignupStep2==='function')closeSignupStep2();})
-    .catch(function(er){
-      if(btn){btn.textContent='Create Account & Continue →';btn.disabled=false;}
-      if(er.code==='auth/email-already-in-use'){alert('Email already registered. Please login.');if(typeof openLogin==='function')openLogin();}
-      else alert(er.message);
-    });
-}
-function completeSignupSocial(pr){
-  if(pr==='google')googleLogin();
-  else if(pr==='facebook')facebookLogin();
-}
-function _saveUser(user){
+
+function _loginSuccess(user){
   try{
-    var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-    s['settName']=user.displayName||'';
-    s['settEmail']=user.email||'';
-    localStorage.setItem('uplyncio_settings',JSON.stringify(s));
-    localStorage.setItem('uplyncio_user',JSON.stringify({name:user.displayName,email:user.email,photo:user.photoURL,uid:user.uid}));
+    var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    s['settName']  = user.name||'';
+    s['settEmail'] = user.email||'';
+    localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+    localStorage.setItem('uplyncio_loggedIn', '1');
+    localStorage.setItem('uplyncio_user', JSON.stringify(user));
   }catch(ex){}
-  if(typeof closeLogin==='function')closeLogin();
-  if(typeof closeRoleModal==='function')closeRoleModal();
-  if(typeof closeSignupStep2==='function')closeSignupStep2();
-  window.location.href='publisher.html';
+  if(typeof closeLogin==='function') closeLogin();
+  if(typeof closeRoleModal==='function') closeRoleModal();
+  if(typeof closeSignupStep2==='function') closeSignupStep2();
+  window.location.href = 'publisher.html';
 }
 </script>
+
 <title>Uplyncio – Premium Guest Post & Link Building Marketplace</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
