@@ -156,6 +156,91 @@ html,body{overflow-x:hidden;max-width:100vw}
 </head>
 <body>
 
+
+<script>
+// ── PUBLISHER PORTAL — USER DATA SYSTEM ──
+(function(){
+  var uid    = localStorage.getItem('uplyncio_currentUid')||'';
+  var loggedIn = localStorage.getItem('uplyncio_loggedIn');
+  var user   = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+
+  // Load this user's orders/sites from their personal storage
+  if(uid){
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'null');
+    if(userData){
+      // Restore user's personal orders
+      if(userData.orders && userData.orders.length>0){
+        localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders));
+      } else {
+        // New user — empty orders
+        localStorage.setItem('uplyncio_orders', '[]');
+      }
+    }
+  }
+
+  // Save data back to user's personal storage on page unload
+  window.addEventListener('beforeunload', function(){
+    if(uid){
+      var orders = JSON.parse(localStorage.getItem('uplyncio_orders')||'[]');
+      var existing = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      existing.orders = orders;
+      localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(existing));
+    }
+  });
+})();
+
+// ── RESET PASSWORD from settings ──
+function openResetPasswordModal(){
+  var m = document.getElementById('resetPwdModal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+  var i1=document.getElementById('rp1'); var i2=document.getElementById('rp2');
+  if(i1)i1.value=''; if(i2)i2.value='';
+}
+function closeResetPwdModal(){
+  var m=document.getElementById('resetPwdModal');
+  if(m){m.style.display='none';document.body.style.overflow='';}
+}
+function submitResetPassword(){
+  var p1=document.getElementById('rp1');
+  var p2=document.getElementById('rp2');
+  if(!p1||p1.value.length<8){alert('Password must be at least 8 characters.');return;}
+  if(p1.value!==p2.value){alert('Passwords do not match.');return;}
+
+  var uid=localStorage.getItem('uplyncio_currentUid')||'';
+  var users=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+  var email=(JSON.parse(localStorage.getItem('uplyncio_user')||'{}')).email||'';
+  var idx=users.findIndex(function(u){return u.email.toLowerCase()===email.toLowerCase();});
+  if(idx>-1){
+    users[idx].password=p1.value;
+    localStorage.setItem('uplyncio_users',JSON.stringify(users));
+  }
+  closeResetPwdModal();
+  toast('✅ Password updated successfully!','#16a34a');
+}
+
+// ── LOGOUT ──
+function togglePwdPub(id, btn){
+  var inp=document.getElementById(id);
+  if(!inp)return;
+  if(inp.type==='password'){inp.type='text';if(btn)btn.textContent='Hide';}
+  else{inp.type='password';if(btn)btn.textContent='Show';}
+}
+function doLogout(){
+  // Save current user data before logout
+  var uid=localStorage.getItem('uplyncio_currentUid')||'';
+  if(uid){
+    var orders=JSON.parse(localStorage.getItem('uplyncio_orders')||'[]');
+    var existing=JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    existing.orders=orders;
+    localStorage.setItem('uplyncio_data_'+uid,JSON.stringify(existing));
+  }
+  localStorage.removeItem('uplyncio_loggedIn');
+  localStorage.removeItem('uplyncio_currentUid');
+  localStorage.removeItem('uplyncio_user');
+  localStorage.removeItem('uplyncio_orders');
+  window.location.href='uplyncio-full.html';
+}
+</script>
 <div class="sb">
   <div class="sb-lg">
     <div class="sb-ic">&#128279;</div>
@@ -216,7 +301,7 @@ html,body{overflow-x:hidden;max-width:100vw}
               <div id="activityThumb" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div>
             </div>
           </div>
-          <div onclick="closeProfileMenu();localStorage.removeItem('uplyncio_loggedIn');localStorage.removeItem('uplyncio_user');window.location.href='uplyncio-full.html'" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#ef4444;font-weight:600;transition:background .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
+          <div onclick="closeProfileMenu();doLogout()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#ef4444;font-weight:600;transition:background .15s" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''"
             >🚪 Log Out</div>
         </div>
       </div>
@@ -1450,7 +1535,14 @@ html,body{overflow-x:hidden;max-width:100vw}
   </div>
 
   <!-- SECURITY + DELETE -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--ac);margin-bottom:4px">🔑 Reset Password</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Change your account password anytime for security.</div>
+      </div>
+      <button onclick="openResetPasswordModal()" style="background:#f0f4ff;border:1.5px solid #c7d7ff;color:var(--ac);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;margin-left:16px">Reset</button>
+    </div>
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
       <div>
         <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">🔐 Two-Factor Authentication</div>
@@ -1469,7 +1561,25 @@ html,body{overflow-x:hidden;max-width:100vw}
     </div>
   </div>
 
-  <!-- SAVE BUTTON -->
+  <!-- RESET PASSWORD MODAL -->
+<div id="resetPwdModal" onclick="if(event.target===this)closeResetPwdModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:400px;padding:28px;box-shadow:0 32px 80px rgba(0,0,0,.2);position:relative">
+    <button onclick="closeResetPwdModal()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;text-align:center">🔑 Reset Password</div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:20px">Enter your new password below</div>
+    <div style="position:relative;margin-bottom:12px">
+      <input id="rp1" type="password" placeholder="New password (min 8 chars)" style="width:100%;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 50px 11px 14px;font-size:14px;font-family:inherit;outline:none;color:#0f172a;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <button onclick="togglePwdPub('rp1',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+    </div>
+    <div style="position:relative;margin-bottom:20px">
+      <input id="rp2" type="password" placeholder="Confirm new password" style="width:100%;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 50px 11px 14px;font-size:14px;font-family:inherit;outline:none;color:#0f172a;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <button onclick="togglePwdPub('rp2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+    </div>
+    <button onclick="submitResetPassword()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✅ Update Password</button>
+  </div>
+</div>
+
+<!-- SAVE BUTTON -->
   <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px">
     <div id="settSaveStatus" style="font-size:13px;color:#16a34a;font-weight:600;display:none">✅ Settings saved!</div>
     <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">Save Changes</button>
@@ -4222,14 +4332,29 @@ var OrderManager = {
 };
 
 // Load or init orders — clear old data if IDs have old format
-var _rawData = OrderManager.load();
+// Load orders from current user's personal storage (not global)
+var _uid = localStorage.getItem('uplyncio_currentUid')||'';
+var _rawData = null;
+if(_uid){
+  var _userData = JSON.parse(localStorage.getItem('uplyncio_data_'+_uid)||'null');
+  if(_userData && Array.isArray(_userData.orders) && _userData.orders.length>0){
+    _rawData = _userData.orders;
+  } else {
+    _rawData = []; // New user — empty orders
+  }
+}
 if(_rawData && _rawData[0] && _rawData[0].taskId && _rawData[0].taskId.indexOf('UPL-')===0){
   localStorage.removeItem('uplyncio_orders');
   _rawData = null;
 }
 // Always ensure sampleOrders is a valid array
 var sampleOrders = (Array.isArray(_rawData) && _rawData.length > 0) ? _rawData : null;
-if(!sampleOrders){
+if(_rawData !== null && Array.isArray(_rawData)){
+  sampleOrders = _rawData;
+} else {
+  sampleOrders = [];
+}
+if(false && !sampleOrders){
   sampleOrders = [
     OrderManager.create({
       type:'Article Posting', service:'Content placement',
@@ -4289,6 +4414,7 @@ if(!sampleOrders){
     });
   }
   OrderManager.save(sampleOrders);
+  }
 }
 
 // Format date helper
