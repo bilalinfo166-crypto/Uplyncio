@@ -241,6 +241,73 @@ function doLogout(){
   window.location.href='uplyncio-full.html';
 }
 </script>
+
+<script>
+// ── PAGE STATE PERSISTENCE ──
+// Save current page/tab on every navigation
+function saveState(page, extra){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    var state = {
+      page: page,
+      extra: extra||{},
+      ts: Date.now()
+    };
+    sessionStorage.setItem('uplyncio_state_'+uid, JSON.stringify(state));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    var raw = sessionStorage.getItem('uplyncio_state_'+uid);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function restoreState(){
+  var state = loadState();
+  if(!state) return;
+  var page  = state.page;
+  var extra = state.extra||{};
+
+  // Restore correct page
+  if(page==='orders'){
+    showOrders();
+    // Restore active tab
+    if(extra.oTab){
+      var pill = document.querySelector('.opill[data-tab="'+extra.oTab+'"]');
+      if(pill) setOTab(pill, extra.oTab);
+    }
+  } else if(page==='balance'){
+    showBalance();
+  } else if(page==='settings'){
+    showSettings();
+    if(extra.settTab){
+      var stab = document.getElementById('stab-'+extra.settTab);
+      if(stab) switchSettTab(stab, extra.settTab);
+    }
+  } else if(page==='rating'){
+    showRating();
+  } else if(page==='referral'){
+    showReferral();
+  } else if(page==='trending'){
+    showTrending();
+  } else {
+    // Default: my platforms (step 1)
+    showMain();
+    if(extra.step && extra.step>1){
+      go(extra.step);
+    }
+  }
+}
+
+// Restore on page load
+window.addEventListener('DOMContentLoaded', function(){
+  // Small delay to let everything init
+  setTimeout(restoreState, 150);
+});
+</script>
 <div class="sb">
   <div class="sb-lg">
     <a href="uplyncio-full.html" style="text-decoration:none;display:flex;align-items:center;gap:9px">
@@ -1995,6 +2062,7 @@ function doLogout(){
 
 <script>
 function go(n){
+  saveState("main", {step:n});
   for(var i=1;i<=5;i++){
     var e=document.getElementById('s'+i);
     if(e) e.style.display=(i==n)?'block':'none';
@@ -3164,6 +3232,7 @@ document.addEventListener('click', function(e){
 var currentTxnFilter = 'all';
 
 function showBalance(){
+  saveState("balance");
   hideAllPages();
   var bp=document.getElementById('balancePage');
   if(bp) bp.style.display='block';
@@ -3411,6 +3480,7 @@ var twoFaOn = true;
 var settingsData = {};
 
 function showSettings(){
+  saveState("settings");
   hideAllPages();
   var sp=document.getElementById('settingsPage');
   if(sp) sp.style.display='block';
@@ -3459,6 +3529,7 @@ function showSettings(){
 }
 
 function switchSettTab(el, tab){
+  saveState("settings",{settTab:tab});
   // Update tab styles
   document.querySelectorAll('#settingsPage .stab').forEach(function(t){
     t.style.color='var(--mu)';
@@ -3907,6 +3978,7 @@ var publisherReviews = [];
 var removedLinks = 0; // tracks how many links were removed
 
 function showRating(){
+  saveState("rating");
   hideAllPages();
   var rp=document.getElementById('ratingPage');
   if(rp) rp.style.display='block';
@@ -4142,6 +4214,7 @@ function setActiveSidebar(text){
 }
 
 function showReferral(){
+  saveState("referral");
   hideAllPages();
   var rfp=document.getElementById('referralPage');
   if(rfp) rfp.style.display='block';
@@ -4446,6 +4519,7 @@ var statusConfig={
 };
 
 function showOrders(){
+  saveState("orders");
   hideAllPages();
   var op=document.getElementById('ordersPage');
   if(op){ op.style.display='block'; }
@@ -4458,6 +4532,7 @@ function showOrders(){
 }
 
 function showMain(){
+  saveState("main");
   // Hide all special pages
   ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.style.display='none';
@@ -4468,6 +4543,7 @@ function showMain(){
 }
 
 function showTrending(){
+  saveState("trending");
   hideAllPages();
   var tp=document.getElementById('trendingPage');
   if(tp) tp.style.display='block';
@@ -4476,6 +4552,7 @@ function showTrending(){
 }
 
 function setOTab(el,tab){
+  saveState("orders",{oTab:tab});
   document.querySelectorAll('.opill').forEach(function(t){
     t.style.border='1px solid var(--br)';
     t.style.background='var(--wh)';
