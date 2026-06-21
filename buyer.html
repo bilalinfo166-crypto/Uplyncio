@@ -195,6 +195,506 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   .modal-pricing{grid-template-columns:1fr}
 }
 </style>
+<script>
+// ── UPLYNCIO AUTH SYSTEM v3 ──
+
+function getUsers(){ 
+  try{ return JSON.parse(localStorage.getItem('uplyncio_users')||'[]'); }
+  catch(e){ return []; }
+}
+function saveUsers(u){ 
+  try{ localStorage.setItem('uplyncio_users', JSON.stringify(u)); }
+  catch(e){}
+}
+function findUser(email){ 
+  if(!email) return null;
+  return getUsers().find(function(u){ 
+    return u.email.toLowerCase()===email.toLowerCase().trim(); 
+  })||null; 
+}
+function genCode(){ 
+  return Math.floor(100000+Math.random()*900000).toString(); 
+}
+function getUserData(uid){
+  try{ return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{"sites":[],"orders":[],"balance":0}'); }
+  catch(e){ return {sites:[],orders:[],balance:0}; }
+}
+function saveUserData(uid,data){
+  try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data)); }
+  catch(e){}
+}
+
+// ── SHOW/HIDE PASSWORD ──
+function togglePwd(inputId, btn){
+  var inp = document.getElementById(inputId);
+  if(!inp) return;
+  if(inp.type==='password'){ inp.type='text'; if(btn) btn.textContent='Hide'; }
+  else { inp.type='password'; if(btn) btn.textContent='Show'; }
+}
+
+// ── INLINE ERROR HELPERS ──
+function showLoginError(field, msg){
+  var wrap = document.getElementById('login'+field+'Wrap');
+  var err  = document.getElementById('login'+field+'Err');
+  if(wrap){ wrap.style.background='rgba(239,68,68,.15)'; wrap.style.border='1.5px solid #ef4444'; }
+  if(err){ err.textContent='⚠ '+msg; err.style.display='block'; }
+}
+function clearSignupEmailErr(){
+  var inp=document.getElementById('su2Email');
+  var err=document.getElementById('su2EmailErr');
+  if(inp){ inp.style.borderColor='rgba(255,255,255,.1)'; inp.style.background='rgba(255,255,255,.06)'; }
+  if(err){ err.style.display='none'; err.textContent=''; }
+}
+function clearLoginError(){
+  ['Email','Pass'].forEach(function(f){
+    var wrap=document.getElementById('login'+f+'Wrap');
+    var err=document.getElementById('login'+f+'Err');
+    if(wrap){ wrap.style.background='rgba(255,255,255,.08)'; wrap.style.border='1px solid rgba(255,255,255,.12)'; }
+    if(err){ err.style.display='none'; err.textContent=''; }
+  });
+}
+
+// ── LOGIN — strict validation ──
+function handleLogin(){
+  clearLoginError();
+  var emEl = document.getElementById('loginEmail');
+  var pwEl = document.getElementById('loginPass');
+  
+  if(!emEl || !emEl.value.trim()){ 
+    showLoginError('Email','Please enter your email address.');
+    return; 
+  }
+  if(!pwEl || !pwEl.value.trim()){ 
+    showLoginError('Pass','Please enter your password.');
+    return; 
+  }
+
+  var email    = emEl.value.trim().toLowerCase();
+  var password = pwEl.value.trim();
+
+  var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
+  if(btn){ 
+    btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; 
+    btn.disabled=true; 
+  }
+
+  function resetBtn(){
+    if(btn){ 
+      btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; 
+      btn.disabled=false; 
+    }
+  }
+
+  setTimeout(function(){
+    // Step 1: Check account exists
+    var user = findUser(email);
+    if(!user){
+      resetBtn();
+      showLoginError('Email','No account found with this email. Please sign up first.');
+      return;
+    }
+
+    // Step 2: Check password
+    if(user.password !== password){
+      resetBtn();
+      showLoginError('Pass','Incorrect password. Please try again.');
+      return;
+    }
+
+    // Step 3: Check verified
+    if(!user.verified){
+      resetBtn();
+      var users = getUsers();
+      var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email; });
+      if(idx > -1){
+        users[idx].verifyCode = genCode();
+        saveUsers(users);
+        user = users[idx];
+      }
+      closeLogin();
+      openVerifyModal(user.email, false);
+      return;
+    }
+
+    // All checks passed!
+    resetBtn();
+    _loginSuccess(user);
+  }, 600);
+}
+
+// ── SIGNUP — strict validation ──
+function completeSignup(){
+  var nEl = document.getElementById('su2Name');
+  var eEl = document.getElementById('su2Email');
+  var pEl = document.getElementById('su2Pass');
+  
+  if(!nEl || !nEl.value.trim()){ 
+    alert('Please enter your full name.'); 
+    return; 
+  }
+  if(!eEl || !eEl.value.trim()){ 
+    alert('Please enter your email address.'); 
+    return; 
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eEl.value.trim())){ 
+    alert('Please enter a valid email address.'); 
+    return; 
+  }
+  if(!pEl || !pEl.value.trim() || pEl.value.trim().length < 8){ 
+    alert('Password must be at least 8 characters.'); 
+    return; 
+  }
+
+  var name     = nEl.value.trim();
+  var email    = eEl.value.trim().toLowerCase();
+  var password = pEl.value.trim();
+
+  // Check duplicate
+  if(findUser(email)){
+    // Show inline error on email field
+    var emailInp = document.getElementById('su2Email');
+    var emailErr = document.getElementById('su2EmailErr');
+    if(emailInp){ emailInp.style.borderColor='#ef4444'; emailInp.style.background='rgba(239,68,68,.1)'; }
+    if(emailErr){ emailErr.innerHTML='⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>'; emailErr.style.display='block'; }
+    return;
+  }
+
+  var btn = document.getElementById('signupCompleteBtn');
+  if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
+
+  var uid  = 'user_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  var code = genCode();
+
+  var newUser = {
+    uid:       uid,
+    name:      name,
+    email:     email,
+    password:  password,
+    role:      window._selectedRole||'publisher',
+    verified:  false,
+    verifyCode: code,
+    createdAt: new Date().toISOString()
+  };
+
+  // Init empty data for this user
+  saveUserData(uid, {sites:[], orders:[], balance:0, reserved:0, bonus:0});
+
+  var users = getUsers();
+  users.push(newUser);
+  saveUsers(users);
+
+  if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+  if(typeof closeSignupStep2==='function') closeSignupStep2();
+  
+  // Show verification
+  setTimeout(function(){ openVerifyModal(email, true); }, 300);
+}
+
+// ── EMAILJS CONFIG ──
+// ── EMAIL via Vercel Serverless (Resend) ──
+function _sendVerifyEmail(email, code, onDone){
+  var userName = '';
+  try{
+    var users = getUsers();
+    var u = users.find(function(x){ return x.email.toLowerCase()===email.toLowerCase(); });
+    if(u) userName = u.name || email.split('@')[0];
+  }catch(e){ userName = email.split('@')[0]; }
+
+  fetch('/api/send-verification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, code: code, name: userName })
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    if(data.success){
+      console.log('[Uplyncio] Email sent OK to:', email);
+      if(onDone) onDone(true);
+    } else {
+      console.warn('[Uplyncio] Resend error:', data.error);
+      // Show code in modal as fallback
+      _showCodeFallback(code);
+      if(onDone) onDone(false);
+    }
+  })
+  .catch(function(err){
+    console.error('[Uplyncio] Fetch error:', err);
+    _showCodeFallback(code);
+    if(onDone) onDone(false);
+  });
+}
+
+function _showCodeFallback(code){
+  // Show code directly in verify modal as temporary fallback
+  var infoBox = document.querySelector('#verifyModal .info-box-text');
+  var fallback = document.getElementById('codeFallback');
+  if(!fallback){
+    fallback = document.createElement('div');
+    fallback.id = 'codeFallback';
+    fallback.style.cssText = 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:12px;';
+    fallback.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;">⚠️ Email delivery issue — use this code:</div><div style="font-size:32px;font-weight:800;letter-spacing:10px;color:#f59e0b;font-family:monospace">'+code+'</div>';
+    var otpBoxes = document.getElementById('otpBoxes');
+    if(otpBoxes) otpBoxes.parentNode.insertBefore(fallback, otpBoxes);
+  }
+}
+
+
+// OTP boxes + timer logic
+var _otpTimerInterval = null;
+var _otpExpired = false;
+
+function _initOtpBoxes(){
+  var boxes = document.querySelectorAll('.otp-box');
+  boxes.forEach(function(box, i){
+    box.value = ''; box.disabled = false; box.style.opacity='1';
+    box.style.borderColor = 'rgba(255,255,255,.12)';
+    box.style.background = 'rgba(255,255,255,.07)';
+    // Remove old listeners by cloning
+    var nb = box.cloneNode(true);
+    box.parentNode.replaceChild(nb, box);
+  });
+  // Re-query after clone
+  boxes = document.querySelectorAll('.otp-box');
+  boxes.forEach(function(box, i){
+    box.addEventListener('input', function(){
+      this.value = this.value.replace(/[^0-9]/g,'').slice(-1);
+      if(this.value && i < boxes.length-1) boxes[i+1].focus();
+      _syncOtpInput();
+    });
+    box.addEventListener('keydown', function(e){
+      if(e.key==='Backspace' && !this.value && i>0){ boxes[i-1].focus(); boxes[i-1].value=''; _syncOtpInput(); }
+      if(e.key==='Enter') submitVerifyCode();
+    });
+    box.addEventListener('paste', function(e){
+      e.preventDefault();
+      var paste = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+      document.querySelectorAll('.otp-box').forEach(function(b,j){ b.value=paste[j]||''; });
+      if(paste.length>=6) document.querySelectorAll('.otp-box')[5].focus();
+      _syncOtpInput();
+    });
+    box.addEventListener('focus', function(){ if(!_otpExpired){ this.style.borderColor='#4f7cff'; this.style.background='rgba(79,124,255,.1)'; }});
+    box.addEventListener('blur', function(){ this.style.borderColor=this.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; this.style.background='rgba(255,255,255,.07)'; });
+  });
+}
+
+function _syncOtpInput(){
+  var val='';
+  document.querySelectorAll('.otp-box').forEach(function(b){ val+=b.value; });
+  var inp=document.getElementById('verifyCodeInput');
+  if(inp) inp.value=val;
+}
+
+function _startOtpTimer(){
+  clearInterval(_otpTimerInterval);
+  _otpExpired=false;
+  var totalSecs=180;
+  var timerEl=document.getElementById('verifyTimer');
+  var timerWrap=document.getElementById('verifyTimerWrap');
+  var expiredEl=document.getElementById('verifyExpiredMsg');
+  var resendLnk=document.getElementById('resendLink');
+  var vBtn=document.getElementById('verifyBtn');
+  if(timerWrap) timerWrap.style.display='inline-flex';
+  if(expiredEl) expiredEl.style.display='none';
+  if(resendLnk){ resendLnk.style.opacity='0.4'; resendLnk.style.pointerEvents='none'; }
+  if(vBtn){ vBtn.style.opacity='1'; vBtn.style.pointerEvents='auto'; }
+  function tick(){
+    var m=Math.floor(totalSecs/60), s=totalSecs%60;
+    if(timerEl){ timerEl.textContent=m+':'+(s<10?'0':'')+s; timerEl.style.color=totalSecs<=60?'#ef4444':'#f59e0b'; }
+    if(totalSecs<=0){
+      clearInterval(_otpTimerInterval); _otpExpired=true;
+      if(timerWrap) timerWrap.style.display='none';
+      if(expiredEl) expiredEl.style.display='block';
+      if(vBtn){ vBtn.style.opacity='0.4'; vBtn.style.pointerEvents='none'; }
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.disabled=true; b.style.opacity='0.45'; b.style.borderColor='#ef4444'; });
+      if(resendLnk){ resendLnk.style.opacity='1'; resendLnk.style.pointerEvents='auto'; }
+      return;
+    }
+    totalSecs--;
+  }
+  tick();
+  _otpTimerInterval=setInterval(tick,1000);
+}
+
+function openVerifyModal(email, isNew){
+  window._verifyingEmail = email;
+  window._verifyIsNew    = isNew;
+  var user = findUser(email);
+  if(!user){ return; }
+  var emailShow = document.getElementById('verifyEmailShow');
+  if(emailShow) emailShow.textContent = user.email;
+  var err = document.getElementById('verifyError');
+  if(err){ err.style.display='none'; err.textContent=''; }
+  var modal = document.getElementById('verifyModal');
+  if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
+  _initOtpBoxes();
+  setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); },200);
+  _startOtpTimer();
+  _sendVerifyEmail(user.email, user.verifyCode, function(sent){});
+}
+
+function closeVerifyModal(){
+  var m = document.getElementById('verifyModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+
+function submitVerifyCode(){
+  if(_otpExpired){
+    var err = document.getElementById('verifyError');
+    if(err){ err.textContent='⏰ Code has expired. Please click Resend Code.'; err.style.display='block'; }
+    return;
+  }
+  var inp = document.getElementById('verifyCodeInput');
+  var code = inp ? inp.value.trim() : '';
+  if(code.length < 6){
+    // Shake the boxes
+    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; });
+    var err = document.getElementById('verifyError');
+    if(err){ err.textContent='⚠ Please enter all 6 digits of the code.'; err.style.display='block'; }
+    setTimeout(function(){ 
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; });
+    }, 2000);
+    return;
+  }
+  var email = window._verifyingEmail||'';
+  var users = getUsers();
+  var idx   = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+  if(idx===-1){ closeVerifyModal(); return; }
+  var user = users[idx];
+  if(code === user.verifyCode){
+    clearInterval(_otpTimerInterval);
+    user.verified=true; user.verifyCode=''; user.emailVerified=true;
+    users[idx]=user; saveUsers(users);
+    try{
+      var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+      s['settEmail']=user.email; s['emailVerified']=true;
+      localStorage.setItem('uplyncio_settings',JSON.stringify(s));
+    }catch(e){}
+    // Show success briefly
+    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
+    var vBtn=document.getElementById('verifyBtn');
+    if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; }
+    setTimeout(function(){ closeVerifyModal(); _loginSuccess(user); }, 600);
+  } else {
+    // Wrong code — red boxes + error
+    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; b.style.background='rgba(239,68,68,.08)'; });
+    var err = document.getElementById('verifyError');
+    if(err){ err.textContent='❌ Incorrect code. Please try again.'; err.style.display='block'; }
+    setTimeout(function(){ 
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)'; });
+      if(err) err.style.display='none';
+    }, 2500);
+  }
+}
+
+function resendCode(){
+  var email = window._verifyingEmail||'';
+  var users = getUsers();
+  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+  if(idx===-1) return;
+  // Generate new code
+  users[idx].verifyCode = genCode();
+  saveUsers(users);
+  // Reset boxes
+  document.querySelectorAll('.otp-box').forEach(function(b){
+    b.value=''; b.disabled=false; b.style.opacity='1';
+    b.style.borderColor='rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)';
+  });
+  var inp=document.getElementById('verifyCodeInput'); if(inp) inp.value='';
+  var err=document.getElementById('verifyError');
+  if(err){ err.style.color='#4ade80'; err.textContent='✅ New code sent! Please check your email.'; err.style.display='block'; }
+  setTimeout(function(){ if(err){ err.style.display='none'; err.style.color='#ef4444'; } }, 3000);
+  // Reset & restart timer
+  _startOtpTimer();
+  // Send new email
+  var user=findUser(email);
+  if(user) _sendVerifyEmail(user.email, user.verifyCode, function(){});
+  // Focus first box
+  setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); }, 100);
+}
+
+// ── FORGOT PASSWORD ──
+function openForgotModal(){
+  closeLogin();
+  var m = document.getElementById('forgotModal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+  var inp = document.getElementById('forgotEmail');
+  if(inp) inp.value='';
+  document.getElementById('forgotStep1').style.display='block';
+  document.getElementById('forgotStep2').style.display='none';
+  document.getElementById('forgotStep3').style.display='none';
+}
+function closeForgotModal(){
+  var m=document.getElementById('forgotModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function sendForgotCode(){
+  var em = document.getElementById('forgotEmail');
+  if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
+  var user = findUser(em.value.trim());
+  if(!user){ alert('No account found with this email.'); return; }
+  var code = genCode();
+  var users = getUsers();
+  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
+  if(idx>-1){ users[idx].resetCode=code; saveUsers(users); }
+  window._resetEmail = em.value.trim().toLowerCase();
+  var box = document.getElementById('forgotCodeBox');
+  if(box) box.innerHTML='<div style="background:rgba(79,124,255,.12);border:2px dashed #4f7cff;border-radius:10px;padding:14px;text-align:center;margin:12px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">📧 info@uplyncio.com</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px">Password reset code:</div><div style="font-family:monospace;font-size:30px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+code+'</div></div>';
+  document.getElementById('forgotStep1').style.display='none';
+  document.getElementById('forgotStep2').style.display='block';
+}
+function verifyResetCode(){
+  var inp = document.getElementById('resetCodeInput');
+  if(!inp||!inp.value.trim()){ alert('Please enter the code.'); return; }
+  var user = findUser(window._resetEmail||'');
+  if(!user){ alert('User not found.'); return; }
+  if(inp.value.trim()!==user.resetCode){ alert('Incorrect code. Please try again.'); return; }
+  document.getElementById('forgotStep2').style.display='none';
+  document.getElementById('forgotStep3').style.display='block';
+}
+function submitNewPassword(){
+  var p1=document.getElementById('newPass1');
+  var p2=document.getElementById('newPass2');
+  if(!p1||p1.value.trim().length<8){ alert('Password must be at least 8 characters.'); return; }
+  if(p1.value!==p2.value){ alert('Passwords do not match.'); return; }
+  var users=getUsers();
+  var idx=users.findIndex(function(u){ return u.email.toLowerCase()===(window._resetEmail||''); });
+  if(idx===-1){ alert('User not found.'); return; }
+  users[idx].password=p1.value.trim();
+  users[idx].resetCode='';
+  saveUsers(users);
+  closeForgotModal();
+  alert('✅ Password reset successfully! Please login with your new password.');
+  openLogin();
+}
+
+// ── LOGIN SUCCESS ──
+function _loginSuccess(user){
+  try{
+    var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    s['settName']  = user.name||'';
+    s['settEmail'] = user.email||'';
+    localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+    localStorage.setItem('uplyncio_loggedIn', '1');
+    localStorage.setItem('uplyncio_currentUid', user.uid||'');
+    localStorage.setItem('uplyncio_user', JSON.stringify(user));
+    // Load user's personal data
+    var userData = getUserData(user.uid);
+    localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
+  }catch(ex){}
+  var role = user.role || 'buyer';
+    if(role === 'publisher'){
+      window.location.href='publisher.html';
+    } else {
+      // buyer stays on buyer page or goes to buyer dashboard
+      closeLogin();
+      if(typeof onBuyerLogin === 'function') onBuyerLogin(user);
+    }
+}
+
+function googleLogin(){ alert('Google login requires backend setup. Please use Email/Password.'); }
+function facebookLogin(){ alert('Facebook login requires backend setup. Please use Email/Password.'); }
+function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else facebookLogin(); }
+</script>
 </head>
 <body>
 
@@ -209,8 +709,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   <div class="nav-right">
     <div class="nav-balance">Balance: <strong>$0.00</strong> &nbsp;|&nbsp; Reserved: <strong style="color:var(--text2)">$0.00</strong></div>
     <button class="nav-btn nav-btn-ghost" onclick="window.location='uplyncio-full.html'">← Home</button>
-    <button class="nav-btn nav-btn-accent" onclick="showTopup()">+ Add Funds</button>
-    <div class="nav-avatar" id="buyerAvatar" onclick="toggleProfileMenu()">B</div>
+    <div id="buyerGuestNav" style="display:flex;gap:8px">
+      <button class="nav-btn nav-btn-ghost" onclick="openLogin()">Sign In</button>
+      <button class="nav-btn nav-btn-accent" onclick="openBuyerSignup()">Get Started</button>
+    </div>
+    <div id="buyerUserNav" style="display:none;align-items:center;gap:10px">
+      <button class="nav-btn nav-btn-accent" onclick="showTopup()">+ Add Funds</button>
+      <div class="nav-balance">Balance: <strong id="buyerBalance">$0.00</strong></div>
+      <div class="nav-avatar" id="buyerAvatar" onclick="toggleBuyerProfile()">B</div>
+    </div>
   </div>
 </nav>
 
@@ -785,5 +1292,210 @@ function toggleProfileMenu(){ showToast('👤 Profile settings coming soon'); }
 // Init
 applyFilters();
 </script>
+<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
+<div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;padding:32px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+  <button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.05)';this.style.color='rgba(255,255,255,.6)'">✕</button>
+
+  <!-- Logo -->
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="display:inline-flex;align-items:center;gap:8px">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:18px">🔗</div>
+      <span style="font-family:'Manrope',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-0.8px">Uplyncio</span>
+    </div>
+  </div>
+
+  <h2 style="font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;color:#fff;text-align:center;margin-bottom:22px;letter-spacing:-1px">Log In</h2>
+
+  <!-- Social buttons -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+    <button onclick="googleLogin()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <button onclick="facebookLogin()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/></svg>
+      Continue with Facebook
+    </button>
+  </div>
+
+  <!-- Divider -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
+    <span style="font-size:12px;color:rgba(255,255,255,.35);font-weight:500">Or continue with</span>
+    <div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
+  </div>
+
+  <!-- Email -->
+  <div id="loginEmailWrap" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 16px;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:all .2s">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#718096" stroke-width="2"/><polyline points="22,6 12,13 2,6" stroke="#718096" stroke-width="2"/></svg>
+    <input id="loginEmail" type="email" placeholder="your@email.com" style="background:transparent;border:none;outline:none;font-size:14px;color:#fff;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
+  </div>
+  <div id="loginEmailErr" style="display:none;font-size:12px;color:#e53e3e;margin-bottom:8px;padding-left:4px;font-weight:600"></div>
+
+  <!-- Password -->
+  <div id="loginPassWrap" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 16px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;transition:all .2s">
+    <div style="display:flex;align-items:center;gap:10px;flex:1">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#718096" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#718096" stroke-width="2"/></svg>
+      <input type="password" placeholder="Password" id="loginPass" style="background:transparent;border:none;outline:none;font-size:14px;color:#fff;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
+    </div>
+    <button onclick="togglePwd('loginPass',this)" style="background:none;border:none;cursor:pointer;font-size:12px;color:#4f7cff;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif">Show</button>
+  </div>
+  <div id="loginPassErr" style="display:none;font-size:12px;color:#e53e3e;margin-bottom:12px;padding-left:4px;font-weight:600"></div>
+
+  <!-- Remember + Forgot -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.5)">
+      <input type="checkbox" style="width:16px;height:16px;border-radius:4px;accent-color:#4f7cff">
+      Remember me
+    </label>
+    <a href="#" onclick="openForgotModal();return false" style="font-size:13px;color:#4f7cff;font-weight:700;text-decoration:none">Lost password?</a>
+  </div>
+
+  <!-- Login button -->
+  <button onclick="handleLogin()" style="width:100%;background:#0a1628;color:#fff;border:none;border-radius:100px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;display:flex;align-items:center;justify-content:space-between;transition:background .2s" onmouseover="this.style.background='#1a2d4a'" onmouseout="this.style.background='#0a1628'">
+    <span style="flex:1;text-align:center">Log In</span>
+    <span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">↗</span>
+  </button>
+
+  <p style="text-align:center;margin-top:14px;font-size:13px;color:rgba(255,255,255,.4)">No account yet? <a href="#" onclick="closeLogin();openSignup();return false" style="color:#4f7cff;font-weight:700;text-decoration:none">Create a new account</a></p>
+</div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div id="signupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeSignup()">
+<div style="background:#f0f4f8;border-radius:24px;width:480px;max-width:95vw;padding:40px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.3)">
+  <button onclick="closeSignup()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(0,0,0,.08);cursor:pointer;font-size:16px;color:#444;display:flex;align-items:center;justify-content:center">✕</button>
+
+  <h2 style="font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;color:#0a1628;text-align:center;margin-bottom:8px;letter-spacing:-0.8px">Ready To Get Started?</h2>
+  <p style="text-align:center;font-size:14px;color:#718096;margin-bottom:28px;line-height:1.7">Place your content on quality sites without a fuss.<br>You are one click away!</p>
+
+  <!-- Email + Button -->
+  <div style="display:flex;gap:0;margin-bottom:16px;background:#e8edf5;border-radius:100px;overflow:hidden;padding:6px">
+    <input type="email" placeholder="Your email" style="flex:1;background:transparent;border:none;outline:none;padding:10px 16px;font-size:14px;color:#2d3748;font-family:'Plus Jakarta Sans',sans-serif">
+    <button style="background:#0a1628;color:#fff;border:none;border-radius:100px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:background .2s" onmouseover="this.style.background='#1a2d4a'" onmouseout="this.style.background='#0a1628'">
+      Sign Up for Free
+      <span style="font-size:14px">›</span>
+    </button>
+  </div>
+
+  <!-- reCAPTCHA look -->
+  <div style="display:flex;justify-content:center;margin-bottom:20px">
+    <div style="background:#fff;border:1px solid #cbd5e0;border-radius:8px;padding:14px 20px;display:flex;align-items:center;gap:14px;width:280px">
+      <div style="width:22px;height:22px;border:2px solid #cbd5e0;border-radius:4px;flex-shrink:0"></div>
+      <span style="font-size:14px;color:#4a5568;font-weight:500">I'm not a robot</span>
+      <div style="margin-left:auto;text-align:center">
+        <div style="font-size:22px">🔄</div>
+        <div style="font-size:9px;color:#999;letter-spacing:.5px">reCAPTCHA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <div style="flex:1;height:1px;background:#cbd5e0"></div>
+    <span style="font-size:13px;color:#718096">or continue with</span>
+    <div style="flex:1;height:1px;background:#cbd5e0"></div>
+  </div>
+
+  <!-- Social -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+    <button style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:13px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Sign Up
+    </button>
+    <button style="display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:100px;padding:13px 20px;cursor:pointer;font-size:14px;font-weight:700;color:#1a1a2e;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow='none'">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/></svg>
+      Sign Up
+    </button>
+  </div>
+
+  <p style="text-align:center;font-size:12px;color:#a0aec0;line-height:1.6">By signing up, you agree to our <a href="https://uplyncio.com/privacy-policy/" style="color:#4f7cff;text-decoration:underline">Terms and Conditions</a> and <a href="https://uplyncio.com/privacy-policy/" style="color:#4f7cff;text-decoration:underline">Privacy Policy</a></p>
+
+  <p style="text-align:center;margin-top:14px;font-size:13px;color:#718096">Already have an account? <a href="#" onclick="closeSignup();openLogin();return false" style="color:#4f7cff;font-weight:600;text-decoration:none">Log In</a></p>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+
+<script>
+// ── BUYER PAGE AUTH ──
+function onBuyerLogin(user){
+  document.getElementById('buyerGuestNav').style.display = 'none';
+  document.getElementById('buyerUserNav').style.display = 'flex';
+  var av = document.getElementById('buyerAvatar');
+  if(av) av.textContent = (user.name||'B').charAt(0).toUpperCase();
+  showToast('✅ Welcome back, '+(user.name||'')+'!');
+}
+
+function openBuyerSignup(){
+  // Set role as buyer and open signup
+  window._selectedRole = 'buyer';
+  openSignup();
+}
+
+function openSignup(){
+  // Open role modal or direct signup
+  var rm = document.getElementById('roleModal');
+  if(rm){ rm.style.display='flex'; document.body.style.overflow='hidden'; }
+}
+
+function openLogin(){
+  var m = document.getElementById('loginModal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+  var ei = document.getElementById('loginEmail');
+  var pi = document.getElementById('loginPass');
+  if(ei) ei.value='';
+  if(pi) pi.value='';
+}
+
+function closeLogin(){
+  var m = document.getElementById('loginModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+
+function closeSignup(){
+  var m = document.getElementById('signupModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+
+function openSignupStep2(role){
+  window._selectedRole = role || 'buyer';
+  var rm = document.getElementById('roleModal');
+  if(rm) rm.style.display='none';
+  var m = document.getElementById('signupStep2Modal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+}
+
+function closeSignupStep2(){
+  var m = document.getElementById('signupStep2Modal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+
+function closeRoleModal(){
+  var m = document.getElementById('roleModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+
+function toggleBuyerProfile(){
+  showToast('Profile settings — coming soon!');
+}
+
+function showTopup(){
+  showToast('💳 Add funds — contact info@uplyncio.com');
+}
+
+// Check if already logged in
+(function(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    if(uid && user && user.verified){
+      onBuyerLogin(user);
+    }
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
