@@ -216,17 +216,34 @@ function _sendVerifyEmail(email, code, onDone){
   .then(function(res){ return res.json(); })
   .then(function(data){
     if(data.success){
-      console.log('[Uplyncio] Verification email sent to:', email);
+      console.log('[Uplyncio] Email sent OK to:', email);
       if(onDone) onDone(true);
     } else {
-      console.warn('[Uplyncio] Email send failed:', data.error);
+      console.warn('[Uplyncio] Resend error:', data.error);
+      // Show code in modal as fallback
+      _showCodeFallback(code);
       if(onDone) onDone(false);
     }
   })
   .catch(function(err){
-    console.error('[Uplyncio] Network error:', err);
+    console.error('[Uplyncio] Fetch error:', err);
+    _showCodeFallback(code);
     if(onDone) onDone(false);
   });
+}
+
+function _showCodeFallback(code){
+  // Show code directly in verify modal as temporary fallback
+  var infoBox = document.querySelector('#verifyModal .info-box-text');
+  var fallback = document.getElementById('codeFallback');
+  if(!fallback){
+    fallback = document.createElement('div');
+    fallback.id = 'codeFallback';
+    fallback.style.cssText = 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:12px;';
+    fallback.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;">⚠️ Email delivery issue — use this code:</div><div style="font-size:32px;font-weight:800;letter-spacing:10px;color:#f59e0b;font-family:monospace">'+code+'</div>';
+    var otpBoxes = document.getElementById('otpBoxes');
+    if(otpBoxes) otpBoxes.parentNode.insertBefore(fallback, otpBoxes);
+  }
 }
 
 
