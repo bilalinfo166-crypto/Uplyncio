@@ -199,68 +199,37 @@ function completeSignup(){
 }
 
 // ── EMAILJS CONFIG ──
-// Sign up free at emailjs.com to get real email sending
-// Replace these with your EmailJS credentials:
-var _EJS_PUBLIC  = 'cJIGW1xaODsMjMFx4';
-var _EJS_SERVICE = 'service_wdyw4fj';
-var _EJS_TEMPLATE= 'template_v4kbqxk';
-var _EJS_READY   = false;
-var _ejsLoaded   = false;
-
-function _initEmailJS(){
-  if(typeof emailjs !== 'undefined' && !_EJS_READY){
-    try{ 
-      emailjs.init(_EJS_PUBLIC);  // works with both old and new SDK
-      _EJS_READY = true; 
-      console.log('[Uplyncio] EmailJS initialized OK');
-    }catch(e){ console.warn('[Uplyncio] EmailJS init error:', e); }
-  }
-}
-
+// ── EMAIL via Vercel Serverless (Resend) ──
 function _sendVerifyEmail(email, code, onDone){
-  // If emailjs not loaded yet, wait and retry up to 10 times
-  if(typeof emailjs === 'undefined' || !_EJS_READY){
-    if(!window._ejsRetry) window._ejsRetry = 0;
-    window._ejsRetry++;
-    if(window._ejsRetry < 10){
-      setTimeout(function(){ _sendVerifyEmail(email, code, onDone); }, 600);
+  var userName = '';
+  try{
+    var users = getUsers();
+    var u = users.find(function(x){ return x.email.toLowerCase()===email.toLowerCase(); });
+    if(u) userName = u.name || email.split('@')[0];
+  }catch(e){ userName = email.split('@')[0]; }
+
+  fetch('/api/send-verification', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, code: code, name: userName })
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    if(data.success){
+      console.log('[Uplyncio] Verification email sent to:', email);
+      if(onDone) onDone(true);
     } else {
-      window._ejsRetry = 0;
-      console.warn('[Uplyncio] EmailJS failed to load after retries');
+      console.warn('[Uplyncio] Email send failed:', data.error);
       if(onDone) onDone(false);
     }
-    return;
-  }
-  window._ejsRetry = 0;
-  console.log('[Uplyncio] Sending email to:', email, 'code:', code);
-  emailjs.send(_EJS_SERVICE, _EJS_TEMPLATE, {
-    to_email:  email,
-    to_name:   email.split('@')[0],
-    code:      code,
-    from_name: 'Uplyncio',
-    reply_to:  'info@uplyncio.com'
-  }).then(function(res){
-    console.log('[Uplyncio] Email sent OK:', res);
-    if(onDone) onDone(true);
-  }).catch(function(err){
-    console.error('[Uplyncio] EmailJS send FAILED:', JSON.stringify(err));
+  })
+  .catch(function(err){
+    console.error('[Uplyncio] Network error:', err);
     if(onDone) onDone(false);
   });
 }
 
-// Dev helper: shows the code in a small toast so you can test without real email
-function _showDevCode(email, code){
-  // Only show in dev/localhost environments
-  var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
-  if(!isLocal) return; // On live site, don't reveal the code
-  var t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e3a5f;border:1px solid #4f7cff;border-radius:12px;padding:14px 22px;color:#fff;font-size:13px;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,.5);text-align:center;min-width:280px';
-  t.innerHTML = '<div style="color:rgba(255,255,255,.5);margin-bottom:6px;font-size:11px">🔧 DEV MODE — code for ' + email + '</div><div style="font-size:28px;font-weight:800;font-family:monospace;letter-spacing:8px;color:#4f7cff">' + code + '</div><div style="color:rgba(255,255,255,.35);font-size:11px;margin-top:6px">Configure EmailJS to send real emails</div>';
-  document.body.appendChild(t);
-  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 15000);
-}
 
-// ── VERIFY MODAL ──
 // OTP boxes + timer logic
 var _otpTimerInterval = null;
 var _otpExpired = false;
@@ -2372,22 +2341,7 @@ window.addEventListener('load', function(){
 });
 </script>
 
-<script>
-// Load EmailJS with fallback CDN
-(function(){
-  var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-  s.onload = function(){ window._ejsLoaded=true; _initEmailJS(); };
-  s.onerror = function(){
-    // Fallback to official CDN
-    var s2 = document.createElement('script');
-    s2.src = 'https://cdn.emailjs.com/dist/email.min.js';
-    s2.onload = function(){ window._ejsLoaded=true; _initEmailJS(); };
-    document.head.appendChild(s2);
-  };
-  document.head.appendChild(s);
-})();
-</script>
+
 </body>
 </html>
 
