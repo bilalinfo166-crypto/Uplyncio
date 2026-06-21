@@ -188,6 +188,22 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .m-submit{width:100%;padding:12px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}
 .m-submit:hover{background:#3d6bef}
 
+/* Publisher Performance */
+.pub-perf{background:#f8faff;border:1px solid #e2e8f0;border-radius:11px;padding:14px 16px;margin-bottom:14px}
+.pub-perf-title{font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.pub-perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pp-item{padding:7px 10px;border-bottom:1px solid #f1f5f9}
+.pp-item:nth-child(odd){border-right:1px solid #f1f5f9}
+.pp-item:nth-last-child(-n+2){border-bottom:none}
+.pp-lbl{font-size:10.5px;color:#94a3b8;margin-bottom:3px;font-weight:500}
+.pp-val{font-size:13px;font-weight:700;color:#1a202c;display:flex;align-items:center;gap:4px}
+.pp-val.green{color:#16a34a}
+.pp-val.amber{color:#d97706}
+.pp-val.red{color:#dc2626}
+.pp-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:4px;overflow:hidden}
+.pp-bar-fill{height:100%;border-radius:2px;background:#16a34a;transition:width .4s}
+.flag{width:16px;height:12px;border-radius:2px;display:inline-block;font-size:12px;line-height:1}
+
 /* toast */
 .toast{position:fixed;bottom:22px;right:22px;background:#1a202c;border-radius:9px;padding:11px 16px;color:#fff;font-size:12.5px;font-weight:600;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
 .toast.show{transform:translateY(0);opacity:1}
@@ -873,6 +889,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
     <div class="m-body">
       <div class="m-stats" id="mStats"></div>
       <div class="m-tags" id="mTags"></div>
+      <div id="mPubPerf"></div>
       <div class="m-sec">Select Service</div>
       <div class="m-opts" id="mPricing"></div>
       <div class="m-sec">Order Details</div>
@@ -896,7 +913,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 // SAMPLE SITES (merged with publisher localStorage sites)
 // ═══════════════════════════════════
 var SAMPLE = [
-  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:10,comp:100,pub:'Contributor',maxL:2,req:'No gambling'},
+  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:10,comp:100,pub:'Contributor',maxL:2,req:'No gambling',topCountry:'USA',linkLifetime:'Up to 100%'},
   {url:'hackernoon.com',da:88,dr:85,traffic:320000,semT:1200000,refD:95000,cats:['Tech','Internet'],linkType:'Dofollow',gP:300,wP:380,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:98,pub:'Contributor',maxL:2,req:'No promotional content'},
   {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semT:8000000,refD:650000,cats:['Business','Finance'],linkType:'Dofollow',gP:600,wP:750,liOk:true,liP:400,liReq:'Business topics only',country:'USA',lang:'English',tat:14,comp:95,pub:'Contributor',maxL:1,req:''},
   {url:'finextra.com',da:78,dr:74,traffic:95000,semT:380000,refD:28000,cats:['Finance','Crypto'],linkType:'Dofollow',gP:200,wP:260,liOk:true,liP:120,liReq:'Finance only',country:'UK',lang:'English',tat:7,comp:100,pub:'Owner',maxL:2,req:''},
@@ -1108,14 +1125,16 @@ function renderCard(s, idx){
   var pubB = s.pub==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>';
   var catB = (s.cats||[]).slice(0,3).map(function(c){ return '<span class="badge b-cat">'+c+'</span>'; }).join('');
 
+  var flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'};
+  var cFlag=flags[s.country]||'🌐';
   var stats = '<div class="card-stats">'
     +'<div class="st"><div class="st-v blue">'+s.da+'</div><div class="st-l">Moz DA</div></div>'
     +'<div class="st"><div class="st-v teal">'+s.dr+'</div><div class="st-l">Ahrefs DR</div></div>'
     +'<div class="st"><div class="st-v"><span class="a-dot">a</span>'+fmtN(s.traffic)+'</div><div class="st-l">Ahrefs Traffic</div></div>'
     +'<div class="st"><div class="st-v">'+fmtN(s.semT)+'</div><div class="st-l">SemRush Traffic</div></div>'
-    +'<div class="st"><div class="st-v">'+fmtN(s.refD)+'</div><div class="st-l">Ref. Domains</div></div>'
     +'<div class="st"><div class="st-v" style="justify-content:center">'+ringHtml(s.comp)+'</div><div class="st-l">Completion</div></div>'
     +'<div class="st"><div class="st-v amber">'+s.tat+'d</div><div class="st-l">TAT</div></div>'
+    +'<div class="st"><div class="st-v" style="font-size:18px">'+cFlag+'</div><div class="st-l">'+s.country+'</div></div>'
     +'</div>';
 
   if(currentTab==='article'){
@@ -1216,6 +1235,55 @@ function openModal(idx, type){
     '<div class="m-tag">📁 <strong>'+(selectedSite.cats||[]).join(', ')+'</strong></div>'+
     '<div class="m-tag">🔢 Max <strong>'+selectedSite.maxL+' links</strong></div>'+
     (selectedSite.req?'<div class="m-tag" style="color:#d97706">📌 '+selectedSite.req+'</div>':'');
+
+  // Publisher Performance Section
+  var s = selectedSite;
+  var compCol = s.comp>=90?'green':s.comp>=70?'amber':'red';
+  var lifeVal = s.linkLifetime||'Up to 100%';
+  var topCountry = s.topCountry||s.country||'USA';
+  var topCountryTraffic = s.topCountryTraffic||'N/A';
+  var countryFlag = {'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'}[topCountry]||'🌐';
+  var siteCountryFlag = {'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'}[s.country]||'🌐';
+  
+  document.getElementById('mPubPerf').innerHTML =
+    '<div class="pub-perf">'+
+    '<div class="pub-perf-title">📊 Publisher Performance</div>'+
+    '<div class="pub-perf-grid">'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">Completion Rate</div>'+
+        '<div class="pp-val '+compCol+'">'+s.comp+'%</div>'+
+        '<div class="pp-bar"><div class="pp-bar-fill" style="width:'+s.comp+'%;background:'+(s.comp>=90?'#16a34a':s.comp>=70?'#d97706':'#dc2626')+'"></div></div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">Language</div>'+
+        '<div class="pp-val">'+s.lang+'</div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">Avg Lifetime of Links</div>'+
+        '<div class="pp-val green">'+lifeVal+'</div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">Country</div>'+
+        '<div class="pp-val">'+siteCountryFlag+' '+s.country+'</div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">TAT</div>'+
+        '<div class="pp-val amber">Up to '+s.tat+' days</div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">SemRush Top Country</div>'+
+        '<div class="pp-val">'+countryFlag+' '+topCountry+'</div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">Tasks with Initial Domain & Price</div>'+
+        '<div class="pp-val green">100%</div>'+
+      '</div>'+
+      '<div class="pp-item">'+
+        '<div class="pp-lbl">Top Country Traffic</div>'+
+        '<div class="pp-val">'+(topCountryTraffic==='N/A'?'<span style="color:#94a3b8">N/A</span>':topCountryTraffic)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '</div>';
 
   var opts='';
   opts+='<div class="m-opt'+(type==='article'?' sel':'')+'" onclick="selSvc(\'article\','+selectedSite.gP+',this)">'
