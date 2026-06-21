@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Sites — Uplyncio</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;
+  --bg2:#0b0f1c;
+  --surface:#0f1628;
+  --card:#111a2e;
+  --card2:#141f35;
+  --border:#1c2a45;
+  --border2:#243356;
+  --accent:#4f7cff;
+  --accent-soft:rgba(79,124,255,0.12);
+  --teal:#00d4aa;
+  --teal-soft:rgba(0,212,170,0.1);
+  --text:#eef2ff;
+  --text2:#8fa3c8;
+  --muted:#4a607f;
+  --green:#22c55e;
+  --yellow:#f59e0b;
+  --red:#ef4444;
+  --r:12px;
+  --r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;background:rgba(7,9,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px}
+.nav-logo{font-family:'Manrope',sans-serif;font-size:21px;font-weight:800;color:var(--text);text-decoration:none;letter-spacing:-0.8px;margin-right:8px}
+.nav-logo em{font-style:normal;color:var(--accent)}
+.nav-tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px}
+.nav-tab{padding:5px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text2);transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif}
+.nav-tab.active{background:var(--accent);color:#fff}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.nav-balance{font-size:13px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px}
+.nav-balance strong{color:var(--teal)}
+.nav-btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}
+.nav-btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
+.nav-btn-ghost:hover{border-color:var(--accent);color:var(--text)}
+.nav-btn-accent{background:var(--accent);color:#fff}
+.nav-btn-accent:hover{opacity:.88}
+.nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;border:2px solid var(--border2)}
+
+/* LAYOUT */
+.layout{display:flex;margin-top:58px;min-height:calc(100vh - 58px)}
+
+/* SIDEBAR FILTERS */
+.sidebar{width:260px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:20px 16px;overflow-y:auto;position:sticky;top:58px;height:calc(100vh - 58px)}
+.sidebar-title{font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.filter-group{margin-bottom:18px}
+.filter-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.filter-label .badge-new{font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700}
+.filter-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 10px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .18s}
+.filter-input:focus{border-color:var(--accent)}
+.filter-input::placeholder{color:var(--muted)}
+.filter-range{display:flex;gap:6px}
+.filter-range .filter-input{width:50%}
+.filter-select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 10px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa3c8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.filter-select:focus{border-color:var(--accent)}
+.filter-divider{height:1px;background:var(--border);margin:16px 0}
+.filter-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.clear-btn{width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;margin-top:4px}
+.clear-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* MAIN CONTENT */
+.main{flex:1;padding:20px 24px;overflow-y:auto}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.topbar-left{flex:1}
+.results-count{font-size:14px;color:var(--text2)}
+.results-count strong{color:var(--text);font-weight:700}
+.service-tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px}
+.service-tab{padding:6px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text2);transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif}
+.service-tab.active{background:var(--accent);color:#fff}
+.search-wrap{display:flex;gap:8px;flex:1;max-width:500px}
+.search-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px 8px 36px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238fa3c8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center}
+.search-input:focus{border-color:var(--accent)}
+.sort-select{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 28px 8px 10px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa3c8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+
+/* SITE CARDS */
+.sites-list{display:flex;flex-direction:column;gap:10px}
+.site-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;transition:all .2s;cursor:pointer}
+.site-card:hover{border-color:var(--accent);background:var(--card2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,124,255,.08)}
+.site-card-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.site-domain{font-family:'Manrope',sans-serif;font-size:16px;font-weight:700;color:var(--accent);text-decoration:none}
+.site-domain:hover{text-decoration:underline}
+.site-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.badge-df{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge-nf{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge-cat{background:var(--accent-soft);color:var(--accent);border:1px solid rgba(79,124,255,.2)}
+.badge-owner{background:rgba(0,212,170,.1);color:var(--teal);border:1px solid rgba(0,212,170,.2);font-size:10px}
+.badge-contrib{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2);font-size:10px}
+.site-card-stats{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding-top:14px;border-top:1px solid var(--border)}
+.stat-item{text-align:center}
+.stat-val{font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:center;gap:3px}
+.stat-val.green{color:var(--green)}
+.stat-val.yellow{color:var(--yellow)}
+.stat-lbl{font-size:10.5px;color:var(--muted);margin-top:2px;white-space:nowrap}
+.ahrefs-icon{width:14px;height:14px;background:#f97316;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff}
+.semrush-icon{width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center}
+.site-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.price-wrap{display:flex;align-items:baseline;gap:6px}
+.price-label{font-size:11px;color:var(--muted)}
+.price-val{font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:var(--text)}
+.price-sub{font-size:11px;color:var(--muted)}
+.price-write{font-size:12px;color:var(--text2);margin-top:2px}
+.buy-btn{padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.buy-btn:hover{opacity:.88;transform:translateY(-1px)}
+.buy-btn-li{background:var(--surface);border:1px solid var(--border2);color:var(--text2)}
+.buy-btn-li:hover{border-color:var(--accent);color:var(--accent)}
+
+/* COMPLETION RING */
+.completion-ring{position:relative;width:36px;height:36px}
+.completion-ring svg{transform:rotate(-90deg)}
+.completion-ring .ring-bg{stroke:var(--border);fill:none}
+.completion-ring .ring-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .6s}
+.completion-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text)}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:24px;padding-bottom:32px}
+.page-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center}
+.page-btn:hover{border-color:var(--accent);color:var(--text)}
+.page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.page-btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ORDER MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:linear-gradient(160deg,#0d1f3c,#0a1628);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative}
+.modal-header{padding:22px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#0d1f3c;border-radius:24px 24px 0 0;z-index:2}
+.modal-site-url{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:var(--accent)}
+.modal-close{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,.04);cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.modal-close:hover{background:rgba(239,68,68,.2);color:#fff}
+.modal-body{padding:20px 24px}
+.modal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.modal-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.modal-stat-val{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:var(--text)}
+.modal-stat-lbl{font-size:11px;color:var(--muted);margin-top:3px}
+.modal-section{margin-bottom:16px}
+.modal-section-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.modal-pricing{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.price-option{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .18s}
+.price-option:hover,.price-option.selected{border-color:var(--accent);background:var(--accent-soft)}
+.price-option-name{font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600}
+.price-option-val{font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:var(--text)}
+.price-option-note{font-size:11px;color:var(--muted);margin-top:4px}
+.form-group{margin-bottom:12px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .18s}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--muted)}
+.form-textarea{resize:vertical;min-height:80px}
+.modal-total{background:var(--accent-soft);border:1px solid rgba(79,124,255,.25);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-total-label{font-size:13px;color:var(--text2);font-weight:600}
+.modal-total-val{font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;color:var(--accent)}
+.modal-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--teal));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.modal-submit:hover{opacity:.88;transform:translateY(-1px)}
+.modal-info-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.modal-info-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--text2)}
+.modal-info-tag strong{color:var(--text)}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--text2)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+
+/* SUCCESS TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,#1a3a6b,#0d1f3c);border:1px solid var(--accent);border-radius:12px;padding:14px 18px;color:var(--text);font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* SCROLLBAR IN SIDEBAR */
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+
+@media(max-width:900px){
+  .sidebar{display:none}
+  .site-card-stats{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:600px){
+  .main{padding:14px}
+  .site-card-stats{grid-template-columns:repeat(3,1fr)}
+  .modal-stats{grid-template-columns:repeat(2,1fr)}
+  .modal-pricing{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="uplyncio-full.html" class="nav-logo">Uply<em>ncio</em></a>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('article')">Article Posting</button>
+    <button class="nav-tab" onclick="switchTab('link')">Link Insertion</button>
+    <button class="nav-tab" onclick="switchTab('press')">Press Release</button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-balance">Balance: <strong>$0.00</strong> &nbsp;|&nbsp; Reserved: <strong style="color:var(--text2)">$0.00</strong></div>
+    <button class="nav-btn nav-btn-ghost" onclick="window.location='uplyncio-full.html'">← Home</button>
+    <button class="nav-btn nav-btn-accent" onclick="showTopup()">+ Add Funds</button>
+    <div class="nav-avatar" id="buyerAvatar" onclick="toggleProfileMenu()">B</div>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR FILTERS -->
+  <aside class="sidebar">
+    <div class="sidebar-title">🔍 Filter Sites</div>
+
+    <!-- Price -->
+    <div class="filter-group">
+      <div class="filter-label">Price ($)</div>
+      <div class="filter-range">
+        <input class="filter-input" type="number" id="fPriceMin" placeholder="Min" min="0" oninput="applyFilters()">
+        <input class="filter-input" type="number" id="fPriceMax" placeholder="Max" min="0" oninput="applyFilters()">
+      </div>
+    </div>
+
+    <!-- DA -->
+    <div class="filter-group">
+      <div class="filter-label">Domain Authority (DA)</div>
+      <div class="filter-range">
+        <input class="filter-input" type="number" id="fDAMin" placeholder="1" min="0" max="100" oninput="applyFilters()">
+        <input class="filter-input" type="number" id="fDAMax" placeholder="100" min="0" max="100" oninput="applyFilters()">
+      </div>
+    </div>
+
+    <!-- DR -->
+    <div class="filter-group">
+      <div class="filter-label">Domain Rating (DR)</div>
+      <div class="filter-range">
+        <input class="filter-input" type="number" id="fDRMin" placeholder="1" min="0" max="100" oninput="applyFilters()">
+        <input class="filter-input" type="number" id="fDRMax" placeholder="100" min="0" max="100" oninput="applyFilters()">
+      </div>
+    </div>
+
+    <!-- Traffic -->
+    <div class="filter-group">
+      <div class="filter-label">Ahrefs Organic Traffic</div>
+      <div class="filter-range">
+        <input class="filter-input" type="number" id="fTrafficMin" placeholder="From" min="0" oninput="applyFilters()">
+        <input class="filter-input" type="number" id="fTrafficMax" placeholder="To" min="0" oninput="applyFilters()">
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+    <div class="filter-section-title">Category & Type</div>
+
+    <!-- Category -->
+    <div class="filter-group">
+      <div class="filter-label">Category</div>
+      <select class="filter-select" id="fCat" onchange="applyFilters()">
+        <option value="">All Categories</option>
+        <option>Tech</option>
+        <option>Finance</option>
+        <option>Health</option>
+        <option>Business</option>
+        <option>SaaS</option>
+        <option>Marketing</option>
+        <option>Crypto</option>
+        <option>Travel</option>
+        <option>Education</option>
+        <option>News & Media</option>
+        <option>Real Estate</option>
+        <option>Fashion</option>
+      </select>
+    </div>
+
+    <!-- Link Type -->
+    <div class="filter-group">
+      <div class="filter-label">Link Type</div>
+      <select class="filter-select" id="fLinkType" onchange="applyFilters()">
+        <option value="">All Types</option>
+        <option value="Dofollow">Dofollow</option>
+        <option value="Nofollow">Nofollow</option>
+        <option value="Sponsored">Sponsored</option>
+      </select>
+    </div>
+
+    <!-- Country -->
+    <div class="filter-group">
+      <div class="filter-label">Country</div>
+      <select class="filter-select" id="fCountry" onchange="applyFilters()">
+        <option value="">All Countries</option>
+        <option>USA</option>
+        <option>UK</option>
+        <option>Canada</option>
+        <option>Australia</option>
+        <option>India</option>
+        <option>Germany</option>
+        <option>UAE</option>
+      </select>
+    </div>
+
+    <!-- Language -->
+    <div class="filter-group">
+      <div class="filter-label">Language</div>
+      <select class="filter-select" id="fLang" onchange="applyFilters()">
+        <option value="">All Languages</option>
+        <option>English</option>
+        <option>German</option>
+        <option>Spanish</option>
+        <option>French</option>
+      </select>
+    </div>
+
+    <div class="filter-divider"></div>
+    <div class="filter-section-title">Publisher Quality</div>
+
+    <!-- Completion Rate -->
+    <div class="filter-group">
+      <div class="filter-label">Completion Rate</div>
+      <select class="filter-select" id="fCompletion" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="90">90%+</option>
+        <option value="80">80%+</option>
+        <option value="70">70%+</option>
+      </select>
+    </div>
+
+    <!-- TAT -->
+    <div class="filter-group">
+      <div class="filter-label">Turnaround Time</div>
+      <select class="filter-select" id="fTAT" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="3">Up to 3 days</option>
+        <option value="5">Up to 5 days</option>
+        <option value="10">Up to 10 days</option>
+      </select>
+    </div>
+
+    <button class="clear-btn" onclick="clearFilters()">✕ Clear All Filters</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%">
+        <div class="search-wrap">
+          <input class="search-input" type="text" id="searchInput" placeholder="Search by keyword or domain..." oninput="applyFilters()">
+        </div>
+        <select class="sort-select" id="sortBy" onchange="applyFilters()">
+          <option value="recommended">Top Recommended</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="da-desc">DA: Highest First</option>
+          <option value="dr-desc">DR: Highest First</option>
+          <option value="traffic-desc">Traffic: Highest</option>
+          <option value="completion">Completion Rate</option>
+        </select>
+        <div class="results-count" id="resultsCount">Loading sites...</div>
+      </div>
+    </div>
+
+    <!-- SITES LIST -->
+    <div class="sites-list" id="sitesList"></div>
+
+    <!-- PAGINATION -->
+    <div class="pagination" id="pagination"></div>
+
+  </main>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="orderModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:3px">Place Order</div>
+        <div class="modal-site-url" id="modalSiteUrl"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Stats -->
+      <div class="modal-stats" id="modalStats"></div>
+
+      <!-- Info tags -->
+      <div class="modal-info-row" id="modalInfoTags"></div>
+
+      <!-- Pricing options -->
+      <div class="modal-section">
+        <div class="modal-section-title">Select Service</div>
+        <div class="modal-pricing" id="modalPricing"></div>
+      </div>
+
+      <!-- Order form -->
+      <div class="modal-section">
+        <div class="modal-section-title">Order Details</div>
+        <div class="form-group">
+          <label class="form-label">Target URL *</label>
+          <input class="form-input" type="url" id="orderUrl" placeholder="https://yoursite.com/page">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Anchor Text *</label>
+          <input class="form-input" type="text" id="orderAnchor" placeholder="e.g. best SEO tools">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keywords (optional)</label>
+          <input class="form-input" type="text" id="orderKeywords" placeholder="e.g. link building, guest posting">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Special Instructions (optional)</label>
+          <textarea class="form-input form-textarea" id="orderInstructions" placeholder="Any specific requirements for the publisher..."></textarea>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="modal-total">
+        <div>
+          <div class="modal-total-label">Total Amount</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Deducted from your balance</div>
+        </div>
+        <div class="modal-total-val" id="modalTotal">$0</div>
+      </div>
+
+      <button class="modal-submit" onclick="submitOrder()">Place Order →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA: Load publisher sites from localStorage ──
+var currentTab = 'article';
+var currentPage = 1;
+var perPage = 15;
+var filteredSites = [];
+var selectedSite = null;
+var selectedService = 'article';
+var selectedPrice = 0;
+
+// Sample sites — will be merged with real publisher sites from localStorage
+var sampleSites = [
+  {url:'techbullion.com',da:72,dr:68,traffic:23640,semTraffic:284399,referral:40392,category:'Finance',linkType:'Dofollow',guestPrice:120,liAccepted:true,liPrice:80,writePrice:150,country:'USA',language:'English',tat:10,completion:100,publisher:'Publisher',categories:['Finance','Technology','Internet']},
+  {url:'hackernoon.com',da:88,dr:85,traffic:320000,semTraffic:1200000,referral:95000,category:'Tech',linkType:'Dofollow',guestPrice:300,liAccepted:false,liPrice:0,writePrice:380,country:'USA',language:'English',tat:7,completion:98,publisher:'Contributor',categories:['Tech','Internet']},
+  {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semTraffic:8000000,referral:650000,category:'Business',linkType:'Dofollow',guestPrice:600,liAccepted:true,liPrice:400,writePrice:750,country:'USA',language:'English',tat:14,completion:95,publisher:'Contributor',categories:['Business','Finance']},
+  {url:'finextra.com',da:78,dr:74,traffic:95000,semTraffic:380000,referral:28000,category:'Finance',linkType:'Dofollow',guestPrice:200,liAccepted:true,liPrice:120,writePrice:260,country:'UK',language:'English',tat:7,completion:100,publisher:'Owner',categories:['Finance','Crypto']},
+  {url:'dev.to',da:87,dr:83,traffic:280000,semTraffic:1100000,referral:72000,category:'Tech',linkType:'Dofollow',guestPrice:280,liAccepted:false,liPrice:0,writePrice:340,country:'USA',language:'English',tat:5,completion:99,publisher:'Contributor',categories:['Tech','SaaS']},
+  {url:'startupbonsai.com',da:61,dr:58,traffic:32000,semTraffic:120000,referral:8000,category:'SaaS',linkType:'Dofollow',guestPrice:90,liAccepted:false,liPrice:0,writePrice:120,country:'USA',language:'English',tat:5,completion:100,publisher:'Owner',categories:['SaaS','Marketing']},
+  {url:'metapress.com',da:76,dr:79,traffic:557,semTraffic:126347,referral:28035,category:'Business',linkType:'Dofollow',guestPrice:45,liAccepted:true,liPrice:30,writePrice:55,country:'USA',language:'English',tat:10,completion:100,publisher:'Owner',categories:['Business','Fashion','Technology']},
+  {url:'urbansplatter.com',da:47,dr:62,traffic:31726,semTraffic:123945,referral:8339,category:'Real Estate',linkType:'Dofollow',guestPrice:33,liAccepted:true,liPrice:20,writePrice:36,country:'USA',language:'English',tat:8,completion:100,publisher:'Contributor',categories:['Real Estate','Travel']},
+  {url:'mirrorreview.com',da:64,dr:65,traffic:3260,semTraffic:52388,referral:5200,category:'Tech',linkType:'Dofollow',guestPrice:72,liAccepted:true,liPrice:45,writePrice:79,country:'India',language:'English',tat:5,completion:100,publisher:'Owner',categories:['Tech','Business']},
+  {url:'thedatascientist.com',da:39,dr:65,traffic:17366,semTraffic:83931,referral:4727,category:'Tech',linkType:'Dofollow',guestPrice:52,liAccepted:false,liPrice:0,writePrice:57,country:'USA',language:'English',tat:1,completion:100,publisher:'Contributor',categories:['Tech','SaaS']},
+  {url:'kulfly.com',da:71,dr:60,traffic:26807,semTraffic:72548,referral:7173,category:'Business',linkType:'Dofollow',guestPrice:32,liAccepted:true,liPrice:22,writePrice:45,country:'India',language:'English',tat:5,completion:100,publisher:'Owner',categories:['Business','Travel']},
+  {url:'apnews.com',da:92,dr:92,traffic:5669883,semTraffic:76078335,referral:345530,category:'News & Media',linkType:'Nofollow',guestPrice:90,liAccepted:true,liPrice:90,writePrice:90,country:'USA',language:'English',tat:7,completion:93,publisher:'Contributor',categories:['Business','News & Media']},
+];
+
+function getAllSites(){
+  // Merge publisher localStorage sites with sample sites
+  var pubSites = [];
+  try{
+    var keys = Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); });
+    keys.forEach(function(key){
+      var data = JSON.parse(localStorage.getItem(key)||'{}');
+      if(data.sites && Array.isArray(data.sites)){
+        data.sites.forEach(function(s){
+          if(s.url) pubSites.push({
+            url: s.url,
+            da: parseInt(s.da)||0,
+            dr: parseInt(s.dr)||0,
+            traffic: parseInt((s.traffic||'0').toString().replace(/[^0-9]/g,''))||0,
+            semTraffic: 0,
+            referral: 0,
+            category: s.category||'Tech',
+            linkType: s.linkType||'Dofollow',
+            guestPrice: parseFloat(s.price)||50,
+            liAccepted: s.liAccepted==='Yes',
+            liPrice: parseFloat(s.liPrice)||0,
+            writePrice: parseFloat(s.writePrice)||parseFloat(s.price)*1.3||0,
+            country: s.country||'USA',
+            language: s.language||'English',
+            tat: parseInt(s.tat)||7,
+            completion: 100,
+            publisher: 'Owner',
+            categories: [s.category||'Tech'],
+            maxLinks: s.maxLinks||'2',
+            requirements: s.requirements||''
+          });
+        });
+      }
+    });
+  }catch(e){}
+  // Combine, publisher sites first
+  var combined = pubSites.concat(sampleSites);
+  // Remove duplicates by URL
+  var seen = {};
+  return combined.filter(function(s){ if(seen[s.url]) return false; seen[s.url]=true; return true; });
+}
+
+function fmtNum(n){
+  if(!n) return 'N/A';
+  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
+  if(n>=1000) return (n/1000).toFixed(0)+'K';
+  return n.toString();
+}
+
+function completionColor(pct){
+  if(pct>=90) return 'var(--green)';
+  if(pct>=70) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function renderCompletionRing(pct){
+  var r=14, circ=2*Math.PI*r;
+  var offset = circ - (pct/100)*circ;
+  var color = completionColor(pct);
+  return '<div class="completion-ring"><svg width="36" height="36" viewBox="0 0 36 36"><circle class="ring-bg" cx="18" cy="18" r="'+r+'" stroke-width="3"/><circle class="ring-fill" cx="18" cy="18" r="'+r+'" stroke-width="3" stroke="'+color+'" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg><div class="completion-pct" style="color:'+color+'">'+pct+'%</div></div>';
+}
+
+function renderCard(site, idx){
+  var dfBadge = site.linkType==='Dofollow'
+    ? '<span class="badge badge-df">● Dofollow</span>'
+    : '<span class="badge badge-nf">● Nofollow</span>';
+  var ownerBadge = site.publisher==='Owner'
+    ? '<span class="badge badge-owner">👤 Owner</span>'
+    : '<span class="badge badge-contrib">✏️ Contributor</span>';
+  var catBadges = (site.categories||[site.category]).slice(0,3).map(function(c){
+    return '<span class="badge badge-cat">'+c+'</span>';
+  }).join('');
+
+  var liBtn = site.liAccepted
+    ? '<button class="buy-btn buy-btn-li" onclick="event.stopPropagation();openModal('+idx+',\'link\')">Link Insertion $'+site.liPrice+'</button>'
+    : '';
+
+  return '<div class="site-card" onclick="openModal('+idx+',\'article\')">'
+    +'<div class="site-card-top">'
+    +'<a class="site-domain" href="https://'+site.url+'" target="_blank" onclick="event.stopPropagation()">'+site.url+'</a>'
+    +ownerBadge+dfBadge+catBadges
+    +'</div>'
+    +'<div class="site-card-stats">'
+    +'<div class="stat-item"><div class="stat-val"><span class="ahrefs-icon">a</span>'+fmtNum(site.traffic)+'</div><div class="stat-lbl">Ahrefs Traffic</div></div>'
+    +'<div class="stat-item"><div class="stat-val" style="color:var(--accent)">'+site.da+'</div><div class="stat-lbl">Moz DA</div></div>'
+    +'<div class="stat-item"><div class="stat-val" style="color:var(--teal)">'+site.dr+'</div><div class="stat-lbl">Ahrefs DR</div></div>'
+    +'<div class="stat-item"><div class="stat-val">'+fmtNum(site.semTraffic||0)+'</div><div class="stat-lbl">SemRush Traffic</div></div>'
+    +'<div class="stat-item"><div class="stat-val">'+fmtNum(site.referral||0)+'</div><div class="stat-lbl">Ref. Domains</div></div>'
+    +'<div class="stat-item">'+renderCompletionRing(site.completion)+'<div class="stat-lbl" style="margin-top:2px">Completion</div></div>'
+    +'<div class="stat-item"><div class="stat-val" style="color:var(--yellow)">'+site.tat+'d</div><div class="stat-lbl">TAT</div></div>'
+    +'</div>'
+    +'<div class="site-card-bottom">'
+    +'<div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:3px">Content Placement</div>'
+    +'<div class="price-val">$'+site.guestPrice+'</div>'
+    +(site.writePrice?'<div class="price-write">Write & Publish: $'+site.writePrice+'</div>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:8px;align-items:center">'
+    +liBtn
+    +'<button class="buy-btn" onclick="event.stopPropagation();openModal('+idx+',\'article\')">Buy Post</button>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+}
+
+function applyFilters(){
+  var all = getAllSites();
+  var search = (document.getElementById('searchInput').value||'').toLowerCase();
+  var pMin = parseFloat(document.getElementById('fPriceMin').value)||0;
+  var pMax = parseFloat(document.getElementById('fPriceMax').value)||999999;
+  var daMin = parseInt(document.getElementById('fDAMin').value)||0;
+  var daMax = parseInt(document.getElementById('fDAMax').value)||100;
+  var drMin = parseInt(document.getElementById('fDRMin').value)||0;
+  var drMax = parseInt(document.getElementById('fDRMax').value)||100;
+  var tMin = parseInt(document.getElementById('fTrafficMin').value)||0;
+  var tMax = parseInt(document.getElementById('fTrafficMax').value)||999999999;
+  var cat = document.getElementById('fCat').value;
+  var lt = document.getElementById('fLinkType').value;
+  var country = document.getElementById('fCountry').value;
+  var lang = document.getElementById('fLang').value;
+  var comp = parseInt(document.getElementById('fCompletion').value)||0;
+  var tat = parseInt(document.getElementById('fTAT').value)||999;
+  var sort = document.getElementById('sortBy').value;
+  var tab = currentTab;
+
+  filteredSites = all.filter(function(s){
+    if(tab==='link' && !s.liAccepted) return false;
+    var price = tab==='link' ? s.liPrice : s.guestPrice;
+    if(search && s.url.toLowerCase().indexOf(search)<0 && (s.categories||[]).join(' ').toLowerCase().indexOf(search)<0) return false;
+    if(price < pMin || price > pMax) return false;
+    if(s.da < daMin || s.da > daMax) return false;
+    if(s.dr < drMin || s.dr > drMax) return false;
+    if(s.traffic < tMin || s.traffic > tMax) return false;
+    if(cat && (s.categories||[s.category]).indexOf(cat)<0) return false;
+    if(lt && s.linkType !== lt) return false;
+    if(country && s.country !== country) return false;
+    if(lang && s.language !== lang) return false;
+    if(s.completion < comp) return false;
+    if(s.tat > tat) return false;
+    return true;
+  });
+
+  // Sort
+  filteredSites.sort(function(a,b){
+    if(sort==='price-asc') return a.guestPrice - b.guestPrice;
+    if(sort==='price-desc') return b.guestPrice - a.guestPrice;
+    if(sort==='da-desc') return b.da - a.da;
+    if(sort==='dr-desc') return b.dr - a.dr;
+    if(sort==='traffic-desc') return b.traffic - a.traffic;
+    if(sort==='completion') return b.completion - a.completion;
+    return b.da - a.da; // default
+  });
+
+  currentPage = 1;
+  renderSites();
+}
+
+function renderSites(){
+  var list = document.getElementById('sitesList');
+  var count = document.getElementById('resultsCount');
+  var start = (currentPage-1)*perPage;
+  var page = filteredSites.slice(start, start+perPage);
+
+  count.innerHTML = 'Results: <strong>'+filteredSites.length+' sites</strong>';
+
+  if(filteredSites.length===0){
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><h3>No sites found</h3><p>Try adjusting your filters</p></div>';
+    document.getElementById('pagination').innerHTML='';
+    return;
+  }
+
+  list.innerHTML = page.map(function(s,i){ return renderCard(s, start+i); }).join('');
+  renderPagination();
+}
+
+function renderPagination(){
+  var total = Math.ceil(filteredSites.length/perPage);
+  if(total<=1){ document.getElementById('pagination').innerHTML=''; return; }
+  var html = '<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button>';
+  for(var i=1;i<=Math.min(total,7);i++){
+    html += '<button class="page-btn'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+  }
+  if(total>7) html += '<span style="color:var(--muted);padding:0 4px">...</span><button class="page-btn'+(currentPage===total?' active':'')+'" onclick="goPage('+total+')">'+total+'</button>';
+  html += '<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===total?'disabled':'')+'>›</button>';
+  document.getElementById('pagination').innerHTML = html;
+}
+
+function goPage(n){
+  var total = Math.ceil(filteredSites.length/perPage);
+  if(n<1||n>total) return;
+  currentPage=n;
+  renderSites();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.nav-tab').forEach(function(t,i){
+    t.classList.toggle('active', ['article','link','press'][i]===tab);
+  });
+  applyFilters();
+}
+
+function clearFilters(){
+  ['fPriceMin','fPriceMax','fDAMin','fDAMax','fDRMin','fDRMax','fTrafficMin','fTrafficMax'].forEach(function(id){ document.getElementById(id).value=''; });
+  ['fCat','fLinkType','fCountry','fLang','fCompletion','fTAT'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('searchInput').value='';
+  applyFilters();
+}
+
+// ── ORDER MODAL ──
+function openModal(idx, service){
+  selectedSite = filteredSites[idx];
+  selectedService = service||'article';
+  selectedPrice = service==='link' ? selectedSite.liPrice : selectedSite.guestPrice;
+
+  document.getElementById('modalSiteUrl').textContent = selectedSite.url;
+
+  // Stats
+  document.getElementById('modalStats').innerHTML =
+    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--accent)">'+selectedSite.da+'</div><div class="modal-stat-lbl">Moz DA</div></div>'+
+    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--teal)">'+selectedSite.dr+'</div><div class="modal-stat-lbl">Ahrefs DR</div></div>'+
+    '<div class="modal-stat"><div class="modal-stat-val">'+fmtNum(selectedSite.traffic)+'</div><div class="modal-stat-lbl">Organic Traffic</div></div>'+
+    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--green)">'+selectedSite.completion+'%</div><div class="modal-stat-lbl">Completion Rate</div></div>'+
+    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--yellow)">'+selectedSite.tat+' days</div><div class="modal-stat-lbl">Turnaround</div></div>'+
+    '<div class="modal-stat"><div class="modal-stat-val">'+selectedSite.language+'</div><div class="modal-stat-lbl">Language</div></div>';
+
+  // Info tags
+  document.getElementById('modalInfoTags').innerHTML =
+    '<div class="modal-info-tag">🌍 <strong>'+selectedSite.country+'</strong></div>'+
+    '<div class="modal-info-tag">🔗 <strong>'+selectedSite.linkType+'</strong></div>'+
+    '<div class="modal-info-tag">📁 <strong>'+(selectedSite.categories||[selectedSite.category]).join(', ')+'</strong></div>'+
+    (selectedSite.maxLinks?'<div class="modal-info-tag">🔢 Max <strong>'+selectedSite.maxLinks+' links</strong></div>':'')+
+    (selectedSite.requirements?'<div class="modal-info-tag" style="max-width:100%">📌 '+selectedSite.requirements+'</div>':'');
+
+  // Pricing options
+  var options = '';
+  options += '<div class="price-option'+(selectedService==='article'?' selected':'')+'" onclick="selectService(\'article\','+selectedSite.guestPrice+')">'
+    +'<div class="price-option-name">Content Placement</div>'
+    +'<div class="price-option-val">$'+selectedSite.guestPrice+'</div>'
+    +'<div class="price-option-note">You provide the article</div>'
+    +'</div>';
+  if(selectedSite.writePrice){
+    options += '<div class="price-option'+(selectedService==='write'?' selected':'')+'" onclick="selectService(\'write\','+selectedSite.writePrice+')">'
+      +'<div class="price-option-name">Write & Publish</div>'
+      +'<div class="price-option-val">$'+selectedSite.writePrice+'</div>'
+      +'<div class="price-option-note">Publisher writes the article</div>'
+      +'</div>';
+  }
+  if(selectedSite.liAccepted){
+    options += '<div class="price-option'+(selectedService==='link'?' selected':'')+'" onclick="selectService(\'link\','+selectedSite.liPrice+')">'
+      +'<div class="price-option-name">Link Insertion</div>'
+      +'<div class="price-option-val">$'+selectedSite.liPrice+'</div>'
+      +'<div class="price-option-note">Add link to existing post</div>'
+      +'</div>';
+  }
+  document.getElementById('modalPricing').innerHTML = options;
+  document.getElementById('modalTotal').textContent = '$'+selectedPrice;
+
+  // Clear form
+  ['orderUrl','orderAnchor','orderKeywords','orderInstructions'].forEach(function(id){ document.getElementById(id).value=''; });
+
+  document.getElementById('orderModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function selectService(type, price){
+  selectedService=type; selectedPrice=price;
+  document.querySelectorAll('.price-option').forEach(function(el){ el.classList.remove('selected'); });
+  event.currentTarget.classList.add('selected');
+  document.getElementById('modalTotal').textContent='$'+price;
+}
+
+function closeModal(){
+  document.getElementById('orderModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function submitOrder(){
+  var url = document.getElementById('orderUrl').value.trim();
+  var anchor = document.getElementById('orderAnchor').value.trim();
+  if(!url){ showToast('⚠️ Please enter your target URL'); return; }
+  if(!anchor){ showToast('⚠️ Please enter anchor text'); return; }
+
+  // Save order to localStorage
+  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+  var taskId = '#OR'+Math.floor(1000+Math.random()*9000);
+  orders.push({
+    id: taskId,
+    site: selectedSite.url,
+    service: selectedService,
+    price: selectedPrice,
+    url: url,
+    anchor: anchor,
+    keywords: document.getElementById('orderKeywords').value,
+    instructions: document.getElementById('orderInstructions').value,
+    status: 'Pending',
+    date: new Date().toISOString()
+  });
+  localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
+
+  closeModal();
+  showToast('✅ Order placed! Task ID: '+taskId+' — Publisher will be notified.');
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },4000);
+}
+
+function showTopup(){
+  showToast('💳 Top-up feature coming soon — contact info@uplyncio.com');
+}
+
+function toggleProfileMenu(){ showToast('👤 Profile settings coming soon'); }
+
+// Init
+applyFilters();
+</script>
+</body>
+</html>
