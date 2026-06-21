@@ -1974,11 +1974,12 @@ window.addEventListener('DOMContentLoaded', function(){
     <div style="padding:16px 24px;border-bottom:1px solid #f1f5f9;display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
         <div style="width:32px;height:32px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">ℹ️</div>
+        <div id="orderTatDeadline" style="margin-bottom:8px;font-size:12.5px"></div>
         <div style="font-size:12.5px;color:#1e40af;line-height:1.65">Please <strong>carefully check the requirements</strong> before accepting. Failing to complete will decrease your completion rate and you will lose the payment.</div>
       </div>
       <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
         <div style="width:32px;height:32px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">⚠️</div>
-        <div style="font-size:12.5px;color:#92400e;line-height:1.65">Task is pending your acceptance. <strong>Accept or reject within 3 business days.</strong> Auto-rejection will decrease your completion rate.</div>
+        <div style="font-size:12.5px;color:#92400e;line-height:1.65">Task is pending your acceptance. <strong>Accept or reject within 3 business days.</strong> After acceptance, delivery must be completed within the remaining days (max 10 days total from order date). Auto-rejection will decrease your completion rate.</div>
       </div>
     </div>
 
@@ -2934,6 +2935,32 @@ function openInboxChat(orderId){
 
   document.getElementById('inboxChatTitle').textContent = o.siteUrl+' — '+o.type;
   document.getElementById('inboxChatSubtitle').textContent = '#'+o.taskId+' · '+fmtDateShort(o.createdAt);
+  // Show TAT deadline
+  try{
+    var orderDate = new Date(o.createdAt);
+    var maxDays = 10;
+    var deadlineDate = new Date(orderDate);
+    deadlineDate.setDate(deadlineDate.getDate() + maxDays);
+    var now = new Date();
+    var daysLeft = Math.ceil((deadlineDate - now)/(1000*60*60*24));
+    var acceptDeadline = new Date(orderDate);
+    acceptDeadline.setDate(acceptDeadline.getDate() + 3);
+    var acceptLeft = Math.ceil((acceptDeadline - now)/(1000*60*60*24));
+    var tatEl = document.getElementById('orderTatDeadline');
+    if(tatEl){
+      if(o.status==='acceptance'){
+        tatEl.innerHTML = acceptLeft>0
+          ? '<span style="color:#d97706">⏱ Accept within: <strong>'+acceptLeft+' day'+(acceptLeft>1?'s':'')+' left</strong></span>'
+          : '<span style="color:#dc2626">⚠️ Acceptance deadline passed!</span>';
+      } else if(['progress','improvement'].indexOf(o.status)>=0){
+        tatEl.innerHTML = daysLeft>0
+          ? '<span style="color:#2563eb">📅 Delivery deadline: <strong>'+daysLeft+' day'+(daysLeft>1?'s':'')+' left</strong></span>'
+          : '<span style="color:#dc2626">⚠️ Delivery overdue!</span>';
+      } else {
+        tatEl.innerHTML = '';
+      }
+    }
+  }catch(e){}
   var statusEl = document.getElementById('inboxChatStatus');
   statusEl.textContent = sc.label;
   statusEl.style.background = sc.bg;

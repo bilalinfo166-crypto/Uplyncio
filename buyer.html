@@ -918,7 +918,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 // SAMPLE SITES (merged with publisher localStorage sites)
 // ═══════════════════════════════════
 var SAMPLE = [
-  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:10,comp:100,pub:'Contributor',maxL:2,req:'No gambling',topCountry:'USA',linkLifetime:'Up to 100%'},
+  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:7,comp:100,pub:'Contributor',maxL:2,req:'No gambling',topCountry:'USA',linkLifetime:'Up to 100%'},
   {url:'hackernoon.com',da:88,dr:85,traffic:320000,semT:1200000,refD:95000,cats:['Tech','Internet'],linkType:'Dofollow',gP:300,wP:380,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:98,pub:'Contributor',maxL:2,req:'No promotional content'},
   {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semT:8000000,refD:650000,cats:['Business','Finance'],linkType:'Dofollow',gP:600,wP:750,liOk:true,liP:400,liReq:'Business topics only',country:'USA',lang:'English',tat:14,comp:95,pub:'Contributor',maxL:1,req:''},
   {url:'finextra.com',da:78,dr:74,traffic:95000,semT:380000,refD:28000,cats:['Finance','Crypto'],linkType:'Dofollow',gP:200,wP:260,liOk:true,liP:120,liReq:'Finance only',country:'UK',lang:'English',tat:7,comp:100,pub:'Owner',maxL:2,req:''},
@@ -1221,7 +1221,7 @@ function renderCard(s, idx){
     +'<div class="st"><div class="st-v"><span class="a-dot">a</span>'+fmtN(s.traffic)+'</div><div class="st-l">Ahrefs Traffic</div></div>'
     +'<div class="st"><div class="st-v">'+fmtN(s.semT)+'</div><div class="st-l">SemRush Traffic</div></div>'
     +'<div class="st"><div class="st-v" style="justify-content:center">'+ringHtml(s.comp)+'</div><div class="st-l">Completion</div></div>'
-    +'<div class="st"><div class="st-v amber">'+s.tat+'d</div><div class="st-l">TAT</div></div>'
+    +'<div class="st" title="3 days accept + '+Math.min(7,Math.max(1,Math.min(10,s.tat)-3))+'d delivery"><div class="st-v amber">'+Math.min(10,s.tat)+'d</div><div class="st-l">Max TAT</div></div>'
     +'<div class="st"><div class="st-v" style="font-size:18px">'+cFlag+'</div><div class="st-l">'+s.country+'</div></div>'
     +'</div>';
 
@@ -1372,9 +1372,21 @@ function openModal(idx, type){
           '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+ratingInfo+'</div>'+
         '</div>'+
         '<div class="pp-item">'+
-          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">⚡</span><span class="pp-lbl">TAT</span></div>'+
-          '<div class="pp-val amber" style="font-size:13px;font-weight:700">Up to '+_s.tat+' days</div>'+
-          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">Typical delivery</div>'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">⚡</span><span class="pp-lbl">Turnaround Time</span></div>'+
+          '<div style="margin-top:4px">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'+
+              '<span style="font-size:10px;color:#64748b">Accept/Reject</span>'+
+              '<span style="font-size:11px;font-weight:700;color:#d97706;background:#fef3c7;border-radius:4px;padding:1px 6px">3 days</span>'+
+            '</div>'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'+
+              '<span style="font-size:10px;color:#64748b">Content Delivery</span>'+
+              '<span style="font-size:11px;font-weight:700;color:#2563eb;background:#dbeafe;border-radius:4px;padding:1px 6px">'+Math.min(10,Math.max(1,_s.tat-3))+' days</span>'+
+            '</div>'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;border-top:1px dashed #e2e8f0;padding-top:4px">'+
+              '<span style="font-size:10px;font-weight:700;color:#374151">Total Max</span>'+
+              '<span style="font-size:12px;font-weight:800;color:#16a34a;background:#f0fdf4;border-radius:4px;padding:1px 6px">'+Math.min(10,_s.tat)+' days</span>'+
+            '</div>'+
+          '</div>'+
         '</div>'+
         '<div class="pp-item">'+
           '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">🌐</span><span class="pp-lbl">Language</span></div>'+
@@ -1421,7 +1433,9 @@ function submitOrder(){
     status:'Pending',date:new Date().toISOString()});
   localStorage.setItem('uplyncio_buyer_orders',JSON.stringify(orders));
   closeModal();
-  showToast('✅ Order placed! Task ID: '+id);
+  var totalDays = Math.min(10, selectedSite.tat||7);
+  var delivDays = Math.max(1, totalDays-3);
+  showToast('✅ Order placed! Task ID: '+id+' · Publisher has 3 days to accept, '+delivDays+' days to deliver');
 }
 
 function showToast(msg){
