@@ -1041,7 +1041,7 @@ function filterByCategory(cat){
 // ═══════════════════════════════════
 function getPubPerformance(siteUrl){
   // Default values (for sample sites or when no publisher data exists)
-  var defaults = { compRate:100, lifeRate:100, avgRating:5.0, reviewCount:0, removedLinks:0, rejectedOrders:0 };
+  var defaults = { compRate:100, lifeRate:100, avgRating:5.0, reviewCount:0, removedLinks:0, rejectedOrders:0, pubName:'' };
 
   try{
     // Find which publisher owns this site
@@ -1091,13 +1091,28 @@ function getPubPerformance(siteUrl){
       avgRating = sum/reviews.length;
     }
 
+    // Get publisher name from settings or users list
+    var pubName = '';
+    try{
+      // Check uplyncio_users for this uid
+      var users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+      var pubUser = users.find(function(u){ return u.uid===ownerUid; });
+      if(pubUser) pubName = pubUser.name||pubUser.email||'';
+      // Also check settings saved by this user
+      if(!pubName){
+        var settings = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+        pubName = settings['settName']||settings['settEmail']||'';
+      }
+    }catch(e){}
+
     return {
       compRate:   Math.round(compRate*100)/100,
       lifeRate:   Math.round(lifeRate*100)/100,
       avgRating:  Math.round(avgRating*10)/10,
       reviewCount: reviews.length,
       removedLinks: removedLinks,
-      rejectedOrders: rejected
+      rejectedOrders: rejected,
+      pubName: pubName
     };
   }catch(e){
     return defaults;
@@ -1329,6 +1344,14 @@ function openModal(idx, type){
   document.getElementById('mPubPerf').innerHTML=
     '<div class="pub-perf">'+
       '<div class="pub-perf-title"><span>📊</span> Publisher Performance<span style="margin-left:auto;font-size:9px;color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">Live</span></div>'+
+      (_perf.pubName?'<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:10px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">'+_perf.pubName.charAt(0).toUpperCase()+'</div>'+
+        '<div>'+
+          '<div style="font-size:12px;font-weight:700;color:#15803d">'+_perf.pubName+'</div>'+
+          '<div style="font-size:10px;color:#94a3b8">Verified Publisher · Uplyncio</div>'+
+        '</div>'+
+        '<div style="margin-left:auto;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;color:#15803d">✓ Verified</div>'+
+      '</div>':'')+ 
       '<div class="pub-perf-grid">'+
         '<div class="pp-item">'+
           '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">📊</span><span class="pp-lbl">Completion Rate</span></div>'+
