@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Uplyncio <info@uplyncio.com>',
+        from: 'Uplyncio <onboarding@resend.dev>',
         to: [email],
         subject: `Your Uplyncio Verification Code: ${code}`,
         html: `<!DOCTYPE html>
