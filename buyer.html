@@ -1037,6 +1037,74 @@ function filterByCategory(cat){
 }
 
 // ═══════════════════════════════════
+// PUBLISHER LIVE PERFORMANCE READER
+// ═══════════════════════════════════
+function getPubPerformance(siteUrl){
+  // Default values (for sample sites or when no publisher data exists)
+  var defaults = { compRate:100, lifeRate:100, avgRating:5.0, reviewCount:0, removedLinks:0, rejectedOrders:0 };
+
+  try{
+    // Find which publisher owns this site
+    var ownerUid = null;
+    var keys = Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); });
+    for(var i=0;i<keys.length;i++){
+      var d = JSON.parse(localStorage.getItem(keys[i])||'{}');
+      if(d.sites && d.sites.some(function(s){ return s.url===siteUrl; })){
+        ownerUid = keys[i].replace('uplyncio_data_','');
+        break;
+      }
+    }
+    if(!ownerUid) return defaults;
+
+    // Get publisher orders
+    var allOrders = JSON.parse(localStorage.getItem('uplyncio_orders')||'[]');
+    // Also check if orders stored per-user
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+ownerUid)||'{}');
+    if(userData.orders && userData.orders.length > 0) allOrders = userData.orders;
+
+    if(!Array.isArray(allOrders) || allOrders.length===0) return defaults;
+
+    // Filter to orders for this site
+    var siteOrders = allOrders.filter(function(o){
+      return (o.siteUrl||'').toLowerCase().indexOf(siteUrl.toLowerCase())>=0;
+    });
+    // If no site-specific orders, use all publisher orders for performance calc
+    var ordersForCalc = siteOrders.length>0 ? siteOrders : allOrders;
+
+    var total     = ordersForCalc.length;
+    var completed = ordersForCalc.filter(function(o){ return o.status==='completed'; }).length;
+    var rejected  = ordersForCalc.filter(function(o){ return o.status==='rejected' && !o.isLinkPenalty; }).length;
+    var accepted  = ordersForCalc.filter(function(o){ return o.status!=='acceptance' && !o.isLinkPenalty; }).length;
+
+    // Completion Rate
+    var compRate = accepted>0 ? Math.min(100, (completed/accepted)*100) : 100;
+
+    // Link Lifetime — count removed links
+    var removedLinks = ordersForCalc.filter(function(o){ return o.linkRemoved===true; }).length;
+    var lifeRate = completed>0 ? Math.max(0, 100-((removedLinks/completed)*100)) : 100;
+
+    // Avg Rating from reviews
+    var reviews = JSON.parse(localStorage.getItem('uplyncio_reviews_'+ownerUid)||'[]');
+    var avgRating = 5.0;
+    if(reviews.length>0){
+      var sum = reviews.reduce(function(a,r){ return a+(r.stars||5); },0);
+      avgRating = sum/reviews.length;
+    }
+
+    return {
+      compRate:   Math.round(compRate*100)/100,
+      lifeRate:   Math.round(lifeRate*100)/100,
+      avgRating:  Math.round(avgRating*10)/10,
+      reviewCount: reviews.length,
+      removedLinks: removedLinks,
+      rejectedOrders: rejected
+    };
+  }catch(e){
+    return defaults;
+  }
+}
+
+// ═══════════════════════════════════
 // FILTERS + RENDER
 // ═══════════════════════════════════
 function applyFilters(){
@@ -1241,90 +1309,63 @@ function openModal(idx, type){
     '<div class="m-tag">🔢 Max <strong>'+selectedSite.maxL+' links</strong></div>'+
     (selectedSite.req?'<div class="m-tag" style="color:#d97706">📌 '+selectedSite.req+'</div>':'');
 
-  // Publisher Performance Section
-  var s = selectedSite;
-  var compCol = s.comp>=90?'green':s.comp>=70?'amber':'red';
-  var lifeVal = s.linkLifetime||'Up to 100%';
-  var topCountry = s.topCountry||s.country||'USA';
-  var topCountryTraffic = s.topCountryTraffic||'N/A';
-  var countryFlag = {'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'}[topCountry]||'🌐';
-  var siteCountryFlag = {'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'}[s.country]||'🌐';
-  
-  // Get publisher real data from localStorage if available
-  var pubRating = 5.0;
-  var pubReviews = 0;
-  try{
-    var allUsers = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-    // Find publisher who owns this site
-    var siteOwnerUid = null;
-    Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); }).forEach(function(k){
-      try{
-        var d = JSON.parse(localStorage.getItem(k)||'{}');
-        if(d.sites && d.sites.some(function(st){ return st.url===s.url; })){
-          siteOwnerUid = k.replace('uplyncio_data_','');
-          if(d.rating) pubRating = d.rating;
-          if(d.reviews) pubReviews = d.reviews.length||0;
-        }
-      }catch(e){}
-    });
-  }catch(e){}
+  // ── PUBLISHER LIVE PERFORMANCE ──
+  var _perf = getPubPerformance(selectedSite.url);
+  var _s = selectedSite;
+  var _flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰','France':'🇫🇷','Spain':'🇪🇸'};
+  var _cFlag=_flags[_s.country]||'🌐';
+  var _topFlag=_flags[_s.topCountry||_s.country]||'🌐';
+  var compRate=_perf.compRate, lifeRate=_perf.lifeRate;
+  var avgRating=_perf.avgRating, reviewCount=_perf.reviewCount;
+  var removedLinks=_perf.removedLinks, rejectedOrders=_perf.rejectedOrders;
+  var compCol=compRate>=90?'#16a34a':compRate>=70?'#d97706':'#dc2626';
+  var lifeCol=lifeRate>=90?'#2563eb':lifeRate>=70?'#d97706':'#dc2626';
+  var starCol=avgRating>=4?'#d97706':avgRating>=3?'#64748b':'#dc2626';
+  var compInfo=rejectedOrders>0?(rejectedOrders+' order'+(rejectedOrders>1?'s':'')+' rejected'):'All orders completed';
+  var lifeInfo=removedLinks>0?(removedLinks+' link'+(removedLinks>1?'s':'')+' removed'):'All links active';
+  var ratingInfo=reviewCount>0?(reviewCount+' review'+(reviewCount>1?'s':'')):'No reviews yet';
+  var stHtml=''; for(var _i=0;_i<5;_i++){ if(_i<Math.floor(avgRating)) stHtml+='<span style="color:#f59e0b">★</span>'; else if(_i<avgRating) stHtml+='<span style="color:#fcd34d">★</span>'; else stHtml+='<span style="color:#e2e8f0">★</span>'; }
 
-  var compColor = s.comp>=90?'#16a34a':s.comp>=70?'#d97706':'#dc2626';
-  var compClass = s.comp>=90?'green':s.comp>=70?'amber':'red';
-  var starStr = '⭐'.repeat(Math.round(pubRating));
-
-  document.getElementById('mPubPerf').innerHTML =
+  document.getElementById('mPubPerf').innerHTML=
     '<div class="pub-perf">'+
-    '<div class="pub-perf-title">📊 Publisher Performance</div>'+
-
-    // 3 metric cards
-    '<div class="perf-cards">'+
-      '<div class="perf-card">'+
-        '<div class="perf-card-icon">📊</div>'+
-        '<div class="perf-card-title">Completion Rate</div>'+
-        '<div class="perf-card-val '+compClass+'">'+s.comp+'.00%</div>'+
-        '<div class="perf-bar"><div class="perf-bar-fill" style="width:'+s.comp+'%;background:'+compColor+'"></div></div>'+
-        '<div class="perf-card-sub">All orders completed</div>'+
+      '<div class="pub-perf-title"><span>📊</span> Publisher Performance<span style="margin-left:auto;font-size:9px;color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">Live</span></div>'+
+      '<div class="pub-perf-grid">'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">📊</span><span class="pp-lbl">Completion Rate</span></div>'+
+          '<div class="pp-val" style="color:'+compCol+';font-size:20px;font-weight:900;font-family:Manrope">'+compRate.toFixed(2)+'%</div>'+
+          '<div class="pp-bar"><div class="pp-bar-fill" style="width:'+compRate+'%;background:'+compCol+'"></div></div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+compInfo+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">🔗</span><span class="pp-lbl">Link Lifetime</span></div>'+
+          '<div class="pp-val" style="color:'+lifeCol+';font-size:20px;font-weight:900;font-family:Manrope">'+lifeRate.toFixed(2)+'%</div>'+
+          '<div class="pp-bar"><div class="pp-bar-fill" style="width:'+lifeRate+'%;background:'+lifeCol+'"></div></div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+lifeInfo+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">⭐</span><span class="pp-lbl">Avg Client Rating</span></div>'+
+          '<div class="pp-val" style="color:'+starCol+';font-size:20px;font-weight:900;font-family:Manrope">'+avgRating.toFixed(1)+' <span style="font-size:12px;color:#94a3b8">/ 5</span></div>'+
+          '<div style="font-size:14px;line-height:1.2">'+stHtml+'</div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+ratingInfo+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">⚡</span><span class="pp-lbl">TAT</span></div>'+
+          '<div class="pp-val amber" style="font-size:13px;font-weight:700">Up to '+_s.tat+' days</div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">Typical delivery</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">🌐</span><span class="pp-lbl">Language</span></div>'+
+          '<div class="pp-val" style="font-size:13px;font-weight:700">'+_s.lang+'</div>'+
+          '<div class="pp-val" style="font-size:12px;color:#64748b;font-weight:600;margin-top:2px">'+_cFlag+' '+_s.country+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">📍</span><span class="pp-lbl">SemRush Top Country</span></div>'+
+          '<div class="pp-val" style="font-size:13px;font-weight:700">'+_topFlag+' '+(_s.topCountry||_s.country)+'</div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">Top Country Traffic: '+(_s.topCountryTraffic||'N/A')+'</div>'+
+        '</div>'+
       '</div>'+
-      '<div class="perf-card">'+
-        '<div class="perf-card-icon">🔗</div>'+
-        '<div class="perf-card-title">Link Lifetime</div>'+
-        '<div class="perf-card-val green">100.00%</div>'+
-        '<div class="perf-bar"><div class="perf-bar-fill" style="width:100%;background:#16a34a"></div></div>'+
-        '<div class="perf-card-sub">All links active</div>'+
-      '</div>'+
-      '<div class="perf-card">'+
-        '<div class="perf-card-icon">⭐</div>'+
-        '<div class="perf-card-title">Avg Client Rating</div>'+
-        '<div class="perf-card-val green">'+pubRating.toFixed(1)+' / 5</div>'+
-        '<div class="perf-bar"><div class="perf-bar-fill" style="width:'+(pubRating/5*100)+'%;background:#f59e0b"></div></div>'+
-        '<div class="perf-card-sub">'+(pubReviews>0?pubReviews+' reviews':'New publisher')+'</div>'+
-      '</div>'+
-    '</div>'+
-
-    // Details grid
-    '<div class="perf-details">'+
-      '<div class="pd-item"><div class="pd-lbl">TAT</div><div class="pd-val" style="color:#d97706">Up to '+s.tat+' days</div></div>'+
-      '<div class="pd-item"><div class="pd-lbl">Language</div><div class="pd-val">'+s.lang+'</div></div>'+
-      '<div class="pd-item"><div class="pd-lbl">Country</div><div class="pd-val">'+siteCountryFlag+' '+s.country+'</div></div>'+
-      '<div class="pd-item"><div class="pd-lbl">SemRush Top Country</div><div class="pd-val">'+countryFlag+' '+topCountry+'</div></div>'+
-      '<div class="pd-item"><div class="pd-lbl">Tasks w/ Initial Domain & Price</div><div class="pd-val" style="color:#16a34a">100%</div></div>'+
-      '<div class="pd-item"><div class="pd-lbl">Top Country Traffic</div><div class="pd-val" style="color:#94a3b8">'+(topCountryTraffic||'N/A')+'</div></div>'+
-    '</div>'+
     '</div>';
 
-  var opts='';
-  opts+='<div class="m-opt'+(type==='article'?' sel':'')+'" onclick="selSvc(\'article\','+selectedSite.gP+',this)">'
-    +'<div class="m-opt-name">Content Placement</div><div class="m-opt-val">$'+selectedSite.gP+'</div>'
-    +'<div class="m-opt-note">You provide the article</div></div>';
-  if(selectedSite.wP)
-    opts+='<div class="m-opt'+(type==='write'?' sel':'')+'" onclick="selSvc(\'write\','+selectedSite.wP+',this)">'
-      +'<div class="m-opt-name">Write & Publish</div><div class="m-opt-val">$'+selectedSite.wP+'</div>'
-      +'<div class="m-opt-note">Publisher writes article</div></div>';
-  if(selectedSite.liOk)
-    opts+='<div class="m-opt'+(type==='li'?' sel':'')+'" onclick="selSvc(\'li\','+selectedSite.liP+',this)">'
-      +'<div class="m-opt-name">Link Insertion</div><div class="m-opt-val">$'+selectedSite.liP+'</div>'
-      +'<div class="m-opt-note">'+(selectedSite.liReq||'Add link to existing post')+'</div></div>';
   document.getElementById('mPricing').innerHTML=opts;
   document.getElementById('mTotal').textContent='$'+selectedPrice;
   ['oUrl','oAnchor','oKeywords','oInstructions'].forEach(function(id){ document.getElementById(id).value=''; });
