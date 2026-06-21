@@ -209,34 +209,43 @@ var _ejsLoaded   = false;
 
 function _initEmailJS(){
   if(typeof emailjs !== 'undefined' && !_EJS_READY){
-    try{ emailjs.init({publicKey: _EJS_PUBLIC}); _EJS_READY = true; }catch(e){}
+    try{ 
+      emailjs.init(_EJS_PUBLIC);  // works with both old and new SDK
+      _EJS_READY = true; 
+      console.log('[Uplyncio] EmailJS initialized OK');
+    }catch(e){ console.warn('[Uplyncio] EmailJS init error:', e); }
   }
 }
 
 function _sendVerifyEmail(email, code, onDone){
-  // If emailjs not loaded yet, wait and retry
-  if(typeof emailjs === 'undefined'){
-    setTimeout(function(){ _sendVerifyEmail(email, code, onDone); }, 500);
+  // If emailjs not loaded yet, wait and retry up to 10 times
+  if(typeof emailjs === 'undefined' || !_EJS_READY){
+    if(!window._ejsRetry) window._ejsRetry = 0;
+    window._ejsRetry++;
+    if(window._ejsRetry < 10){
+      setTimeout(function(){ _sendVerifyEmail(email, code, onDone); }, 600);
+    } else {
+      window._ejsRetry = 0;
+      console.warn('[Uplyncio] EmailJS failed to load after retries');
+      if(onDone) onDone(false);
+    }
     return;
   }
-  _initEmailJS();
-  if(_EJS_READY){
-    emailjs.send(_EJS_SERVICE, _EJS_TEMPLATE, {
-      to_email:  email,
-      to_name:   email.split('@')[0],
-      code:      code,
-      from_name: 'Uplyncio',
-      reply_to:  'info@uplyncio.com'
-    }).then(function(){
-      if(onDone) onDone(true);
-    }).catch(function(err){
-      console.warn('EmailJS send error:', err);
-      if(onDone) onDone(false);
-    });
-  } else {
-    console.warn('EmailJS not ready');
+  window._ejsRetry = 0;
+  console.log('[Uplyncio] Sending email to:', email, 'code:', code);
+  emailjs.send(_EJS_SERVICE, _EJS_TEMPLATE, {
+    to_email:  email,
+    to_name:   email.split('@')[0],
+    code:      code,
+    from_name: 'Uplyncio',
+    reply_to:  'info@uplyncio.com'
+  }).then(function(res){
+    console.log('[Uplyncio] Email sent OK:', res);
+    if(onDone) onDone(true);
+  }).catch(function(err){
+    console.error('[Uplyncio] EmailJS send FAILED:', JSON.stringify(err));
     if(onDone) onDone(false);
-  }
+  });
 }
 
 // Dev helper: shows the code in a small toast so you can test without real email
@@ -2363,7 +2372,22 @@ window.addEventListener('load', function(){
 });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" onload="window._ejsLoaded=true;_initEmailJS()"></script>
+<script>
+// Load EmailJS with fallback CDN
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  s.onload = function(){ window._ejsLoaded=true; _initEmailJS(); };
+  s.onerror = function(){
+    // Fallback to official CDN
+    var s2 = document.createElement('script');
+    s2.src = 'https://cdn.emailjs.com/dist/email.min.js';
+    s2.onload = function(){ window._ejsLoaded=true; _initEmailJS(); };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+})();
+</script>
 </body>
 </html>
 
