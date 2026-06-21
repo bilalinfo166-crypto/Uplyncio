@@ -201,7 +201,7 @@ function completeSignup(){
 // ── EMAILJS CONFIG ──
 // Sign up free at emailjs.com to get real email sending
 // Replace these with your EmailJS credentials:
-var _EJS_PUBLIC  = 'YOUR_EMAILJS_PUBLIC_KEY';
+var _EJS_PUBLIC  = 'YOUR_EMAILJS_PUBLIC_KEY'; // Replace with your key from emailjs.com
 var _EJS_SERVICE = 'YOUR_EMAILJS_SERVICE_ID';
 var _EJS_TEMPLATE= 'YOUR_EMAILJS_TEMPLATE_ID';
 var _EJS_READY   = false;
@@ -218,49 +218,129 @@ function _sendVerifyEmail(email, code, onDone){
   if(_EJS_READY && _EJS_SERVICE !== 'YOUR_EMAILJS_SERVICE_ID'){
     // Real email via EmailJS
     emailjs.send(_EJS_SERVICE, _EJS_TEMPLATE, {
-      to_email: email,
-      to_name:  email.split('@')[0],
-      code:     code,
-      from_name:'Uplyncio'
+      to_email:  email,
+      to_name:   email.split('@')[0],
+      code:      code,
+      from_name: 'Uplyncio',
+      reply_to:  'info@uplyncio.com'
     }).then(function(){ 
       if(onDone) onDone(true); 
-    }).catch(function(){ 
+    }).catch(function(err){ 
+      console.warn('EmailJS error:', err);
+      _showDevCode(email, code);
       if(onDone) onDone(false); 
     });
   } else {
-    // EmailJS not configured — store code in localStorage for demo
-    // In production: configure EmailJS above
+    // EmailJS not configured — show code in dev toast for testing
+    _showDevCode(email, code);
     if(onDone) onDone(false);
   }
 }
 
+// Dev helper: shows the code in a small toast so you can test without real email
+function _showDevCode(email, code){
+  // Only show in dev/localhost environments
+  var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
+  if(!isLocal) return; // On live site, don't reveal the code
+  var t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e3a5f;border:1px solid #4f7cff;border-radius:12px;padding:14px 22px;color:#fff;font-size:13px;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,.5);text-align:center;min-width:280px';
+  t.innerHTML = '<div style="color:rgba(255,255,255,.5);margin-bottom:6px;font-size:11px">🔧 DEV MODE — code for ' + email + '</div><div style="font-size:28px;font-weight:800;font-family:monospace;letter-spacing:8px;color:#4f7cff">' + code + '</div><div style="color:rgba(255,255,255,.35);font-size:11px;margin-top:6px">Configure EmailJS to send real emails</div>';
+  document.body.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 15000);
+}
+
 // ── VERIFY MODAL ──
+// OTP boxes + timer logic
+var _otpTimerInterval = null;
+var _otpExpired = false;
+
+function _initOtpBoxes(){
+  var boxes = document.querySelectorAll('.otp-box');
+  boxes.forEach(function(box, i){
+    box.value = ''; box.disabled = false; box.style.opacity='1';
+    box.style.borderColor = 'rgba(255,255,255,.12)';
+    box.style.background = 'rgba(255,255,255,.07)';
+    // Remove old listeners by cloning
+    var nb = box.cloneNode(true);
+    box.parentNode.replaceChild(nb, box);
+  });
+  // Re-query after clone
+  boxes = document.querySelectorAll('.otp-box');
+  boxes.forEach(function(box, i){
+    box.addEventListener('input', function(){
+      this.value = this.value.replace(/[^0-9]/g,'').slice(-1);
+      if(this.value && i < boxes.length-1) boxes[i+1].focus();
+      _syncOtpInput();
+    });
+    box.addEventListener('keydown', function(e){
+      if(e.key==='Backspace' && !this.value && i>0){ boxes[i-1].focus(); boxes[i-1].value=''; _syncOtpInput(); }
+      if(e.key==='Enter') submitVerifyCode();
+    });
+    box.addEventListener('paste', function(e){
+      e.preventDefault();
+      var paste = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+      document.querySelectorAll('.otp-box').forEach(function(b,j){ b.value=paste[j]||''; });
+      if(paste.length>=6) document.querySelectorAll('.otp-box')[5].focus();
+      _syncOtpInput();
+    });
+    box.addEventListener('focus', function(){ if(!_otpExpired){ this.style.borderColor='#4f7cff'; this.style.background='rgba(79,124,255,.1)'; }});
+    box.addEventListener('blur', function(){ this.style.borderColor=this.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; this.style.background='rgba(255,255,255,.07)'; });
+  });
+}
+
+function _syncOtpInput(){
+  var val='';
+  document.querySelectorAll('.otp-box').forEach(function(b){ val+=b.value; });
+  var inp=document.getElementById('verifyCodeInput');
+  if(inp) inp.value=val;
+}
+
+function _startOtpTimer(){
+  clearInterval(_otpTimerInterval);
+  _otpExpired=false;
+  var totalSecs=180;
+  var timerEl=document.getElementById('verifyTimer');
+  var timerWrap=document.getElementById('verifyTimerWrap');
+  var expiredEl=document.getElementById('verifyExpiredMsg');
+  var resendLnk=document.getElementById('resendLink');
+  var vBtn=document.getElementById('verifyBtn');
+  if(timerWrap) timerWrap.style.display='inline-flex';
+  if(expiredEl) expiredEl.style.display='none';
+  if(resendLnk){ resendLnk.style.opacity='0.4'; resendLnk.style.pointerEvents='none'; }
+  if(vBtn){ vBtn.style.opacity='1'; vBtn.style.pointerEvents='auto'; }
+  function tick(){
+    var m=Math.floor(totalSecs/60), s=totalSecs%60;
+    if(timerEl){ timerEl.textContent=m+':'+(s<10?'0':'')+s; timerEl.style.color=totalSecs<=60?'#ef4444':'#f59e0b'; }
+    if(totalSecs<=0){
+      clearInterval(_otpTimerInterval); _otpExpired=true;
+      if(timerWrap) timerWrap.style.display='none';
+      if(expiredEl) expiredEl.style.display='block';
+      if(vBtn){ vBtn.style.opacity='0.4'; vBtn.style.pointerEvents='none'; }
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.disabled=true; b.style.opacity='0.45'; b.style.borderColor='#ef4444'; });
+      if(resendLnk){ resendLnk.style.opacity='1'; resendLnk.style.pointerEvents='auto'; }
+      return;
+    }
+    totalSecs--;
+  }
+  tick();
+  _otpTimerInterval=setInterval(tick,1000);
+}
+
 function openVerifyModal(email, isNew){
   window._verifyingEmail = email;
   window._verifyIsNew    = isNew;
-
   var user = findUser(email);
   if(!user){ return; }
-
-  // Update email display
   var emailShow = document.getElementById('verifyEmailShow');
   if(emailShow) emailShow.textContent = user.email;
-
-  // Clear inputs
-  var inp = document.getElementById('verifyCodeInput');
-  if(inp){ inp.value=''; inp.style.borderColor='rgba(255,255,255,.15)'; }
   var err = document.getElementById('verifyError');
   if(err){ err.style.display='none'; err.textContent=''; }
-
-  // Show modal first
   var modal = document.getElementById('verifyModal');
   if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
-
-  // Try to send real email
-  _sendVerifyEmail(user.email, user.verifyCode, function(sent){
-    // Email sent or not — modal is already open
-    // Code is stored in localStorage for verification
-  });
+  _initOtpBoxes();
+  setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); },200);
+  _startOtpTimer();
+  _sendVerifyEmail(user.email, user.verifyCode, function(sent){});
 }
 
 function closeVerifyModal(){
@@ -269,38 +349,50 @@ function closeVerifyModal(){
 }
 
 function submitVerifyCode(){
+  if(_otpExpired){
+    var err = document.getElementById('verifyError');
+    if(err){ err.textContent='⏰ Code has expired. Please click Resend Code.'; err.style.display='block'; }
+    return;
+  }
   var inp = document.getElementById('verifyCodeInput');
-  if(!inp || !inp.value.trim()){ alert('Please enter the 6-digit code.'); return; }
-
+  var code = inp ? inp.value.trim() : '';
+  if(code.length < 6){
+    // Shake the boxes
+    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; });
+    var err = document.getElementById('verifyError');
+    if(err){ err.textContent='⚠ Please enter all 6 digits of the code.'; err.style.display='block'; }
+    setTimeout(function(){ 
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; });
+    }, 2000);
+    return;
+  }
   var email = window._verifyingEmail||'';
   var users = getUsers();
   var idx   = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
-  
-  if(idx===-1){ alert('User not found. Please sign up again.'); closeVerifyModal(); return; }
-  
+  if(idx===-1){ closeVerifyModal(); return; }
   var user = users[idx];
-  if(inp.value.trim() === user.verifyCode){
-    user.verified   = true;
-    user.verifyCode = '';
-    user.emailVerified = true;
-    users[idx] = user;
-    saveUsers(users);
-    // Save verified email to settings
+  if(code === user.verifyCode){
+    clearInterval(_otpTimerInterval);
+    user.verified=true; user.verifyCode=''; user.emailVerified=true;
+    users[idx]=user; saveUsers(users);
     try{
-      var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-      s['settEmail']         = user.email;
-      s['emailVerified']     = true;
-      localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+      var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+      s['settEmail']=user.email; s['emailVerified']=true;
+      localStorage.setItem('uplyncio_settings',JSON.stringify(s));
     }catch(e){}
-    closeVerifyModal();
-    _loginSuccess(user);
+    // Show success briefly
+    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
+    var vBtn=document.getElementById('verifyBtn');
+    if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; }
+    setTimeout(function(){ closeVerifyModal(); _loginSuccess(user); }, 600);
   } else {
-    inp.style.borderColor = '#ef4444';
+    // Wrong code — red boxes + error
+    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; b.style.background='rgba(239,68,68,.08)'; });
     var err = document.getElementById('verifyError');
     if(err){ err.textContent='❌ Incorrect code. Please try again.'; err.style.display='block'; }
     setTimeout(function(){ 
-      inp.style.borderColor='rgba(255,255,255,.15)'; 
-      if(err) err.style.display='none'; 
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)'; });
+      if(err) err.style.display='none';
     }, 2500);
   }
 }
@@ -310,14 +402,25 @@ function resendCode(){
   var users = getUsers();
   var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
   if(idx===-1) return;
+  // Generate new code
   users[idx].verifyCode = genCode();
   saveUsers(users);
-  // Show resend confirmation
-  var err = document.getElementById('verifyError');
-  if(err){ err.style.color='#4ade80'; err.textContent='✅ New code sent! Check your email.'; err.style.display='block'; }
-  setTimeout(function(){ if(err) err.style.display='none'; }, 3000);
-  // Re-open to update display
-  openVerifyModal(email, window._verifyIsNew);
+  // Reset boxes
+  document.querySelectorAll('.otp-box').forEach(function(b){
+    b.value=''; b.disabled=false; b.style.opacity='1';
+    b.style.borderColor='rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)';
+  });
+  var inp=document.getElementById('verifyCodeInput'); if(inp) inp.value='';
+  var err=document.getElementById('verifyError');
+  if(err){ err.style.color='#4ade80'; err.textContent='✅ New code sent! Please check your email.'; err.style.display='block'; }
+  setTimeout(function(){ if(err){ err.style.display='none'; err.style.color='#ef4444'; } }, 3000);
+  // Reset & restart timer
+  _startOtpTimer();
+  // Send new email
+  var user=findUser(email);
+  if(user) _sendVerifyEmail(user.email, user.verifyCode, function(){});
+  // Focus first box
+  setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); }, 100);
 }
 
 // ── FORGOT PASSWORD ──
@@ -2126,46 +2229,73 @@ document.addEventListener('click',function(e){
 
 
 <!-- VERIFY EMAIL MODAL -->
-<div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(10px)">
-  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;padding:32px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+<div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(12px)">
+  <div style="background:linear-gradient(160deg,#0d1f3c 0%,#0a1628 100%);border:1px solid rgba(79,124,255,.25);border-radius:28px;width:100%;max-width:440px;padding:36px 36px 28px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(79,124,255,.1)">
 
-    <button onclick="closeVerifyModal()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.2)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">✕</button>
+    <!-- Close -->
+    <button onclick="closeVerifyModal()" style="position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1" onmouseover="this.style.background='rgba(239,68,68,.25)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.05)';this.style.color='rgba(255,255,255,.5)'">✕</button>
 
-    <!-- Icon + Title -->
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px">✉️</div>
-      <div style="font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:8px">Check Your Email</div>
-      <div style="font-size:14px;color:rgba(255,255,255,.5);line-height:1.6">
-        We sent a 6-digit verification code to<br>
-        <strong id="verifyEmailShow" style="color:#4f7cff;font-size:15px"></strong>
+    <!-- Icon -->
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#4f7cff 0%,#00d4aa 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 32px rgba(79,124,255,.35)">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
+      <div style="font-family:'Manrope',sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.3px">Check Your Email</div>
+      <div style="font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.6">
+        We sent a 6-digit verification code to
+      </div>
+      <div id="verifyEmailShow" style="color:#4f7cff;font-size:14.5px;font-weight:700;margin-top:4px;word-break:break-all"></div>
     </div>
 
     <!-- Info box -->
-    <div style="background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.25);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px">
-      <span style="font-size:18px;flex-shrink:0;margin-top:1px">📬</span>
-      <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.7">
-        Please open your email inbox and copy the 6-digit code. Then enter it below to verify your account.
-        <br><span style="color:rgba(255,255,255,.35);font-size:12px">Check your spam folder if you don't see it.</span>
+    <div style="background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.2);border-radius:14px;padding:13px 15px;margin-bottom:22px;display:flex;align-items:flex-start;gap:11px">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px">📬</span>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.75">
+        Please open your email inbox and copy the 6-digit code, then enter it below to verify your account.
+        <br><span style="color:rgba(255,255,255,.3);font-size:12px">Check your spam folder if you don't see it.</span>
       </div>
     </div>
 
-    <!-- Code input -->
-    <div style="margin-bottom:8px">
-      <input id="verifyCodeInput" type="text" maxlength="6" placeholder="• • • • • •" onkeydown="if(event.key==='Enter')submitVerifyCode()" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:16px;font-size:28px;font-family:monospace;letter-spacing:12px;color:#fff;outline:none;text-align:center;box-sizing:border-box;transition:all .2s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+    <!-- 6 separate digit boxes -->
+    <div id="otpBoxes" style="display:flex;gap:10px;justify-content:center;margin-bottom:10px">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:52px;height:58px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;font-size:26px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:52px;height:58px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;font-size:26px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:52px;height:58px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;font-size:26px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:52px;height:58px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;font-size:26px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:52px;height:58px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;font-size:26px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:52px;height:58px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:14px;font-size:26px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
     </div>
-    <div id="verifyError" style="display:none;font-size:12px;color:#ef4444;text-align:center;margin-bottom:10px;font-weight:600"></div>
+
+    <!-- Hidden combined input for submitVerifyCode -->
+    <input id="verifyCodeInput" type="hidden" value="">
+
+    <!-- Error -->
+    <div id="verifyError" style="display:none;font-size:12.5px;color:#ef4444;text-align:center;margin-bottom:10px;font-weight:600;padding:8px;background:rgba(239,68,68,.08);border-radius:8px"></div>
+
+    <!-- Timer -->
+    <div style="text-align:center;margin-bottom:16px">
+      <div id="verifyTimerWrap" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.4)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,.4)" stroke-width="2"/><path d="M12 6v6l4 2" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg>
+        Code expires in <span id="verifyTimer" style="color:#f59e0b;font-weight:700;min-width:32px;display:inline-block">3:00</span>
+      </div>
+      <div id="verifyExpiredMsg" style="display:none;font-size:13px;color:#ef4444;font-weight:600">
+        ⏰ Code expired. Please resend a new code.
+      </div>
+    </div>
 
     <!-- Verify button -->
-    <button onclick="submitVerifyCode()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:16px;transition:opacity .2s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-      ✅ Verify & Open Dashboard
+    <button id="verifyBtn" onclick="submitVerifyCode()" style="width:100%;background:linear-gradient(135deg,#4f7cff 0%,#00d4aa 100%);color:#fff;border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:16px;transition:all .2s;box-shadow:0 4px 20px rgba(79,124,255,.3);letter-spacing:.2px" onmouseover="this.style.opacity='.88';this.style.transform='translateY(-1px)'" onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
+      Verify &amp; Open Dashboard →
     </button>
 
     <!-- Resend -->
     <div style="text-align:center;font-size:13px;color:rgba(255,255,255,.35)">
-      Didn't receive the code? 
-      <a href="#" onclick="resendCode();return false" style="color:#4f7cff;font-weight:700;text-decoration:none">Resend Code</a>
+      Didn't receive the code?
+      <a href="#" id="resendLink" onclick="resendCode();return false" style="color:#4f7cff;font-weight:700;text-decoration:none;transition:opacity .2s">Resend Code</a>
     </div>
+
   </div>
 </div>
 
