@@ -681,14 +681,12 @@ function _loginSuccess(user){
     var userData = getUserData(user.uid);
     localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
   }catch(ex){}
-  var role = user.role || 'buyer';
-    if(role === 'publisher'){
-      window.location.href='publisher.html';
-    } else {
-      // buyer stays on buyer page or goes to buyer dashboard
-      closeLogin();
-      if(typeof onBuyerLogin === 'function') onBuyerLogin(user);
-    }
+  // On buyer page — always stay, never redirect
+  try{ closeVerifyModal(); }catch(e){}
+  try{ closeLogin(); }catch(e){}
+  try{ closeSignupStep2(); }catch(e){}
+  try{ closeRoleModal(); }catch(e){}
+  if(typeof onBuyerLogin === 'function') onBuyerLogin(user);
 }
 
 function googleLogin(){ alert('Google login requires backend setup. Please use Email/Password.'); }
