@@ -205,34 +205,36 @@ var _EJS_PUBLIC  = 'cJIGW1xaODsMjMFx4';
 var _EJS_SERVICE = 'service_wdyw4fj';
 var _EJS_TEMPLATE= 'template_v4kbqxk';
 var _EJS_READY   = false;
+var _ejsLoaded   = false;
 
 function _initEmailJS(){
-  if(typeof emailjs !== 'undefined' && !_EJS_READY && _EJS_PUBLIC !== 'YOUR_EMAILJS_PUBLIC_KEY'){
-    emailjs.init({publicKey: _EJS_PUBLIC});
-    _EJS_READY = true;
+  if(typeof emailjs !== 'undefined' && !_EJS_READY){
+    try{ emailjs.init({publicKey: _EJS_PUBLIC}); _EJS_READY = true; }catch(e){}
   }
 }
 
 function _sendVerifyEmail(email, code, onDone){
+  // If emailjs not loaded yet, wait and retry
+  if(typeof emailjs === 'undefined'){
+    setTimeout(function(){ _sendVerifyEmail(email, code, onDone); }, 500);
+    return;
+  }
   _initEmailJS();
-  if(_EJS_READY && _EJS_SERVICE !== 'YOUR_EMAILJS_SERVICE_ID'){
-    // Real email via EmailJS
+  if(_EJS_READY){
     emailjs.send(_EJS_SERVICE, _EJS_TEMPLATE, {
       to_email:  email,
       to_name:   email.split('@')[0],
       code:      code,
       from_name: 'Uplyncio',
       reply_to:  'info@uplyncio.com'
-    }).then(function(){ 
-      if(onDone) onDone(true); 
-    }).catch(function(err){ 
-      console.warn('EmailJS error:', err);
-      _showDevCode(email, code);
-      if(onDone) onDone(false); 
+    }).then(function(){
+      if(onDone) onDone(true);
+    }).catch(function(err){
+      console.warn('EmailJS send error:', err);
+      if(onDone) onDone(false);
     });
   } else {
-    // EmailJS not configured — show code in dev toast for testing
-    _showDevCode(email, code);
+    console.warn('EmailJS not ready');
     if(onDone) onDone(false);
   }
 }
@@ -837,7 +839,6 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 @media(max-width:600px){.nav{padding:0 18px}.nav-links{display:none}.hero{padding:100px 18px 56px}.sec{padding:60px 18px}.svc-grid,.pricing-grid,.testi-grid,.how-grid{grid-template-columns:1fr}.niche-grid{grid-template-columns:repeat(2,1fr)}.footer-g{grid-template-columns:1fr}.stats-bar{grid-template-columns:1fr 1fr}.filter-row-1,.filter-row-2{grid-template-columns:1fr 1fr}footer{padding:44px 18px 0}.stats-wrap{padding:52px 18px 0}}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -2362,6 +2363,7 @@ window.addEventListener('load', function(){
 });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" onload="window._ejsLoaded=true;_initEmailJS()"></script>
 </body>
 </html>
 
