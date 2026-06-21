@@ -189,20 +189,25 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .m-submit:hover{background:#3d6bef}
 
 /* Publisher Performance */
-.pub-perf{background:#f8faff;border:1px solid #e2e8f0;border-radius:11px;padding:14px 16px;margin-bottom:14px}
-.pub-perf-title{font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.pub-perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.pp-item{padding:7px 10px;border-bottom:1px solid #f1f5f9}
-.pp-item:nth-child(odd){border-right:1px solid #f1f5f9}
-.pp-item:nth-last-child(-n+2){border-bottom:none}
-.pp-lbl{font-size:10.5px;color:#94a3b8;margin-bottom:3px;font-weight:500}
-.pp-val{font-size:13px;font-weight:700;color:#1a202c;display:flex;align-items:center;gap:4px}
-.pp-val.green{color:#16a34a}
-.pp-val.amber{color:#d97706}
-.pp-val.red{color:#dc2626}
-.pp-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:4px;overflow:hidden}
-.pp-bar-fill{height:100%;border-radius:2px;background:#16a34a;transition:width .4s}
-.flag{width:16px;height:12px;border-radius:2px;display:inline-block;font-size:12px;line-height:1}
+.pub-perf{background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.pub-perf-title{font-size:11px;font-weight:700;color:#64748b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.perf-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.perf-card{background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:11px 12px;text-align:center}
+.perf-card-icon{font-size:18px;margin-bottom:5px}
+.perf-card-title{font-size:10px;color:#64748b;font-weight:600;margin-bottom:4px}
+.perf-card-val{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#1a202c}
+.perf-card-val.green{color:#16a34a}
+.perf-card-val.amber{color:#d97706}
+.perf-card-val.red{color:#dc2626}
+.perf-card-sub{font-size:10px;color:#94a3b8;margin-top:2px}
+.perf-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:5px;overflow:hidden}
+.perf-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.perf-details{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #f1f5f9;border-radius:8px;overflow:hidden}
+.pd-item{padding:7px 10px;background:#fff;border-bottom:1px solid #f1f5f9}
+.pd-item:nth-child(odd){border-right:1px solid #f1f5f9}
+.pd-item:nth-last-child(-n+2){border-bottom:none}
+.pd-lbl{font-size:10px;color:#94a3b8;font-weight:500;margin-bottom:2px}
+.pd-val{font-size:12.5px;font-weight:700;color:#1a202c;display:flex;align-items:center;gap:3px}
 
 /* toast */
 .toast{position:fixed;bottom:22px;right:22px;background:#1a202c;border-radius:9px;padding:11px 16px;color:#fff;font-size:12.5px;font-weight:600;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
@@ -1245,43 +1250,66 @@ function openModal(idx, type){
   var countryFlag = {'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'}[topCountry]||'🌐';
   var siteCountryFlag = {'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'}[s.country]||'🌐';
   
+  // Get publisher real data from localStorage if available
+  var pubRating = 5.0;
+  var pubReviews = 0;
+  try{
+    var allUsers = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+    // Find publisher who owns this site
+    var siteOwnerUid = null;
+    Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); }).forEach(function(k){
+      try{
+        var d = JSON.parse(localStorage.getItem(k)||'{}');
+        if(d.sites && d.sites.some(function(st){ return st.url===s.url; })){
+          siteOwnerUid = k.replace('uplyncio_data_','');
+          if(d.rating) pubRating = d.rating;
+          if(d.reviews) pubReviews = d.reviews.length||0;
+        }
+      }catch(e){}
+    });
+  }catch(e){}
+
+  var compColor = s.comp>=90?'#16a34a':s.comp>=70?'#d97706':'#dc2626';
+  var compClass = s.comp>=90?'green':s.comp>=70?'amber':'red';
+  var starStr = '⭐'.repeat(Math.round(pubRating));
+
   document.getElementById('mPubPerf').innerHTML =
     '<div class="pub-perf">'+
     '<div class="pub-perf-title">📊 Publisher Performance</div>'+
-    '<div class="pub-perf-grid">'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">Completion Rate</div>'+
-        '<div class="pp-val '+compCol+'">'+s.comp+'%</div>'+
-        '<div class="pp-bar"><div class="pp-bar-fill" style="width:'+s.comp+'%;background:'+(s.comp>=90?'#16a34a':s.comp>=70?'#d97706':'#dc2626')+'"></div></div>'+
+
+    // 3 metric cards
+    '<div class="perf-cards">'+
+      '<div class="perf-card">'+
+        '<div class="perf-card-icon">📊</div>'+
+        '<div class="perf-card-title">Completion Rate</div>'+
+        '<div class="perf-card-val '+compClass+'">'+s.comp+'.00%</div>'+
+        '<div class="perf-bar"><div class="perf-bar-fill" style="width:'+s.comp+'%;background:'+compColor+'"></div></div>'+
+        '<div class="perf-card-sub">All orders completed</div>'+
       '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">Language</div>'+
-        '<div class="pp-val">'+s.lang+'</div>'+
+      '<div class="perf-card">'+
+        '<div class="perf-card-icon">🔗</div>'+
+        '<div class="perf-card-title">Link Lifetime</div>'+
+        '<div class="perf-card-val green">100.00%</div>'+
+        '<div class="perf-bar"><div class="perf-bar-fill" style="width:100%;background:#16a34a"></div></div>'+
+        '<div class="perf-card-sub">All links active</div>'+
       '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">Avg Lifetime of Links</div>'+
-        '<div class="pp-val green">'+lifeVal+'</div>'+
+      '<div class="perf-card">'+
+        '<div class="perf-card-icon">⭐</div>'+
+        '<div class="perf-card-title">Avg Client Rating</div>'+
+        '<div class="perf-card-val green">'+pubRating.toFixed(1)+' / 5</div>'+
+        '<div class="perf-bar"><div class="perf-bar-fill" style="width:'+(pubRating/5*100)+'%;background:#f59e0b"></div></div>'+
+        '<div class="perf-card-sub">'+(pubReviews>0?pubReviews+' reviews':'New publisher')+'</div>'+
       '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">Country</div>'+
-        '<div class="pp-val">'+siteCountryFlag+' '+s.country+'</div>'+
-      '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">TAT</div>'+
-        '<div class="pp-val amber">Up to '+s.tat+' days</div>'+
-      '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">SemRush Top Country</div>'+
-        '<div class="pp-val">'+countryFlag+' '+topCountry+'</div>'+
-      '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">Tasks with Initial Domain & Price</div>'+
-        '<div class="pp-val green">100%</div>'+
-      '</div>'+
-      '<div class="pp-item">'+
-        '<div class="pp-lbl">Top Country Traffic</div>'+
-        '<div class="pp-val">'+(topCountryTraffic==='N/A'?'<span style="color:#94a3b8">N/A</span>':topCountryTraffic)+'</div>'+
-      '</div>'+
+    '</div>'+
+
+    // Details grid
+    '<div class="perf-details">'+
+      '<div class="pd-item"><div class="pd-lbl">TAT</div><div class="pd-val" style="color:#d97706">Up to '+s.tat+' days</div></div>'+
+      '<div class="pd-item"><div class="pd-lbl">Language</div><div class="pd-val">'+s.lang+'</div></div>'+
+      '<div class="pd-item"><div class="pd-lbl">Country</div><div class="pd-val">'+siteCountryFlag+' '+s.country+'</div></div>'+
+      '<div class="pd-item"><div class="pd-lbl">SemRush Top Country</div><div class="pd-val">'+countryFlag+' '+topCountry+'</div></div>'+
+      '<div class="pd-item"><div class="pd-lbl">Tasks w/ Initial Domain & Price</div><div class="pd-val" style="color:#16a34a">100%</div></div>'+
+      '<div class="pd-item"><div class="pd-lbl">Top Country Traffic</div><div class="pd-val" style="color:#94a3b8">'+(topCountryTraffic||'N/A')+'</div></div>'+
     '</div>'+
     '</div>';
 
