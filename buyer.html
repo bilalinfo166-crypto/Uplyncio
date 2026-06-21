@@ -6,193 +6,185 @@
 <title>Browse Sites — Uplyncio</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#07090f;
-  --bg2:#0b0f1c;
-  --surface:#0f1628;
-  --card:#111a2e;
-  --card2:#141f35;
-  --border:#1c2a45;
-  --border2:#243356;
-  --accent:#4f7cff;
-  --accent-soft:rgba(79,124,255,0.12);
-  --teal:#00d4aa;
-  --teal-soft:rgba(0,212,170,0.1);
-  --text:#eef2ff;
-  --text2:#8fa3c8;
-  --muted:#4a607f;
-  --green:#22c55e;
-  --yellow:#f59e0b;
-  --red:#ef4444;
-  --r:12px;
-  --r-sm:8px;
-}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow-x:hidden}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;line-height:1.5}
 ::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::-webkit-scrollbar-track{background:#f0f2f7}
+::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:4px}
 
 /* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;background:rgba(7,9,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px}
-.nav-logo{font-family:'Manrope',sans-serif;font-size:21px;font-weight:800;color:var(--text);text-decoration:none;letter-spacing:-0.8px;margin-right:8px}
-.nav-logo em{font-style:normal;color:var(--accent)}
-.nav-tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px}
-.nav-tab{padding:5px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text2);transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif}
-.nav-tab.active{background:var(--accent);color:#fff}
-.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.nav-balance{font-size:13px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px}
-.nav-balance strong{color:var(--teal)}
-.nav-btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}
-.nav-btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
-.nav-btn-ghost:hover{border-color:var(--accent);color:var(--text)}
-.nav-btn-accent{background:var(--accent);color:#fff}
-.nav-btn-accent:hover{opacity:.88}
-.nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer;border:2px solid var(--border2)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 20px;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.nav-logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;text-decoration:none;letter-spacing:-0.6px;display:flex;align-items:center;gap:8px}
+.nav-logo .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900}
+.nav-logo em{font-style:normal;color:#4f7cff}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-balance-wrap{display:flex;gap:12px;align-items:center;background:#f8faff;border:1px solid #e2e8f0;border-radius:9px;padding:5px 14px;font-size:13px}
+.nav-balance-item{display:flex;flex-direction:column;align-items:center}
+.nav-balance-label{font-size:10px;color:#94a3b8;font-weight:500}
+.nav-balance-val{font-size:13px;font-weight:700;color:#1a202c}
+.nav-balance-val.green{color:#22c55e}
+.nav-btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;text-decoration:none}
+.nav-btn-ghost{background:#f8faff;border:1px solid #e2e8f0;color:#64748b}
+.nav-btn-ghost:hover{border-color:#4f7cff;color:#4f7cff}
+.nav-btn-accent{background:#4f7cff;color:#fff}
+.nav-btn-accent:hover{background:#3d6bef}
+.nav-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;border:2px solid #e2e8f0}
 
 /* LAYOUT */
-.layout{display:flex;margin-top:58px;min-height:calc(100vh - 58px)}
+.layout{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
 
-/* SIDEBAR FILTERS */
-.sidebar{width:260px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:20px 16px;overflow-y:auto;position:sticky;top:58px;height:calc(100vh - 58px)}
-.sidebar-title{font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.filter-group{margin-bottom:18px}
-.filter-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:7px;display:flex;align-items:center;gap:5px}
-.filter-label .badge-new{font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700}
-.filter-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 10px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .18s}
-.filter-input:focus{border-color:var(--accent)}
-.filter-input::placeholder{color:var(--muted)}
-.filter-range{display:flex;gap:6px}
-.filter-range .filter-input{width:50%}
-.filter-select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 10px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa3c8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
-.filter-select:focus{border-color:var(--accent)}
-.filter-divider{height:1px;background:var(--border);margin:16px 0}
-.filter-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
-.clear-btn{width:100%;padding:8px;background:none;border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;margin-top:4px}
-.clear-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* TOP FILTER BAR */
+.filter-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;flex-direction:column;gap:10px}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label-sm{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.fi{height:34px;background:#f8faff;border:1px solid #e2e8f0;border-radius:7px;padding:0 10px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .18s}
+.fi:focus{border-color:#4f7cff;background:#fff}
+.fi::placeholder{color:#94a3b8}
+.fi-range{display:flex;align-items:center;gap:4px}
+.fi-range .fi{width:70px}
+.fi-range span{color:#94a3b8;font-size:12px}
+.fi-select{height:34px;background:#f8faff;border:1px solid #e2e8f0;border-radius:7px;padding:0 28px 0 10px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.fi-select:focus{border-color:#4f7cff}
+.clear-filters{height:34px;padding:0 12px;background:none;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:600;color:#94a3b8;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.clear-filters:hover{border-color:#ef4444;color:#ef4444}
+.filter-divider{width:1px;height:22px;background:#e2e8f0;flex-shrink:0}
+.badge-new-fi{background:#4f7cff;color:#fff;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700;vertical-align:middle;margin-left:2px}
 
-/* MAIN CONTENT */
-.main{flex:1;padding:20px 24px;overflow-y:auto}
+/* SERVICE TABS */
+.service-tabs-wrap{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 20px;display:flex;gap:0;align-items:center}
+.service-tab{padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:none;color:#64748b;font-family:'Plus Jakarta Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .18s;white-space:nowrap}
+.service-tab.active{color:#4f7cff;border-bottom-color:#4f7cff}
+.service-tab:hover:not(.active){color:#1a202c}
+.tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 5px;background:#f0f2f7;border-radius:100px;font-size:11px;font-weight:700;color:#64748b;margin-left:5px}
+.service-tab.active .tab-count{background:#4f7cff;color:#fff}
+.tabs-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:8px 0}
+.search-box{position:relative}
+.search-box input{height:34px;background:#f8faff;border:1px solid #e2e8f0;border-radius:7px;padding:0 10px 0 32px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;width:220px;transition:border-color .18s}
+.search-box input:focus{border-color:#4f7cff;background:#fff;width:260px}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}
+.sort-sel{height:34px;background:#f8faff;border:1px solid #e2e8f0;border-radius:7px;padding:0 28px 0 10px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.results-info{font-size:13px;color:#64748b;white-space:nowrap}
+.results-info strong{color:#1a202c;font-weight:700}
 
-/* TOP BAR */
-.topbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.topbar-left{flex:1}
-.results-count{font-size:14px;color:var(--text2)}
-.results-count strong{color:var(--text);font-weight:700}
-.service-tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px}
-.service-tab{padding:6px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text2);transition:all .18s;font-family:'Plus Jakarta Sans',sans-serif}
-.service-tab.active{background:var(--accent);color:#fff}
-.search-wrap{display:flex;gap:8px;flex:1;max-width:500px}
-.search-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px 8px 36px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238fa3c8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center}
-.search-input:focus{border-color:var(--accent)}
-.sort-select{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 28px 8px 10px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa3c8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+/* MAIN */
+.main{flex:1;padding:16px 20px 40px;overflow-y:auto;max-width:1300px;width:100%}
 
-/* SITE CARDS */
+/* SITE CARD */
 .sites-list{display:flex;flex-direction:column;gap:10px}
-.site-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;transition:all .2s;cursor:pointer}
-.site-card:hover{border-color:var(--accent);background:var(--card2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,124,255,.08)}
-.site-card-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.site-domain{font-family:'Manrope',sans-serif;font-size:16px;font-weight:700;color:var(--accent);text-decoration:none}
+.site-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:0;transition:all .2s;overflow:hidden}
+.site-card:hover{border-color:#4f7cff;box-shadow:0 4px 20px rgba(79,124,255,.1)}
+.card-main{padding:16px 20px 14px}
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.site-domain{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#4f7cff;text-decoration:none}
 .site-domain:hover{text-decoration:underline}
-.site-badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
-.badge-df{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.badge-nf{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.badge-cat{background:var(--accent-soft);color:var(--accent);border:1px solid rgba(79,124,255,.2)}
-.badge-owner{background:rgba(0,212,170,.1);color:var(--teal);border:1px solid rgba(0,212,170,.2);font-size:10px}
-.badge-contrib{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2);font-size:10px}
-.site-card-stats{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding-top:14px;border-top:1px solid var(--border)}
-.stat-item{text-align:center}
-.stat-val{font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:center;gap:3px}
-.stat-val.green{color:var(--green)}
-.stat-val.yellow{color:var(--yellow)}
-.stat-lbl{font-size:10.5px;color:var(--muted);margin-top:2px;white-space:nowrap}
-.ahrefs-icon{width:14px;height:14px;background:#f97316;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff}
-.semrush-icon{width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center}
-.site-card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
-.price-wrap{display:flex;align-items:baseline;gap:6px}
-.price-label{font-size:11px;color:var(--muted)}
-.price-val{font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:var(--text)}
-.price-sub{font-size:11px;color:var(--muted)}
-.price-write{font-size:12px;color:var(--text2);margin-top:2px}
-.buy-btn{padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
-.buy-btn:hover{opacity:.88;transform:translateY(-1px)}
-.buy-btn-li{background:var(--surface);border:1px solid var(--border2);color:var(--text2)}
-.buy-btn-li:hover{border-color:var(--accent);color:var(--accent)}
+.badge-df{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.badge-nf{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.badge-sp{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.badge-cat{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+.badge-owner{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;font-size:10px}
+.badge-contrib{background:#fefce8;color:#a16207;border:1px solid #fef08a;font-size:10px}
+
+/* STATS GRID */
+.card-stats{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;margin:0 -0px}
+.stat-col{padding:10px 8px;text-align:center;border-right:1px solid #f1f5f9}
+.stat-col:last-child{border-right:none}
+.stat-val{font-family:'Manrope',sans-serif;font-size:13px;font-weight:800;color:#1a202c;display:flex;align-items:center;justify-content:center;gap:3px}
+.stat-val.blue{color:#4f7cff}
+.stat-val.teal{color:#0d9488}
+.stat-val.green{color:#16a34a}
+.stat-val.yellow{color:#d97706}
+.stat-val.red{color:#dc2626}
+.stat-lbl{font-size:10px;color:#94a3b8;margin-top:2px;white-space:nowrap}
+.ahrefs-dot{width:12px;height:12px;background:#f97316;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:900;color:#fff;flex-shrink:0}
+.sem-dot{width:12px;height:12px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 
 /* COMPLETION RING */
-.completion-ring{position:relative;width:36px;height:36px}
-.completion-ring svg{transform:rotate(-90deg)}
-.completion-ring .ring-bg{stroke:var(--border);fill:none}
-.completion-ring .ring-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .6s}
-.completion-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text)}
+.ring-wrap{position:relative;width:32px;height:32px;display:inline-flex}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800}
+
+/* CARD BOTTOM - PRICING */
+.card-bottom{padding:12px 20px;background:#fafbff;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pricing-grid{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.price-block{display:flex;flex-direction:column}
+.price-block-label{font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.price-block-val{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:#1a202c}
+.price-block-sub{font-size:11px;color:#64748b;margin-top:1px}
+.price-divider{width:1px;height:36px;background:#e2e8f0}
+.card-actions{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.btn-buy{padding:9px 20px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.btn-buy:hover{background:#3d6bef;transform:translateY(-1px)}
+.btn-li{padding:9px 16px;background:#fff;border:1px solid #e2e8f0;color:#64748b;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.btn-li:hover{border-color:#4f7cff;color:#4f7cff}
+.btn-wish{width:34px;height:34px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .18s;flex-shrink:0}
+.btn-wish:hover{border-color:#ef4444;color:#ef4444}
+
+/* LINK INSERTION CARD BOTTOM */
+.card-bottom-li{background:#fff7ed}
+
+/* EMPTY */
+.empty{text-align:center;padding:80px 20px;color:#94a3b8}
+.empty-icon{font-size:52px;margin-bottom:16px;opacity:.4}
+.empty h3{font-size:18px;font-weight:700;color:#1a202c;margin-bottom:8px}
 
 /* PAGINATION */
-.pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:24px;padding-bottom:32px}
-.page-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center}
-.page-btn:hover{border-color:var(--accent);color:var(--text)}
-.page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.page-btn:disabled{opacity:.35;cursor:not-allowed}
+.pagination{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:24px}
+.pg-btn{width:34px;height:34px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;color:#64748b;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center}
+.pg-btn:hover{border-color:#4f7cff;color:#4f7cff}
+.pg-btn.active{background:#4f7cff;border-color:#4f7cff;color:#fff}
+.pg-btn:disabled{opacity:.35;cursor:not-allowed}
 
 /* ORDER MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:16px}
 .modal-overlay.open{display:flex}
-.modal{background:linear-gradient(160deg,#0d1f3c,#0a1628);border:1px solid var(--border2);border-radius:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative}
-.modal-header{padding:22px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:#0d1f3c;border-radius:24px 24px 0 0;z-index:2}
-.modal-site-url{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:var(--accent)}
-.modal-close{margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:rgba(255,255,255,.04);cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .18s}
-.modal-close:hover{background:rgba(239,68,68,.2);color:#fff}
-.modal-body{padding:20px 24px}
-.modal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.modal-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
-.modal-stat-val{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:var(--text)}
-.modal-stat-lbl{font-size:11px;color:var(--muted);margin-top:3px}
-.modal-section{margin-bottom:16px}
-.modal-section-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
-.modal-pricing{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.price-option{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .18s}
-.price-option:hover,.price-option.selected{border-color:var(--accent);background:var(--accent-soft)}
-.price-option-name{font-size:12px;color:var(--text2);margin-bottom:6px;font-weight:600}
-.price-option-val{font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:var(--text)}
-.price-option-note{font-size:11px;color:var(--muted);margin-top:4px}
-.form-group{margin-bottom:12px}
-.form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block}
-.form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .18s}
-.form-input:focus{border-color:var(--accent)}
-.form-input::placeholder{color:var(--muted)}
-.form-textarea{resize:vertical;min-height:80px}
-.modal-total{background:var(--accent-soft);border:1px solid rgba(79,124,255,.25);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.modal-total-label{font-size:13px;color:var(--text2);font-weight:600}
-.modal-total-val{font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;color:var(--accent)}
-.modal-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--teal));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
-.modal-submit:hover{opacity:.88;transform:translateY(-1px)}
-.modal-info-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.modal-info-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--text2)}
-.modal-info-tag strong{color:var(--text)}
+.modal{background:#fff;border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-header{padding:20px 22px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;gap:12px;position:sticky;top:0;background:#fff;border-radius:20px 20px 0 0;z-index:2}
+.modal-site-name{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:#4f7cff}
+.modal-close{margin-left:auto;width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;color:#94a3b8;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s}
+.modal-close:hover{background:#fef2f2;color:#ef4444;border-color:#fecaca}
+.modal-body{padding:18px 22px 22px}
+.modal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.ms{background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
+.ms-val{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:#1a202c}
+.ms-lbl{font-size:10.5px;color:#94a3b8;margin-top:2px}
+.modal-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.modal-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f8faff;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;color:#64748b}
+.modal-tag strong{color:#1a202c}
+.modal-sec-title{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.pricing-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.price-opt{background:#f8faff;border:2px solid #e2e8f0;border-radius:10px;padding:12px;cursor:pointer;transition:all .18s}
+.price-opt:hover,.price-opt.sel{border-color:#4f7cff;background:#eff6ff}
+.price-opt-name{font-size:11px;color:#64748b;font-weight:600;margin-bottom:5px}
+.price-opt-val{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c}
+.price-opt-note{font-size:11px;color:#94a3b8;margin-top:3px}
+.form-group{margin-bottom:11px}
+.form-label{font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;display:block}
+.form-input{width:100%;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:9px 11px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .18s}
+.form-input:focus{border-color:#4f7cff;background:#fff}
+.form-input::placeholder{color:#94a3b8}
+.form-textarea{resize:vertical;min-height:72px}
+.modal-total{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.modal-total-lbl{font-size:13px;color:#64748b;font-weight:600}
+.modal-total-val{font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#4f7cff}
+.modal-submit{width:100%;padding:13px;background:#4f7cff;color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
+.modal-submit:hover{background:#3d6bef;transform:translateY(-1px)}
 
-/* EMPTY STATE */
-.empty{text-align:center;padding:60px 20px;color:var(--text2)}
-.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
-.empty h3{font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
-
-/* SUCCESS TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,#1a3a6b,#0d1f3c);border:1px solid var(--accent);border-radius:12px;padding:14px 18px;color:var(--text);font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#1a202c;border-radius:10px;padding:12px 18px;color:#fff;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:all .3s;max-width:320px}
 .toast.show{transform:translateY(0);opacity:1}
 
-/* SCROLLBAR IN SIDEBAR */
-.sidebar::-webkit-scrollbar{width:3px}
-.sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+/* SEO FILTERS SECTION */
+.filter-section{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;padding:2px 0;flex-shrink:0}
 
-@media(max-width:900px){
-  .sidebar{display:none}
-  .site-card-stats{grid-template-columns:repeat(4,1fr)}
-}
-@media(max-width:600px){
-  .main{padding:14px}
-  .site-card-stats{grid-template-columns:repeat(3,1fr)}
-  .modal-stats{grid-template-columns:repeat(2,1fr)}
-  .modal-pricing{grid-template-columns:1fr}
+@media(max-width:1000px){.card-stats{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:700px){
+  .filter-bar{padding:10px 14px}
+  .main{padding:12px 14px 32px}
+  .card-stats{grid-template-columns:repeat(3,1fr)}
+  .pricing-opts{grid-template-columns:1fr}
+  .nav-balance-wrap{display:none}
 }
 </style>
 <script>
@@ -681,12 +673,7 @@ function _loginSuccess(user){
     var userData = getUserData(user.uid);
     localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
   }catch(ex){}
-  // On buyer page — always stay, never redirect
-  try{ closeVerifyModal(); }catch(e){}
-  try{ closeLogin(); }catch(e){}
-  try{ closeSignupStep2(); }catch(e){}
-  try{ closeRoleModal(); }catch(e){}
-  if(typeof onBuyerLogin === 'function') onBuyerLogin(user);
+  try{closeVerifyModal();}catch(e){} try{closeLogin();}catch(e){} try{closeSignupStep2();}catch(e){} try{closeRoleModal();}catch(e){} if(typeof onBuyerLogin==='function') onBuyerLogin(user);
 }
 
 function googleLogin(){ alert('Google login requires backend setup. Please use Email/Password.'); }
@@ -698,188 +685,162 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 
 <!-- NAV -->
 <nav class="nav">
-  <a href="uplyncio-full.html" class="nav-logo">Uply<em>ncio</em></a>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('article')">Article Posting</button>
-    <button class="nav-tab" onclick="switchTab('link')">Link Insertion</button>
-    <button class="nav-tab" onclick="switchTab('press')">Press Release</button>
-  </div>
+  <a href="uplyncio-full.html" class="nav-logo">
+    <div class="logo-icon">U</div>
+    Uply<em>ncio</em>
+  </a>
   <div class="nav-right">
-    <div class="nav-balance">Balance: <strong>$0.00</strong> &nbsp;|&nbsp; Reserved: <strong style="color:var(--text2)">$0.00</strong></div>
-    <button class="nav-btn nav-btn-ghost" onclick="window.location='uplyncio-full.html'">← Home</button>
     <div id="buyerGuestNav" style="display:flex;gap:8px">
       <button class="nav-btn nav-btn-ghost" onclick="openLogin()">Sign In</button>
       <button class="nav-btn nav-btn-accent" onclick="openBuyerSignup()">Get Started</button>
     </div>
     <div id="buyerUserNav" style="display:none;align-items:center;gap:10px">
+      <div class="nav-balance-wrap">
+        <div class="nav-balance-item"><div class="nav-balance-label">Balance</div><div class="nav-balance-val green">$0.00</div></div>
+        <div style="width:1px;height:22px;background:#e2e8f0"></div>
+        <div class="nav-balance-item"><div class="nav-balance-label">Reserved</div><div class="nav-balance-val">$0.00</div></div>
+      </div>
       <button class="nav-btn nav-btn-accent" onclick="showTopup()">+ Add Funds</button>
-      <div class="nav-balance">Balance: <strong id="buyerBalance">$0.00</strong></div>
-      <div class="nav-avatar" id="buyerAvatar" onclick="toggleBuyerProfile()">B</div>
+      <div class="nav-avatar" id="buyerAvatar">B</div>
     </div>
   </div>
 </nav>
 
-<!-- LAYOUT -->
-<div class="layout">
+<!-- FILTER BAR -->
+<div style="margin-top:56px">
+<div class="filter-bar">
+  <!-- Row 1: Price, DA, DR, Traffic, Category, Country -->
+  <div class="filter-row">
+    <span class="filter-section">Most Popular</span>
+    <div class="filter-divider"></div>
 
-  <!-- SIDEBAR FILTERS -->
-  <aside class="sidebar">
-    <div class="sidebar-title">🔍 Filter Sites</div>
-
-    <!-- Price -->
-    <div class="filter-group">
-      <div class="filter-label">Price ($)</div>
-      <div class="filter-range">
-        <input class="filter-input" type="number" id="fPriceMin" placeholder="Min" min="0" oninput="applyFilters()">
-        <input class="filter-input" type="number" id="fPriceMax" placeholder="Max" min="0" oninput="applyFilters()">
-      </div>
-    </div>
-
-    <!-- DA -->
-    <div class="filter-group">
-      <div class="filter-label">Domain Authority (DA)</div>
-      <div class="filter-range">
-        <input class="filter-input" type="number" id="fDAMin" placeholder="1" min="0" max="100" oninput="applyFilters()">
-        <input class="filter-input" type="number" id="fDAMax" placeholder="100" min="0" max="100" oninput="applyFilters()">
-      </div>
-    </div>
-
-    <!-- DR -->
-    <div class="filter-group">
-      <div class="filter-label">Domain Rating (DR)</div>
-      <div class="filter-range">
-        <input class="filter-input" type="number" id="fDRMin" placeholder="1" min="0" max="100" oninput="applyFilters()">
-        <input class="filter-input" type="number" id="fDRMax" placeholder="100" min="0" max="100" oninput="applyFilters()">
-      </div>
-    </div>
-
-    <!-- Traffic -->
-    <div class="filter-group">
-      <div class="filter-label">Ahrefs Organic Traffic</div>
-      <div class="filter-range">
-        <input class="filter-input" type="number" id="fTrafficMin" placeholder="From" min="0" oninput="applyFilters()">
-        <input class="filter-input" type="number" id="fTrafficMax" placeholder="To" min="0" oninput="applyFilters()">
-      </div>
+    <span class="filter-label-sm">Price ($)</span>
+    <div class="fi-range">
+      <input class="fi" type="number" id="fPriceMin" placeholder="Min" style="width:65px" oninput="applyFilters()">
+      <span>–</span>
+      <input class="fi" type="number" id="fPriceMax" placeholder="Max" style="width:65px" oninput="applyFilters()">
     </div>
 
     <div class="filter-divider"></div>
-    <div class="filter-section-title">Category & Type</div>
-
-    <!-- Category -->
-    <div class="filter-group">
-      <div class="filter-label">Category</div>
-      <select class="filter-select" id="fCat" onchange="applyFilters()">
-        <option value="">All Categories</option>
-        <option>Tech</option>
-        <option>Finance</option>
-        <option>Health</option>
-        <option>Business</option>
-        <option>SaaS</option>
-        <option>Marketing</option>
-        <option>Crypto</option>
-        <option>Travel</option>
-        <option>Education</option>
-        <option>News & Media</option>
-        <option>Real Estate</option>
-        <option>Fashion</option>
-      </select>
-    </div>
-
-    <!-- Link Type -->
-    <div class="filter-group">
-      <div class="filter-label">Link Type</div>
-      <select class="filter-select" id="fLinkType" onchange="applyFilters()">
-        <option value="">All Types</option>
-        <option value="Dofollow">Dofollow</option>
-        <option value="Nofollow">Nofollow</option>
-        <option value="Sponsored">Sponsored</option>
-      </select>
-    </div>
-
-    <!-- Country -->
-    <div class="filter-group">
-      <div class="filter-label">Country</div>
-      <select class="filter-select" id="fCountry" onchange="applyFilters()">
-        <option value="">All Countries</option>
-        <option>USA</option>
-        <option>UK</option>
-        <option>Canada</option>
-        <option>Australia</option>
-        <option>India</option>
-        <option>Germany</option>
-        <option>UAE</option>
-      </select>
-    </div>
-
-    <!-- Language -->
-    <div class="filter-group">
-      <div class="filter-label">Language</div>
-      <select class="filter-select" id="fLang" onchange="applyFilters()">
-        <option value="">All Languages</option>
-        <option>English</option>
-        <option>German</option>
-        <option>Spanish</option>
-        <option>French</option>
-      </select>
+    <span class="filter-label-sm">Ahrefs DR</span>
+    <div class="fi-range">
+      <input class="fi" type="number" id="fDRMin" placeholder="1" style="width:55px" oninput="applyFilters()">
+      <span>–</span>
+      <input class="fi" type="number" id="fDRMax" placeholder="100" style="width:55px" oninput="applyFilters()">
     </div>
 
     <div class="filter-divider"></div>
-    <div class="filter-section-title">Publisher Quality</div>
-
-    <!-- Completion Rate -->
-    <div class="filter-group">
-      <div class="filter-label">Completion Rate</div>
-      <select class="filter-select" id="fCompletion" onchange="applyFilters()">
-        <option value="">All</option>
-        <option value="90">90%+</option>
-        <option value="80">80%+</option>
-        <option value="70">70%+</option>
-      </select>
+    <span class="filter-label-sm">Ahrefs Traffic</span>
+    <div class="fi-range">
+      <input class="fi" type="number" id="fTrafficMin" placeholder="100" style="width:70px" oninput="applyFilters()">
+      <span>–</span>
+      <input class="fi" type="number" id="fTrafficMax" placeholder="Any" style="width:70px" oninput="applyFilters()">
     </div>
 
-    <!-- TAT -->
-    <div class="filter-group">
-      <div class="filter-label">Turnaround Time</div>
-      <select class="filter-select" id="fTAT" onchange="applyFilters()">
-        <option value="">All</option>
-        <option value="3">Up to 3 days</option>
-        <option value="5">Up to 5 days</option>
-        <option value="10">Up to 10 days</option>
-      </select>
+    <div class="filter-divider"></div>
+    <span class="filter-label-sm">Category</span>
+    <select class="fi-select" id="fCat" onchange="applyFilters()" style="width:130px">
+      <option value="">All Categories</option>
+      <option>Tech</option><option>Finance</option><option>Health</option>
+      <option>Business</option><option>SaaS</option><option>Marketing</option>
+      <option>Crypto</option><option>Travel</option><option>Education</option>
+      <option>News & Media</option><option>Real Estate</option><option>Fashion</option>
+    </select>
+
+    <div class="filter-divider"></div>
+    <span class="filter-label-sm">Country</span>
+    <select class="fi-select" id="fCountry" onchange="applyFilters()" style="width:110px">
+      <option value="">All</option>
+      <option>USA</option><option>UK</option><option>Canada</option>
+      <option>Australia</option><option>India</option><option>Germany</option><option>UAE</option>
+    </select>
+
+    <div class="filter-divider"></div>
+    <span class="filter-label-sm">Language</span>
+    <select class="fi-select" id="fLang" onchange="applyFilters()" style="width:100px">
+      <option value="">All</option>
+      <option>English</option><option>German</option><option>Spanish</option><option>French</option>
+    </select>
+
+    <button class="clear-filters" onclick="clearFilters()">✕ Clear</button>
+  </div>
+
+  <!-- Row 2: SEO Filters -->
+  <div class="filter-row">
+    <span class="filter-section">SEO Filters</span>
+    <div class="filter-divider"></div>
+
+    <span class="filter-label-sm">Moz DA</span>
+    <div class="fi-range">
+      <input class="fi" type="number" id="fDAMin" placeholder="1" style="width:55px" oninput="applyFilters()">
+      <span>–</span>
+      <input class="fi" type="number" id="fDAMax" placeholder="100" style="width:55px" oninput="applyFilters()">
     </div>
 
-    <button class="clear-btn" onclick="clearFilters()">✕ Clear All Filters</button>
-  </aside>
+    <div class="filter-divider"></div>
+    <span class="filter-label-sm">Link Type</span>
+    <select class="fi-select" id="fLinkType" onchange="applyFilters()" style="width:120px">
+      <option value="">All Types</option>
+      <option value="Dofollow">Dofollow</option>
+      <option value="Nofollow">Nofollow</option>
+      <option value="Sponsored">Sponsored</option>
+    </select>
 
-  <!-- MAIN -->
-  <main class="main">
+    <div class="filter-divider"></div>
+    <span class="filter-label-sm">Completion Rate</span>
+    <select class="fi-select" id="fCompletion" onchange="applyFilters()" style="width:120px">
+      <option value="">All</option>
+      <option value="95">95%+</option>
+      <option value="90">90%+</option>
+      <option value="80">80%+</option>
+      <option value="70">70%+</option>
+    </select>
 
-    <!-- TOP BAR -->
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%">
-        <div class="search-wrap">
-          <input class="search-input" type="text" id="searchInput" placeholder="Search by keyword or domain..." oninput="applyFilters()">
-        </div>
-        <select class="sort-select" id="sortBy" onchange="applyFilters()">
-          <option value="recommended">Top Recommended</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="da-desc">DA: Highest First</option>
-          <option value="dr-desc">DR: Highest First</option>
-          <option value="traffic-desc">Traffic: Highest</option>
-          <option value="completion">Completion Rate</option>
-        </select>
-        <div class="results-count" id="resultsCount">Loading sites...</div>
-      </div>
+    <div class="filter-divider"></div>
+    <span class="filter-label-sm">TAT</span>
+    <select class="fi-select" id="fTAT" onchange="applyFilters()" style="width:120px">
+      <option value="">Any</option>
+      <option value="3">Up to 3 days</option>
+      <option value="5">Up to 5 days</option>
+      <option value="10">Up to 10 days</option>
+    </select>
+  </div>
+</div>
+
+<!-- SERVICE TABS + SEARCH -->
+<div class="service-tabs-wrap">
+  <button class="service-tab active" id="tab-article" onclick="switchTab('article')">
+    Article Posting <span class="tab-count" id="cnt-article">0</span>
+  </button>
+  <button class="service-tab" id="tab-link" onclick="switchTab('link')">
+    Link Insertion <span class="tab-count" id="cnt-link">0</span>
+  </button>
+  <button class="service-tab" id="tab-press" onclick="switchTab('press')">
+    Press Release <span class="tab-count" id="cnt-press">0</span>
+  </button>
+  <div class="tabs-right">
+    <div class="search-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search domain or keyword..." oninput="applyFilters()">
     </div>
+    <select class="sort-sel" id="sortBy" onchange="applyFilters()">
+      <option value="recommended">Top Recommended</option>
+      <option value="price-asc">Price: Low → High</option>
+      <option value="price-desc">Price: High → Low</option>
+      <option value="da-desc">DA: Highest First</option>
+      <option value="dr-desc">DR: Highest First</option>
+      <option value="traffic-desc">Traffic: Highest</option>
+      <option value="completion">Completion Rate</option>
+    </select>
+    <div class="results-info" id="resultsInfo">Loading...</div>
+  </div>
+</div>
+</div>
 
-    <!-- SITES LIST -->
-    <div class="sites-list" id="sitesList"></div>
-
-    <!-- PAGINATION -->
-    <div class="pagination" id="pagination"></div>
-
-  </main>
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="sites-list" id="sitesList"></div>
+  <div class="pagination" id="pagination"></div>
 </div>
 
 <!-- ORDER MODAL -->
@@ -887,55 +848,40 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
   <div class="modal">
     <div class="modal-header">
       <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:3px">Place Order</div>
-        <div class="modal-site-url" id="modalSiteUrl"></div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Place Order</div>
+        <div class="modal-site-name" id="modalSiteUrl"></div>
       </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-
-      <!-- Stats -->
       <div class="modal-stats" id="modalStats"></div>
-
-      <!-- Info tags -->
-      <div class="modal-info-row" id="modalInfoTags"></div>
-
-      <!-- Pricing options -->
-      <div class="modal-section">
-        <div class="modal-section-title">Select Service</div>
-        <div class="modal-pricing" id="modalPricing"></div>
+      <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-sec-title">Select Service</div>
+      <div class="pricing-opts" id="modalPricing"></div>
+      <div class="modal-sec-title">Order Details</div>
+      <div class="form-group">
+        <label class="form-label">Target URL *</label>
+        <input class="form-input" type="url" id="orderUrl" placeholder="https://yoursite.com/page">
       </div>
-
-      <!-- Order form -->
-      <div class="modal-section">
-        <div class="modal-section-title">Order Details</div>
-        <div class="form-group">
-          <label class="form-label">Target URL *</label>
-          <input class="form-input" type="url" id="orderUrl" placeholder="https://yoursite.com/page">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Anchor Text *</label>
-          <input class="form-input" type="text" id="orderAnchor" placeholder="e.g. best SEO tools">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Keywords (optional)</label>
-          <input class="form-input" type="text" id="orderKeywords" placeholder="e.g. link building, guest posting">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Special Instructions (optional)</label>
-          <textarea class="form-input form-textarea" id="orderInstructions" placeholder="Any specific requirements for the publisher..."></textarea>
-        </div>
+      <div class="form-group">
+        <label class="form-label">Anchor Text *</label>
+        <input class="form-input" type="text" id="orderAnchor" placeholder="e.g. best SEO tools">
       </div>
-
-      <!-- Total -->
+      <div class="form-group">
+        <label class="form-label">Keywords <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
+        <input class="form-input" type="text" id="orderKeywords" placeholder="e.g. link building, guest posting">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Special Instructions <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
+        <textarea class="form-input form-textarea" id="orderInstructions" placeholder="Any specific requirements..."></textarea>
+      </div>
       <div class="modal-total">
         <div>
-          <div class="modal-total-label">Total Amount</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">Deducted from your balance</div>
+          <div class="modal-total-lbl">Total Amount</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">Deducted from your balance</div>
         </div>
         <div class="modal-total-val" id="modalTotal">$0</div>
       </div>
-
       <button class="modal-submit" onclick="submitOrder()">Place Order →</button>
     </div>
   </div>
@@ -945,138 +891,141 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <div class="toast" id="toast"></div>
 
 <script>
-// ── DATA: Load publisher sites from localStorage ──
+// ── SAMPLE SITES DATA ──
+var sampleSites = [
+  {url:'techbullion.com',da:72,dr:68,traffic:23640,semTraffic:284399,referral:40392,category:'Finance',categories:['Finance','Technology','Internet'],linkType:'Dofollow',guestPrice:120,writePrice:150,liAccepted:true,liPrice:80,liRequirements:'Finance topics only',country:'USA',language:'English',tat:10,completion:100,publisher:'Contributor',maxLinks:2,requirements:'No gambling or adult content'},
+  {url:'hackernoon.com',da:88,dr:85,traffic:320000,semTraffic:1200000,referral:95000,category:'Tech',categories:['Tech','Internet'],linkType:'Dofollow',guestPrice:300,writePrice:380,liAccepted:false,liPrice:0,liRequirements:'',country:'USA',language:'English',tat:7,completion:98,publisher:'Contributor',maxLinks:2,requirements:'No promotional content'},
+  {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semTraffic:8000000,referral:650000,category:'Business',categories:['Business','Finance'],linkType:'Dofollow',guestPrice:600,writePrice:750,liAccepted:true,liPrice:400,liRequirements:'Business topics only',country:'USA',language:'English',tat:14,completion:95,publisher:'Contributor',maxLinks:1,requirements:''},
+  {url:'finextra.com',da:78,dr:74,traffic:95000,semTraffic:380000,referral:28000,category:'Finance',categories:['Finance','Crypto'],linkType:'Dofollow',guestPrice:200,writePrice:260,liAccepted:true,liPrice:120,liRequirements:'Finance only, no crypto',country:'UK',language:'English',tat:7,completion:100,publisher:'Owner',maxLinks:2,requirements:''},
+  {url:'dev.to',da:87,dr:83,traffic:280000,semTraffic:1100000,referral:72000,category:'Tech',categories:['Tech','SaaS'],linkType:'Dofollow',guestPrice:280,writePrice:340,liAccepted:false,liPrice:0,liRequirements:'',country:'USA',language:'English',tat:5,completion:99,publisher:'Contributor',maxLinks:2,requirements:''},
+  {url:'startupbonsai.com',da:61,dr:58,traffic:32000,semTraffic:120000,referral:8000,category:'SaaS',categories:['SaaS','Marketing'],linkType:'Dofollow',guestPrice:90,writePrice:120,liAccepted:false,liPrice:0,liRequirements:'',country:'USA',language:'English',tat:5,completion:100,publisher:'Owner',maxLinks:1,requirements:'SaaS topics only'},
+  {url:'metapress.com',da:76,dr:79,traffic:45000,semTraffic:126347,referral:28035,category:'Business',categories:['Business','Fashion','Technology'],linkType:'Dofollow',guestPrice:45,writePrice:55,liAccepted:true,liPrice:30,liRequirements:'',country:'USA',language:'English',tat:10,completion:100,publisher:'Owner',maxLinks:2,requirements:''},
+  {url:'urbansplatter.com',da:47,dr:62,traffic:31726,semTraffic:123945,referral:8339,category:'Real Estate',categories:['Real Estate','Travel'],linkType:'Dofollow',guestPrice:33,writePrice:36,liAccepted:true,liPrice:20,liRequirements:'',country:'USA',language:'English',tat:8,completion:100,publisher:'Contributor',maxLinks:2,requirements:''},
+  {url:'mirrorreview.com',da:64,dr:65,traffic:3260,semTraffic:52388,referral:5200,category:'Tech',categories:['Tech','Business'],linkType:'Dofollow',guestPrice:72,writePrice:79,liAccepted:true,liPrice:45,liRequirements:'',country:'India',language:'English',tat:5,completion:100,publisher:'Owner',maxLinks:2,requirements:''},
+  {url:'thedatascientist.com',da:39,dr:65,traffic:17366,semTraffic:83931,referral:4727,category:'Tech',categories:['Tech','SaaS'],linkType:'Dofollow',guestPrice:52,writePrice:57,liAccepted:false,liPrice:0,liRequirements:'',country:'USA',language:'English',tat:1,completion:100,publisher:'Contributor',maxLinks:1,requirements:''},
+  {url:'kulfly.com',da:71,dr:60,traffic:26807,semTraffic:72548,referral:7173,category:'Business',categories:['Business','Travel'],linkType:'Dofollow',guestPrice:32,writePrice:45,liAccepted:true,liPrice:22,liRequirements:'',country:'India',language:'English',tat:5,completion:100,publisher:'Owner',maxLinks:2,requirements:''},
+  {url:'apnews.com',da:92,dr:92,traffic:5669883,semTraffic:76078335,referral:345530,category:'News & Media',categories:['Business','News & Media'],linkType:'Nofollow',guestPrice:90,writePrice:90,liAccepted:true,liPrice:90,liRequirements:'News topics only',country:'USA',language:'English',tat:7,completion:93,publisher:'Contributor',maxLinks:1,requirements:''},
+];
+
 var currentTab = 'article';
 var currentPage = 1;
 var perPage = 15;
 var filteredSites = [];
+var allSites = [];
 var selectedSite = null;
-var selectedService = 'article';
 var selectedPrice = 0;
-
-// Sample sites — will be merged with real publisher sites from localStorage
-var sampleSites = [
-  {url:'techbullion.com',da:72,dr:68,traffic:23640,semTraffic:284399,referral:40392,category:'Finance',linkType:'Dofollow',guestPrice:120,liAccepted:true,liPrice:80,writePrice:150,country:'USA',language:'English',tat:10,completion:100,publisher:'Publisher',categories:['Finance','Technology','Internet']},
-  {url:'hackernoon.com',da:88,dr:85,traffic:320000,semTraffic:1200000,referral:95000,category:'Tech',linkType:'Dofollow',guestPrice:300,liAccepted:false,liPrice:0,writePrice:380,country:'USA',language:'English',tat:7,completion:98,publisher:'Contributor',categories:['Tech','Internet']},
-  {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semTraffic:8000000,referral:650000,category:'Business',linkType:'Dofollow',guestPrice:600,liAccepted:true,liPrice:400,writePrice:750,country:'USA',language:'English',tat:14,completion:95,publisher:'Contributor',categories:['Business','Finance']},
-  {url:'finextra.com',da:78,dr:74,traffic:95000,semTraffic:380000,referral:28000,category:'Finance',linkType:'Dofollow',guestPrice:200,liAccepted:true,liPrice:120,writePrice:260,country:'UK',language:'English',tat:7,completion:100,publisher:'Owner',categories:['Finance','Crypto']},
-  {url:'dev.to',da:87,dr:83,traffic:280000,semTraffic:1100000,referral:72000,category:'Tech',linkType:'Dofollow',guestPrice:280,liAccepted:false,liPrice:0,writePrice:340,country:'USA',language:'English',tat:5,completion:99,publisher:'Contributor',categories:['Tech','SaaS']},
-  {url:'startupbonsai.com',da:61,dr:58,traffic:32000,semTraffic:120000,referral:8000,category:'SaaS',linkType:'Dofollow',guestPrice:90,liAccepted:false,liPrice:0,writePrice:120,country:'USA',language:'English',tat:5,completion:100,publisher:'Owner',categories:['SaaS','Marketing']},
-  {url:'metapress.com',da:76,dr:79,traffic:557,semTraffic:126347,referral:28035,category:'Business',linkType:'Dofollow',guestPrice:45,liAccepted:true,liPrice:30,writePrice:55,country:'USA',language:'English',tat:10,completion:100,publisher:'Owner',categories:['Business','Fashion','Technology']},
-  {url:'urbansplatter.com',da:47,dr:62,traffic:31726,semTraffic:123945,referral:8339,category:'Real Estate',linkType:'Dofollow',guestPrice:33,liAccepted:true,liPrice:20,writePrice:36,country:'USA',language:'English',tat:8,completion:100,publisher:'Contributor',categories:['Real Estate','Travel']},
-  {url:'mirrorreview.com',da:64,dr:65,traffic:3260,semTraffic:52388,referral:5200,category:'Tech',linkType:'Dofollow',guestPrice:72,liAccepted:true,liPrice:45,writePrice:79,country:'India',language:'English',tat:5,completion:100,publisher:'Owner',categories:['Tech','Business']},
-  {url:'thedatascientist.com',da:39,dr:65,traffic:17366,semTraffic:83931,referral:4727,category:'Tech',linkType:'Dofollow',guestPrice:52,liAccepted:false,liPrice:0,writePrice:57,country:'USA',language:'English',tat:1,completion:100,publisher:'Contributor',categories:['Tech','SaaS']},
-  {url:'kulfly.com',da:71,dr:60,traffic:26807,semTraffic:72548,referral:7173,category:'Business',linkType:'Dofollow',guestPrice:32,liAccepted:true,liPrice:22,writePrice:45,country:'India',language:'English',tat:5,completion:100,publisher:'Owner',categories:['Business','Travel']},
-  {url:'apnews.com',da:92,dr:92,traffic:5669883,semTraffic:76078335,referral:345530,category:'News & Media',linkType:'Nofollow',guestPrice:90,liAccepted:true,liPrice:90,writePrice:90,country:'USA',language:'English',tat:7,completion:93,publisher:'Contributor',categories:['Business','News & Media']},
-];
+var selectedServiceType = '';
 
 function getAllSites(){
-  // Merge publisher localStorage sites with sample sites
   var pubSites = [];
   try{
-    var keys = Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); });
-    keys.forEach(function(key){
+    Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); }).forEach(function(key){
       var data = JSON.parse(localStorage.getItem(key)||'{}');
       if(data.sites && Array.isArray(data.sites)){
         data.sites.forEach(function(s){
-          if(s.url) pubSites.push({
-            url: s.url,
-            da: parseInt(s.da)||0,
-            dr: parseInt(s.dr)||0,
-            traffic: parseInt((s.traffic||'0').toString().replace(/[^0-9]/g,''))||0,
-            semTraffic: 0,
-            referral: 0,
-            category: s.category||'Tech',
-            linkType: s.linkType||'Dofollow',
-            guestPrice: parseFloat(s.price)||50,
-            liAccepted: s.liAccepted==='Yes',
-            liPrice: parseFloat(s.liPrice)||0,
-            writePrice: parseFloat(s.writePrice)||parseFloat(s.price)*1.3||0,
-            country: s.country||'USA',
-            language: s.language||'English',
-            tat: parseInt(s.tat)||7,
-            completion: 100,
-            publisher: 'Owner',
-            categories: [s.category||'Tech'],
-            maxLinks: s.maxLinks||'2',
-            requirements: s.requirements||''
+          if(!s.url) return;
+          pubSites.push({
+            url:s.url, da:parseInt(s.da)||0, dr:parseInt(s.dr)||0,
+            traffic:parseInt((s.traffic||'0').toString().replace(/[^0-9]/g,''))||0,
+            semTraffic:0, referral:0,
+            category:s.category||'Tech',
+            categories:[s.category||'Tech'],
+            linkType:s.linkType||'Dofollow',
+            guestPrice:parseFloat(s.guestPostPrice||s.price)||50,
+            writePrice:parseFloat(s.writePublishPrice||s.writePrice)||0,
+            liAccepted:s.liAccepted==='Yes'||s.liAccepted===true,
+            liPrice:parseFloat(s.liPrice)||0,
+            liRequirements:s.liRequirements||'',
+            country:s.country||'USA', language:s.language||'English',
+            tat:parseInt(s.tat)||7, completion:100,
+            publisher:'Owner', maxLinks:s.maxLinks||2,
+            requirements:s.requirements||''
           });
         });
       }
     });
   }catch(e){}
-  // Combine, publisher sites first
   var combined = pubSites.concat(sampleSites);
-  // Remove duplicates by URL
-  var seen = {};
+  var seen={};
   return combined.filter(function(s){ if(seen[s.url]) return false; seen[s.url]=true; return true; });
 }
 
-function fmtNum(n){
-  if(!n) return 'N/A';
+function fmtN(n){
+  if(!n||n===0) return 'N/A';
   if(n>=1000000) return (n/1000000).toFixed(1)+'M';
-  if(n>=1000) return (n/1000).toFixed(0)+'K';
-  return n.toString();
+  if(n>=1000) return Math.round(n/1000)+'K';
+  return n.toLocaleString();
 }
 
-function completionColor(pct){
-  if(pct>=90) return 'var(--green)';
-  if(pct>=70) return 'var(--yellow)';
-  return 'var(--red)';
-}
-
-function renderCompletionRing(pct){
-  var r=14, circ=2*Math.PI*r;
-  var offset = circ - (pct/100)*circ;
-  var color = completionColor(pct);
-  return '<div class="completion-ring"><svg width="36" height="36" viewBox="0 0 36 36"><circle class="ring-bg" cx="18" cy="18" r="'+r+'" stroke-width="3"/><circle class="ring-fill" cx="18" cy="18" r="'+r+'" stroke-width="3" stroke="'+color+'" stroke-dasharray="'+circ+'" stroke-dashoffset="'+offset+'"/></svg><div class="completion-pct" style="color:'+color+'">'+pct+'%</div></div>';
+function ringHtml(pct){
+  var r=13, c=2*Math.PI*r, off=c-(pct/100)*c;
+  var col=pct>=90?'#16a34a':pct>=70?'#d97706':'#dc2626';
+  return '<div class="ring-wrap"><svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="'+r+'" fill="none" stroke="#f1f5f9" stroke-width="3"/><circle cx="16" cy="16" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'"/></svg><div class="ring-label" style="color:'+col+'">'+pct+'%</div></div>';
 }
 
 function renderCard(site, idx){
-  var dfBadge = site.linkType==='Dofollow'
-    ? '<span class="badge badge-df">● Dofollow</span>'
-    : '<span class="badge badge-nf">● Nofollow</span>';
-  var ownerBadge = site.publisher==='Owner'
-    ? '<span class="badge badge-owner">👤 Owner</span>'
-    : '<span class="badge badge-contrib">✏️ Contributor</span>';
-  var catBadges = (site.categories||[site.category]).slice(0,3).map(function(c){
-    return '<span class="badge badge-cat">'+c+'</span>';
-  }).join('');
+  // Badges
+  var ltBadge = site.linkType==='Dofollow'?'<span class="badge badge-df">● Dofollow</span>':
+                site.linkType==='Sponsored'?'<span class="badge badge-sp">● Sponsored</span>':
+                '<span class="badge badge-nf">● Nofollow</span>';
+  var pubBadge = site.publisher==='Owner'?'<span class="badge badge-owner">👤 Owner</span>':'<span class="badge badge-contrib">✏️ Contributor</span>';
+  var catBadges = (site.categories||[site.category]).slice(0,3).map(function(c){ return '<span class="badge badge-cat">'+c+'</span>'; }).join('');
 
-  var liBtn = site.liAccepted
-    ? '<button class="buy-btn buy-btn-li" onclick="event.stopPropagation();openModal('+idx+',\'link\')">Link Insertion $'+site.liPrice+'</button>'
-    : '';
-
-  return '<div class="site-card" onclick="openModal('+idx+',\'article\')">'
-    +'<div class="site-card-top">'
-    +'<a class="site-domain" href="https://'+site.url+'" target="_blank" onclick="event.stopPropagation()">'+site.url+'</a>'
-    +ownerBadge+dfBadge+catBadges
-    +'</div>'
-    +'<div class="site-card-stats">'
-    +'<div class="stat-item"><div class="stat-val"><span class="ahrefs-icon">a</span>'+fmtNum(site.traffic)+'</div><div class="stat-lbl">Ahrefs Traffic</div></div>'
-    +'<div class="stat-item"><div class="stat-val" style="color:var(--accent)">'+site.da+'</div><div class="stat-lbl">Moz DA</div></div>'
-    +'<div class="stat-item"><div class="stat-val" style="color:var(--teal)">'+site.dr+'</div><div class="stat-lbl">Ahrefs DR</div></div>'
-    +'<div class="stat-item"><div class="stat-val">'+fmtNum(site.semTraffic||0)+'</div><div class="stat-lbl">SemRush Traffic</div></div>'
-    +'<div class="stat-item"><div class="stat-val">'+fmtNum(site.referral||0)+'</div><div class="stat-lbl">Ref. Domains</div></div>'
-    +'<div class="stat-item">'+renderCompletionRing(site.completion)+'<div class="stat-lbl" style="margin-top:2px">Completion</div></div>'
-    +'<div class="stat-item"><div class="stat-val" style="color:var(--yellow)">'+site.tat+'d</div><div class="stat-lbl">TAT</div></div>'
-    +'</div>'
-    +'<div class="site-card-bottom">'
-    +'<div>'
-    +'<div style="font-size:11px;color:var(--muted);margin-bottom:3px">Content Placement</div>'
-    +'<div class="price-val">$'+site.guestPrice+'</div>'
-    +(site.writePrice?'<div class="price-write">Write & Publish: $'+site.writePrice+'</div>':'')
-    +'</div>'
-    +'<div style="display:flex;gap:8px;align-items:center">'
-    +liBtn
-    +'<button class="buy-btn" onclick="event.stopPropagation();openModal('+idx+',\'article\')">Buy Post</button>'
-    +'</div>'
-    +'</div>'
+  // Stats row
+  var stats = '<div class="card-stats">'
+    +'<div class="stat-col"><div class="stat-val blue">'+site.da+'</div><div class="stat-lbl">Moz DA</div></div>'
+    +'<div class="stat-col"><div class="stat-val teal">'+site.dr+'</div><div class="stat-lbl">Ahrefs DR</div></div>'
+    +'<div class="stat-col"><div class="stat-val"><span class="ahrefs-dot">a</span>'+fmtN(site.traffic)+'</div><div class="stat-lbl">Ahrefs Traffic</div></div>'
+    +'<div class="stat-col"><div class="stat-val">'+fmtN(site.semTraffic)+'</div><div class="stat-lbl">SemRush Traffic</div></div>'
+    +'<div class="stat-col"><div class="stat-val">'+fmtN(site.referral)+'</div><div class="stat-lbl">Ref. Domains</div></div>'
+    +'<div class="stat-col"><div class="stat-val" style="justify-content:center">'+ringHtml(site.completion)+'</div><div class="stat-lbl">Completion</div></div>'
+    +'<div class="stat-col"><div class="stat-val yellow">'+site.tat+'d</div><div class="stat-lbl">TAT</div></div>'
     +'</div>';
+
+  // Bottom pricing — based on current tab
+  var pricing = '';
+  if(currentTab === 'article'){
+    pricing = '<div class="pricing-grid">'
+      +'<div class="price-block"><div class="price-block-label">Content Placement</div><div class="price-block-val">$'+site.guestPrice+'</div><div class="price-block-sub">You write the article</div></div>'
+      +(site.writePrice?'<div class="price-divider"></div><div class="price-block"><div class="price-block-label">Write & Publish</div><div class="price-block-val">$'+site.writePrice+'</div><div class="price-block-sub">Publisher writes</div></div>':'')
+      +'</div>';
+    var actions = '<div class="card-actions">'
+      +'<button class="btn-wish" title="Save">♡</button>'
+      +(site.liAccepted?'<button class="btn-li" onclick="event.stopPropagation();openModal('+idx+',\'li\')">Link Insertion $'+site.liPrice+'</button>':'')
+      +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'article\')">Buy Post</button>'
+      +'</div>';
+    return '<div class="site-card"><div class="card-main">'
+      +'<div class="card-top"><a class="site-domain" href="https://'+site.url+'" target="_blank" onclick="event.stopPropagation()">'+site.url+'</a>'+pubBadge+ltBadge+catBadges+'</div>'
+      +'</div>'+stats+'<div class="card-bottom">'+pricing+actions+'</div></div>';
+  } else {
+    // Link insertion tab
+    pricing = '<div class="pricing-grid">'
+      +'<div class="price-block"><div class="price-block-label">Link Insertion Price</div><div class="price-block-val">$'+site.liPrice+'</div><div class="price-block-sub">Add link to existing post</div></div>'
+      +(site.liRequirements?'<div class="price-divider"></div><div class="price-block"><div class="price-block-label">Requirements</div><div class="price-block-val" style="font-size:13px;font-weight:600;color:#64748b">'+site.liRequirements+'</div></div>':'')
+      +'</div>';
+    var actions = '<div class="card-actions">'
+      +'<button class="btn-wish" title="Save">♡</button>'
+      +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'li\')">Buy Insertion</button>'
+      +'</div>';
+    return '<div class="site-card"><div class="card-main">'
+      +'<div class="card-top"><a class="site-domain" href="https://'+site.url+'" target="_blank" onclick="event.stopPropagation()">'+site.url+'</a>'+pubBadge+ltBadge+catBadges+'</div>'
+      +'</div>'+stats+'<div class="card-bottom card-bottom-li">'+pricing+actions+'</div></div>';
+  }
+}
+
+function countByTab(all){
+  var a=0,l=0;
+  all.forEach(function(s){ a++; if(s.liAccepted) l++; });
+  return {article:a, link:l, press:0};
 }
 
 function applyFilters(){
-  var all = getAllSites();
+  allSites = getAllSites();
+  var counts = countByTab(allSites);
+  document.getElementById('cnt-article').textContent = counts.article;
+  document.getElementById('cnt-link').textContent = counts.link;
+  document.getElementById('cnt-press').textContent = counts.press;
+
   var search = (document.getElementById('searchInput').value||'').toLowerCase();
   var pMin = parseFloat(document.getElementById('fPriceMin').value)||0;
   var pMax = parseFloat(document.getElementById('fPriceMax').value)||999999;
@@ -1095,80 +1044,82 @@ function applyFilters(){
   var sort = document.getElementById('sortBy').value;
   var tab = currentTab;
 
-  filteredSites = all.filter(function(s){
+  filteredSites = allSites.filter(function(s){
     if(tab==='link' && !s.liAccepted) return false;
+    if(tab==='press') return false; // coming soon
     var price = tab==='link' ? s.liPrice : s.guestPrice;
-    if(search && s.url.toLowerCase().indexOf(search)<0 && (s.categories||[]).join(' ').toLowerCase().indexOf(search)<0) return false;
-    if(price < pMin || price > pMax) return false;
-    if(s.da < daMin || s.da > daMax) return false;
-    if(s.dr < drMin || s.dr > drMax) return false;
-    if(s.traffic < tMin || s.traffic > tMax) return false;
+    if(search && s.url.indexOf(search)<0 && (s.categories||[]).join(' ').toLowerCase().indexOf(search)<0) return false;
+    if(price<pMin||price>pMax) return false;
+    if(s.da<daMin||s.da>daMax) return false;
+    if(s.dr<drMin||s.dr>drMax) return false;
+    if(s.traffic<tMin||s.traffic>tMax) return false;
     if(cat && (s.categories||[s.category]).indexOf(cat)<0) return false;
-    if(lt && s.linkType !== lt) return false;
-    if(country && s.country !== country) return false;
-    if(lang && s.language !== lang) return false;
-    if(s.completion < comp) return false;
-    if(s.tat > tat) return false;
+    if(lt && s.linkType!==lt) return false;
+    if(country && s.country!==country) return false;
+    if(lang && s.language!==lang) return false;
+    if(s.completion<comp) return false;
+    if(s.tat>tat) return false;
     return true;
   });
 
-  // Sort
   filteredSites.sort(function(a,b){
-    if(sort==='price-asc') return a.guestPrice - b.guestPrice;
-    if(sort==='price-desc') return b.guestPrice - a.guestPrice;
-    if(sort==='da-desc') return b.da - a.da;
-    if(sort==='dr-desc') return b.dr - a.dr;
-    if(sort==='traffic-desc') return b.traffic - a.traffic;
-    if(sort==='completion') return b.completion - a.completion;
-    return b.da - a.da; // default
+    if(sort==='price-asc') return a.guestPrice-b.guestPrice;
+    if(sort==='price-desc') return b.guestPrice-a.guestPrice;
+    if(sort==='da-desc') return b.da-a.da;
+    if(sort==='dr-desc') return b.dr-a.dr;
+    if(sort==='traffic-desc') return b.traffic-a.traffic;
+    if(sort==='completion') return b.completion-a.completion;
+    return b.da-a.da;
   });
 
-  currentPage = 1;
+  currentPage=1;
   renderSites();
 }
 
 function renderSites(){
   var list = document.getElementById('sitesList');
-  var count = document.getElementById('resultsCount');
+  var info = document.getElementById('resultsInfo');
   var start = (currentPage-1)*perPage;
   var page = filteredSites.slice(start, start+perPage);
 
-  count.innerHTML = 'Results: <strong>'+filteredSites.length+' sites</strong>';
+  info.innerHTML = 'Results: <strong>'+filteredSites.length+' sites</strong>';
 
-  if(filteredSites.length===0){
-    list.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><h3>No sites found</h3><p>Try adjusting your filters</p></div>';
+  if(currentTab==='press'){
+    list.innerHTML='<div class="empty"><div class="empty-icon">📰</div><h3>Press Release coming soon</h3><p>This feature will be available shortly.</p></div>';
     document.getElementById('pagination').innerHTML='';
     return;
   }
-
-  list.innerHTML = page.map(function(s,i){ return renderCard(s, start+i); }).join('');
+  if(!filteredSites.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><h3>No sites found</h3><p>Try adjusting your filters or search terms.</p></div>';
+    document.getElementById('pagination').innerHTML='';
+    return;
+  }
+  list.innerHTML = page.map(function(s,i){ return renderCard(s,start+i); }).join('');
   renderPagination();
 }
 
 function renderPagination(){
-  var total = Math.ceil(filteredSites.length/perPage);
+  var total=Math.ceil(filteredSites.length/perPage);
   if(total<=1){ document.getElementById('pagination').innerHTML=''; return; }
-  var html = '<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button>';
-  for(var i=1;i<=Math.min(total,7);i++){
-    html += '<button class="page-btn'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
-  }
-  if(total>7) html += '<span style="color:var(--muted);padding:0 4px">...</span><button class="page-btn'+(currentPage===total?' active':'')+'" onclick="goPage('+total+')">'+total+'</button>';
-  html += '<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===total?'disabled':'')+'>›</button>';
-  document.getElementById('pagination').innerHTML = html;
+  var h='<button class="pg-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button>';
+  var pages=Math.min(total,7);
+  for(var i=1;i<=pages;i++) h+='<button class="pg-btn'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+  if(total>7) h+='<span style="color:#94a3b8;padding:0 4px">...</span><button class="pg-btn'+(currentPage===total?' active':'')+'" onclick="goPage('+total+')">'+total+'</button>';
+  h+='<button class="pg-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===total?'disabled':'')+'>›</button>';
+  document.getElementById('pagination').innerHTML=h;
 }
 
 function goPage(n){
-  var total = Math.ceil(filteredSites.length/perPage);
+  var total=Math.ceil(filteredSites.length/perPage);
   if(n<1||n>total) return;
-  currentPage=n;
-  renderSites();
+  currentPage=n; renderSites();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function switchTab(tab){
   currentTab=tab;
-  document.querySelectorAll('.nav-tab').forEach(function(t,i){
-    t.classList.toggle('active', ['article','link','press'][i]===tab);
+  ['article','link','press'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
   });
   applyFilters();
 }
@@ -1181,65 +1132,58 @@ function clearFilters(){
 }
 
 // ── ORDER MODAL ──
-function openModal(idx, service){
+function openModal(idx, type){
   selectedSite = filteredSites[idx];
-  selectedService = service||'article';
-  selectedPrice = service==='link' ? selectedSite.liPrice : selectedSite.guestPrice;
+  selectedServiceType = type;
+  selectedPrice = type==='li' ? selectedSite.liPrice : selectedSite.guestPrice;
 
   document.getElementById('modalSiteUrl').textContent = selectedSite.url;
 
-  // Stats
   document.getElementById('modalStats').innerHTML =
-    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--accent)">'+selectedSite.da+'</div><div class="modal-stat-lbl">Moz DA</div></div>'+
-    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--teal)">'+selectedSite.dr+'</div><div class="modal-stat-lbl">Ahrefs DR</div></div>'+
-    '<div class="modal-stat"><div class="modal-stat-val">'+fmtNum(selectedSite.traffic)+'</div><div class="modal-stat-lbl">Organic Traffic</div></div>'+
-    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--green)">'+selectedSite.completion+'%</div><div class="modal-stat-lbl">Completion Rate</div></div>'+
-    '<div class="modal-stat"><div class="modal-stat-val" style="color:var(--yellow)">'+selectedSite.tat+' days</div><div class="modal-stat-lbl">Turnaround</div></div>'+
-    '<div class="modal-stat"><div class="modal-stat-val">'+selectedSite.language+'</div><div class="modal-stat-lbl">Language</div></div>';
+    '<div class="ms"><div class="ms-val" style="color:#4f7cff">'+selectedSite.da+'</div><div class="ms-lbl">Moz DA</div></div>'+
+    '<div class="ms"><div class="ms-val" style="color:#0d9488">'+selectedSite.dr+'</div><div class="ms-lbl">Ahrefs DR</div></div>'+
+    '<div class="ms"><div class="ms-val">'+fmtN(selectedSite.traffic)+'</div><div class="ms-lbl">Organic Traffic</div></div>'+
+    '<div class="ms"><div class="ms-val" style="color:#16a34a">'+selectedSite.completion+'%</div><div class="ms-lbl">Completion Rate</div></div>'+
+    '<div class="ms"><div class="ms-val" style="color:#d97706">'+selectedSite.tat+' days</div><div class="ms-lbl">Turnaround</div></div>'+
+    '<div class="ms"><div class="ms-val">'+selectedSite.language+'</div><div class="ms-lbl">Language</div></div>';
 
-  // Info tags
-  document.getElementById('modalInfoTags').innerHTML =
-    '<div class="modal-info-tag">🌍 <strong>'+selectedSite.country+'</strong></div>'+
-    '<div class="modal-info-tag">🔗 <strong>'+selectedSite.linkType+'</strong></div>'+
-    '<div class="modal-info-tag">📁 <strong>'+(selectedSite.categories||[selectedSite.category]).join(', ')+'</strong></div>'+
-    (selectedSite.maxLinks?'<div class="modal-info-tag">🔢 Max <strong>'+selectedSite.maxLinks+' links</strong></div>':'')+
-    (selectedSite.requirements?'<div class="modal-info-tag" style="max-width:100%">📌 '+selectedSite.requirements+'</div>':'');
+  document.getElementById('modalTags').innerHTML =
+    '<div class="modal-tag">🌍 <strong>'+selectedSite.country+'</strong></div>'+
+    '<div class="modal-tag">🔗 <strong>'+selectedSite.linkType+'</strong></div>'+
+    '<div class="modal-tag">📁 <strong>'+(selectedSite.categories||[selectedSite.category]).join(', ')+'</strong></div>'+
+    '<div class="modal-tag">🔢 Max <strong>'+selectedSite.maxLinks+' links</strong></div>'+
+    (selectedSite.requirements?'<div class="modal-tag" style="color:#d97706">📌 '+selectedSite.requirements+'</div>':'');
 
   // Pricing options
-  var options = '';
-  options += '<div class="price-option'+(selectedService==='article'?' selected':'')+'" onclick="selectService(\'article\','+selectedSite.guestPrice+')">'
-    +'<div class="price-option-name">Content Placement</div>'
-    +'<div class="price-option-val">$'+selectedSite.guestPrice+'</div>'
-    +'<div class="price-option-note">You provide the article</div>'
-    +'</div>';
+  var opts='';
+  opts+='<div class="price-opt'+(selectedServiceType==='article'?' sel':'')+'" onclick="selService(\'article\','+selectedSite.guestPrice+',this)">'
+    +'<div class="price-opt-name">Content Placement</div>'
+    +'<div class="price-opt-val">$'+selectedSite.guestPrice+'</div>'
+    +'<div class="price-opt-note">You provide the article</div></div>';
   if(selectedSite.writePrice){
-    options += '<div class="price-option'+(selectedService==='write'?' selected':'')+'" onclick="selectService(\'write\','+selectedSite.writePrice+')">'
-      +'<div class="price-option-name">Write & Publish</div>'
-      +'<div class="price-option-val">$'+selectedSite.writePrice+'</div>'
-      +'<div class="price-option-note">Publisher writes the article</div>'
-      +'</div>';
+    opts+='<div class="price-opt'+(selectedServiceType==='write'?' sel':'')+'" onclick="selService(\'write\','+selectedSite.writePrice+',this)">'
+      +'<div class="price-opt-name">Write & Publish</div>'
+      +'<div class="price-opt-val">$'+selectedSite.writePrice+'</div>'
+      +'<div class="price-opt-note">Publisher writes article</div></div>';
   }
   if(selectedSite.liAccepted){
-    options += '<div class="price-option'+(selectedService==='link'?' selected':'')+'" onclick="selectService(\'link\','+selectedSite.liPrice+')">'
-      +'<div class="price-option-name">Link Insertion</div>'
-      +'<div class="price-option-val">$'+selectedSite.liPrice+'</div>'
-      +'<div class="price-option-note">Add link to existing post</div>'
-      +'</div>';
+    opts+='<div class="price-opt'+(selectedServiceType==='li'?' sel':'')+'" onclick="selService(\'li\','+selectedSite.liPrice+',this)">'
+      +'<div class="price-opt-name">Link Insertion</div>'
+      +'<div class="price-opt-val">$'+selectedSite.liPrice+'</div>'
+      +'<div class="price-opt-note">'+(selectedSite.liRequirements||'Add link to existing post')+'</div></div>';
   }
-  document.getElementById('modalPricing').innerHTML = options;
-  document.getElementById('modalTotal').textContent = '$'+selectedPrice;
+  document.getElementById('modalPricing').innerHTML=opts;
+  document.getElementById('modalTotal').textContent='$'+selectedPrice;
 
-  // Clear form
   ['orderUrl','orderAnchor','orderKeywords','orderInstructions'].forEach(function(id){ document.getElementById(id).value=''; });
-
   document.getElementById('orderModal').classList.add('open');
   document.body.style.overflow='hidden';
 }
 
-function selectService(type, price){
-  selectedService=type; selectedPrice=price;
-  document.querySelectorAll('.price-option').forEach(function(el){ el.classList.remove('selected'); });
-  event.currentTarget.classList.add('selected');
+function selService(type, price, el){
+  selectedServiceType=type; selectedPrice=price;
+  document.querySelectorAll('.price-opt').forEach(function(e){ e.classList.remove('sel'); });
+  el.classList.add('sel');
   document.getElementById('modalTotal').textContent='$'+price;
 }
 
@@ -1249,30 +1193,19 @@ function closeModal(){
 }
 
 function submitOrder(){
-  var url = document.getElementById('orderUrl').value.trim();
-  var anchor = document.getElementById('orderAnchor').value.trim();
+  var url=document.getElementById('orderUrl').value.trim();
+  var anchor=document.getElementById('orderAnchor').value.trim();
   if(!url){ showToast('⚠️ Please enter your target URL'); return; }
   if(!anchor){ showToast('⚠️ Please enter anchor text'); return; }
-
-  // Save order to localStorage
-  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
-  var taskId = '#OR'+Math.floor(1000+Math.random()*9000);
-  orders.push({
-    id: taskId,
-    site: selectedSite.url,
-    service: selectedService,
-    price: selectedPrice,
-    url: url,
-    anchor: anchor,
-    keywords: document.getElementById('orderKeywords').value,
-    instructions: document.getElementById('orderInstructions').value,
-    status: 'Pending',
-    date: new Date().toISOString()
-  });
-  localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
-
+  var orders=JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+  var id='#OR'+Math.floor(1000+Math.random()*9000);
+  orders.push({id,site:selectedSite.url,service:selectedServiceType,price:selectedPrice,url,anchor,
+    keywords:document.getElementById('orderKeywords').value,
+    instructions:document.getElementById('orderInstructions').value,
+    status:'Pending',date:new Date().toISOString()});
+  localStorage.setItem('uplyncio_buyer_orders',JSON.stringify(orders));
   closeModal();
-  showToast('✅ Order placed! Task ID: '+taskId+' — Publisher will be notified.');
+  showToast('✅ Order placed! Task ID: '+id+' — Publisher notified.');
 }
 
 function showToast(msg){
@@ -1281,13 +1214,61 @@ function showToast(msg){
   setTimeout(function(){ t.classList.remove('show'); },4000);
 }
 
-function showTopup(){
-  showToast('💳 Top-up feature coming soon — contact info@uplyncio.com');
+function showTopup(){ showToast('💳 Add funds — contact info@uplyncio.com'); }
+
+// ── BUYER AUTH ──
+function openBuyerSignup(){ window._selectedRole='buyer'; openSignup(); }
+function openSignup(){
+  var rm=document.getElementById('roleModal');
+  if(rm){ rm.style.display='flex'; document.body.style.overflow='hidden'; }
+}
+function openLogin(){
+  var m=document.getElementById('loginModal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+  var ei=document.getElementById('loginEmail'), pi=document.getElementById('loginPass');
+  if(ei) ei.value=''; if(pi) pi.value='';
+}
+function closeLogin(){
+  var m=document.getElementById('loginModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function closeSignup(){
+  var m=document.getElementById('signupModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function openSignupStep2(role){
+  window._selectedRole=role||'buyer';
+  var rm=document.getElementById('roleModal'); if(rm) rm.style.display='none';
+  var m=document.getElementById('signupStep2Modal');
+  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+}
+function closeSignupStep2(){
+  var m=document.getElementById('signupStep2Modal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function closeRoleModal(){
+  var m=document.getElementById('roleModal');
+  if(m){ m.style.display='none'; document.body.style.overflow=''; }
 }
 
-function toggleProfileMenu(){ showToast('👤 Profile settings coming soon'); }
+function onBuyerLogin(user){
+  document.getElementById('buyerGuestNav').style.display='none';
+  var un=document.getElementById('buyerUserNav');
+  un.style.display='flex';
+  var av=document.getElementById('buyerAvatar');
+  if(av) av.textContent=(user.name||'B').charAt(0).toUpperCase();
+  showToast('✅ Welcome back, '+(user.name||'')+' !');
+}
 
-// Init
+// Check already logged in
+(function(){
+  try{
+    var uid=localStorage.getItem('uplyncio_currentUid');
+    var user=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    if(uid&&user&&user.verified) onBuyerLogin(user);
+  }catch(e){}
+})();
+
 applyFilters();
 </script>
 <div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
@@ -1413,87 +1394,250 @@ applyFilters();
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-
 <script>
-// ── BUYER PAGE AUTH ──
-function onBuyerLogin(user){
-  document.getElementById('buyerGuestNav').style.display = 'none';
-  document.getElementById('buyerUserNav').style.display = 'flex';
-  var av = document.getElementById('buyerAvatar');
-  if(av) av.textContent = (user.name||'B').charAt(0).toUpperCase();
-  showToast('✅ Welcome back, '+(user.name||'')+'!');
+function toggleDrop(e){
+  e.stopPropagation();
+  const d=document.getElementById('svcDrop');
+  const b=document.getElementById('svcBtn');
+  const wasOpen=d.classList.contains('open');
+  closeAll();
+  if(!wasOpen){d.classList.add('open');b.classList.add('active');}
 }
-
-function openBuyerSignup(){
-  // Set role as buyer and open signup
-  window._selectedRole = 'buyer';
-  openSignup();
+function toggleSub(e){
+  e.stopPropagation();
+  const s=document.getElementById('subDrop');
+  const b=document.getElementById('subBtn');
+  s.classList.toggle('open');
+  b.classList.toggle('active');
 }
-
-function openSignup(){
-  // Open role modal or direct signup
-  var rm = document.getElementById('roleModal');
-  if(rm){ rm.style.display='flex'; document.body.style.overflow='hidden'; }
+function closeAll(){
+  const d=document.getElementById('svcDrop');
+  const b=document.getElementById('svcBtn');
+  const s=document.getElementById('subDrop');
+  const sb=document.getElementById('subBtn');
+  if(d)d.classList.remove('open');
+  if(b)b.classList.remove('active');
+  if(s)s.classList.remove('open');
+  if(sb)sb.classList.remove('active');
 }
-
-function openLogin(){
-  var m = document.getElementById('loginModal');
-  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
-  var ei = document.getElementById('loginEmail');
-  var pi = document.getElementById('loginPass');
-  if(ei) ei.value='';
-  if(pi) pi.value='';
-}
-
-function closeLogin(){
-  var m = document.getElementById('loginModal');
-  if(m){ m.style.display='none'; document.body.style.overflow=''; }
-}
-
-function closeSignup(){
-  var m = document.getElementById('signupModal');
-  if(m){ m.style.display='none'; document.body.style.overflow=''; }
-}
-
-function openSignupStep2(role){
-  window._selectedRole = role || 'buyer';
-  var rm = document.getElementById('roleModal');
-  if(rm) rm.style.display='none';
-  var m = document.getElementById('signupStep2Modal');
-  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
-}
-
-function closeSignupStep2(){
-  var m = document.getElementById('signupStep2Modal');
-  if(m){ m.style.display='none'; document.body.style.overflow=''; }
-}
-
-function closeRoleModal(){
-  var m = document.getElementById('roleModal');
-  if(m){ m.style.display='none'; document.body.style.overflow=''; }
-}
-
-function toggleBuyerProfile(){
-  showToast('Profile settings — coming soon!');
-}
-
-function showTopup(){
-  showToast('💳 Add funds — contact info@uplyncio.com');
-}
-
-// Check if already logged in
-(function(){
-  try{
-    var uid = localStorage.getItem('uplyncio_currentUid');
-    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(uid && user && user.verified){
-      onBuyerLogin(user);
-    }
-  }catch(e){}
-})();
+document.addEventListener('click',function(e){
+  const nav=document.querySelector('.nav');
+  if(nav && !nav.contains(e.target))closeAll();
+});
 </script>
 
+
+
+
+<!-- VERIFY EMAIL MODAL -->
+<div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(12px);padding:16px;overflow-y:auto">
+  <div style="background:linear-gradient(160deg,#0d1f3c 0%,#0a1628 100%);border:1px solid rgba(79,124,255,.25);border-radius:28px;width:100%;max-width:420px;padding:28px 28px 22px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(79,124,255,.1);margin:auto">
+
+    <!-- Close -->
+    <button onclick="closeVerifyModal()" style="position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1" onmouseover="this.style.background='rgba(239,68,68,.25)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.05)';this.style.color='rgba(255,255,255,.5)'">✕</button>
+
+    <!-- Icon -->
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#4f7cff 0%,#00d4aa 100%);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 32px rgba(79,124,255,.35)">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.3px">Check Your Email</div>
+      <div style="font-size:13.5px;color:rgba(255,255,255,.45);line-height:1.6">
+        We sent a 6-digit verification code to
+      </div>
+      <div id="verifyEmailShow" style="color:#4f7cff;font-size:14.5px;font-weight:700;margin-top:4px;word-break:break-all"></div>
+    </div>
+
+    <!-- Info box -->
+    <div style="background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.2);border-radius:14px;padding:10px 13px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px">📬</span>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.75">
+        Please open your email inbox and copy the 6-digit code, then enter it below to verify your account.
+        <br><span style="color:rgba(255,255,255,.3);font-size:12px">Check your spam folder if you don't see it.</span>
+      </div>
+    </div>
+
+    <!-- 6 separate digit boxes -->
+    <div id="otpBoxes" style="display:flex;gap:8px;justify-content:center;margin-bottom:8px">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:46px;height:52px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:12px;font-size:22px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:46px;height:52px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:12px;font-size:22px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:46px;height:52px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:12px;font-size:22px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:46px;height:52px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:12px;font-size:22px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:46px;height:52px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:12px;font-size:22px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+      <input class="otp-box" type="text" maxlength="1" inputmode="numeric" style="width:46px;height:52px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:12px;font-size:22px;font-weight:700;color:#fff;text-align:center;outline:none;transition:all .2s;font-family:monospace;caret-color:#4f7cff">
+    </div>
+
+    <!-- Hidden combined input for submitVerifyCode -->
+    <input id="verifyCodeInput" type="hidden" value="">
+
+    <!-- Error -->
+    <div id="verifyError" style="display:none;font-size:12.5px;color:#ef4444;text-align:center;margin-bottom:10px;font-weight:600;padding:8px;background:rgba(239,68,68,.08);border-radius:8px"></div>
+
+    <!-- Timer -->
+    <div style="text-align:center;margin-bottom:16px">
+      <div id="verifyTimerWrap" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.4)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,.4)" stroke-width="2"/><path d="M12 6v6l4 2" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg>
+        Code expires in <span id="verifyTimer" style="color:#f59e0b;font-weight:700;min-width:32px;display:inline-block">3:00</span>
+      </div>
+      <div id="verifyExpiredMsg" style="display:none;font-size:13px;color:#ef4444;font-weight:600">
+        ⏰ Code expired. Please resend a new code.
+      </div>
+    </div>
+
+    <!-- Verify button -->
+    <button id="verifyBtn" onclick="submitVerifyCode()" style="width:100%;background:linear-gradient(135deg,#4f7cff 0%,#00d4aa 100%);color:#fff;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px;transition:all .2s;box-shadow:0 4px 20px rgba(79,124,255,.3);letter-spacing:.2px" onmouseover="this.style.opacity='.88';this.style.transform='translateY(-1px)'" onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
+      Verify &amp; Open Dashboard →
+    </button>
+
+    <!-- Resend -->
+    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,.35)">
+      Didn't receive the code?
+      <a href="#" id="resendLink" onclick="resendCode();return false" style="color:#4f7cff;font-weight:700;text-decoration:none;transition:opacity .2s">Resend Code</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div id="forgotModal" onclick="if(event.target===this)closeForgotModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(8px)">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:420px;padding:32px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
+    <button onclick="closeForgotModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:15px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="font-size:36px;margin-bottom:10px">🔑</div>
+      <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#fff">Reset Password</div>
+    </div>
+
+    <!-- Step 1: Enter email -->
+    <div id="forgotStep1">
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;text-align:center">Enter your email and we will send you a reset code</div>
+      <input id="forgotEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendForgotCode()" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box;margin-bottom:14px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+      <button onclick="sendForgotCode()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Reset Code →</button>
+    </div>
+
+    <!-- Step 2: Enter code -->
+    <div id="forgotStep2" style="display:none">
+      <div id="forgotCodeBox"></div>
+      <input id="resetCodeInput" type="text" maxlength="6" placeholder="Enter 6-digit code" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px;font-size:22px;font-family:monospace;letter-spacing:6px;color:#fff;outline:none;text-align:center;box-sizing:border-box;margin-bottom:14px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+      <button onclick="verifyResetCode()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Verify Code →</button>
+    </div>
+
+    <!-- Step 3: New password -->
+    <div id="forgotStep3" style="display:none">
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;text-align:center">Enter your new password</div>
+      <div style="position:relative;margin-bottom:12px">
+        <input id="newPass1" type="password" placeholder="New password (min 8 chars)" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 50px 12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        <button onclick="togglePwd('newPass1',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+      </div>
+      <div style="position:relative;margin-bottom:14px">
+        <input id="newPass2" type="password" placeholder="Confirm new password" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 50px 12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        <button onclick="togglePwd('newPass2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+      </div>
+      <button onclick="submitNewPassword()" style="width:100%;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✅ Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── HOME PAGE STATE PERSISTENCE ──
+// Save scroll position before unload
+window.addEventListener('beforeunload', function(){
+  try{
+    sessionStorage.setItem('uplyncio_home_scroll', window.scrollY);
+    // Save any open modal
+    var loginOpen   = document.getElementById('loginModal');
+    var signupOpen  = document.getElementById('signupStep2Modal');
+    if(loginOpen  && loginOpen.style.display==='flex')  sessionStorage.setItem('uplyncio_home_modal','login');
+    else if(signupOpen && signupOpen.style.display==='flex') sessionStorage.setItem('uplyncio_home_modal','signup');
+    else sessionStorage.removeItem('uplyncio_home_modal');
+  }catch(e){}
+});
+
+// Restore scroll on load
+window.addEventListener('load', function(){
+  try{
+    var scroll = sessionStorage.getItem('uplyncio_home_scroll');
+    if(scroll) window.scrollTo(0, parseInt(scroll));
+  }catch(e){}
+});
+</script>
+
+
+</body>
+</html>
+
+<!-- ROLE SELECTION MODAL -->
+<div id="roleModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeRoleModal()">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5)">
+    <div style="padding:32px 32px 0;text-align:center;position:relative">
+      <button onclick="closeRoleModal()" style="position:absolute;top:20px;right:20px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px">🔗</div>
+      <div style="font-family:'Manrope',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">Welcome to Uplyncio</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.45);margin-bottom:28px">Choose how you want to use Uplyncio</div>
+    </div>
+    <div style="padding:0 32px;display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+      <div onclick="selectRole('publisher')" style="background:rgba(79,124,255,.1);border:1.5px solid rgba(79,124,255,.3);border-radius:16px;padding:22px 18px;cursor:pointer;transition:all .2s;text-align:center" onmouseover="this.style.background='rgba(79,124,255,.2)';this.style.borderColor='#4f7cff'" onmouseout="this.style.background='rgba(79,124,255,.1)';this.style.borderColor='rgba(79,124,255,.3)'">
+        <div style="font-size:36px;margin-bottom:12px">🌐</div>
+        <div style="font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:8px">Publisher</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.65">I have websites and want to earn money from guest posts</div>
+        <div style="margin-top:12px;background:#4f7cff;color:#fff;border-radius:8px;padding:8px;font-size:12px;font-weight:700">Start Earning Today →</div>
+      </div>
+      <div onclick="selectRole('buyer')" style="background:rgba(16,185,129,.1);border:1.5px solid rgba(16,185,129,.3);border-radius:16px;padding:22px 18px;cursor:pointer;transition:all .2s;text-align:center" onmouseover="this.style.background='rgba(16,185,129,.2)';this.style.borderColor='#10b981'" onmouseout="this.style.background='rgba(16,185,129,.1)';this.style.borderColor='rgba(16,185,129,.3)'">
+        <div style="font-size:36px;margin-bottom:12px">📈</div>
+        <div style="font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:8px">Buyer</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);line-height:1.65">I want to buy guest posts and build powerful backlinks</div>
+        <div style="margin-top:12px;background:#10b981;color:#fff;border-radius:8px;padding:8px;font-size:12px;font-weight:700">Browse 8,500+ Sites →</div>
+      </div>
+    </div>
+    <div style="padding:0 32px 28px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+        <span style="font-size:12px;color:rgba(255,255,255,.3)">already have an account?</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+      </div>
+      <button onclick="closeRoleModal();openLogin()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7);border-radius:12px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">Sign In to Your Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP STEP 2 - After role selected -->
+<div id="signupStep2Modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeSignupStep2()">
+  <div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;box-shadow:0 32px 80px rgba(0,0,0,.5)">
+    <div style="padding:28px 28px 24px;position:relative">
+      <button onclick="closeSignupStep2();document.getElementById('roleModal').style.display='flex'" style="position:absolute;top:20px;left:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:13px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">←</button>
+      <button onclick="closeSignupStep2()" style="position:absolute;top:20px;right:20px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:15px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center">✕</button>
+      <div style="text-align:center;margin-bottom:22px">
+        <div style="font-size:32px;margin-bottom:10px" id="step2Icon">🌐</div>
+        <div style="font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;color:#fff;margin-bottom:4px" id="step2Title">Create Publisher Account</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4)">Fill in your details to get started for free</div>
+      </div>
+      <!-- Social -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <button onclick="completeSignupSocial('google')" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:11px 8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Google
+        </button>
+        <button onclick="completeSignupSocial('facebook')" style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(24,119,242,.15);border:1px solid rgba(24,119,242,.3);color:#fff;border-radius:10px;padding:11px 8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">
+          <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#1877F2" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/></svg>
+          Facebook
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,.3)">or with email</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+        <input type="text" id="su2Name" placeholder="Full Name" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <input type="email" id="su2Email" placeholder="Email Address" oninput="clearSignupEmailErr()" style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+        <div id="su2EmailErr" style="display:none;font-size:12px;color:#ef4444;font-weight:600;padding:4px 2px"></div>
+        <input type="password" id="su2Pass" placeholder="Create Password (min 8 chars)" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
+      </div>
+      <button onclick="completeSignup()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">Create Account & Go to Dashboard →</button>
+      <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.3)">Already have an account? <a href="#" onclick="closeSignupStep2();openLogin()" style="color:#4f7cff;text-decoration:none;font-weight:600">Sign In</a></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
