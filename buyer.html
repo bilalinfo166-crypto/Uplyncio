@@ -1813,6 +1813,39 @@ function toggleSave(idx,btn){
   updateCartNav();
 }
 
+function updateCartNav(){
+  var c=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
+  var s=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]').length;
+  var ce=document.getElementById('navCartCount');
+  if(ce){ce.textContent=c;ce.style.display=c>0?'block':'none';}
+  var se=document.getElementById('navSavedCount');
+  if(se){se.textContent=s;se.style.display=s>0?'block':'none';}
+}
+
+function showCartPopup(){
+  var items=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+  var total=items.reduce(function(s,i){return s+parseFloat(i.price||0);},0);
+  var popup=document.getElementById('cartPopup');
+  if(!popup) return;
+  document.getElementById('cpCount').textContent=items.length+' site'+(items.length>1?'s':'');
+  document.getElementById('cpTotal').textContent='$'+Math.round(total);
+  var list=document.getElementById('cpList');
+  list.innerHTML=items.slice(-3).reverse().map(function(i){
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:12px">'
+      +'<span style="font-weight:600;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px">'+i.url+'</span>'
+      +'<span style="font-weight:700;color:#4f7cff;flex-shrink:0;margin-left:6px">$'+i.price+'</span>'
+      +'</div>';
+  }).join('');
+  popup.style.display='flex';
+  clearTimeout(window._popupTimer);
+  window._popupTimer=setTimeout(closeCartPopup,8000);
+}
+
+function closeCartPopup(){
+  var p=document.getElementById('cartPopup');
+  if(p) p.style.display='none';
+}
+
 // Init
 applyFilters();
 updateLiveSiteCount();
