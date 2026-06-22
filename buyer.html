@@ -1215,14 +1215,31 @@ function renderCard(s, idx){
 
   var flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'};
   var cFlag=flags[s.country]||'🌐';
-  var stats = '<div class="card-stats">'
+
+  // Live publisher performance
+  var _p=getPubPerformance(s.url);
+  var _lCol=_p.lifeRate>=90?'#16a34a':_p.lifeRate>=70?'#d97706':'#dc2626';
+  var _cCol=_p.compRate>=90?'#16a34a':_p.compRate>=70?'#d97706':'#dc2626';
+  var _st=''; for(var _si=0;_si<5;_si++){ if(_si<Math.floor(_p.avgRating)) _st+='<span style="color:#f59e0b;font-size:10px">★</span>'; else if(_si===Math.floor(_p.avgRating)&&(_p.avgRating%1)>=0.5) _st+='<span style="color:#fcd34d;font-size:10px">★</span>'; else _st+='<span style="color:#e2e8f0;font-size:10px">★</span>'; }
+  var _pName=_p.pubName?('<span style="display:inline-flex;align-items:center;gap:3px"><span style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff">'+_p.pubName.charAt(0).toUpperCase()+'</span><span style="font-size:11px;font-weight:600;color:#374151">'+_p.pubName+'</span></span>'):'<span style="font-size:11px;color:#94a3b8">'+s.pub+'</span>';
+
+  var stats='<div class="card-stats">'
     +'<div class="st"><div class="st-v blue">'+s.da+'</div><div class="st-l">Moz DA</div></div>'
     +'<div class="st"><div class="st-v teal">'+s.dr+'</div><div class="st-l">Ahrefs DR</div></div>'
     +'<div class="st"><div class="st-v"><span class="a-dot">a</span>'+fmtN(s.traffic)+'</div><div class="st-l">Ahrefs Traffic</div></div>'
     +'<div class="st"><div class="st-v">'+fmtN(s.semT)+'</div><div class="st-l">SemRush Traffic</div></div>'
     +'<div class="st"><div class="st-v" style="justify-content:center">'+ringHtml(s.comp)+'</div><div class="st-l">Completion</div></div>'
-    +'<div class="st" title="3 days accept + '+Math.min(7,Math.max(1,Math.min(10,s.tat)-3))+'d delivery"><div class="st-v amber">'+Math.min(10,s.tat)+'d</div><div class="st-l">Max TAT</div></div>'
-    +'<div class="st"><div class="st-v" style="font-size:18px">'+cFlag+'</div><div class="st-l">'+s.country+'</div></div>'
+    +'<div class="st"><div class="st-v amber">'+Math.min(10,s.tat)+'d</div><div class="st-l">Max TAT</div></div>'
+    +'<div class="st"><div class="st-v" style="font-size:16px">'+cFlag+'</div><div class="st-l">'+s.country+'</div></div>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;padding:7px 16px;background:#fafbff;border-top:1px solid #f1f5f9;flex-wrap:wrap">'
+      +_pName
+      +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
+      +'<span style="display:inline-flex;align-items:center;gap:2px">'+_st+'<span style="font-size:11px;font-weight:700;color:#374151;margin-left:2px">'+_p.avgRating.toFixed(1)+'</span><span style="font-size:10px;color:#94a3b8;margin-left:1px">'+(_p.reviewCount>0?'('+_p.reviewCount+')':'(new)')+'</span></span>'
+      +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
+      +'<span style="display:inline-flex;align-items:center;gap:3px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="'+_lCol+'" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span style="font-size:11px;font-weight:700;color:'+_lCol+'">'+_p.lifeRate.toFixed(0)+'% Link Life</span>'+(_p.removedLinks>0?'<span style="font-size:9px;color:#dc2626;background:#fef2f2;border-radius:4px;padding:1px 5px">'+_p.removedLinks+' removed</span>':'<span style="font-size:9px;color:#16a34a;background:#f0fdf4;border-radius:4px;padding:1px 5px">All active</span>')+'</span>'
+      +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
+      +'<span style="font-size:10.5px;color:#94a3b8">Completion: <strong style="color:'+_cCol+'">'+_p.compRate.toFixed(0)+'%</strong></span>'
     +'</div>';
 
   if(currentTab==='article'){
