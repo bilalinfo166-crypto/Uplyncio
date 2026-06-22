@@ -842,7 +842,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
             <a href="cart.html" onclick="closeBuyerMenu()" class="bmenu-item" style="text-decoration:none;color:inherit">
               <span>🛒</span> My Orders
             </a>
-            <div onclick="closeBuyerMenu();showToast('Account settings coming soon')" class="bmenu-item">
+            <div onclick="closeBuyerMenu();showBuyerSettings()" class="bmenu-item">
               <span>⚙️</span> Account Settings
             </div>
             <div onclick="closeBuyerMenu();showToast('Blocklist coming soon')" class="bmenu-item">
@@ -2210,6 +2210,731 @@ document.addEventListener('change', function(e){
   if(e.target && e.target.id==='cpWordCount') updateCPPrice();
 });
 
+// ── ACCOUNT SETTINGS ──
+var twoFaOn = true;
+var settingsData = {};
+
+function showBuyerSettings(){
+  
+  
+  var sp=document.getElementById('buyerSettingsPage');
+  if(sp){ sp.style.display='flex'; sp.style.position='fixed'; sp.style.inset='0'; sp.style.background='rgba(15,23,42,.6)'; sp.style.zIndex='10000'; sp.style.overflowY='auto'; }
+  document.body.style.overflow='hidden';
+  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  // Load saved settings
+  try{
+    var saved = localStorage.getItem('uplyncio_settings');
+    if(saved){
+      settingsData = JSON.parse(saved);
+      var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settPaypal','settUsdt','settEmail'];
+      fields.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && settingsData[id]) el.value = settingsData[id];
+      });
+    }
+  }catch(e){}
+  checkVerification();
+  loadNotifSettings();
+  // Load billing details
+  try{
+    var billSaved = localStorage.getItem('uplyncio_billing');
+    if(billSaved){
+      var bd = JSON.parse(billSaved);
+      ['billName','billPhone','billEmail','billCountry','billState','billCity','billAddr','billZip','billApt'].forEach(function(id){
+        var el=document.getElementById(id); if(el&&bd[id]) el.value=bd[id];
+      });
+    }
+  }catch(e){}
+  // Sync profile header
+  if(settingsData['settName']||settingsData['settEmail']){
+    var nameVal  = settingsData['settName']||'Publisher';
+    var emailVal = settingsData['settEmail']||'Not set';
+    var pn=document.getElementById('profileName');
+    var pe=document.getElementById('profileEmail');
+    var av=document.getElementById('profileAvatar');
+    if(pn) pn.textContent=nameVal;
+    if(pe) pe.textContent=emailVal;
+    if(av){
+      var parts=nameVal.trim().split(' ');
+      var initials=parts.length>=2?parts[0][0]+parts[parts.length-1][0]:nameVal.slice(0,2);
+      av.textContent=initials.toUpperCase();
+    }
+    var evb=document.getElementById('emailVerifiedBadge');
+    if(evb) evb.style.display=emailVal&&emailVal!=='Not set'?'inline':'none';
+  }
+}
+
+function switchSettTab(el, tab){
+  saveState("settings",{settTab:tab});
+  // Update tab styles
+  document.querySelectorAll('#settingsPage .stab').forEach(function(t){
+    t.style.color='var(--mu)';
+    t.style.borderBottomColor='transparent';
+  });
+  el.style.color='var(--ac)';
+  el.style.borderBottomColor='var(--ac)';
+
+  // Hide all tab contents
+  ['account','contact','billing','notif','activity'].forEach(function(t){
+    var el2=document.getElementById('stab-'+t+'-content');
+    if(el2) el2.style.display='none';
+  });
+
+  // Show selected
+  var active = document.getElementById('stab-'+tab+'-content');
+  if(active) active.style.display='block';
+
+  // Update activity stats if needed
+  if(tab==='activity') updateActivityStats();
+}
+
+function updateActivityStats(){
+  if(!Array.isArray(sampleOrders)) return;
+  var total = sampleOrders.length;
+  var done  = sampleOrders.filter(function(o){return o.status==='completed';}).length;
+  var rate  = total>0 ? Math.round((done/total)*100) : 0;
+  var t=document.getElementById('actTotalOrders');
+  var d=document.getElementById('actCompleted');
+  var r=document.getElementById('actCompRate');
+  if(t) t.textContent=total;
+  if(d) d.textContent=done;
+  if(r) r.textContent=rate+'%';
+}
+
+function toggleBillingType(type){
+  var row = document.getElementById('companyNameRow');
+  if(row) row.style.display = type==='company'?'block':'none';
+}
+
+function saveBillingDetails(){
+  var guarantee = document.getElementById('billGuarantee');
+  if(!guarantee||!guarantee.checked){
+    toast('⚠️ Please check the guarantee checkbox to save billing details.','#d97706');
+    return;
+  }
+  var fields = ['billName','billPhone','billEmail','billCountry','billState','billCity','billAddr','billZip','billApt','billCompanyName'];
+  var data = {};
+  fields.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) data[id]=el.value;
+  });
+  try{ localStorage.setItem('uplyncio_billing', JSON.stringify(data)); }catch(e){}
+  toast('✅ Billing details saved!','#16a34a');
+}
+
+function previewNotification(){
+  var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
+  var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
+  // WA preview already static — just show number
+}
+
+function saveNotifSettings(){
+  var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
+  var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
+  if(!wa && !em){ toast('⚠️ Please add at least one notification channel (WhatsApp or Email).','#d97706'); return; }
+  try{
+    var ns = {whatsapp: wa, email: em};
+    localStorage.setItem('uplyncio_notif', JSON.stringify(ns));
+  }catch(e){}
+  toast('✅ Notification settings saved! You will receive alerts on new orders.','#16a34a');
+}
+
+// Load notification settings when settings page opens
+function loadNotifSettings(){
+  try{
+    var ns = JSON.parse(localStorage.getItem('uplyncio_notif')||'{}');
+    var waEl = document.getElementById('notifWhatsapp');
+    var emEl = document.getElementById('notifEmail');
+    if(waEl && ns.whatsapp) waEl.value = ns.whatsapp;
+    if(emEl && ns.email)    emEl.value = ns.email;
+  }catch(e){}
+}
+
+// Simulate sending notification when order accepted
+// ── NOTIFICATION SYSTEM ──
+var notifTypes = {
+  new_order: {
+    wa: function(name, o){ return 'Hi *'+name+'*! 👋\n\nYou have received a *new order* on Uplyncio.\n\n📋 *Task ID:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n💰 *Amount:* $'+o.price+'\n📝 *Type:* '+o.type+'\n\nPlease log in to review and accept the order within *3 business days*.\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'New Order Received — #',
+    email_body: function(name, o){ return 'Hello <strong>'+name+'</strong>,<br><br>Great news! You have received a <strong>new order</strong> on Uplyncio. Please review and accept within <strong>3 business days</strong>.<br><br>📋 Task ID: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br>💰 Amount: <strong>$'+o.price+'</strong><br>📝 Type: <strong>'+o.type+'</strong><br><br><a href="https://uplyncio.com/publisher" style="background:#4f7cff;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">View Order →</a>'; },
+    icon: '📦', color: '#4f7cff', label: 'New Order'
+  },
+  order_completed: {
+    wa: function(name, o){ return 'Hi *'+name+'*! ✅\n\nYour order has been *completed and approved* by the client!\n\n📋 *Task ID:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n💰 *Payment:* $'+o.price+' added to your balance\n\nThank you for your great work! 🎉\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'Order Completed & Payment Released — #',
+    email_body: function(name, o){ return 'Hello <strong>'+name+'</strong>,<br><br>🎉 Your order has been <strong>completed and approved</strong> by the client!<br><br>📋 Task ID: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br>💰 <strong>$'+o.price+'</strong> has been added to your main balance<br><br>Keep up the great work! You can request a withdrawal from your Balance page.<br><br><a href="https://uplyncio.com/publisher" style="background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">View Balance →</a>'; },
+    icon: '✅', color: '#16a34a', label: 'Order Completed'
+  },
+  improvement: {
+    wa: function(name, o, note){ return 'Hi *'+name+'*! 📝\n\nThe client has requested an *improvement* on your order.\n\n📋 *Task ID:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n\n📌 *Client note:* '+(note||'Please check the order for details')+'\n\nPlease log in to review and resubmit.\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'Improvement Requested — #',
+    email_body: function(name, o, note){ return 'Hello <strong>'+name+'</strong>,<br><br>The client has requested an <strong>improvement</strong> on your submitted order.<br><br>📋 Task ID: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br><br>📌 <strong>Client note:</strong><br><div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:4px;margin:10px 0">'+(note||'Please check the order for details')+'</div><br><a href="https://uplyncio.com/publisher" style="background:#f59e0b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">Review & Resubmit →</a>'; },
+    icon: '📝', color: '#d97706', label: 'Improvement Requested'
+  },
+  new_message: {
+    wa: function(name, o, msg){ return 'Hi *'+name+'*! 💬\n\nYou have a *new message* from a client on Uplyncio.\n\n📋 *Order:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n\n💬 *Message:* '+(msg||'Check your inbox for the message')+'\n\nReply in your Uplyncio inbox.\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'New Message from Client — #',
+    email_body: function(name, o, msg){ return 'Hello <strong>'+name+'</strong>,<br><br>You have received a <strong>new message</strong> from a client on Uplyncio.<br><br>📋 Order: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br><br>💬 <strong>Message:</strong><br><div style="background:#f0f4ff;border-left:3px solid #4f7cff;padding:10px 14px;border-radius:4px;margin:10px 0">'+(msg||'Check your inbox')+'</div><br><a href="https://uplyncio.com/publisher" style="background:#4f7cff;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">Reply in Inbox →</a>'; },
+    icon: '💬', color: '#4f7cff', label: 'New Message'
+  }
+};
+
+function sendNotification(type, order, extra){
+  try{
+    var ns   = JSON.parse(localStorage.getItem('uplyncio_notif')||'{}');
+    var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var name = sett['settName']||'Publisher';
+    var conf = notifTypes[type];
+    if(!conf || (!ns.whatsapp && !ns.email)) return;
+
+    var waText    = conf.wa(name, order, extra);
+    var emailBody = conf.email_body(name, order, extra);
+
+    // Show preview popup bottom-left
+    var popup = document.createElement('div');
+    popup.setAttribute('style','position:fixed;bottom:24px;left:24px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;max-width:340px;z-index:99999;box-shadow:0 12px 40px rgba(0,0,0,.18);animation:slideIn .3s ease');
+    
+    var closeBtn = '<button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8;font-weight:700">✕</button>';
+
+    // WA preview
+    var waHtml = '';
+    if(ns.whatsapp){
+      waHtml = '<div style="padding:12px 14px;border-bottom:1px solid #f1f5f9">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>'+
+          '</div>'+
+          '<div>'+
+            '<div style="font-size:12px;font-weight:800;color:#0f172a">Uplyncio</div>'+
+            '<div style="font-size:10px;color:#94a3b8">WhatsApp Business · +'+ns.whatsapp+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="background:#e7ffd1;border-radius:0 10px 10px 10px;padding:10px 12px;font-size:12px;color:#0f172a;line-height:1.65;white-space:pre-wrap">'+waText.replace(/\*/g,'')+'</div>'+
+        '<div style="font-size:10px;color:#94a3b8;text-align:right;margin-top:4px">info@uplyncio.com</div>'+
+      '</div>';
+    }
+
+    // Email preview
+    var emailHtml = '';
+    if(ns.email){
+      emailHtml = '<div style="padding:12px 14px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:'+conf.color+';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+conf.icon+'</div>'+
+          '<div>'+
+            '<div style="font-size:12px;font-weight:800;color:#0f172a">Email: '+conf.email_subj+'#'+order.taskId+'</div>'+
+            '<div style="font-size:10px;color:#94a3b8">From: Uplyncio &lt;info@uplyncio.com&gt; → '+ns.email+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#475569;line-height:1.6">'+emailBody+'</div>'+
+      '</div>';
+    }
+
+    popup.innerHTML =
+      '<div style="background:'+conf.color+';padding:10px 14px;display:flex;align-items:center;gap:8px">'+
+        '<span style="font-size:16px">'+conf.icon+'</span>'+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:800;color:#fff">'+conf.label+'</div>'+
+          '<div style="font-size:10px;color:rgba(255,255,255,.75)">Notification sent via Uplyncio</div>'+
+        '</div>'+
+      '</div>'+
+      closeBtn+
+      waHtml+
+      emailHtml;
+
+    document.body.appendChild(popup);
+    setTimeout(function(){ if(popup.parentElement) popup.remove(); }, 10000);
+
+  }catch(e){ console.error('Notification error:',e); }
+}
+
+// Keep old function name for backward compat
+function sendOrderNotification(order){
+  sendNotification('new_order', order);
+}
+
+function toggleNotif(toggle){
+  var thumb = toggle.querySelector('div');
+  var isOn = toggle.style.background==='rgb(34, 197, 94)'||toggle.style.background==='#22c55e';
+  if(isOn){
+    toggle.style.background='#94a3b8';
+    if(thumb) thumb.style.left='3px';
+  } else {
+    toggle.style.background='#22c55e';
+    if(thumb) thumb.style.left='21px';
+  }
+}
+
+function checkVerification(){
+  var required = ['settName','settPhone','settCountry','settState','settCity','settAddr','settZip'];
+  var paypal = document.getElementById('settPaypal');
+  var usdt = document.getElementById('settUsdt');
+  var hasPayment = (paypal && paypal.value.trim()) || (usdt && usdt.value.trim());
+  var allFilled = required.every(function(id){
+    var el = document.getElementById(id);
+    return el && el.value.trim();
+  }) && hasPayment;
+
+  var vBadge = document.getElementById('verifiedBadge');
+  var uBadge = document.getElementById('unverifiedBadge');
+  if(allFilled){
+    if(vBadge) vBadge.style.display='flex';
+    if(uBadge) uBadge.style.display='none';
+  } else {
+    if(vBadge) vBadge.style.display='none';
+    if(uBadge) uBadge.style.display='flex';
+  }
+}
+
+function saveSettings(){
+  var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settPaypal','settUsdt','settEmail'];
+  fields.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) settingsData[id] = el.value;
+  });
+  try{ localStorage.setItem('uplyncio_settings', JSON.stringify(settingsData)); }catch(e){}
+
+  // Update txn billing details with new info
+  var nameEl = document.getElementById('settName');
+  var emailEl = document.getElementById('settEmail');
+  var phoneEl = document.getElementById('settPhone');
+  var stateEl = document.getElementById('settState');
+  var cityEl  = document.getElementById('settCity');
+  var addrEl  = document.getElementById('settAddr');
+  var aptEl   = document.getElementById('settApt');
+  var zipEl   = document.getElementById('settZip');
+  var cntryEl = document.getElementById('settCountry');
+
+  // Update billing panel elements if they exist
+  var names = document.querySelectorAll('#txnDetailModal [data-field]');
+  names.forEach(function(el){
+    var f = el.getAttribute('data-field');
+    var val = settingsData['sett'+f.charAt(0).toUpperCase()+f.slice(1)];
+    if(val) el.textContent = val;
+  });
+
+  checkVerification();
+
+  // Update profile dropdown + avatar
+  var nameVal  = settingsData['settName']||'Publisher';
+  var emailVal = settingsData['settEmail']||'Not set';
+  var pn = document.getElementById('profileName');
+  var pe = document.getElementById('profileEmail');
+  var av = document.getElementById('profileAvatar');
+  if(pn) pn.textContent = nameVal;
+  if(pe) pe.textContent = emailVal;
+  if(av){
+    var parts = nameVal.trim().split(' ');
+    var initials = parts.length>=2 ? parts[0][0]+parts[parts.length-1][0] : nameVal.slice(0,2);
+    av.textContent = initials.toUpperCase();
+  }
+
+  // Show verified badge on email if filled
+  var evb = document.getElementById('emailVerifiedBadge');
+  if(evb) evb.style.display = emailVal&&emailVal!=='Not set' ? 'inline' : 'none';
+
+  var status = document.getElementById('settSaveStatus');
+  if(status){
+    status.style.display='block';
+    setTimeout(function(){ status.style.display='none'; }, 3000);
+  }
+  toast('✅ Settings saved successfully!','#16a34a');
+}
+
+function editField(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.focus();
+  el.select();
+  el.style.borderColor = 'var(--ac)';
+}
+
+function toggleTwoFa(){
+  twoFaOn = !twoFaOn;
+  var t = document.getElementById('twoFaToggle');
+  var th = document.getElementById('twoFaThumb');
+  if(twoFaOn){ t.style.background='#22c55e'; th.style.left='23px'; }
+  else { t.style.background='#94a3b8'; th.style.left='3px'; }
+  toast(twoFaOn ? '🔐 2FA enabled' : '2FA disabled','#0f172a');
+}
+
+// ── OAUTH MODALS ──
+function linkGoogle(){
+  openOAuthModal('google');
+}
+function linkFacebook(){
+  openOAuthModal('facebook');
+}
+
+function openOAuthModal(provider){
+  var modal = document.getElementById('oauthModal');
+  var title = document.getElementById('oauthTitle');
+  var icon  = document.getElementById('oauthIcon');
+  var btn   = document.getElementById('oauthContinueBtn');
+  var desc  = document.getElementById('oauthDesc');
+  var perms = document.getElementById('oauthPerms');
+
+  if(provider==='google'){
+    title.textContent = 'Sign in with Google';
+    icon.innerHTML = '<svg width="32" height="32" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>';
+    desc.textContent = 'Connect your Google account to Uplyncio Publisher Portal';
+    perms.innerHTML =
+      '<div style="font-size:12px;color:#475569;margin-bottom:8px;font-weight:600">Uplyncio will receive:</div>'+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your name and profile photo</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your email address</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Basic account info</div>'+
+      '</div>';
+    btn.style.background = '#4285F4';
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google';
+    btn.onclick = function(){ connectOAuth('google'); };
+  } else {
+    title.textContent = 'Connect with Facebook';
+    icon.innerHTML = '<svg width="32" height="32" viewBox="0 0 48 48"><path fill="#1877F2" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/><path fill="#fff" d="M33.334 30.938L34.397 24H27.75v-4.477c0-1.9.928-3.75 3.906-3.75h3.023V9.871s-2.745-.469-5.367-.469c-5.474 0-9.053 3.318-9.053 9.328V24h-6.094v6.938H20.25V47.708a24.21 24.21 0 003.75.292 24.21 24.21 0 003.75-.292V30.937h5.584z"/></svg>';
+    desc.textContent = 'Connect your Facebook account to Uplyncio Publisher Portal';
+    perms.innerHTML =
+      '<div style="font-size:12px;color:#475569;margin-bottom:8px;font-weight:600">Uplyncio will receive:</div>'+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your name and profile photo</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your email address</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Public profile info</div>'+
+      '</div>';
+    btn.style.background = '#1877F2';
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/></svg> Continue with Facebook';
+    btn.onclick = function(){ connectOAuth('facebook'); };
+  }
+
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeOAuthModal(){
+  document.getElementById('oauthModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function connectOAuth(provider){
+  var btn = document.getElementById('oauthContinueBtn');
+  btn.innerHTML = '⏳ Opening...';
+  btn.style.opacity = '.8';
+  btn.disabled = true;
+
+  var w = 500, h = 600;
+  var left = (screen.width/2)-(w/2);
+  var top  = (screen.height/2)-(h/2);
+  var features = 'width='+w+',height='+h+',top='+top+',left='+left+',toolbar=no,menubar=no,scrollbars=yes,resizable=yes';
+
+  var popup;
+  if(provider==='google'){
+    // Real Google OAuth URL — replace CLIENT_ID with your Google App Client ID
+    var CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+    var REDIRECT  = encodeURIComponent(window.location.href.split('?')[0]);
+    var scope     = encodeURIComponent('openid email profile');
+    var googleUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
+      +'?client_id='+CLIENT_ID
+      +'&redirect_uri='+REDIRECT
+      +'&response_type=token'
+      +'&scope='+scope
+      +'&prompt=select_account';
+    popup = window.open(googleUrl, 'GoogleLogin', features);
+  } else {
+    // Real Facebook OAuth URL — replace APP_ID with your Facebook App ID
+    var APP_ID    = 'YOUR_FACEBOOK_APP_ID';
+    var REDIRECT2 = encodeURIComponent(window.location.href.split('?')[0]);
+    var fbUrl = 'https://www.facebook.com/v18.0/dialog/oauth'
+      +'?client_id='+APP_ID
+      +'&redirect_uri='+REDIRECT2
+      +'&scope=email,public_profile'
+      +'&response_type=token';
+    popup = window.open(fbUrl, 'FacebookLogin', features);
+  }
+
+  // Poll popup for result
+  var timer = setInterval(function(){
+    try{
+      if(!popup || popup.closed){
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        if(provider==='google'){
+          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google';
+        } else {
+          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/></svg> Continue with Facebook';
+        }
+        return;
+      }
+      // Check URL for token/code
+      var url = popup.location.href;
+      if(url && (url.includes('access_token') || url.includes('code='))){
+        clearInterval(timer);
+        popup.close();
+        closeOAuthModal();
+        onOAuthSuccess(provider);
+      }
+      // Check for cancellation/error
+      if(url && url.includes('error=')){
+        clearInterval(timer);
+        popup.close();
+        btn.disabled=false; btn.style.opacity='1';
+        toast('Connection cancelled.','#64748b');
+      }
+    }catch(e){
+      // Cross-origin — popup is on OAuth page, keep polling
+    }
+  }, 500);
+}
+
+function onOAuthSuccess(provider){
+  if(provider==='google'){
+    var gBtn = document.getElementById('googleBtn');
+    if(gBtn) gBtn.outerHTML = '<div id="googleBtn" onclick="unlinkGoogle()" style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:#15803d;cursor:pointer">Connected ✓</div>';
+  } else {
+    var fBtn = document.getElementById('fbBtn');
+    if(fBtn){ fBtn.textContent='Connected ✓'; fBtn.style.background='#e7f3ff'; fBtn.style.color='#1877F2'; fBtn.style.border='1px solid #bfdbfe'; fBtn.disabled=false; fBtn.style.opacity='1'; fBtn.onclick=function(){unlinkFacebook();}; }
+  }
+  toast('✅ '+(provider==='google'?'Google':'Facebook')+' account connected!','#16a34a');
+}
+
+function unlinkGoogle(){
+  if(!confirm('Unlink Google account?')) return;
+  var gBtn = document.getElementById('googleBtn');
+  if(gBtn) gBtn.outerHTML = '<button id="googleBtn" onclick="linkGoogle()" style="background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Link Account</button>';
+  toast('Google account unlinked.','#64748b');
+}
+
+function unlinkFacebook(){
+  if(!confirm('Unlink Facebook account?')) return;
+  var fBtn = document.getElementById('fbBtn');
+  if(fBtn){ fBtn.textContent='Link Account'; fBtn.style.background='#0f172a'; fBtn.style.color='#fff'; fBtn.style.border='none'; fBtn.onclick=function(){linkFacebook();}; }
+  toast('Facebook account unlinked.','#64748b');
+}
+
+
+// ── RATING & REVIEWS — LIVE PERFORMANCE ──
+var publisherReviews = [];
+var removedLinks = 0; // tracks how many links were removed
+
+function showRating(){
+  saveState("rating");
+  
+  var rp=document.getElementById('ratingPage');
+  if(rp) rp.style.display='block';
+  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  renderRatingPage();
+}
+
+function renderRatingPage(){
+  // Publisher name
+  try{
+    var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var ne=document.getElementById('ratingName');
+    if(ne&&s['settName']) ne.textContent=s['settName'];
+  }catch(e){}
+
+  if(!Array.isArray(sampleOrders)) sampleOrders=[];
+
+  var total     = sampleOrders.length;
+  var completed = sampleOrders.filter(function(o){return o.status==='completed';}).length;
+  var rejected  = sampleOrders.filter(function(o){return o.status==='rejected';}).length;
+  var accepted  = sampleOrders.filter(function(o){return o.status!=='acceptance';}).length;
+
+  // COMPLETION RATE: completed / accepted * 100 (min 0)
+  var compRate = accepted>0 ? Math.min(100, Math.max(0, (completed/accepted)*100)) : 100;
+
+  // LINK LIFETIME: each removed link reduces by (1/completed)*100
+  var lifeRate = completed>0 ? Math.max(0, 100 - (removedLinks/completed)*100) : 100;
+
+  // AVG CLIENT RATING: from reviews
+  var avgRating = 5.0;
+  if(publisherReviews.length>0){
+    var sum=publisherReviews.reduce(function(a,r){return a+(r.stars||5);},0);
+    avgRating = sum/publisherReviews.length;
+  }
+
+  // OVERALL SCORE: weighted average
+  var overallScore = Math.max(0, Math.min(5, (
+    (compRate/100)*2.0 +
+    (lifeRate/100)*1.5 +
+    (avgRating/5)*1.5
+  )));
+
+  // Stars HTML
+  var fullStars = Math.floor(overallScore);
+  var hasHalf   = (overallScore-fullStars)>=0.5;
+  var starsHtml = '';
+  for(var i=0;i<5;i++){
+    if(i<fullStars) starsHtml+='⭐';
+    else if(i===fullStars&&hasHalf) starsHtml+='<span style="opacity:.5">⭐</span>';
+    else starsHtml+='<span style="opacity:.2">⭐</span>';
+  }
+
+  // Update score card
+  var scoreEl=document.getElementById('ratingScore');
+  if(scoreEl) scoreEl.textContent=overallScore.toFixed(1);
+  var starsEl=document.getElementById('ratingStars');
+  if(starsEl) starsEl.innerHTML=starsHtml;
+  var cntEl=document.getElementById('ratingCount');
+  if(cntEl) cntEl.textContent=publisherReviews.length+' review'+(publisherReviews.length!==1?'s':'');
+
+  // Bar graphs
+  var setBar=function(barId,pctId,pct,color){
+    var b=document.getElementById(barId);
+    var p=document.getElementById(pctId);
+    if(b) b.style.width=pct+'%';
+    if(b) b.style.background=pct>=80?color:'#ef4444';
+    if(p) p.textContent=Math.round(pct)+'%';
+  };
+  setBar('barCompletion','barCompPct',compRate,'#4ade80');
+  setBar('barLifetime','barLifePct',lifeRate,'#60a5fa');
+  setBar('barRating','barRatingPct',(avgRating/5)*100,'#f59e0b');
+
+  // 3 stats
+  var compColor = compRate>=80?'#16a34a':compRate>=60?'#d97706':'#ef4444';
+  var lifeColor = lifeRate>=80?'#2563eb':lifeRate>=60?'#d97706':'#ef4444';
+  var domColor  = avgRating>=4?'#d97706':avgRating>=3?'#64748b':'#ef4444';
+
+  var ce=document.getElementById('ratingCompletion');
+  if(ce){ ce.innerHTML=Math.floor(compRate)+'<span style="font-size:16px">.'+(compRate%1).toFixed(2).slice(2)+'%</span>'; ce.style.color=compColor; }
+  var cb=document.getElementById('compBar');
+  if(cb){ cb.style.width=compRate+'%'; cb.style.background=compColor; }
+  var ci=document.getElementById('compInfo');
+  if(ci) ci.textContent = rejected>0?(rejected+' order'+(rejected>1?'s':'')+' rejected'):'All orders completed';
+
+  var le=document.getElementById('ratingLifetime');
+  if(le){ le.innerHTML=Math.floor(lifeRate)+'<span style="font-size:16px">.'+(lifeRate%1).toFixed(2).slice(2)+'%</span>'; le.style.color=lifeColor; }
+  var lb=document.getElementById('lifeBar');
+  if(lb){ lb.style.width=lifeRate+'%'; lb.style.background=lifeColor; }
+  var li=document.getElementById('lifeInfo');
+  if(li) li.textContent = removedLinks>0?(removedLinks+' link'+(removedLinks>1?'s':'')+' removed — balance deducted'):'All links active';
+
+  var de=document.getElementById('ratingDomain');
+  if(de){ de.innerHTML=avgRating.toFixed(1)+'<span style="font-size:16px"> / 5</span>'; de.style.color=domColor; }
+  var db=document.getElementById('domBar');
+  if(db){ db.style.width=((avgRating/5)*100)+'%'; db.style.background=domColor; }
+  var di=document.getElementById('domInfo');
+  if(di) di.textContent = publisherReviews.length>0?(publisherReviews.length+' review'+(publisherReviews.length>1?'s':'')):'No ratings yet';
+
+  renderReviews();
+}
+
+function simulateLinkRemoval(){
+  if(!Array.isArray(sampleOrders)) return;
+  var comp = sampleOrders.filter(function(o){return o.status==='completed';});
+  if(comp.length===0){ toast('No completed orders to simulate link removal.','#64748b'); return; }
+
+  var order = comp[Math.floor(Math.random()*comp.length)];
+  removedLinks++;
+
+  // Deduct order amount from balance
+  order.linkRemoved = true;
+  var deduction = order.price;
+  // Add penalty transaction
+  sampleOrders.push({
+    id:'penalty_'+Date.now(), taskId:'PENALTY', type:'Penalty',
+    service:'Link Removal Penalty', siteUrl:order.siteUrl,
+    price:-deduction, status:'rejected',
+    createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(),
+    statusHistory:[{status:'rejected',timestamp:new Date().toISOString(),note:'Link removed from '+order.siteUrl+'. $'+deduction+' deducted from balance.'}],
+    chat:[], isLinkPenalty:true
+  });
+  OrderManager.save(sampleOrders);
+
+  renderRatingPage();
+  updateBalance();
+  toast('⚠️ Link removed from '+order.siteUrl+'! $'+deduction+' deducted from balance. Link Lifetime rate dropped.','#ef4444');
+}
+
+function renderReviews(){
+  var listEl  = document.getElementById('reviewsList');
+  var emptyEl = document.getElementById('reviewsEmpty');
+  var header  = document.getElementById('reviewsHeader');
+  if(!listEl) return;
+
+  // Load reviews from localStorage + order completions
+  try{
+    var saved = localStorage.getItem('uplyncio_reviews');
+    if(saved) publisherReviews = JSON.parse(saved);
+  }catch(e){}
+
+  // Add auto reviews from completed orders
+  if(Array.isArray(sampleOrders)){
+    sampleOrders.forEach(function(o){
+      if(o.status==='completed' && !publisherReviews.find(function(r){return r.orderId===o.id;})){
+        var autoReviews = [
+          {emoji:'😍', label:'Excellent', text:'Great work! Article was published quickly and the link is exactly as requested.'},
+          {emoji:'😍', label:'Excellent', text:'A polished posting that was promptly indexed. Highly recommend this publisher!'},
+          {emoji:'😊', label:'Good', text:'Good quality article, delivered on time. Will order again.'},
+          {emoji:'😍', label:'Excellent', text:'Instant service and great communication throughout the process.'},
+        ];
+        var r = autoReviews[Math.floor(Math.random()*autoReviews.length)];
+        publisherReviews.push({
+          orderId: o.id, taskId: o.taskId, site: o.siteUrl,
+          emoji: r.emoji, label: r.label, text: r.text,
+          date: o.updatedAt||new Date().toISOString(),
+          reviewer: 'Advertiser'
+        });
+      }
+    });
+    try{ localStorage.setItem('uplyncio_reviews', JSON.stringify(publisherReviews)); }catch(e){}
+  }
+
+  if(header) header.textContent = "Advertisers' reviews ("+publisherReviews.length+")";
+
+  if(publisherReviews.length===0){
+    if(emptyEl) emptyEl.style.display='block';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display='none';
+
+  var reviewsHtml = publisherReviews.slice().reverse().map(function(r){
+    var labelColor = r.label==='Excellent'?'#4f46e5':r.label==='Good'?'#0369a1':'#64748b';
+    var labelBg    = r.label==='Excellent'?'#ede9fe':r.label==='Good'?'#e0f2fe':'#f1f5f9';
+    return '<div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:18px 20px;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">'+
+        '<div style="width:44px;height:44px;border-radius:12px;background:'+labelBg+';display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+r.emoji+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'+
+            '<span style="background:'+labelBg+';color:'+labelColor+';font-size:12px;font-weight:800;padding:3px 12px;border-radius:100px">'+r.label+'</span>'+
+          '</div>'+
+          '<div style="font-size:12px;color:var(--mu)">'+r.reviewer+' · '+fmtDateShort(r.date)+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;font-size:11px;color:var(--mu)">Order #'+r.taskId+'<br>'+r.site+'</div>'+
+      '</div>'+
+      '<div style="font-size:13.5px;color:var(--t2);line-height:1.7">'+r.text+'</div>'+
+    '</div>';
+  }).join('');
+
+  listEl.innerHTML = (emptyEl ? emptyEl.outerHTML : '') + reviewsHtml;
+  if(emptyEl) document.getElementById('reviewsEmpty').style.display='none';
+}
+
+function toggleRatingAccordion(){
+  var body  = document.getElementById('ratingAccordionBody');
+  var arrow = document.getElementById('ratingArrow');
+  if(body.style.display==='none'){
+    body.style.display='block';
+    if(arrow) arrow.textContent='－';
+  } else {
+    body.style.display='none';
+    if(arrow) arrow.textContent='＋';
+  }
+}
+
+function openPublisherRules(){
+  document.getElementById('publisherRulesModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closePublisherRules(){
+  document.getElementById('publisherRulesModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+
+function closeBuyerSettings(){
+  var sp=document.getElementById('buyerSettingsPage');
+  if(sp) sp.style.display='none';
+  document.body.style.overflow='';
+}
+
 function updateCartNav(){
   var c=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
   var s=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]').length;
@@ -2937,6 +3662,494 @@ window.addEventListener('load', function(){
     </div>
   </div>
 </div>
+
+<!-- BUYER ACCOUNT SETTINGS -->
+<div id="buyerSettingsPage" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:10000;overflow-y:auto;padding:20px 10px"><div style="max-width:900px;margin:0 auto;background:#f0f2f7;border-radius:20px;overflow:hidden;min-height:600px" style="display:none">
+  <div class="bc" style="display:flex;align-items:center;justify-content:space-between"><div><a onclick="closeBuyerSettings()" style="cursor:pointer">Home</a><span>›</span><span class="cu">Account Settings</span></div><button onclick="closeBuyerSettings()" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">✕ Close</button></div>
+  <h1 style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:var(--tx);margin-bottom:16px">My Profile</h1>
+
+  <!-- TABS -->
+  <div style="display:flex;gap:0;border-bottom:2px solid var(--br);margin-bottom:24px;overflow-x:auto">
+    <div class="stab" onclick="switchSettTab(this,'account')" id="stab-account" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ac);border-bottom:2px solid var(--ac);margin-bottom:-2px;white-space:nowrap">Account settings</div>
+    <div class="stab" onclick="switchSettTab(this,'contact')" id="stab-contact" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Contact info</div>
+    <div class="stab" onclick="switchSettTab(this,'billing')" id="stab-billing" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Billing details</div>
+    <div class="stab" onclick="switchSettTab(this,'notif')" id="stab-notif" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Notification settings</div>
+    <div class="stab" onclick="switchSettTab(this,'activity')" id="stab-activity" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Profile activity</div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div></div>
+    <!-- Verification Badge -->
+    <div id="verifiedBadge" style="display:none;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:100px;padding:8px 16px">
+      <span style="font-size:16px">✅</span>
+      <span style="font-size:13px;font-weight:700;color:#15803d">Account Verified</span>
+    </div>
+    <div id="unverifiedBadge" style="display:flex;align-items:center;gap:8px;background:#fef3c7;border:1px solid #fde68a;border-radius:100px;padding:8px 16px">
+      <span style="font-size:16px">⚠️</span>
+      <span style="font-size:13px;font-weight:700;color:#d97706">Profile Incomplete — Fill all fields to get verified</span>
+    </div>
+  </div>
+
+  <!-- ACCOUNT TAB -->
+  <div id="stab-account-content">
+
+  <!-- LINK ACCOUNTS -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔗 Link Accounts</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:14px 18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">🇫</span>
+          <span style="font-size:14px;font-weight:600;color:var(--tx)">Facebook account</span>
+        </div>
+        <button id="fbBtn" onclick="linkFacebook()" style="background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Link Account</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:14px 18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">G</span>
+          <span style="font-size:14px;font-weight:600;color:var(--tx)">Google account</span>
+        </div>
+        <button id="googleBtn" onclick="linkGoogle()" style="background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Link Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT CREDENTIALS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Left: Email + Password -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label style="font-size:12px;font-weight:700;color:var(--tx)">Account email *</label>
+          <span id="emailVerifiedBadge" style="font-size:11px;font-weight:700;color:#94a3b8;display:none">✓ Verified</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settEmail" type="email" placeholder="your@email.com" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
+          <button onclick="editField('settEmail')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">Password *</label></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settPass" type="password" placeholder="••••••••" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
+          <button onclick="editField('settPass')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+    </div>
+    <!-- Right: PayPal + USDT -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">💳 PayPal email</label></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settPaypal" type="email" placeholder="your@paypal.com" oninput="checkVerification()" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
+          <button onclick="editField('settPaypal')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">🪙 USDT (TRC20) address</label></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settUsdt" type="text" placeholder="T..." oninput="checkVerification()" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent;font-family:monospace">
+          <button onclick="editField('settUsdt')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONAL INFO -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">👤 Personal Information</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Full Name *</label>
+        <input id="settName" type="text" placeholder="John Smith" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Phone Number *</label>
+        <input id="settPhone" type="tel" placeholder="+44 7700 900123" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Country *</label>
+        <select id="settCountry" onchange="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box;-webkit-appearance:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+          <option value="">Select country</option>
+          <option value="Pakistan">🇵🇰 Pakistan</option>
+          <option value="USA">🇺🇸 United States</option>
+          <option value="UK">🇬🇧 United Kingdom</option>
+          <option value="India">🇮🇳 India</option>
+          <option value="UAE">🇦🇪 UAE</option>
+          <option value="Canada">🇨🇦 Canada</option>
+          <option value="Australia">🇦🇺 Australia</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="Other">🌍 Other</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDRESS -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">📍 Address</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">State / Region *</label>
+        <input id="settState" type="text" placeholder="e.g. Greater London" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">City / Town *</label>
+        <input id="settCity" type="text" placeholder="e.g. London" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Street Address *</label>
+        <input id="settAddr" type="text" placeholder="e.g. 12 Baker Street" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Apt / Suite <span style="color:var(--mu);font-weight:400">(optional)</span></label>
+        <input id="settApt" type="text" placeholder="Apt, unit, suite..." style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Zip / Postal Code *</label>
+        <input id="settZip" type="text" placeholder="e.g. W1U 3BH" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /account tab -->
+
+  <!-- CONTACT INFO TAB -->
+  <div id="stab-contact-content" style="display:none">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">📞 Contact Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">First Name *</label>
+          <input id="ctFirstName" type="text" placeholder="John" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Last Name *</label>
+          <input id="ctLastName" type="text" placeholder="Smith" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Phone Number *</label>
+          <input id="ctPhone" type="tel" placeholder="+44 7700 900123" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Website / Portfolio</label>
+          <input id="ctWebsite" type="url" placeholder="https://yoursite.com" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end">
+      <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- BILLING DETAILS TAB -->
+  <div id="stab-billing-content" style="display:none">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
+
+      <!-- Company / Private toggle -->
+      <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--br)">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;font-weight:600;color:var(--tx)">
+          <input type="radio" name="billingType" id="billingCompany" onchange="toggleBillingType('company')" style="accent-color:var(--ac);width:18px;height:18px">
+          Company
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;font-weight:600;color:var(--tx)">
+          <input type="radio" name="billingType" id="billingPrivate" checked onchange="toggleBillingType('private')" style="accent-color:var(--ac);width:18px;height:18px">
+          Private Person
+        </label>
+      </div>
+
+      <!-- Company name (hidden by default) -->
+      <div id="companyNameRow" style="display:none;margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Company Name *</label>
+        <input id="billCompanyName" type="text" placeholder="Your Company Ltd." style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+
+      <!-- Fields -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Full Name *</label>
+          <input id="billName" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Billing Phone *</label>
+          <input id="billPhone" type="tel" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Email</label>
+          <input id="billEmail" type="email" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Country *</label>
+          <select id="billCountry" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box;-webkit-appearance:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+            <option value="">Select country</option>
+            <option>🇬🇧 United Kingdom</option>
+            <option>🇵🇰 Pakistan</option>
+            <option>🇺🇸 United States</option>
+            <option>🇮🇳 India</option>
+            <option>🇦🇪 UAE</option>
+            <option>🇨🇦 Canada</option>
+            <option>🇦🇺 Australia</option>
+            <option>🇩🇪 Germany</option>
+            <option>🇫🇷 France</option>
+            <option>🌍 Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">State / Region *</label>
+          <input id="billState" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">City / Town / Village *</label>
+          <input id="billCity" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Address *</label>
+        <input id="billAddr" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Zip / Postal Code *</label>
+          <input id="billZip" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Apt / Suite <span style="color:var(--mu);font-weight:400">(optional)</span></label>
+          <input id="billApt" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+      </div>
+
+      <!-- Guarantee checkbox -->
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;padding:14px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px">
+        <input type="checkbox" id="billGuarantee" style="accent-color:var(--ac);width:16px;height:16px;flex-shrink:0;margin-top:2px">
+        <label for="billGuarantee" style="font-size:13px;color:#92400e;line-height:1.6;cursor:pointer">I guarantee that I provide Uplyncio with valid data. Filling out the billing form with false data might result in the account being blocked or in a 24% outgoing tax being withheld by Uplyncio.</label>
+      </div>
+
+      <button onclick="saveBillingDetails()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save details</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION SETTINGS TAB -->
+  <div id="stab-notif-content" style="display:none">
+
+    <!-- NOTIFICATION CHANNELS -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">📬 Notification Channels</div>
+      <div style="font-size:12px;color:var(--mu);margin-bottom:18px">Add your contact details to receive real-time notifications when orders arrive or update.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+        <!-- WhatsApp -->
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.533 5.849L.057 23.535c-.068.255.026.528.239.682.138.098.298.145.459.145.09 0 .18-.016.266-.049l5.932-2.024A11.934 11.934 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-1.937 0-3.774-.536-5.348-1.465l-.383-.226-3.975 1.357 1.25-3.833-.249-.394A9.815 9.815 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:800;color:#15803d">WhatsApp</div>
+              <div style="font-size:11px;color:#16a34a">Instant order notifications</div>
+            </div>
+          </div>
+          <label style="font-size:11px;font-weight:700;color:#15803d;display:block;margin-bottom:6px">WhatsApp Number *</label>
+          <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #86efac;border-radius:8px;padding:9px 12px">
+            <span style="font-size:13px;color:#64748b;flex-shrink:0">+</span>
+            <input id="notifWhatsapp" type="tel" placeholder="1 555 000 1234" oninput="previewNotification()" style="border:none;outline:none;font-size:13.5px;font-family:inherit;color:#0f172a;background:transparent;width:100%">
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px">Message will appear from <strong>Uplyncio</strong> — include your country code e.g. +1 for US, +44 for UK, +971 for UAE</div>
+        </div>
+
+        <!-- Email -->
+        <div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#4f7cff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">✉️</div>
+            <div>
+              <div style="font-size:14px;font-weight:800;color:#1e40af">Email</div>
+              <div style="font-size:11px;color:#4f7cff">Order & payment emails</div>
+            </div>
+          </div>
+          <label style="font-size:11px;font-weight:700;color:#1e40af;display:block;margin-bottom:6px">Notification Email *</label>
+          <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #c7d7ff;border-radius:8px;padding:9px 12px">
+            <input id="notifEmail" type="email" placeholder="your@email.com" oninput="previewNotification()" style="border:none;outline:none;font-size:13.5px;font-family:inherit;color:#0f172a;background:transparent;width:100%">
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px">Emails will be sent from <strong>info@uplyncio.com</strong> · Sender name: <strong>Uplyncio</strong></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION PREVIEW -->
+      <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;margin-bottom:18px">
+        <div style="font-size:11px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">📋 Message Preview</div>
+        <!-- WhatsApp preview -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span>📱</span> WhatsApp Message</div>
+          <div style="background:#e7ffd1;border-radius:0 10px 10px 10px;padding:12px 14px;font-size:13px;color:#0f172a;line-height:1.7;max-width:400px;border:1px solid #d1f7a8">
+            <div style="font-size:11px;color:#64748b;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <div style="width:22px;height:22px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg></div>
+              <strong style="color:#0f172a">Uplyncio</strong> <span style="color:#94a3b8">· Business Account</span>
+            </div>
+            <div id="waPreview">Hi Publisher! 👋<br><br>You have received a <strong>new order</strong> on Uplyncio.<br><br>📋 <strong>Task ID:</strong> #OR----<br>🌐 <strong>Site:</strong> yoursite.com<br>💰 <strong>Amount:</strong> $---<br>📝 <strong>Type:</strong> Article Posting<br><br>Please log in to review and accept the order within <strong>3 business days</strong>.<br><br>🔗 <a href="#" style="color:#15803d">https://uplyncio.com/publisher</a></div>
+          </div>
+        </div>
+        <!-- Email preview -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#4f7cff;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span>✉️</span> Email Message</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;max-width:460px">
+            <div style="background:#4f7cff;padding:12px 16px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px">🔗</span>
+              <span style="color:#fff;font-weight:800;font-size:14px">Uplyncio Publisher Portal</span>
+            </div>
+            <div style="padding:16px">
+              <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:10px">🎉 New Order Received!</div>
+              <div style="font-size:13px;color:#475569;line-height:1.7" id="emailPreview">
+                Hello Publisher,<br><br>
+                Great news! You have received a new order on <strong>Uplyncio</strong>. Please review the details below and accept or reject the order within <strong>3 business days</strong>.<br><br>
+                <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:10px 0">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94a3b8;font-size:12px">Task ID</span><strong>#OR----</strong></div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94a3b8;font-size:12px">Your Site</span><strong>yoursite.com</strong></div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94a3b8;font-size:12px">Service</span><strong>Article Posting</strong></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#94a3b8;font-size:12px">Amount</span><strong style="color:#16a34a">$---</strong></div>
+                </div>
+                <div style="background:#4f7cff;border-radius:8px;padding:11px;text-align:center;margin-top:12px">
+                  <a href="#" style="color:#fff;font-weight:700;font-size:14px;text-decoration:none">👉 View Order on Uplyncio</a>
+                </div>
+              </div>
+              <div style="font-size:11px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:10px;margin-top:10px">
+                Sent from <strong>Uplyncio</strong> · info@uplyncio.com · <a href="#" style="color:#4f7cff">Unsubscribe</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="saveNotifSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save Notification Settings</button>
+    </div>
+
+    <!-- NOTIFICATION TOGGLES -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">🔔 Notification Types</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">New order received</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when a new order arrives on your site</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Order approved / improvement requested</div>
+            <div style="font-size:12px;color:var(--mu)">When client reviews your submitted article</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">New message from client</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp alert when client sends a chat message</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Payment received</div>
+            <div style="font-size:12px;color:var(--mu)">Email when order payment is added to your balance</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Withdrawal processed</div>
+            <div style="font-size:12px;color:var(--mu)">Email confirmation when your withdrawal is sent</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Promotional emails from Uplyncio</div>
+            <div style="font-size:12px;color:var(--mu)">Tips, updates and platform news</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#94a3b8;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PROFILE ACTIVITY TAB -->
+  <div id="stab-activity-content" style="display:none">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">📊 Profile Activity</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:var(--ac)" id="actTotalOrders">0</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Total Orders</div>
+        </div>
+        <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#16a34a" id="actCompleted">0</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Completed</div>
+        </div>
+        <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#d97706" id="actCompRate">0%</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Completion Rate</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--mu);text-align:center;padding:20px">Activity stats update automatically as you complete orders.</div>
+    </div>
+  </div>
+
+  <!-- SECURITY + DELETE -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--ac);margin-bottom:4px">🔑 Reset Password</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Change your account password anytime for security.</div>
+      </div>
+      <button onclick="openResetPasswordModal()" style="background:#f0f4ff;border:1.5px solid #c7d7ff;color:var(--ac);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;margin-left:16px">Reset</button>
+    </div>
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">🔐 Two-Factor Authentication</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;max-width:320px">Enhanced security — you'll need to verify your identity each time you log in. Google Authenticator is supported.</div>
+      </div>
+      <div id="twoFaToggle" onclick="toggleTwoFa()" style="width:46px;height:26px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;margin-left:16px;transition:background .2s">
+        <div id="twoFaThumb" style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:23px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div>
+      </div>
+    </div>
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#ef4444;margin-bottom:4px">🗑️ Delete Account</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Permanently delete your account and all personal data. This action cannot be undone.</div>
+      </div>
+      <button onclick="if(confirm('Are you sure? This cannot be undone.')) toast('Account deletion requested. Our team will contact you.','#ef4444')" style="background:#fef2f2;border:1.5px solid #fecaca;color:#ef4444;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;margin-left:16px">Delete</button>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD MODAL -->
+<div id="resetPwdModal" onclick="if(event.target===this)closeResetPwdModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:400px;padding:28px;box-shadow:0 32px 80px rgba(0,0,0,.2);position:relative">
+    <button onclick="closeResetPwdModal()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;text-align:center">🔑 Reset Password</div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:20px">Enter your new password below</div>
+    <div style="position:relative;margin-bottom:12px">
+      <input id="rp1" type="password" placeholder="New password (min 8 chars)" style="width:100%;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 50px 11px 14px;font-size:14px;font-family:inherit;outline:none;color:#0f172a;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <button onclick="togglePwdPub('rp1',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+    </div>
+    <div style="position:relative;margin-bottom:20px">
+      <input id="rp2" type="password" placeholder="Confirm new password" style="width:100%;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 50px 11px 14px;font-size:14px;font-family:inherit;outline:none;color:#0f172a;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <button onclick="togglePwdPub('rp2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+    </div>
+    <button onclick="submitResetPassword()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✅ Update Password</button>
+  </div>
+</div>
+
+<!-- SAVE BUTTON -->
+  <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px">
+    <div id="settSaveStatus" style="font-size:13px;color:#16a34a;font-weight:600;display:none">✅ Settings saved!</div>
+    <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">Save Changes</button>
+  </div>
+</div>
+
+<!-- BALANCE PAGE -->
 </body>
 </html>
 
@@ -3207,5 +4420,493 @@ window.addEventListener('load', function(){
     </div>
   </div>
 </div>
+
+<!-- BUYER ACCOUNT SETTINGS -->
+<div id="buyerSettingsPage" style="display:none">
+  <div class="bc" style="display:flex;align-items:center;justify-content:space-between"><div><a onclick="closeBuyerSettings()" style="cursor:pointer">Home</a><span>›</span><span class="cu">Account Settings</span></div><button onclick="closeBuyerSettings()" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">✕ Close</button></div>
+  <h1 style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:var(--tx);margin-bottom:16px">My Profile</h1>
+
+  <!-- TABS -->
+  <div style="display:flex;gap:0;border-bottom:2px solid var(--br);margin-bottom:24px;overflow-x:auto">
+    <div class="stab" onclick="switchSettTab(this,'account')" id="stab-account" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ac);border-bottom:2px solid var(--ac);margin-bottom:-2px;white-space:nowrap">Account settings</div>
+    <div class="stab" onclick="switchSettTab(this,'contact')" id="stab-contact" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Contact info</div>
+    <div class="stab" onclick="switchSettTab(this,'billing')" id="stab-billing" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Billing details</div>
+    <div class="stab" onclick="switchSettTab(this,'notif')" id="stab-notif" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Notification settings</div>
+    <div class="stab" onclick="switchSettTab(this,'activity')" id="stab-activity" style="padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap">Profile activity</div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div></div>
+    <!-- Verification Badge -->
+    <div id="verifiedBadge" style="display:none;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:100px;padding:8px 16px">
+      <span style="font-size:16px">✅</span>
+      <span style="font-size:13px;font-weight:700;color:#15803d">Account Verified</span>
+    </div>
+    <div id="unverifiedBadge" style="display:flex;align-items:center;gap:8px;background:#fef3c7;border:1px solid #fde68a;border-radius:100px;padding:8px 16px">
+      <span style="font-size:16px">⚠️</span>
+      <span style="font-size:13px;font-weight:700;color:#d97706">Profile Incomplete — Fill all fields to get verified</span>
+    </div>
+  </div>
+
+  <!-- ACCOUNT TAB -->
+  <div id="stab-account-content">
+
+  <!-- LINK ACCOUNTS -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔗 Link Accounts</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:14px 18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">🇫</span>
+          <span style="font-size:14px;font-weight:600;color:var(--tx)">Facebook account</span>
+        </div>
+        <button id="fbBtn" onclick="linkFacebook()" style="background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Link Account</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:14px 18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">G</span>
+          <span style="font-size:14px;font-weight:600;color:var(--tx)">Google account</span>
+        </div>
+        <button id="googleBtn" onclick="linkGoogle()" style="background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Link Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT CREDENTIALS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Left: Email + Password -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label style="font-size:12px;font-weight:700;color:var(--tx)">Account email *</label>
+          <span id="emailVerifiedBadge" style="font-size:11px;font-weight:700;color:#94a3b8;display:none">✓ Verified</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settEmail" type="email" placeholder="your@email.com" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
+          <button onclick="editField('settEmail')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">Password *</label></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settPass" type="password" placeholder="••••••••" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
+          <button onclick="editField('settPass')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+    </div>
+    <!-- Right: PayPal + USDT -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">💳 PayPal email</label></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settPaypal" type="email" placeholder="your@paypal.com" oninput="checkVerification()" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
+          <button onclick="editField('settPaypal')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">🪙 USDT (TRC20) address</label></div>
+        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
+          <input id="settUsdt" type="text" placeholder="T..." oninput="checkVerification()" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent;font-family:monospace">
+          <button onclick="editField('settUsdt')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONAL INFO -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">👤 Personal Information</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Full Name *</label>
+        <input id="settName" type="text" placeholder="John Smith" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Phone Number *</label>
+        <input id="settPhone" type="tel" placeholder="+44 7700 900123" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Country *</label>
+        <select id="settCountry" onchange="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box;-webkit-appearance:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+          <option value="">Select country</option>
+          <option value="Pakistan">🇵🇰 Pakistan</option>
+          <option value="USA">🇺🇸 United States</option>
+          <option value="UK">🇬🇧 United Kingdom</option>
+          <option value="India">🇮🇳 India</option>
+          <option value="UAE">🇦🇪 UAE</option>
+          <option value="Canada">🇨🇦 Canada</option>
+          <option value="Australia">🇦🇺 Australia</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="Other">🌍 Other</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDRESS -->
+  <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">📍 Address</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">State / Region *</label>
+        <input id="settState" type="text" placeholder="e.g. Greater London" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">City / Town *</label>
+        <input id="settCity" type="text" placeholder="e.g. London" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Street Address *</label>
+        <input id="settAddr" type="text" placeholder="e.g. 12 Baker Street" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Apt / Suite <span style="color:var(--mu);font-weight:400">(optional)</span></label>
+        <input id="settApt" type="text" placeholder="Apt, unit, suite..." style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Zip / Postal Code *</label>
+        <input id="settZip" type="text" placeholder="e.g. W1U 3BH" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /account tab -->
+
+  <!-- CONTACT INFO TAB -->
+  <div id="stab-contact-content" style="display:none">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">📞 Contact Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">First Name *</label>
+          <input id="ctFirstName" type="text" placeholder="John" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Last Name *</label>
+          <input id="ctLastName" type="text" placeholder="Smith" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Phone Number *</label>
+          <input id="ctPhone" type="tel" placeholder="+44 7700 900123" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Website / Portfolio</label>
+          <input id="ctWebsite" type="url" placeholder="https://yoursite.com" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end">
+      <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- BILLING DETAILS TAB -->
+  <div id="stab-billing-content" style="display:none">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
+
+      <!-- Company / Private toggle -->
+      <div style="display:flex;align-items:center;gap:24px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--br)">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;font-weight:600;color:var(--tx)">
+          <input type="radio" name="billingType" id="billingCompany" onchange="toggleBillingType('company')" style="accent-color:var(--ac);width:18px;height:18px">
+          Company
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;font-weight:600;color:var(--tx)">
+          <input type="radio" name="billingType" id="billingPrivate" checked onchange="toggleBillingType('private')" style="accent-color:var(--ac);width:18px;height:18px">
+          Private Person
+        </label>
+      </div>
+
+      <!-- Company name (hidden by default) -->
+      <div id="companyNameRow" style="display:none;margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Company Name *</label>
+        <input id="billCompanyName" type="text" placeholder="Your Company Ltd." style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+
+      <!-- Fields -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Full Name *</label>
+          <input id="billName" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Billing Phone *</label>
+          <input id="billPhone" type="tel" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Email</label>
+          <input id="billEmail" type="email" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Country *</label>
+          <select id="billCountry" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box;-webkit-appearance:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+            <option value="">Select country</option>
+            <option>🇬🇧 United Kingdom</option>
+            <option>🇵🇰 Pakistan</option>
+            <option>🇺🇸 United States</option>
+            <option>🇮🇳 India</option>
+            <option>🇦🇪 UAE</option>
+            <option>🇨🇦 Canada</option>
+            <option>🇦🇺 Australia</option>
+            <option>🇩🇪 Germany</option>
+            <option>🇫🇷 France</option>
+            <option>🌍 Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">State / Region *</label>
+          <input id="billState" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">City / Town / Village *</label>
+          <input id="billCity" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Address *</label>
+        <input id="billAddr" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Zip / Postal Code *</label>
+          <input id="billZip" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Apt / Suite <span style="color:var(--mu);font-weight:400">(optional)</span></label>
+          <input id="billApt" type="text" placeholder="" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+        </div>
+      </div>
+
+      <!-- Guarantee checkbox -->
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;padding:14px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px">
+        <input type="checkbox" id="billGuarantee" style="accent-color:var(--ac);width:16px;height:16px;flex-shrink:0;margin-top:2px">
+        <label for="billGuarantee" style="font-size:13px;color:#92400e;line-height:1.6;cursor:pointer">I guarantee that I provide Uplyncio with valid data. Filling out the billing form with false data might result in the account being blocked or in a 24% outgoing tax being withheld by Uplyncio.</label>
+      </div>
+
+      <button onclick="saveBillingDetails()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save details</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION SETTINGS TAB -->
+  <div id="stab-notif-content" style="display:none">
+
+    <!-- NOTIFICATION CHANNELS -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px;margin-bottom:16px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">📬 Notification Channels</div>
+      <div style="font-size:12px;color:var(--mu);margin-bottom:18px">Add your contact details to receive real-time notifications when orders arrive or update.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+        <!-- WhatsApp -->
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.121 1.533 5.849L.057 23.535c-.068.255.026.528.239.682.138.098.298.145.459.145.09 0 .18-.016.266-.049l5.932-2.024A11.934 11.934 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-1.937 0-3.774-.536-5.348-1.465l-.383-.226-3.975 1.357 1.25-3.833-.249-.394A9.815 9.815 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182c5.43 0 9.818 4.388 9.818 9.818 0 5.43-4.388 9.818-9.818 9.818z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:800;color:#15803d">WhatsApp</div>
+              <div style="font-size:11px;color:#16a34a">Instant order notifications</div>
+            </div>
+          </div>
+          <label style="font-size:11px;font-weight:700;color:#15803d;display:block;margin-bottom:6px">WhatsApp Number *</label>
+          <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #86efac;border-radius:8px;padding:9px 12px">
+            <span style="font-size:13px;color:#64748b;flex-shrink:0">+</span>
+            <input id="notifWhatsapp" type="tel" placeholder="1 555 000 1234" oninput="previewNotification()" style="border:none;outline:none;font-size:13.5px;font-family:inherit;color:#0f172a;background:transparent;width:100%">
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px">Message will appear from <strong>Uplyncio</strong> — include your country code e.g. +1 for US, +44 for UK, +971 for UAE</div>
+        </div>
+
+        <!-- Email -->
+        <div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:12px;padding:18px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#4f7cff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">✉️</div>
+            <div>
+              <div style="font-size:14px;font-weight:800;color:#1e40af">Email</div>
+              <div style="font-size:11px;color:#4f7cff">Order & payment emails</div>
+            </div>
+          </div>
+          <label style="font-size:11px;font-weight:700;color:#1e40af;display:block;margin-bottom:6px">Notification Email *</label>
+          <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #c7d7ff;border-radius:8px;padding:9px 12px">
+            <input id="notifEmail" type="email" placeholder="your@email.com" oninput="previewNotification()" style="border:none;outline:none;font-size:13.5px;font-family:inherit;color:#0f172a;background:transparent;width:100%">
+          </div>
+          <div style="font-size:11px;color:#64748b;margin-top:6px">Emails will be sent from <strong>info@uplyncio.com</strong> · Sender name: <strong>Uplyncio</strong></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION PREVIEW -->
+      <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;margin-bottom:18px">
+        <div style="font-size:11px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">📋 Message Preview</div>
+        <!-- WhatsApp preview -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span>📱</span> WhatsApp Message</div>
+          <div style="background:#e7ffd1;border-radius:0 10px 10px 10px;padding:12px 14px;font-size:13px;color:#0f172a;line-height:1.7;max-width:400px;border:1px solid #d1f7a8">
+            <div style="font-size:11px;color:#64748b;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <div style="width:22px;height:22px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg></div>
+              <strong style="color:#0f172a">Uplyncio</strong> <span style="color:#94a3b8">· Business Account</span>
+            </div>
+            <div id="waPreview">Hi Publisher! 👋<br><br>You have received a <strong>new order</strong> on Uplyncio.<br><br>📋 <strong>Task ID:</strong> #OR----<br>🌐 <strong>Site:</strong> yoursite.com<br>💰 <strong>Amount:</strong> $---<br>📝 <strong>Type:</strong> Article Posting<br><br>Please log in to review and accept the order within <strong>3 business days</strong>.<br><br>🔗 <a href="#" style="color:#15803d">https://uplyncio.com/publisher</a></div>
+          </div>
+        </div>
+        <!-- Email preview -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#4f7cff;margin-bottom:6px;display:flex;align-items:center;gap:5px"><span>✉️</span> Email Message</div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;max-width:460px">
+            <div style="background:#4f7cff;padding:12px 16px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px">🔗</span>
+              <span style="color:#fff;font-weight:800;font-size:14px">Uplyncio Publisher Portal</span>
+            </div>
+            <div style="padding:16px">
+              <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:10px">🎉 New Order Received!</div>
+              <div style="font-size:13px;color:#475569;line-height:1.7" id="emailPreview">
+                Hello Publisher,<br><br>
+                Great news! You have received a new order on <strong>Uplyncio</strong>. Please review the details below and accept or reject the order within <strong>3 business days</strong>.<br><br>
+                <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:10px 0">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94a3b8;font-size:12px">Task ID</span><strong>#OR----</strong></div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94a3b8;font-size:12px">Your Site</span><strong>yoursite.com</strong></div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94a3b8;font-size:12px">Service</span><strong>Article Posting</strong></div>
+                  <div style="display:flex;justify-content:space-between"><span style="color:#94a3b8;font-size:12px">Amount</span><strong style="color:#16a34a">$---</strong></div>
+                </div>
+                <div style="background:#4f7cff;border-radius:8px;padding:11px;text-align:center;margin-top:12px">
+                  <a href="#" style="color:#fff;font-weight:700;font-size:14px;text-decoration:none">👉 View Order on Uplyncio</a>
+                </div>
+              </div>
+              <div style="font-size:11px;color:#94a3b8;border-top:1px solid #f1f5f9;padding-top:10px;margin-top:10px">
+                Sent from <strong>Uplyncio</strong> · info@uplyncio.com · <a href="#" style="color:#4f7cff">Unsubscribe</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="saveNotifSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save Notification Settings</button>
+    </div>
+
+    <!-- NOTIFICATION TOGGLES -->
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">🔔 Notification Types</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">New order received</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when a new order arrives on your site</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Order approved / improvement requested</div>
+            <div style="font-size:12px;color:var(--mu)">When client reviews your submitted article</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">New message from client</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp alert when client sends a chat message</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Payment received</div>
+            <div style="font-size:12px;color:var(--mu)">Email when order payment is added to your balance</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Withdrawal processed</div>
+            <div style="font-size:12px;color:var(--mu)">Email confirmation when your withdrawal is sent</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--tx)">Promotional emails from Uplyncio</div>
+            <div style="font-size:12px;color:var(--mu)">Tips, updates and platform news</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#94a3b8;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PROFILE ACTIVITY TAB -->
+  <div id="stab-activity-content" style="display:none">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px">
+      <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">📊 Profile Activity</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:var(--ac)" id="actTotalOrders">0</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Total Orders</div>
+        </div>
+        <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#16a34a" id="actCompleted">0</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Completed</div>
+        </div>
+        <div style="background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:16px;text-align:center">
+          <div style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#d97706" id="actCompRate">0%</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Completion Rate</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--mu);text-align:center;padding:20px">Activity stats update automatically as you complete orders.</div>
+    </div>
+  </div>
+
+  <!-- SECURITY + DELETE -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--ac);margin-bottom:4px">🔑 Reset Password</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Change your account password anytime for security.</div>
+      </div>
+      <button onclick="openResetPasswordModal()" style="background:#f0f4ff;border:1.5px solid #c7d7ff;color:var(--ac);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;margin-left:16px">Reset</button>
+    </div>
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">🔐 Two-Factor Authentication</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;max-width:320px">Enhanced security — you'll need to verify your identity each time you log in. Google Authenticator is supported.</div>
+      </div>
+      <div id="twoFaToggle" onclick="toggleTwoFa()" style="width:46px;height:26px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;margin-left:16px;transition:background .2s">
+        <div id="twoFaThumb" style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:23px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div>
+      </div>
+    </div>
+    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#ef4444;margin-bottom:4px">🗑️ Delete Account</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Permanently delete your account and all personal data. This action cannot be undone.</div>
+      </div>
+      <button onclick="if(confirm('Are you sure? This cannot be undone.')) toast('Account deletion requested. Our team will contact you.','#ef4444')" style="background:#fef2f2;border:1.5px solid #fecaca;color:#ef4444;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0;margin-left:16px">Delete</button>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD MODAL -->
+<div id="resetPwdModal" onclick="if(event.target===this)closeResetPwdModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:400px;padding:28px;box-shadow:0 32px 80px rgba(0,0,0,.2);position:relative">
+    <button onclick="closeResetPwdModal()" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px;text-align:center">🔑 Reset Password</div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:20px">Enter your new password below</div>
+    <div style="position:relative;margin-bottom:12px">
+      <input id="rp1" type="password" placeholder="New password (min 8 chars)" style="width:100%;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 50px 11px 14px;font-size:14px;font-family:inherit;outline:none;color:#0f172a;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <button onclick="togglePwdPub('rp1',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+    </div>
+    <div style="position:relative;margin-bottom:20px">
+      <input id="rp2" type="password" placeholder="Confirm new password" style="width:100%;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 50px 11px 14px;font-size:14px;font-family:inherit;outline:none;color:#0f172a;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <button onclick="togglePwdPub('rp2',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#4f7cff;font-size:12px;font-weight:700;cursor:pointer">Show</button>
+    </div>
+    <button onclick="submitResetPassword()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✅ Update Password</button>
+  </div>
+</div>
+
+<!-- SAVE BUTTON -->
+  <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px">
+    <div id="settSaveStatus" style="font-size:13px;color:#16a34a;font-weight:600;display:none">✅ Settings saved!</div>
+    <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">Save Changes</button>
+  </div>
+</div>
+
+<!-- BALANCE PAGE -->
 </body>
 </html>
