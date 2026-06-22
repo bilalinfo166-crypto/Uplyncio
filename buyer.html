@@ -2344,6 +2344,9 @@ function showBuyerSettings(){
   var sp=document.getElementById('settingsPage');
   if(sp){ sp.style.display='block'; document.body.style.overflow='hidden'; }
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  // Activate first tab
+  var firstTab = document.getElementById('stab-account');
+  if(firstTab) switchSettTab(firstTab, 'account');
   // Load saved settings
   try{
     var saved = localStorage.getItem('uplyncio_settings');
