@@ -742,6 +742,22 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </script>
 </head>
 <body>
+<script>
+// ── ROLE GUARD: Buyers only ──
+(function(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    if(uid && user && user.verified){
+      if(user.role === 'publisher'){
+        // Publisher trying to access buyer page
+        alert('⚠️ This page is for Buyers only. Redirecting to your Publisher dashboard.');
+        window.location.href = 'publisher.html';
+      }
+    }
+  }catch(e){}
+})();
+</script>
 
 <!-- NAV -->
 <nav class="nav">
@@ -786,9 +802,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         <div class="sb-icon">🌐</div> All Sites
         <span class="sb-count" id="cnt-all">0</span>
       </button>
-      <button class="sb-link" onclick="window.location.href='publisher.html'">
-        <div class="sb-icon">📤</div> Become a Publisher
-      </button>
+
       <button class="sb-link" onclick="showToast('My Orders coming soon')">
         <div class="sb-icon">📦</div> My Orders
       </button>

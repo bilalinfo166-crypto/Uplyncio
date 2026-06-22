@@ -158,12 +158,20 @@ function completeSignup(){
   var password = pEl.value.trim();
 
   // Check duplicate
-  if(findUser(email)){
-    // Show inline error on email field
+  var existingUser = findUser(email);
+  if(existingUser){
     var emailInp = document.getElementById('su2Email');
     var emailErr = document.getElementById('su2EmailErr');
     if(emailInp){ emailInp.style.borderColor='#ef4444'; emailInp.style.background='rgba(239,68,68,.1)'; }
-    if(emailErr){ emailErr.innerHTML='⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>'; emailErr.style.display='block'; }
+    var selectedRole = window._selectedRole||'publisher';
+    var existingRole = existingUser.role||'publisher';
+    var errMsg = '';
+    if(existingRole !== selectedRole){
+      errMsg = '⚠ This email is registered as a <strong>'+existingRole+'</strong>. You cannot create a '+selectedRole+' account with the same email. Please use a different email.';
+    } else {
+      errMsg = '⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>';
+    }
+    if(emailErr){ emailErr.innerHTML=errMsg; emailErr.style.display='block'; }
     return;
   }
 
