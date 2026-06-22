@@ -981,6 +981,16 @@ var selectedSvcType = '';
 var selectedPrice = 0;
 
 // ═══════════════════════════════════
+// UPLYNCIO MARGIN SYSTEM (Internal Only)
+// ═══════════════════════════════════
+var _MARGIN = 0.15; // 15% commission - never expose this
+
+function _mkup(price){
+  if(!price || price <= 0) return 0;
+  return Math.ceil(price * (1 + _MARGIN)); // Round up to nearest dollar
+}
+
+// ═══════════════════════════════════
 // LIVE SITE INVENTORY SYSTEM
 // ═══════════════════════════════════
 
@@ -1048,10 +1058,15 @@ function loadAllSites(){
   SAMPLE.forEach(function(s){
     var url = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
     if(!urlMap[url]){
-      urlMap[url] = s; // Only add sample if no publisher has it
+      // Apply markup to sample sites too
+      var ms = Object.assign({}, s);
+      ms.gP = _mkup(s.gP);
+      ms.wP = s.wP ? _mkup(s.wP) : 0;
+      ms.liP = s.liOk ? _mkup(s.liP) : 0;
+      ms.extraWordPrice = s.extraWordPrice ? _mkup(s.extraWordPrice) : 0;
+      ms.specialTopicPrice = s.specialTopicPrice ? _mkup(s.specialTopicPrice) : 0;
+      urlMap[url] = ms;
     }
-    // If publisher has it at lower price, keep publisher's
-    // If sample is lower price, keep sample (already handled above)
   });
 
   return Object.values(urlMap);
