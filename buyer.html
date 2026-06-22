@@ -216,6 +216,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 @media(max-width:900px){.sidebar{display:none}.card-stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:600px){.card-stats{grid-template-columns:repeat(3,1fr)}.m-opts{grid-template-columns:1fr}}
 
+/* ── CART POPUP ANIMATION ── */
+@keyframes popupSlide{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+
 /* ── EXPANDABLE CARD ── */
 .card-expand{display:none;border-top:2px solid #eff6ff;background:#fff;animation:slideDown .22s ease}
 .card-expand.open{display:block}
@@ -1290,7 +1293,7 @@ function toggleCart(idx, isLI){
     localStorage.setItem('cart_'+key, '1');
     var cartItems = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
     // No dedup needed - each site+service combo is unique
-    cartItems.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:isLI?site.liP:site.gP,service:isLI?'li':'article',linkType:site.linkType,addedAt:new Date().toISOString()}); if(cartItems.length>=3) showCartPopup();
+    cartItems.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:isLI?site.liP:site.gP,service:isLI?'li':'article',linkType:site.linkType,addedAt:new Date().toISOString()}); if(cartItems.length>=5) showCartPopup();
     localStorage.setItem('uplyncio_cart_items', JSON.stringify(cartItems));
     if(btn){ btn.innerHTML='✅ Added to Cart'; btn.classList.add('added'); }
     showToast('✅ '+site.url+' added to cart!');
@@ -1831,9 +1834,12 @@ function showCartPopup(){
   document.getElementById('cpTotal').textContent='$'+Math.round(total);
   var list=document.getElementById('cpList');
   list.innerHTML=items.slice(-3).reverse().map(function(i){
-    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9;font-size:12px">'
-      +'<span style="font-weight:600;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px">'+i.url+'</span>'
-      +'<span style="font-weight:700;color:#4f7cff;flex-shrink:0;margin-left:6px">$'+i.price+'</span>'
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#f8faff;border-radius:8px;margin-bottom:6px;border:1px solid #e8edf5">'
+      +'<div style="display:flex;align-items:center;gap:7px;min-width:0">'
+        +'<div style="width:26px;height:26px;background:linear-gradient(135deg,#4f7cff22,#00d4aa22);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">🌐</div>'
+        +'<span style="font-weight:600;color:#1a202c;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px">'+i.url+'</span>'
+      +'</div>'
+      +'<span style="font-weight:800;color:#4f7cff;font-size:13px;flex-shrink:0;margin-left:8px;font-family:Manrope,sans-serif">$'+i.price+'</span>'
       +'</div>';
   }).join('');
   popup.style.display='flex';
@@ -2147,20 +2153,42 @@ window.addEventListener('load', function(){
 
 
 <!-- CART POPUP -->
-<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
-  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
-    <div style="color:#fff;font-weight:700;font-size:13px">🛒 <span id="cpCount">0 sites</span> in cart</div>
-    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1">✕</button>
+<div id="cartPopup" style="display:none;position:fixed;bottom:28px;right:28px;z-index:9999;background:#fff;border-radius:20px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.18),0 4px 16px rgba(79,124,255,.12);flex-direction:column;overflow:hidden;border:1px solid #e8edf5;animation:popupSlide .3s ease">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#4f7cff 0%,#6366f1 50%,#00d4aa 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;position:relative">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🛒</div>
+      <div>
+        <div style="color:#fff;font-weight:800;font-size:14px;font-family:Manrope,sans-serif">Cart Ready!</div>
+        <div style="color:rgba(255,255,255,.8);font-size:11px;margin-top:1px"><span id="cpCount">5 sites</span> selected</div>
+      </div>
+    </div>
+    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">✕</button>
   </div>
-  <div style="padding:12px 16px">
+  <!-- Sites list -->
+  <div style="padding:14px 18px 10px">
+    <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Recently Added</div>
     <div id="cpList"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
-      <span style="font-size:13px;color:#64748b">Total: <strong style="color:#1a202c;font-size:15px" id="cpTotal">$0</strong></span>
+  </div>
+  <!-- Total -->
+  <div style="margin:0 18px;padding:10px 14px;background:#f8faff;border-radius:10px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e8edf5">
+    <div>
+      <div style="font-size:10.5px;color:#94a3b8;font-weight:600">Cart Total</div>
+      <div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c" id="cpTotal">$0</div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button onclick="closeCartPopup()" style="flex:1;padding:8px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Keep Browsing</button>
-      <a href="cart.html" style="flex:1;padding:8px;background:#4f7cff;border-radius:8px;font-size:12px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:#94a3b8">All fees included</div>
+      <div style="font-size:11px;color:#16a34a;font-weight:600;margin-top:2px">✓ Secure checkout</div>
     </div>
+  </div>
+  <!-- Buttons -->
+  <div style="padding:14px 18px 18px;display:flex;gap:10px">
+    <button onclick="closeCartPopup()" style="flex:1;padding:10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:12.5px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit;transition:all .15s" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+      ← Keep Browsing
+    </button>
+    <a href="cart.html" style="flex:1.4;padding:10px;background:linear-gradient(135deg,#4f7cff,#6366f1);border-radius:10px;font-size:12.5px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 4px 12px rgba(79,124,255,.3);transition:all .15s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+      Proceed to Cart 🛒
+    </a>
   </div>
 </div>
 </body>
@@ -2240,20 +2268,42 @@ window.addEventListener('load', function(){
 </div>
 
 <!-- CART POPUP -->
-<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
-  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
-    <div style="color:#fff;font-weight:700;font-size:13px">🛒 <span id="cpCount">0 sites</span> in cart</div>
-    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1">✕</button>
+<div id="cartPopup" style="display:none;position:fixed;bottom:28px;right:28px;z-index:9999;background:#fff;border-radius:20px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.18),0 4px 16px rgba(79,124,255,.12);flex-direction:column;overflow:hidden;border:1px solid #e8edf5;animation:popupSlide .3s ease">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#4f7cff 0%,#6366f1 50%,#00d4aa 100%);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;position:relative">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🛒</div>
+      <div>
+        <div style="color:#fff;font-weight:800;font-size:14px;font-family:Manrope,sans-serif">Cart Ready!</div>
+        <div style="color:rgba(255,255,255,.8);font-size:11px;margin-top:1px"><span id="cpCount">5 sites</span> selected</div>
+      </div>
+    </div>
+    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">✕</button>
   </div>
-  <div style="padding:12px 16px">
+  <!-- Sites list -->
+  <div style="padding:14px 18px 10px">
+    <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Recently Added</div>
     <div id="cpList"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
-      <span style="font-size:13px;color:#64748b">Total: <strong style="color:#1a202c;font-size:15px" id="cpTotal">$0</strong></span>
+  </div>
+  <!-- Total -->
+  <div style="margin:0 18px;padding:10px 14px;background:#f8faff;border-radius:10px;display:flex;align-items:center;justify-content:space-between;border:1px solid #e8edf5">
+    <div>
+      <div style="font-size:10.5px;color:#94a3b8;font-weight:600">Cart Total</div>
+      <div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c" id="cpTotal">$0</div>
     </div>
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button onclick="closeCartPopup()" style="flex:1;padding:8px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Keep Browsing</button>
-      <a href="cart.html" style="flex:1;padding:8px;background:#4f7cff;border-radius:8px;font-size:12px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:#94a3b8">All fees included</div>
+      <div style="font-size:11px;color:#16a34a;font-weight:600;margin-top:2px">✓ Secure checkout</div>
     </div>
+  </div>
+  <!-- Buttons -->
+  <div style="padding:14px 18px 18px;display:flex;gap:10px">
+    <button onclick="closeCartPopup()" style="flex:1;padding:10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:12.5px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit;transition:all .15s" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+      ← Keep Browsing
+    </button>
+    <a href="cart.html" style="flex:1.4;padding:10px;background:linear-gradient(135deg,#4f7cff,#6366f1);border-radius:10px;font-size:12.5px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 4px 12px rgba(79,124,255,.3);transition:all .15s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+      Proceed to Cart 🛒
+    </a>
   </div>
 </div>
 </body>
