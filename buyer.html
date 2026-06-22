@@ -754,13 +754,11 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
   </div>
 
   <div class="nav-right">
-    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative">
-      🛒 Cart
-      <span id="navCartCount" style="position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center"></span>
+    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none">
+      🛒 Cart<span id="navCartCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span>
     </a>
-    <a href="cart.html#saved" class="nav-btn btn-ghost" style="position:relative">
-      ❤️ Saved
-      <span id="navSavedCount" style="position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center"></span>
+    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none" onclick="localStorage.setItem('cartTab','saved')">
+      ❤️ Saved<span id="navSavedCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span>
     </a>
     <div id="guestNav" style="display:flex;gap:7px">
       <button class="nav-btn btn-ghost" onclick="openLogin()">Sign In</button>
@@ -1292,23 +1290,20 @@ function toggleCart(idx, isLI){
     localStorage.setItem('uplyncio_cart_items',JSON.stringify(cartItems));
     if(btn){ btn.innerHTML='<span class="cart-icon">🛒</span> Add to Cart'; btn.classList.remove('added'); }
     showToast('Removed from cart');
+    updateCartNav();
   } else {
     localStorage.setItem('cart_'+key,'1');
     var cartItems=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
     cartItems=cartItems.filter(function(c){ return !(c.url===site.url&&c.service===svc); });
-    cartItems.push({
-      url:site.url, da:site.da, dr:site.dr,
-      traffic:site.traffic, cats:site.cats,
-      price: isLI?site.liP:site.gP,
-      service: svc,
-      linkType: site.linkType,
-      addedAt:new Date().toISOString()
-    });
+    cartItems.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:isLI?site.liP:site.gP,service:svc,linkType:site.linkType,addedAt:new Date().toISOString()});
     localStorage.setItem('uplyncio_cart_items',JSON.stringify(cartItems));
     if(btn){ btn.innerHTML='<span class="cart-icon">✅</span> Added'; btn.classList.add('added'); }
-    showToast('✅ '+site.url+' added! <a href="cart.html" style="color:#4f7cff;font-weight:700;text-decoration:none">View Cart →</a>');
+    updateCartNav();
+    // Show cart popup if 3+ items
+    var total = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
+    if(total>=3){ showCartPopup(); }
+    else { showToast('✅ '+site.url+' added to cart!'); }
   }
-  updateCartNav();
 }
 
 
@@ -1334,26 +1329,47 @@ function toggleSave(idx, btn){
     localStorage.setItem(key,'1');
     var saved=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
     saved=saved.filter(function(s){ return s.url!==site.url; });
-    saved.push({
-      url:site.url, da:site.da, dr:site.dr,
-      traffic:site.traffic, cats:site.cats,
-      price:site.gP, linkType:site.linkType,
-      savedAt:new Date().toISOString()
-    });
+    saved.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:site.gP,linkType:site.linkType,savedAt:new Date().toISOString()});
     localStorage.setItem('uplyncio_saved_sites',JSON.stringify(saved));
     if(btn) btn.innerHTML='❤️';
-    showToast('❤️ Saved! <a href="cart.html#saved" style="color:#4f7cff;font-weight:700">View Saved →</a>');
+    showToast('❤️ Saved! <a href="cart.html" style="color:#4f7cff;font-weight:700;text-decoration:none">View Saved →</a>');
   }
   updateCartNav();
 }
 
 function updateCartNav(){
-  var cartItems = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  var savedItems = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-  var cartEl = document.getElementById('navCartCount');
-  if(cartEl) cartEl.textContent = cartItems.length||'';
-  var savedEl = document.getElementById('navSavedCount');
-  if(savedEl) savedEl.textContent = savedItems.length||'';
+  var c=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
+  var s=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]').length;
+  var ce=document.getElementById('navCartCount');
+  if(ce){ ce.textContent=c; ce.style.display=c>0?'block':'none'; }
+  var se=document.getElementById('navSavedCount');
+  if(se){ se.textContent=s; se.style.display=s>0?'block':'none'; }
+}
+
+function showCartPopup(){
+  var items=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+  var total=items.reduce(function(s,i){return s+parseFloat(i.price||0);},0);
+  var popup=document.getElementById('cartPopup');
+  if(!popup) return;
+  document.getElementById('cpCount').textContent=items.length+' site'+(items.length>1?'s':'');
+  document.getElementById('cpTotal').textContent='$'+total.toFixed(0);
+  // Show last 3 items
+  var list=document.getElementById('cpList');
+  list.innerHTML=items.slice(-3).reverse().map(function(i){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px">'
+      +'<span style="font-weight:600;color:#1a202c">'+i.url+'</span>'
+      +'<span style="font-weight:700;color:#4f7cff">$'+i.price+'</span>'
+      +'</div>';
+  }).join('');
+  popup.style.display='flex';
+  // Auto hide after 8 seconds
+  clearTimeout(window._popupTimer);
+  window._popupTimer=setTimeout(function(){ closeCartPopup(); },8000);
+}
+
+function closeCartPopup(){
+  var p=document.getElementById('cartPopup');
+  if(p) p.style.display='none';
 }
 
 // ═══════════════════════════════════
@@ -1706,6 +1722,24 @@ window.addEventListener('load', function(){
 </script>
 
 
+
+<!-- CART POPUP -->
+<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
+  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="color:#fff;font-weight:700;font-size:14px">🛒 <span id="cpCount">0 sites</span> in cart</div>
+    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+  </div>
+  <div style="padding:12px 16px">
+    <div id="cpList"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:4px">
+      <div style="font-size:13px;color:#64748b;font-weight:600">Total: <strong style="color:#1a202c;font-size:16px" id="cpTotal">$0</strong></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="closeCartPopup()" style="flex:1;padding:9px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Continue Browsing</button>
+      <a href="cart.html" style="flex:1;padding:9px;background:#4f7cff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
@@ -1778,6 +1812,24 @@ window.addEventListener('load', function(){
       </div>
       <button onclick="completeSignup()" style="width:100%;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">Create Account & Go to Dashboard →</button>
       <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.3)">Already have an account? <a href="#" onclick="closeSignupStep2();openLogin()" style="color:#4f7cff;text-decoration:none;font-weight:600">Sign In</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- CART POPUP -->
+<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
+  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="color:#fff;font-weight:700;font-size:14px">🛒 <span id="cpCount">0 sites</span> in cart</div>
+    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+  </div>
+  <div style="padding:12px 16px">
+    <div id="cpList"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:4px">
+      <div style="font-size:13px;color:#64748b;font-weight:600">Total: <strong style="color:#1a202c;font-size:16px" id="cpTotal">$0</strong></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="closeCartPopup()" style="flex:1;padding:9px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Continue Browsing</button>
+      <a href="cart.html" style="flex:1;padding:9px;background:#4f7cff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
     </div>
   </div>
 </div>

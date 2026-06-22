@@ -379,7 +379,13 @@ function showToast(msg){
 
 // Init
 updateCounts();
-renderCart();
+// Check if opened from saved link
+if(window.location.hash==='#saved' || localStorage.getItem('cartTab')==='saved'){
+  localStorage.removeItem('cartTab');
+  switchTab('saved');
+} else {
+  renderCart();
+}
 </script>
 </body>
 </html>
