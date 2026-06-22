@@ -234,10 +234,14 @@ function doLogout(){
     existing.orders=orders;
     localStorage.setItem('uplyncio_data_'+uid,JSON.stringify(existing));
   }
+  // Save sites before logout so data persists
+  saveSites();
+  // Only clear session — NOT the data
   localStorage.removeItem('uplyncio_loggedIn');
   localStorage.removeItem('uplyncio_currentUid');
   localStorage.removeItem('uplyncio_user');
-  localStorage.removeItem('uplyncio_orders');
+  // Keep uplyncio_data_UID — this has sites, orders, balance
+  // Keep uplyncio_users — has all accounts
   window.location.href='uplyncio-full.html';
 }
 </script>
@@ -306,6 +310,13 @@ function restoreState(){
 
 // Restore on page load
 window.addEventListener('DOMContentLoaded', function(){
+  // ── CRITICAL: Reload sites for current user on every page load ──
+  var _currentUid = localStorage.getItem('uplyncio_currentUid')||'';
+  if(_currentUid){
+    mySites = loadSites();
+    console.log('[Uplyncio] DOMContentLoaded: Loaded', mySites.length, 'sites for uid:', _currentUid);
+  }
+
   var mc = document.getElementById('mainContainer');
   
   // Hide all step pages first to prevent any flash
@@ -2160,27 +2171,36 @@ function setWC(el){
 // ── PERSISTENT SITES STORAGE ──
 function loadSites(){
   try{
-    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
-    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
-    if(userData.sites && Array.isArray(userData.sites) && userData.sites.length > 0){
-      return userData.sites;
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    if(!uid){
+      // Not logged in — return empty (will reload after login)
+      return [];
     }
-    // Also check old key format
-    var oldData = JSON.parse(localStorage.getItem('uplyncio_sites_'+uid)||'[]');
-    if(oldData.length > 0) return oldData;
-  }catch(e){}
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    if(userData.sites && Array.isArray(userData.sites)){
+      return userData.sites; // Return even if empty array — user's real data
+    }
+  }catch(e){ console.warn('loadSites error:', e); }
   return [];
 }
 
 function saveSites(){
   try{
-    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    if(!uid) return; // Don't save if not logged in
     var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
     userData.sites = mySites;
     localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
-    // Also save with timestamp for sync
     localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
   }catch(e){ console.warn('saveSites error:', e); }
+}
+
+// Reload sites when UID becomes available (after login)
+function reloadSitesForUser(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  if(!uid) return;
+  mySites = loadSites();
+  applyFilters();
 }
 
 var mySites = loadSites();
@@ -4531,9 +4551,10 @@ if(_uid){
   } else {
     _rawData = []; // New user — empty orders
   }
-  // Reload mySites for this user (in case uid changed after login)
+  // Reload mySites for this user
   if(_userData && Array.isArray(_userData.sites)){
     mySites = _userData.sites;
+    console.log('[Uplyncio] Loaded', mySites.length, 'sites for uid:', _uid);
   }
 }
 if(_rawData && _rawData[0] && _rawData[0].taskId && _rawData[0].taskId.indexOf('UPL-')===0){
