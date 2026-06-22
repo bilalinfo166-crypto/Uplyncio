@@ -721,9 +721,8 @@ window.addEventListener('DOMContentLoaded', function(){
           <div><label class="fl">Domain Authority (DA)</label><input class="fi" type="number" placeholder="e.g. 45" min="0" max="100"></div>
           <div><label class="fl">Domain Rating (DR)</label><input class="fi" type="number" placeholder="e.g. 40" min="0" max="100"></div>
         </div>
-        <div class="fg two">
-          <div><label class="fl">Monthly Traffic</label><input class="fi" placeholder="e.g. 15K"></div>
-          <div><label class="fl">Semrush Score</label><input class="fi" type="number" placeholder="e.g. 32"></div>
+        <div class="fg">
+          <label class="fl">Monthly Traffic</label><input class="fi" placeholder="e.g. 15K or 1.2M">
         </div>
         <div class="fsec" style="margin-top:8px">Site Details</div>
         <div class="fg">
@@ -2239,6 +2238,9 @@ function submit(){
   var p4 = piInputs[3]?piInputs[3].value:''; // Special topic
   var p5 = piInputs[4]?piInputs[4].value:''; // Link Insertion
   var mainPrice = p1||p2||p3||'0';
+  // Save word count selection
+  var wcEl = document.querySelector('.wc.on');
+  var wordCount = wcEl ? wcEl.textContent.trim() : '500';
 
   // Get lang/country from auto-detect display
   var langTxt = document.getElementById('langVal')?document.getElementById('langVal').textContent:'English';
@@ -2264,6 +2266,7 @@ function submit(){
     lang: langTxt, country: countryTxt,
     maxLinks: maxLinks,
     role: siteRole,
+    wordCount: wordCount,
     requirements: reqVal,
     req: reqVal,
     status: 'Live', id: Date.now()
@@ -2452,36 +2455,80 @@ function toggleDetails(id){
 function editSite(id){
   var s = mySites.find(function(x){return x.id===id;});
   if(!s) return;
-  // Pre-fill the form
-  document.getElementById('urlIn').value = s.url;
+
+  // ── URL ──
+  var urlIn = document.getElementById('urlIn');
+  if(urlIn) urlIn.value = s.url;
   var du = document.getElementById('du');
   if(du) du.textContent = s.url;
-  // Set lang/country display
-  var lv=document.getElementById('langVal');
-  var cv=document.getElementById('countryVal');
-  if(lv) lv.textContent=s.lang||'English';
-  if(cv) cv.textContent=s.country||'USA';
-  // Set categories display
+
+  // ── DA, DR, Traffic, Semrush ──
+  var allInputs = document.querySelectorAll('.ic2 .fi');
+  if(allInputs[0]) allInputs[0].value = s.da||'';
+  if(allInputs[1]) allInputs[1].value = s.dr||'';
+  if(allInputs[2]) allInputs[2].value = s.traffic||'';
+
+  // ── Language & Country (auto-detected display) ──
+  var lv=document.getElementById('langVal'), cv=document.getElementById('countryVal');
+  if(lv) lv.textContent = s.lang||'English';
+  if(cv) cv.textContent = s.country||'USA';
+
+  // ── Categories display ──
   var cd=document.getElementById('catsDisplay');
-  if(cd){
+  if(cd && s.cat){
     var colors=['#e0e7ff:#4f7cff','#fef3c7:#d97706','#fce7f3:#db2777'];
     cd.innerHTML=s.cat.split(',').slice(0,3).map(function(cat,i){
-      var col=colors[i]||colors[0];
-      var bg=col.split(':')[0],tx=col.split(':')[1];
+      var col=colors[i%3]; var bg=col.split(':')[0],tx=col.split(':')[1];
       return '<span style="background:'+bg+';color:'+tx+';font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px">'+cat.trim()+'</span>';
     }).join('');
   }
-  // Pre-fill prices
+
+  // ── Link Type (radio) ──
+  var ltVal = (s.lt||s.linkType||'Dofollow').trim();
+  document.querySelectorAll('input[name="lt"]').forEach(function(r){
+    var label = r.closest('.ro');
+    if(label && label.textContent.trim()===ltVal){
+      r.checked=true;
+      document.querySelectorAll('.ro').forEach(function(l){l.classList.remove('sel');});
+      label.classList.add('sel');
+    }
+  });
+
+  // ── Word Count ──
+  var wcVal = s.wordCount||'500';
+  document.querySelectorAll('.wc').forEach(function(w){
+    w.classList.remove('on');
+    if(w.textContent.trim()===wcVal) w.classList.add('on');
+  });
+
+  // ── Prices ──
   var piInputs=document.querySelectorAll('.pi-w input');
   if(piInputs[0]) piInputs[0].value=s.p1||'';
   if(piInputs[1]) piInputs[1].value=s.p2||'';
   if(piInputs[2]) piInputs[2].value=s.p3||'';
   if(piInputs[3]) piInputs[3].value=s.p4||'';
   if(piInputs[4]) piInputs[4].value=s.p5||'';
-  var reqTa = document.querySelector('textarea.ta');
-  if(reqTa) reqTa.value = s.requirements||'';
-  // Store editing id
-  window._editingId = id;
+
+  // ── Max Links ──
+  var mlSel=document.querySelector('.ic2 select.fis:last-of-type')||document.querySelector('select.fis');
+  if(mlSel && s.maxLinks){ mlSel.value=s.maxLinks; }
+
+  // ── Owner / Contributor Role ──
+  var roleVal = s.role||'Owner';
+  document.querySelectorAll('input[name="siteRole"]').forEach(function(r){
+    r.checked = (r.value===roleVal);
+    var lbl = document.getElementById('role-'+r.value.toLowerCase()+'-lbl');
+    if(lbl){
+      lbl.style.borderColor = r.checked?'var(--ac)':'var(--br)';
+      lbl.style.background  = r.checked?'var(--ac-soft)':'';
+    }
+  });
+
+  // ── Requirements ──
+  var reqTa=document.querySelector('textarea.ta');
+  if(reqTa) reqTa.value=s.requirements||s.req||'';
+
+  window._editingId=id;
   go(4);
 }
 
