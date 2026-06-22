@@ -4095,52 +4095,68 @@ window.addEventListener('load', function(){
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px">
       <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">🔔 Notification Types</div>
       <div style="display:flex;flex-direction:column;gap:0">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--tx)">New order received</div>
-            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when a new order arrives on your site</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">Order Accepted</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when publisher accepts your order</div>
           </div>
           <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--tx)">Order approved / improvement requested</div>
-            <div style="font-size:12px;color:var(--mu)">When client reviews your submitted article</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">Order Completed</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when your order is delivered & ready for review</div>
           </div>
           <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--tx)">New message from client</div>
-            <div style="font-size:12px;color:var(--mu)">WhatsApp alert when client sends a chat message</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">Order Rejected</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when publisher rejects or cancels your order</div>
           </div>
           <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--tx)">Payment received</div>
-            <div style="font-size:12px;color:var(--mu)">Email when order payment is added to your balance</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">New Chat Message</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when publisher sends you a message</div>
           </div>
           <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--br)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--tx)">Withdrawal processed</div>
-            <div style="font-size:12px;color:var(--mu)">Email confirmation when your withdrawal is sent</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">Revision Requested</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email when your content is revised by publisher</div>
           </div>
           <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#22c55e;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:21px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--tx)">Promotional emails from Uplyncio</div>
-            <div style="font-size:12px;color:var(--mu)">Tips, updates and platform news</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">Order Reminder</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email reminder if your order is pending for 48+ hrs</div>
           </div>
-          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#94a3b8;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#e2e8f0;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--br)">
+          <div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx)">Promotional Offers</div>
+            <div style="font-size:12px;color:var(--mu)">WhatsApp + Email special deals and platform announcements</div>
+          </div>
+          <div onclick="toggleNotif(this)" style="width:42px;height:24px;border-radius:100px;background:#e2e8f0;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div>
+        </div>
+      </div>
+
+      <!-- Chat notification preview -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--br)">
+        <div style="font-size:11px;font-weight:700;color:#8b5cf6;margin-bottom:8px;display:flex;align-items:center;gap:5px"><span>💬</span> Chat Message Notification (WhatsApp)</div>
+        <div style="background:#e7ffd1;border-radius:0 10px 10px 10px;padding:12px 14px;font-size:13px;color:#0f172a;line-height:1.7;max-width:400px;border:1px solid #d1f7a8">
+          💬 <strong>New message</strong> from your publisher on order <strong>#OR1234</strong> (techbullion.com):<br><br>
+          <em style="color:#374151">"Your article has been published. Please check the live link..."</em><br><br>
+          🔗 <a href="#" style="color:#15803d">https://uplyncio.com/buyer</a>
         </div>
       </div>
     </div>
-
-  </div>
+</div>
 
   <!-- PROFILE ACTIVITY TAB -->
   <div id="stab-activity-content" style="display:none">
