@@ -2104,6 +2104,12 @@ window.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <script>
+// Auto-save sites whenever user navigates
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ saveSites(); }
+});
+window.addEventListener('beforeunload', function(){ saveSites(); });
+
 function go(n){
   // Only save step if it's a real navigation (not init)
   if(n>1) saveState("main",{step:n});
@@ -2151,7 +2157,33 @@ function setWC(el){
   document.querySelectorAll('.wc').forEach(function(e){e.classList.remove('on');});
   el.classList.add('on');
 }
-var mySites = [];
+// ── PERSISTENT SITES STORAGE ──
+function loadSites(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    if(userData.sites && Array.isArray(userData.sites) && userData.sites.length > 0){
+      return userData.sites;
+    }
+    // Also check old key format
+    var oldData = JSON.parse(localStorage.getItem('uplyncio_sites_'+uid)||'[]');
+    if(oldData.length > 0) return oldData;
+  }catch(e){}
+  return [];
+}
+
+function saveSites(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    userData.sites = mySites;
+    localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
+    // Also save with timestamp for sync
+    localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
+  }catch(e){ console.warn('saveSites error:', e); }
+}
+
+var mySites = loadSites();
 
 function submit(){
   var url = document.getElementById('urlIn').value.trim();
@@ -2274,6 +2306,7 @@ function updateTabCounts(){
   document.getElementById('tabLiveCount').textContent = mySites.filter(function(s){return s.status==='Live';}).length;
   document.getElementById('tabPendCount').textContent = mySites.filter(function(s){return s.status==='Pending Review';}).length;
   document.getElementById('tabIssCount').textContent = mySites.filter(function(s){return s.status==='Issues';}).length;
+  saveSites(); // Always persist current state
 }
 
 function renderSites(list){
@@ -2453,14 +2486,7 @@ function delSite(id){
   applyFilters();
 }
 
-function saveSites(){
-  try{
-    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
-    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
-    userData.sites = mySites;
-    localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
-  }catch(e){}
-}
+// saveSites defined above
 document.querySelectorAll('.ro input').forEach(function(inp){
   inp.addEventListener('change',function(){
     var g=this.name;
@@ -4505,6 +4531,10 @@ if(_uid){
   } else {
     _rawData = []; // New user — empty orders
   }
+  // Reload mySites for this user (in case uid changed after login)
+  if(_userData && Array.isArray(_userData.sites)){
+    mySites = _userData.sites;
+  }
 }
 if(_rawData && _rawData[0] && _rawData[0].taskId && _rawData[0].taskId.indexOf('UPL-')===0){
   localStorage.removeItem('uplyncio_orders');
@@ -4620,6 +4650,8 @@ function showOrders(){
 }
 
 function showMain(){
+  // Always reload sites from localStorage to prevent data loss
+  mySites = loadSites();
   saveState("main",{step:1});
   // Hide all special pages
   ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
