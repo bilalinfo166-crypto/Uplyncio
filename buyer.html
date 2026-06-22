@@ -216,6 +216,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 @media(max-width:900px){.sidebar{display:none}.card-stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:600px){.card-stats{grid-template-columns:repeat(3,1fr)}.m-opts{grid-template-columns:1fr}}
 
+
+/* ── ADD FUNDS MODAL ── */
+.af-method{display:flex;align-items:center;gap:8px;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#374151;transition:all .18s;background:#fff}
+.af-method:hover{border-color:#4f7cff;background:#f0f4ff}
+.af-method.sel{border-color:#4f7cff;background:#eff6ff;color:#2563eb}
+.af-amt{padding:9px 6px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;color:#374151;text-align:center;transition:all .18s;background:#fff}
+.af-amt:hover{border-color:#4f7cff;background:#f0f4ff;color:#2563eb}
+.af-amt.sel{border-color:#4f7cff;background:#4f7cff;color:#fff}
 /* ── BUYER PROFILE MENU ── */
 @keyframes menuFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .bmenu-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;font-weight:500;color:#374151;cursor:pointer;transition:background .15s}
@@ -804,7 +812,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
           </div>
           <!-- Menu items -->
           <div style="padding:6px 0">
-            <div onclick="closeBuyerMenu();showToast('Contact info@uplyncio.com to add funds')" class="bmenu-item">
+            <div onclick="closeBuyerMenu();openAddFunds()" class="bmenu-item">
               <span>💳</span> Add Funds
             </div>
             <div onclick="closeBuyerMenu()" class="bmenu-item">
@@ -1855,6 +1863,67 @@ function onBuyerLogin(user){
   }catch(e){}
 })();
 
+var _afMethod = 'paypal';
+var _afAmt = 100;
+
+function openAddFunds(){
+  document.getElementById('addFundsModal').style.display='flex';
+  document.body.style.overflow='hidden';
+  updateAFSummary();
+}
+
+function closeAddFunds(){
+  document.getElementById('addFundsModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function selectAFMethod(el, method){
+  _afMethod = method;
+  document.querySelectorAll('.af-method').forEach(function(e){ e.classList.remove('sel'); });
+  el.classList.add('sel');
+  updateAFSummary();
+}
+
+function selectAFAmt(el, amt){
+  document.querySelectorAll('.af-amt').forEach(function(e){ e.classList.remove('sel'); });
+  el.classList.add('sel');
+  var customWrap = document.getElementById('afCustomWrap');
+  if(amt===0){
+    customWrap.style.display='block';
+    _afAmt = parseFloat(document.getElementById('afCustomAmt').value)||0;
+  } else {
+    customWrap.style.display='none';
+    _afAmt = amt;
+  }
+  updateAFSummary();
+}
+
+function updateAFSummary(){
+  var customInp = document.getElementById('afCustomAmt');
+  if(customInp && document.getElementById('afCustomWrap').style.display!=='none'){
+    _afAmt = parseFloat(customInp.value)||0;
+  }
+  var bonus = _afMethod==='usdt' ? _afAmt*0.05 : 0;
+  var total = _afAmt + bonus;
+  var bonusRow = document.getElementById('afBonusRow');
+  if(bonusRow) bonusRow.style.display = bonus>0?'flex':'none';
+  var el1=document.getElementById('afSumAmt'); if(el1) el1.textContent='$'+_afAmt.toFixed(2);
+  var el2=document.getElementById('afSumBonus'); if(el2) el2.textContent='+$'+bonus.toFixed(2);
+  var el3=document.getElementById('afSumTotal'); if(el3) el3.textContent='$'+total.toFixed(2);
+  var btn=document.getElementById('afPayBtn');
+  if(btn){
+    var method = _afMethod==='usdt'?'USDT TRC20':'PayPal';
+    btn.textContent = (_afMethod==='usdt'?'🪙':'💳')+' Pay with '+method+' — $'+_afAmt.toFixed(2);
+  }
+}
+
+function submitAddFunds(){
+  if(_afAmt < 10){ showToast('⚠️ Minimum top-up amount is $10'); return; }
+  var method = _afMethod==='usdt'?'USDT TRC20':'PayPal';
+  closeAddFunds();
+  showToast('✅ Redirecting to '+method+' payment... Contact info@uplyncio.com for manual processing');
+}
+
 function toggleBuyerMenu(){
   var m = document.getElementById('buyerMenu');
   if(!m) return;
@@ -2294,6 +2363,86 @@ window.addEventListener('load', function(){
     </a>
   </div>
 </div>
+
+<!-- ADD FUNDS MODAL -->
+<div id="addFundsModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:10000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;margin:20px;box-shadow:0 24px 80px rgba(0,0,0,.18);overflow:hidden;animation:menuFade .22s ease">
+    <!-- Header -->
+    <div style="padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div style="font-family:Manrope,sans-serif;font-size:24px;font-weight:800;color:#1a202c">Top Up Balance</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px">Add funds to your Uplyncio wallet instantly</div>
+      </div>
+      <button onclick="closeAddFunds()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8faff'">✕</button>
+    </div>
+
+    <!-- Bonus banner -->
+    <div style="margin:16px 28px 0;background:linear-gradient(135deg,#fef9ee,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+      <div style="font-size:22px">🎁</div>
+      <div style="font-size:12.5px;color:#92400e">Get <strong>5% bonus credits</strong> on every top-up via <strong>USDT (TRC20)</strong> — fastest & cheapest method</div>
+    </div>
+
+    <div style="padding:20px 28px 28px">
+      <!-- Payment Method -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Payment Method</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="afMethods">
+          <div onclick="selectAFMethod(this,'paypal')" class="af-method sel" data-method="paypal">
+            <span style="font-size:18px">💳</span>
+            <span>PayPal</span>
+          </div>
+          <div onclick="selectAFMethod(this,'usdt')" class="af-method" data-method="usdt">
+            <span style="font-size:18px">🪙</span>
+            <span>USDT TRC20</span>
+            <span style="font-size:10px;background:#dcfce7;color:#15803d;border-radius:4px;padding:1px 6px;font-weight:700">+5%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Select Amount</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+          <div onclick="selectAFAmt(this,50)" class="af-amt">$50</div>
+          <div onclick="selectAFAmt(this,100)" class="af-amt sel">$100</div>
+          <div onclick="selectAFAmt(this,250)" class="af-amt">$250</div>
+          <div onclick="selectAFAmt(this,500)" class="af-amt">$500</div>
+          <div onclick="selectAFAmt(this,1000)" class="af-amt">$1,000</div>
+          <div onclick="selectAFAmt(this,2500)" class="af-amt">$2,500</div>
+          <div onclick="selectAFAmt(this,5000)" class="af-amt">$5,000</div>
+          <div onclick="selectAFAmt(this,0)" class="af-amt" id="afCustomBtn">Custom</div>
+        </div>
+        <!-- Custom input -->
+        <div id="afCustomWrap" style="display:none;margin-top:8px">
+          <div style="display:flex;align-items:center;border:1.5px solid #4f7cff;border-radius:10px;overflow:hidden;background:#fff">
+            <span style="padding:10px 14px;font-size:15px;font-weight:700;color:#94a3b8;border-right:1px solid #e2e8f0">$</span>
+            <input id="afCustomAmt" type="number" min="10" placeholder="Enter amount (min $10)" style="flex:1;padding:10px 14px;border:none;outline:none;font-size:14px;font-weight:600;font-family:inherit" oninput="updateAFSummary()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary box -->
+      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-bottom:6px">
+          <span>Amount</span><span id="afSumAmt">$100.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#16a34a;margin-bottom:6px" id="afBonusRow">
+          <span>🎁 Bonus credits</span><span id="afSumBonus">+$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:#1a202c;padding-top:8px;border-top:1px dashed #e2e8f0">
+          <span>Total credited</span>
+          <span style="font-family:Manrope,sans-serif;color:#4f7cff" id="afSumTotal">$100.00</span>
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <button onclick="submitAddFunds()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
+        💳 Pay with PayPal — $100.00
+      </button>
+      <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">🔒 Secure & encrypted · Funds credited instantly after payment</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
@@ -2407,6 +2556,86 @@ window.addEventListener('load', function(){
     <a href="cart.html" style="flex:1.4;padding:10px;background:linear-gradient(135deg,#4f7cff,#6366f1);border-radius:10px;font-size:12.5px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 4px 12px rgba(79,124,255,.3);transition:all .15s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
       Proceed to Cart 🛒
     </a>
+  </div>
+</div>
+
+<!-- ADD FUNDS MODAL -->
+<div id="addFundsModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:10000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;margin:20px;box-shadow:0 24px 80px rgba(0,0,0,.18);overflow:hidden;animation:menuFade .22s ease">
+    <!-- Header -->
+    <div style="padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between">
+      <div>
+        <div style="font-family:Manrope,sans-serif;font-size:24px;font-weight:800;color:#1a202c">Top Up Balance</div>
+        <div style="font-size:13px;color:#64748b;margin-top:4px">Add funds to your Uplyncio wallet instantly</div>
+      </div>
+      <button onclick="closeAddFunds()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8faff'">✕</button>
+    </div>
+
+    <!-- Bonus banner -->
+    <div style="margin:16px 28px 0;background:linear-gradient(135deg,#fef9ee,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+      <div style="font-size:22px">🎁</div>
+      <div style="font-size:12.5px;color:#92400e">Get <strong>5% bonus credits</strong> on every top-up via <strong>USDT (TRC20)</strong> — fastest & cheapest method</div>
+    </div>
+
+    <div style="padding:20px 28px 28px">
+      <!-- Payment Method -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Payment Method</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="afMethods">
+          <div onclick="selectAFMethod(this,'paypal')" class="af-method sel" data-method="paypal">
+            <span style="font-size:18px">💳</span>
+            <span>PayPal</span>
+          </div>
+          <div onclick="selectAFMethod(this,'usdt')" class="af-method" data-method="usdt">
+            <span style="font-size:18px">🪙</span>
+            <span>USDT TRC20</span>
+            <span style="font-size:10px;background:#dcfce7;color:#15803d;border-radius:4px;padding:1px 6px;font-weight:700">+5%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Select Amount</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+          <div onclick="selectAFAmt(this,50)" class="af-amt">$50</div>
+          <div onclick="selectAFAmt(this,100)" class="af-amt sel">$100</div>
+          <div onclick="selectAFAmt(this,250)" class="af-amt">$250</div>
+          <div onclick="selectAFAmt(this,500)" class="af-amt">$500</div>
+          <div onclick="selectAFAmt(this,1000)" class="af-amt">$1,000</div>
+          <div onclick="selectAFAmt(this,2500)" class="af-amt">$2,500</div>
+          <div onclick="selectAFAmt(this,5000)" class="af-amt">$5,000</div>
+          <div onclick="selectAFAmt(this,0)" class="af-amt" id="afCustomBtn">Custom</div>
+        </div>
+        <!-- Custom input -->
+        <div id="afCustomWrap" style="display:none;margin-top:8px">
+          <div style="display:flex;align-items:center;border:1.5px solid #4f7cff;border-radius:10px;overflow:hidden;background:#fff">
+            <span style="padding:10px 14px;font-size:15px;font-weight:700;color:#94a3b8;border-right:1px solid #e2e8f0">$</span>
+            <input id="afCustomAmt" type="number" min="10" placeholder="Enter amount (min $10)" style="flex:1;padding:10px 14px;border:none;outline:none;font-size:14px;font-weight:600;font-family:inherit" oninput="updateAFSummary()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary box -->
+      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-bottom:6px">
+          <span>Amount</span><span id="afSumAmt">$100.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#16a34a;margin-bottom:6px" id="afBonusRow">
+          <span>🎁 Bonus credits</span><span id="afSumBonus">+$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;color:#1a202c;padding-top:8px;border-top:1px dashed #e2e8f0">
+          <span>Total credited</span>
+          <span style="font-family:Manrope,sans-serif;color:#4f7cff" id="afSumTotal">$100.00</span>
+        </div>
+      </div>
+
+      <!-- CTA Button -->
+      <button onclick="submitAddFunds()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
+        💳 Pay with PayPal — $100.00
+      </button>
+      <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">🔒 Secure & encrypted · Funds credited instantly after payment</div>
+    </div>
   </div>
 </div>
 </body>
