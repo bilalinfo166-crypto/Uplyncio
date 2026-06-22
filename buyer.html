@@ -1435,7 +1435,7 @@ function renderCard(s, idx){
     var spamScore=s.spam||0;
     var spamCol=spamScore<=3?'#16a34a':spamScore<=6?'#d97706':'#dc2626';
     var spamLabel=spamScore<=3?'Low':spamScore<=6?'Medium':'High';
-    var expandHtml='<div class="card-expand" id="'+expandId+'">'
+    var expandHtml='<div class="card-expand" id="'+expandId+'" onclick="event.stopPropagation()">'
       +'<div class="expand-grid">'
         +'<div class="eg-col">'
           +'<div class="eg-title">📋 Publisher Requirements</div>'
@@ -1478,8 +1478,8 @@ function renderCard(s, idx){
         +'</div>'
       +'</div>'
     +'</div>';
-    return '<div class="site-card" id="card_'+idx+'">'
-      +'<div class="card-top-wrap" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
+    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
+      +'<div class="card-top-wrap">'
         +'<div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
         +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button>'
       +'</div>'
@@ -1506,7 +1506,7 @@ function renderCard(s, idx){
     var spamCol2=spamScore2<=3?'#16a34a':spamScore2<=6?'#d97706':'#dc2626';
     var spamLabel2=spamScore2<=3?'Low':spamScore2<=6?'Medium':'High';
     var liReqList=s.liReq?s.liReq.split(/[.,;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join(''):'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>';
-    var expandHtml2='<div class="card-expand" id="'+expandId2+'">'
+    var expandHtml2='<div class="card-expand" id="'+expandId2+'" onclick="event.stopPropagation()">'
       +'<div class="expand-grid">'
         +'<div class="eg-col"><div class="eg-title">📋 LI Requirements</div>'+liReqList+'</div>'
         +'<div class="eg-col"><div class="eg-title">🔗 Link Details</div>'
@@ -1529,8 +1529,8 @@ function renderCard(s, idx){
         +'</div>'
       +'</div>'
     +'</div>';
-    return '<div class="site-card" id="card_'+idx+'">'
-      +'<div class="card-top-wrap" onclick="toggleExpand('+idx+')" style="cursor:pointer"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
+      +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
       +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button></div>'
       +stats+'<div class="card-bottom li-bg" onclick="event.stopPropagation()">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
   }
