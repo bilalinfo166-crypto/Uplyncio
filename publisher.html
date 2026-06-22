@@ -2216,6 +2216,7 @@ function submit(){
   } else {
     mySites.push(site);
   }
+  saveSites();
   applyFilters();
   document.getElementById('urlIn').value = '';
   go(1);
@@ -2437,16 +2438,28 @@ function editPrice(siteId, priceNum){
 function deactivateSite(id){
   var s=mySites.find(function(x){return x.id===id;});
   if(!s) return;
-  if(!confirm('Deactivate '+s.url+'? It will be hidden from advertisers.')) return;
-  s.status='Inactive';
+  var isActive = s.status!=='Inactive' && s.status!=='Deactivated';
+  if(!confirm((isActive?'Deactivate':'Reactivate')+' '+s.url+'?')) return;
+  s.status = isActive ? 'Inactive' : 'Live';
+  saveSites();
   applyFilters();
-  alert('Site deactivated. You can reactivate it anytime.');
+  showToast(isActive ? 'Site deactivated — hidden from buyers' : 'Site reactivated — visible to buyers');
 }
 
 function delSite(id){
   if(!confirm('Remove this site from your listings?')) return;
   mySites = mySites.filter(function(s){ return s.id !== id; });
+  saveSites();
   applyFilters();
+}
+
+function saveSites(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    userData.sites = mySites;
+    localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
+  }catch(e){}
 }
 document.querySelectorAll('.ro input').forEach(function(inp){
   inp.addEventListener('change',function(){

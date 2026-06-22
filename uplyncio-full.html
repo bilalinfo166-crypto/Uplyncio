@@ -970,7 +970,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 
   <!-- STATS BAR -->
   <div class="stats-bar" style="margin-bottom:0">
-    <div class="stat-cell"><div class="stat-n">8,500<span>+</span></div><div class="stat-l">Publisher Sites</div></div>
+    <div class="stat-cell"><div class="stat-n" id="liveStatCount">8,500<span>+</span></div><div class="stat-l">Publisher Sites</div></div>
     <div class="stat-cell"><div class="stat-n">200<span>+</span></div><div class="stat-l">Monthly Orders</div></div>
     <div class="stat-cell"><div class="stat-n">DA <span>90+</span></div><div class="stat-l">Max Authority</div></div>
     <div class="stat-cell"><div class="stat-n">3<span>yr</span></div><div class="stat-l">In Business</div></div>
@@ -2359,6 +2359,44 @@ window.addEventListener('load', function(){
 </script>
 
 
+<script>
+// ── LIVE SITE COUNTER ──
+function getLiveSiteCount(){
+  var count = 0;
+  try{
+    Object.keys(localStorage)
+      .filter(function(k){ return k.startsWith('uplyncio_data_'); })
+      .forEach(function(key){
+        var d = JSON.parse(localStorage.getItem(key)||'{}');
+        if(d.sites && Array.isArray(d.sites)){
+          count += d.sites.filter(function(s){
+            return s.url && s.status !== 'Inactive' && s.status !== 'Deactivated';
+          }).length;
+        }
+      });
+  }catch(e){}
+  // Add sample sites baseline
+  return Math.max(8500, count + 8500);
+}
+
+function updateAllCounters(){
+  var total = getLiveSiteCount();
+  var fmt = total >= 1000 ? (total/1000).toFixed(1)+'K+' : total+'+';
+  
+  // Update stat counter
+  var el = document.getElementById('liveStatCount');
+  if(el) el.innerHTML = fmt.replace('+','<span>+</span>');
+  
+  // Update all data-live-count elements
+  document.querySelectorAll('[data-live-count]').forEach(function(e){
+    e.textContent = fmt;
+  });
+}
+
+// Run on load and every 15 seconds
+updateAllCounters();
+setInterval(updateAllCounters, 15000);
+</script>
 </body>
 </html>
 

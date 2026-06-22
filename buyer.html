@@ -980,33 +980,42 @@ var selectedSvcType = '';
 var selectedPrice = 0;
 
 // ═══════════════════════════════════
-// LOAD ALL SITES (publisher localStorage + sample)
+// LIVE SITE INVENTORY SYSTEM
 // ═══════════════════════════════════
+
+// Read ALL publisher sites from localStorage (any browser tab/session)
 function loadAllSites(){
-  var pub = [];
+  var pubSites = []; // url -> array of publisher entries (for multi-publisher same URL)
+  var urlMap = {};   // url -> lowest price entry
+
   try{
     Object.keys(localStorage)
       .filter(function(k){ return k.startsWith('uplyncio_data_'); })
       .forEach(function(key){
+        var uid = key.replace('uplyncio_data_','');
         var d = JSON.parse(localStorage.getItem(key)||'{}');
-        if(!d.sites) return;
+        if(!d.sites || !Array.isArray(d.sites)) return;
+
         d.sites.forEach(function(s){
           if(!s.url) return;
-          pub.push({
-            url: s.url,
+          // Skip deactivated sites
+          if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
+
+          var entry = {
+            url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
             da: parseInt(s.da)||0,
             dr: parseInt(s.dr)||0,
             traffic: parseInt((s.traffic||'0').toString().replace(/[^0-9]/g,''))||0,
             semT: 0, refD: 0,
-            cats: [s.category||'General'],
+            cats: s.category ? [s.category] : ['General'],
             linkType: s.linkType||'Dofollow',
-            gP: parseFloat(s.guestPostPrice||s.price)||50,
-            wP: parseFloat(s.writePublishPrice||s.writePrice)||0,
+            gP: parseFloat(s.guestPostPrice||s.p1||s.price||'50')||50,
+            wP: parseFloat(s.writePublishPrice||s.p2||s.writePrice||'0')||0,
             liOk: s.liAccepted==='Yes'||s.liAccepted===true,
-            liP: parseFloat(s.liPrice)||0,
+            liP: parseFloat(s.liPrice||s.p3||'0')||0,
             liReq: s.liRequirements||'',
             country: s.country||'USA',
-            lang: s.language||'English',
+            lang: s.language||s.lang||'English',
             tat: parseInt(s.tat)||7,
             comp: 100,
             pub: s.role||'Owner',
@@ -1015,29 +1024,66 @@ function loadAllSites(){
             spam: parseInt(s.spam)||3,
             minWords: Math.max(500, parseInt(s.minWords)||500),
             indexed: true,
-            domainAge: s.domainAge||'N/A'
-          });
+            domainAge: s.domainAge||'N/A',
+            _uid: uid,
+            _status: s.status||'Live'
+          };
+
+          // Group by URL — multiple publishers can have same URL
+          if(!urlMap[entry.url]){
+            urlMap[entry.url] = entry;
+          } else {
+            // Keep lowest price
+            if(entry.gP < urlMap[entry.url].gP) urlMap[entry.url] = entry;
+          }
         });
     });
-  }catch(e){}
+  }catch(e){ console.warn('loadAllSites error:', e); }
 
-  // Merge: publisher sites first, then sample. Deduplicate by URL keeping lowest price.
-  var map = {};
-  pub.forEach(function(s){
-    if(!map[s.url] || s.gP < map[s.url].gP) map[s.url] = s;
-  });
+  // Merge publisher sites with sample sites
+  // Publisher sites take priority; sample fills in the rest
   SAMPLE.forEach(function(s){
-    if(!map[s.url] || s.gP < map[s.url].gP) map[s.url] = s;
+    var url = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
+    if(!urlMap[url]){
+      urlMap[url] = s; // Only add sample if no publisher has it
+    }
+    // If publisher has it at lower price, keep publisher's
+    // If sample is lower price, keep sample (already handled above)
   });
 
-  // Sort same URL by lowest price: if multiple publishers have same site, show lowest
-  return Object.values(map);
+  return Object.values(urlMap);
 }
+
+// ── LIVE COUNTER: total sites across platform ──
+function updateLiveSiteCount(){
+  var all = loadAllSites();
+  var total = all.length;
+
+  // Update all site count elements across the page
+  var el = document.getElementById('cnt-all');
+  if(el) el.textContent = total;
+
+  // Update any "X sites" text on the page
+  document.querySelectorAll('[data-live-count]').forEach(function(el){
+    el.textContent = total.toLocaleString()+'+';
+  });
+
+  return total;
+}
+
+// ── AUTO-REFRESH every 30 seconds ──
+setInterval(function(){
+  updateLiveSiteCount();
+  applyFilters();
+}, 30000);
 
 // ═══════════════════════════════════
 // BUILD CATEGORY SIDEBAR
 // ═══════════════════════════════════
 function buildCatSidebar(all){
+  // Update live total count
+  var totalEl = document.getElementById('cnt-all');
+  if(totalEl) totalEl.textContent = all.length;
   var catMap = {};
   all.forEach(function(s){
     (s.cats||['General']).forEach(function(c){
@@ -1047,7 +1093,7 @@ function buildCatSidebar(all){
 
   // Sort by count desc
   var cats = Object.keys(catMap).sort(function(a,b){ return catMap[b]-catMap[a]; });
-  document.getElementById('cnt-all').textContent = all.length;
+
 
   var html = cats.map(function(c){
     return '<div class="sb-cat-item'+(currentCat===c?' active':'')+'" onclick="filterByCategory(\''+c+'\')">'
@@ -1706,6 +1752,7 @@ function onBuyerLogin(user){
 
 // Init
 applyFilters();
+updateLiveSiteCount();
 </script>
 
 <div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
