@@ -1479,13 +1479,13 @@ function renderCard(s, idx){
         +'</div>'
       +'</div>'
     +'</div>';
-    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
-      +'<div class="card-top-wrap">'
+    return '<div class="site-card" id="card_'+idx+'">'
+      +'<div class="card-top-wrap" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
         +'<div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
         +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button>'
       +'</div>'
       +stats
-      +'<div class="card-bottom">'+priceCols+actions+'</div>'
+      +'<div class="card-bottom" onclick="event.stopPropagation()">'+priceCols+actions+'</div>'
       +expandHtml
     +'</div>';
   } else {
@@ -1533,7 +1533,7 @@ function renderCard(s, idx){
     return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
       +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
       +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button></div>'
-      +stats+'<div class="card-bottom li-bg">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
+      +stats+'<div class="card-bottom li-bg" onclick="event.stopPropagation()">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
   }
 }
 
