@@ -813,10 +813,11 @@ window.addEventListener('DOMContentLoaded', function(){
         <div class="fg"><label class="fl">Special requirements</label><textarea class="ta" placeholder="Describe topics you accept, writing style, content restrictions, anchor text rules, any specific requirements for advertisers..." style="min-height:140px;resize:vertical"></textarea></div>
 
         <div class="fg">
-          <label class="fl">Links to your best articles (examples of your work)</label>
+          <label class="fl">Links to your best articles <span style="font-size:11px;color:var(--mu);font-weight:500">(must be from your site's domain)</span></label>
           <div id="links">
-            <div class="lr"><input class="lf" type="url" placeholder="http(s)://"><button class="la" onclick="addL()">+</button></div>
+            <div class="lr"><input class="lf" type="url" placeholder="https://yoursite.com/article-title" oninput="validateSampleLink(this)"><button class="la" onclick="addL()">+</button></div>
           </div>
+          <div id="linksError" style="display:none;font-size:11.5px;color:#ef4444;margin-top:5px;font-weight:600"></div>
         </div>
         <div class="tip">
           <h4>&#128161; Tips to get more orders</h4>
@@ -2160,8 +2161,55 @@ function next3(){
 function addL(){
   var d=document.createElement('div');
   d.className='lr';
-  d.innerHTML='<input class="lf" type="url" placeholder="http(s)://"><button class="lrm" onclick="this.parentElement.remove()">-</button>';
+  d.innerHTML='<input class="lf" type="url" placeholder="https://yoursite.com/article" oninput="validateSampleLink(this)"><button class="lrm" onclick="this.parentElement.remove()">-</button>';
   document.getElementById('links').appendChild(d);
+  // Focus new input
+  var inp=d.querySelector('input');
+  if(inp) inp.focus();
+}
+
+function validateSampleLink(input){
+  var siteUrl = (document.getElementById('urlIn')?document.getElementById('urlIn').value:'').toLowerCase().trim();
+  siteUrl = siteUrl.replace(/https?:\/\//,'').replace(/\/$/,'').split('/')[0];
+  var val = input.value.toLowerCase().trim();
+  if(!siteUrl || !val){ 
+    input.style.borderColor='';
+    return; 
+  }
+  // Extract domain from entered URL
+  var entered = val.replace(/https?:\/\//,'').split('/')[0];
+  var isMatch = entered === siteUrl || entered.endsWith('.'+siteUrl) || siteUrl.endsWith('.'+entered);
+  if(val && !isMatch){
+    input.style.borderColor='#ef4444';
+    input.style.background='#fef2f2';
+    var err=document.getElementById('linksError');
+    if(err){ err.textContent='⚠️ URL must be from your site: '+siteUrl; err.style.display='block'; }
+  } else {
+    input.style.borderColor = val ? '#16a34a' : '';
+    input.style.background = val ? '#f0fdf4' : '';
+    var err=document.getElementById('linksError');
+    if(err) err.style.display='none';
+  }
+}
+
+function validateAllSampleLinks(){
+  var siteUrl = (document.getElementById('urlIn')?document.getElementById('urlIn').value:'').toLowerCase().trim();
+  siteUrl = siteUrl.replace(/https?:\/\//,'').replace(/\/$/,'').split('/')[0];
+  if(!siteUrl) return true; // No URL set yet, skip validation
+  var inputs = document.querySelectorAll('#links .lf');
+  var hasError = false;
+  inputs.forEach(function(inp){
+    if(!inp.value.trim()) return; // Skip empty
+    var entered = inp.value.toLowerCase().replace(/https?:\/\//,'').split('/')[0];
+    var isMatch = entered===siteUrl || entered.endsWith('.'+siteUrl) || siteUrl.endsWith('.'+entered);
+    if(!isMatch){ hasError=true; inp.style.borderColor='#ef4444'; inp.style.background='#fef2f2'; }
+  });
+  if(hasError){
+    var err=document.getElementById('linksError');
+    if(err){ err.textContent='⚠️ All sample article links must be from your site: '+siteUrl; err.style.display='block'; }
+    return false;
+  }
+  return true;
 }
 function setWC(el){
   document.querySelectorAll('.wc').forEach(function(e){e.classList.remove('on');});
@@ -2207,6 +2255,8 @@ var mySites = loadSites();
 function submit(){
   var url = document.getElementById('urlIn').value.trim();
   if(!url){ alert('Please go back and enter your site URL'); return; }
+  // Validate sample links match site domain
+  if(!validateAllSampleLinks()){ return; }
 
   // Collect form data
   var da = document.querySelector('.ic2 input[type=number]') ? document.querySelector('.ic2 .two input:nth-child(1)') : null;
