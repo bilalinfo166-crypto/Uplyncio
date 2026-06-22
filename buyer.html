@@ -220,9 +220,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 
 
 /* ── CONTENT PURCHASE ── */
-.cp-type-btn{padding:9px 8px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-size:12px;font-weight:600;color:#374151;text-align:center;transition:all .18s;background:#fff;user-select:none}
+.cp-type-btn{padding:8px 6px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-size:11.5px;font-weight:600;color:#374151;text-align:center;transition:all .18s;background:#fff;user-select:none}
 .cp-type-btn:hover{border-color:#4f7cff;color:#4f7cff;background:#f0f4ff}
 .cp-type-btn.sel{border-color:#4f7cff;background:#4f7cff;color:#fff}
+.cp-label{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.cp-req{color:#ef4444;font-size:12px}
+.cp-input{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s}
+.cp-input:focus{border-color:#4f7cff}
+.cp-select{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:#fff;cursor:pointer;box-sizing:border-box}
+.cp-select:focus{border-color:#4f7cff}
+.cp-textarea{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;line-height:1.5}
+.cp-textarea:focus{border-color:#4f7cff}
 /* ── BALANCE PAGE ── */
 .tx-filter{padding:5px 12px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;font-family:inherit;transition:all .15s}
 .tx-filter:hover{border-color:#4f7cff;color:#4f7cff}
@@ -2129,34 +2137,53 @@ function updateCPPrice(){
 }
 
 function submitCPOrder(){
-  var topic = (document.getElementById('cpTopic')||{value:''}).value.trim();
-  if(!topic){ 
-    showToast('⚠️ Please enter a topic or title');
-    document.getElementById('cpTopic').style.borderColor='#ef4444';
-    return; 
+  // Validate required fields
+  var errors = [];
+  var kw = document.getElementById('cpKeywords').value.trim();
+  var brief = document.getElementById('cpInstructions').value.trim();
+  var goal = document.getElementById('cpGoal').value;
+  var audience = document.getElementById('cpAudience').value.trim();
+  var productUrl = document.getElementById('cpProductUrl').value.trim();
+  var anchor = document.getElementById('cpAnchor').value.trim();
+
+  if(!kw){ errors.push('cpKeywords'); }
+  if(!brief){ errors.push('cpInstructions'); }
+  if(!goal){ errors.push('cpGoal'); }
+  if(!audience){ errors.push('cpAudience'); }
+  if(!productUrl){ errors.push('cpProductUrl'); }
+  if(!anchor){ errors.push('cpAnchor'); }
+
+  if(errors.length){
+    errors.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){ el.style.borderColor='#ef4444'; el.style.outline='none'; }
+    });
+    showToast('⚠️ Please fill all required fields (marked with *)');
+    // Scroll to first error
+    var first = document.getElementById(errors[0]);
+    if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
   }
+
   var wc = document.getElementById('cpWordCount').value;
-  var tone = document.getElementById('cpTone').value;
   var lang = document.getElementById('cpLang').value;
-  var audience = document.getElementById('cpAudience').value;
-  var keywords = document.getElementById('cpKeywords').value;
-  var instructions = document.getElementById('cpInstructions').value;
+  var topic = document.getElementById('cpTopic').value.trim();
+  var sample = document.getElementById('cpSample').value.trim();
   var price = _cpPrices[wc]||35;
   var orderId = '#CP'+Math.floor(1000+Math.random()*9000);
 
-  // Save order
   var orders = JSON.parse(localStorage.getItem('uplyncio_content_orders')||'[]');
   orders.push({
-    id:orderId, type:_cpType, topic:topic, wordCount:wc,
-    tone:tone, language:lang, audience:audience,
-    keywords:keywords, instructions:instructions,
-    deadline:_cpDeadline, price:price,
+    id:orderId, category:_cpType, topic:topic, keywords:kw,
+    brief:brief, goal:goal, audience:audience, wordCount:wc,
+    language:lang, sample:sample, productUrl:productUrl,
+    anchor:anchor, deadline:_cpDeadline, price:price,
     status:'Pending Review', date:new Date().toISOString()
   });
   localStorage.setItem('uplyncio_content_orders', JSON.stringify(orders));
 
   closeCPForm();
-  showToast('✅ Content order '+orderId+' submitted! Our team will assign a writer within 24 hours.');
+  showToast('✅ Order '+orderId+' submitted! Our writers will start within 24 hours.');
 }
 
 // Update price when word count changes
@@ -2757,12 +2784,12 @@ window.addEventListener('load', function(){
       <button onclick="closeCPForm()" style="width:32px;height:32px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
     </div>
 
-    <div style="padding:24px 28px">
+    <div style="padding:22px 28px">
 
-      <!-- Content Type -->
-      <div style="margin-bottom:18px">
-        <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Content Type *</label>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="cpTypeGrid">
+      <!-- Category -->
+      <div style="margin-bottom:16px">
+        <label class="cp-label">Category <span class="cp-req">*</span></label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px" id="cpTypeGrid">
           <div onclick="selectCPType(this,'Blog Post')" class="cp-type-btn sel">📝 Blog Post</div>
           <div onclick="selectCPType(this,'Article')" class="cp-type-btn">📰 Article</div>
           <div onclick="selectCPType(this,'Product Description')" class="cp-type-btn">🛍️ Product Desc.</div>
@@ -2772,17 +2799,50 @@ window.addEventListener('load', function(){
         </div>
       </div>
 
-      <!-- Topic / Title -->
-      <div style="margin-bottom:16px">
-        <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Topic / Title *</label>
-        <input id="cpTopic" type="text" placeholder="e.g. 10 Best SEO Strategies for 2025" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <!-- Title Suggestion -->
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Title Suggestion <span style="font-size:10px;color:#94a3b8;font-weight:400">(optional — our writers can suggest one)</span></label>
+        <input id="cpTopic" type="text" placeholder="e.g. 10 Best SEO Strategies for 2025" class="cp-input">
       </div>
 
-      <!-- Word Count + Tone -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <!-- Keywords -->
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Target Keywords <span class="cp-req">*</span></label>
+        <input id="cpKeywords" type="text" placeholder="e.g. SEO tips, link building, digital marketing (comma separated)" class="cp-input">
+      </div>
+
+      <!-- Brief Requirements -->
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Brief Requirements <span class="cp-req">*</span></label>
+        <textarea id="cpInstructions" placeholder="Describe what you want — topic coverage, structure, key points, style guide, things to avoid..." class="cp-textarea" style="min-height:90px"></textarea>
+      </div>
+
+      <!-- Content Goal + Target Audience -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
         <div>
-          <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Word Count *</label>
-          <select id="cpWordCount" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;cursor:pointer" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+          <label class="cp-label">Content Goal <span class="cp-req">*</span></label>
+          <select id="cpGoal" class="cp-select">
+            <option value="">Select goal...</option>
+            <option>Brand Awareness</option>
+            <option>SEO / Organic Traffic</option>
+            <option>Lead Generation</option>
+            <option>Product Promotion</option>
+            <option>Education / Informative</option>
+            <option>Social Engagement</option>
+            <option>Email Marketing</option>
+          </select>
+        </div>
+        <div>
+          <label class="cp-label">Target Audience <span class="cp-req">*</span></label>
+          <input id="cpAudience" type="text" placeholder="e.g. Small business owners, marketers" class="cp-input">
+        </div>
+      </div>
+
+      <!-- Word Count + Language -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label class="cp-label">Word Count <span class="cp-req">*</span></label>
+          <select id="cpWordCount" class="cp-select" onchange="updateCPPrice()">
             <option>500 words</option>
             <option>750 words</option>
             <option selected>1,000 words</option>
@@ -2793,27 +2853,8 @@ window.addEventListener('load', function(){
           </select>
         </div>
         <div>
-          <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Tone of Voice</label>
-          <select id="cpTone" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;cursor:pointer" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
-            <option>Professional</option>
-            <option>Conversational</option>
-            <option>Informative</option>
-            <option>Persuasive</option>
-            <option>Friendly</option>
-            <option>Authoritative</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Target Audience + Language -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <div>
-          <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Target Audience</label>
-          <input id="cpAudience" type="text" placeholder="e.g. Small business owners" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
-        </div>
-        <div>
-          <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Language</label>
-          <select id="cpLang" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;cursor:pointer" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+          <label class="cp-label">Language <span class="cp-req">*</span></label>
+          <select id="cpLang" class="cp-select">
             <option>English</option>
             <option>Urdu</option>
             <option>Arabic</option>
@@ -2825,21 +2866,27 @@ window.addEventListener('load', function(){
         </div>
       </div>
 
-      <!-- Keywords -->
-      <div style="margin-bottom:16px">
-        <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Target Keywords <span style="font-weight:400;text-transform:none;color:#94a3b8">(comma separated)</span></label>
-        <input id="cpKeywords" type="text" placeholder="e.g. SEO tips, digital marketing, backlinks" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <!-- Sample Content -->
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Sample Content <span style="font-size:10px;color:#94a3b8;font-weight:400">(paste an example of the style/tone you like)</span></label>
+        <textarea id="cpSample" placeholder="Paste a sample article, paragraph, or link to reference content you like..." class="cp-textarea" style="min-height:70px"></textarea>
       </div>
 
-      <!-- Special Instructions -->
-      <div style="margin-bottom:16px">
-        <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Special Instructions</label>
-        <textarea id="cpInstructions" placeholder="Any specific requirements, references, style guides, examples to follow, topics to avoid..." style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical;min-height:90px;box-sizing:border-box;line-height:1.5" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+      <!-- Promoted Product URL + Anchor Text -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label class="cp-label">Promoted Product URL <span class="cp-req">*</span></label>
+          <input id="cpProductUrl" type="url" placeholder="https://yoursite.com/product" class="cp-input">
+        </div>
+        <div>
+          <label class="cp-label">Anchor Text <span class="cp-req">*</span></label>
+          <input id="cpAnchor" type="text" placeholder="e.g. best SEO tool" class="cp-input">
+        </div>
       </div>
 
       <!-- Deadline -->
-      <div style="margin-bottom:20px">
-        <label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Deadline</label>
+      <div style="margin-bottom:18px">
+        <label class="cp-label">Deadline <span class="cp-req">*</span></label>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px" id="cpDeadlineGrid">
           <div onclick="selectCPDeadline(this,'3 days')" class="cp-type-btn">3 Days</div>
           <div onclick="selectCPDeadline(this,'5 days')" class="cp-type-btn sel">5 Days</div>
@@ -2848,21 +2895,21 @@ window.addEventListener('load', function(){
         </div>
       </div>
 
-      <!-- Price estimate -->
-      <div style="background:#f0f4ff;border:1.5px solid #c7d7ff;border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+      <!-- Price Estimate -->
+      <div style="background:#f0f4ff;border:1.5px solid #c7d7ff;border-radius:12px;padding:13px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:11px;font-weight:700;color:#4f7cff;text-transform:uppercase;letter-spacing:.5px">Estimated Price</div>
-          <div style="font-family:Manrope,sans-serif;font-size:26px;font-weight:900;color:#1a202c;margin-top:3px" id="cpPriceEst">$30.00</div>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">Based on word count selection</div>
+          <div style="font-size:10.5px;font-weight:700;color:#4f7cff;text-transform:uppercase;letter-spacing:.5px">Estimated Price</div>
+          <div style="font-family:Manrope,sans-serif;font-size:26px;font-weight:900;color:#1a202c;margin-top:2px" id="cpPriceEst">$35.00</div>
+          <div style="font-size:11px;color:#64748b;margin-top:1px">Based on word count · Final price confirmed after review</div>
         </div>
-        <div style="font-size:36px">💡</div>
+        <div style="font-size:34px">💡</div>
       </div>
 
       <!-- Submit -->
-      <button onclick="submitCPOrder()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3);transition:all .18s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-        🚀 Submit Content Order
+      <button onclick="submitCPOrder()" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3);transition:all .18s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+        🚀 Submit Order
       </button>
-      <div style="text-align:center;font-size:11.5px;color:#94a3b8;margin-top:10px">Our team will review and assign a writer within 24 hours</div>
+      <div style="text-align:center;font-size:11.5px;color:#94a3b8;margin-top:9px">Our team will review and assign a writer within 24 hours · <span style="color:#ef4444">* Required</span></div>
     </div>
   </div>
 </div>
