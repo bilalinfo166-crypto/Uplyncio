@@ -4113,18 +4113,17 @@ window.addEventListener('load', function(){
   <div id="stab-contact-content" style="display:none">
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
       <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">📞 Contact Information</div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
         <!-- Full Name -->
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Full Name *</label>
-          <input id="ctFullName" class="fi" placeholder="e.g. John Smith" style="width:100%;box-sizing:border-box">
+          <input id="ctFullName" class="fi" placeholder="e.g. John Smith">
         </div>
 
         <!-- Email (auto-filled from login) -->
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Email Address <span style="font-size:10.5px;color:#16a34a;font-weight:600">✓ From your account</span></label>
-          <input id="ctEmail" class="fi" type="email" placeholder="your@email.com" style="width:100%;box-sizing:border-box">
+          <input id="ctEmail" class="fi" type="email" placeholder="your@email.com">
         </div>
 
         <!-- Phone -->
@@ -4136,10 +4135,10 @@ window.addEventListener('load', function(){
         <!-- Website -->
         <div>
           <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Website / Portfolio</label>
-          <input id="ctWebsite" class="fi" type="url" placeholder="https://yoursite.com" style="width:100%;box-sizing:border-box">
+          <input id="ctWebsite" class="fi" type="url" placeholder="https://yoursite.com">
         </div>
 
-        <button onclick="saveContactInfo()" style="padding:10px 24px;background:var(--ac);color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start">Save Changes</button>
+        <div style="grid-column:1/-1"><button onclick="saveContactInfo()" style="padding:10px 24px;background:var(--ac);color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">Save Changes</button></div>
       </div>
     </div>
 
