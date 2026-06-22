@@ -2304,6 +2304,33 @@ var twoFaOn = true;
 var settingsData = {};
 
 function saveState(page, extra){ /* buyer stub */ }
+
+function loadContactInfo(){
+  try{
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var saved = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var emailEl = document.getElementById('ctEmail');
+    if(emailEl) emailEl.value = saved.ctEmail || (user ? user.email : '');
+    var nameEl = document.getElementById('ctFullName');
+    if(nameEl) nameEl.value = saved.ctFullName || (user ? user.name : '');
+    var phoneEl = document.getElementById('ctPhone');
+    if(phoneEl) phoneEl.value = saved.ctPhone || '';
+    var webEl = document.getElementById('ctWebsite');
+    if(webEl) webEl.value = saved.ctWebsite || '';
+  }catch(e){}
+}
+
+function saveContactInfo(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    saved.ctFullName = (document.getElementById('ctFullName')||{value:''}).value;
+    saved.ctEmail    = (document.getElementById('ctEmail')||{value:''}).value;
+    saved.ctPhone    = (document.getElementById('ctPhone')||{value:''}).value;
+    saved.ctWebsite  = (document.getElementById('ctWebsite')||{value:''}).value;
+    localStorage.setItem('uplyncio_settings', JSON.stringify(saved));
+    showToast('✅ Contact info saved!');
+  }catch(e){}
+}
 function hideAllPages(){ /* buyer stub */ }
 // Buyer stubs for publisher functions
 var sampleOrders = [];
@@ -2313,6 +2340,7 @@ function applyFilters_pub(){ /* stub */ }
 function showBuyerSettings(){
   saveBuyerState('settings');
   setTimeout(load2FAState, 100);
+  setTimeout(loadContactInfo, 150);
   var sp=document.getElementById('settingsPage');
   if(sp){ sp.style.display='block'; document.body.style.overflow='hidden'; }
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
@@ -4085,31 +4113,36 @@ window.addEventListener('load', function(){
   <div id="stab-contact-content" style="display:none">
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
       <div style="font-size:13px;font-weight:800;color:var(--tx);margin-bottom:18px;text-transform:uppercase;letter-spacing:.5px">📞 Contact Information</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Full Name -->
         <div>
-          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">First Name *</label>
-          <input id="ctFirstName" type="text" placeholder="John" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+          <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Full Name *</label>
+          <input id="ctFullName" class="fi" placeholder="e.g. John Smith" style="width:100%;box-sizing:border-box">
         </div>
+
+        <!-- Email (auto-filled from login) -->
         <div>
-          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Last Name *</label>
-          <input id="ctLastName" type="text" placeholder="Smith" oninput="checkVerification()" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+          <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Email Address <span style="font-size:10.5px;color:#16a34a;font-weight:600">✓ From your account</span></label>
+          <input id="ctEmail" class="fi" type="email" placeholder="your@email.com" style="width:100%;box-sizing:border-box">
         </div>
+
+        <!-- Phone -->
         <div>
-          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Phone Number *</label>
-          <input id="ctPhone" type="tel" placeholder="+44 7700 900123" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+          <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Phone Number *</label>
+          <input id="ctPhone" class="fi" type="tel" placeholder="+44 7700 900123" style="width:100%;box-sizing:border-box">
         </div>
+
+        <!-- Website -->
         <div>
-          <label style="font-size:12px;font-weight:700;color:var(--tx);display:block;margin-bottom:6px">Website / Portfolio</label>
-          <input id="ctWebsite" type="url" placeholder="https://yoursite.com" style="width:100%;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px;font-size:13.5px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--br)'">
+          <label style="font-size:12px;font-weight:700;color:var(--t2);display:block;margin-bottom:6px">Website / Portfolio</label>
+          <input id="ctWebsite" class="fi" type="url" placeholder="https://yoursite.com" style="width:100%;box-sizing:border-box">
         </div>
+
+        <button onclick="saveContactInfo()" style="padding:10px 24px;background:var(--ac);color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;align-self:flex-start">Save Changes</button>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end">
-      <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Save Changes</button>
-    </div>
-  </div>
 
-  <!-- BILLING DETAILS TAB -->
   <div id="stab-billing-content" style="display:none">
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:24px;margin-bottom:16px">
 
