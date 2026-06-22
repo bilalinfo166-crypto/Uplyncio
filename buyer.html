@@ -2312,6 +2312,7 @@ function applyFilters_pub(){ /* stub */ }
 
 function showBuyerSettings(){
   saveBuyerState('settings');
+  setTimeout(load2FAState, 100);
   var sp=document.getElementById('settingsPage');
   if(sp){ sp.style.display='block'; document.body.style.overflow='hidden'; }
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
@@ -2642,16 +2643,169 @@ function editField(id){
   el.style.borderColor = 'var(--ac)';
 }
 
+
+// ── REAL 2FA TOTP SYSTEM ──
+var _2faSecret = '';
+
 function toggleTwoFa(){
-  twoFaOn = !twoFaOn;
-  var t = document.getElementById('twoFaToggle');
-  var th = document.getElementById('twoFaThumb');
-  if(twoFaOn){ t.style.background='#22c55e'; th.style.left='23px'; }
-  else { t.style.background='#94a3b8'; th.style.left='3px'; }
-  toast(twoFaOn ? '🔐 2FA enabled' : '2FA disabled','#0f172a');
+  var toggle = document.getElementById('twoFaToggle');
+  var isOn = toggle && toggle.style.background === 'rgb(34, 197, 94)' || 
+             (toggle && toggle.getAttribute('data-on') === '1');
+  
+  if(isOn){
+    // Turn OFF - confirm first
+    if(!confirm('Disable Two-Factor Authentication? This will make your account less secure.')) return;
+    toggle.style.background = '#e2e8f0';
+    toggle.style.setProperty('--tw', '3px');
+    toggle.setAttribute('data-on','0');
+    if(toggle.firstElementChild) toggle.firstElementChild.style.left = '3px';
+    // Save disabled state
+    try{
+      var uid = localStorage.getItem('uplyncio_currentUid')||'';
+      var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      ud.twoFaEnabled = false; ud.twoFaSecret = '';
+      localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
+    }catch(e){}
+    showToast('🔓 Two-Factor Authentication disabled');
+  } else {
+    // Start 2FA setup
+    open2FASetup();
+  }
 }
 
-// ── OAUTH MODALS ──
+function open2FASetup(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  var email = user.email || 'user@uplyncio.com';
+  
+  // Show setup modal
+  var modal = document.getElementById('twoFaModal');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  
+  // Reset to step 1
+  show2FAStep(1);
+  
+  // Generate secret via API
+  document.getElementById('twoFaQR').src = '';
+  document.getElementById('twoFaQR').style.display = 'none';
+  document.getElementById('twoFaLoading').style.display = 'flex';
+  document.getElementById('twoFaSecret').textContent = 'Generating...';
+  
+  fetch('/api/2fa', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'generate', email:email})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){
+      _2faSecret = d.secret;
+      document.getElementById('twoFaSecret').textContent = d.secret;
+      document.getElementById('twoFaQR').src = d.qrUrl;
+      document.getElementById('twoFaQR').onload = function(){
+        document.getElementById('twoFaLoading').style.display = 'none';
+        document.getElementById('twoFaQR').style.display = 'block';
+      };
+    }
+  })
+  .catch(function(e){
+    document.getElementById('twoFaLoading').style.display = 'none';
+    document.getElementById('twoFaSecret').textContent = 'Error generating secret. Retry.';
+  });
+}
+
+function show2FAStep(n){
+  [1,2].forEach(function(i){
+    var el = document.getElementById('twoFaStep'+i);
+    if(el) el.style.display = i===n ? 'block' : 'none';
+  });
+}
+
+function verify2FACode(){
+  var code = (document.getElementById('twoFaCode')||{value:''}).value.trim().replace(/\s/g,'');
+  var errEl = document.getElementById('twoFaErr');
+  
+  if(code.length !== 6 || !/^\d+$/.test(code)){
+    if(errEl) errEl.textContent = '⚠️ Please enter the 6-digit code from your authenticator app';
+    return;
+  }
+  
+  var btn = document.getElementById('twoFaVerifyBtn');
+  if(btn){ btn.textContent = 'Verifying...'; btn.disabled = true; }
+  
+  fetch('/api/2fa', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'verify', secret:_2faSecret, token:code})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.valid){
+      // Save 2FA enabled
+      try{
+        var uid = localStorage.getItem('uplyncio_currentUid')||'';
+        var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+        ud.twoFaEnabled = true; ud.twoFaSecret = _2faSecret;
+        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
+      }catch(e){}
+      // Update toggle
+      var toggle = document.getElementById('twoFaToggle');
+      if(toggle){
+        toggle.style.background = '#22c55e';
+        toggle.setAttribute('data-on','1');
+        if(toggle.firstElementChild) toggle.firstElementChild.style.left = '21px';
+      }
+      close2FAModal();
+      showToast('🔐 Two-Factor Authentication enabled successfully!');
+    } else {
+      if(errEl) errEl.textContent = '❌ Invalid code. Please try again.';
+      if(btn){ btn.textContent = 'Verify & Enable'; btn.disabled = false; }
+    }
+  })
+  .catch(function(){
+    if(errEl) errEl.textContent = '⚠️ Verification failed. Check your connection.';
+    if(btn){ btn.textContent = 'Verify & Enable'; btn.disabled = false; }
+  });
+}
+
+function close2FAModal(){
+  var m = document.getElementById('twoFaModal');
+  if(m) m.style.display = 'none';
+  document.body.style.overflow = '';
+  var code = document.getElementById('twoFaCode');
+  if(code) code.value = '';
+  var err = document.getElementById('twoFaErr');
+  if(err) err.textContent = '';
+}
+
+function copy2FASecret(){
+  var s = document.getElementById('twoFaSecret');
+  if(s && navigator.clipboard){
+    navigator.clipboard.writeText(s.textContent);
+    showToast('Secret key copied!');
+  }
+}
+
+// Load 2FA state on settings open
+function load2FAState(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    var toggle = document.getElementById('twoFaToggle');
+    if(toggle && ud.twoFaEnabled){
+      toggle.style.background = '#22c55e';
+      toggle.setAttribute('data-on','1');
+      if(toggle.firstElementChild) toggle.firstElementChild.style.left = '21px';
+    } else if(toggle){
+      toggle.style.background = '#e2e8f0';
+      toggle.setAttribute('data-on','0');
+      if(toggle.firstElementChild) toggle.firstElementChild.style.left = '3px';
+    }
+  }catch(e){}
+}
+
 function linkGoogle(){
   openOAuthModal('google');
 }
