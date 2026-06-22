@@ -985,6 +985,14 @@ var selectedPrice = 0;
 // ═══════════════════════════════════
 var _MARGIN = 0.20; // 20% commission - never expose this
 
+function _parseTraffic(t){
+  if(!t) return 0;
+  var s = t.toString().trim().toUpperCase().replace(/,/g,'');
+  if(s.endsWith('M')) return Math.round(parseFloat(s)*1000000);
+  if(s.endsWith('K')) return Math.round(parseFloat(s)*1000);
+  return parseInt(s.replace(/[^0-9.]/g,''))||0;
+}
+
 function _mkup(price){
   if(!price || price <= 0) return 0;
   return Math.ceil(price * (1 + _MARGIN)); // Round up to nearest dollar
@@ -1016,7 +1024,13 @@ function loadAllSites(){
             url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
             da: parseInt(s.da)||0,
             dr: parseInt(s.dr)||0,
-            traffic: parseInt((s.traffic||'0').toString().replace(/[^0-9]/g,''))||0,
+            traffic: (function(t){
+              if(!t) return 0;
+              t = t.toString().toLowerCase().trim();
+              if(t.indexOf('m')>=0) return parseFloat(t)*1000000;
+              if(t.indexOf('k')>=0) return parseFloat(t)*1000;
+              return parseInt(t.replace(/[^0-9.]/g,''))||0;
+            })(s.traffic),
             semT: 0, refD: 0,
             cats: s.category ? [s.category] : (s.cat ? [s.cat] : ['General']),
             linkType: s.linkType||'Dofollow',
@@ -1033,7 +1047,7 @@ function loadAllSites(){
             comp: 100,
             pub: s.role||'Owner',
             maxL: s.maxLinks||2,
-            req: s.requirements||'',
+            req: s.requirements||s.req||s.specialReq||'',
             spam: parseInt(s.spam)||3,
             minWords: Math.max(500, parseInt(s.minWords)||500),
             indexed: true,
@@ -1426,7 +1440,7 @@ function renderCard(s, idx){
       +'<div class="expand-grid">'
         +'<div class="eg-col">'
           +'<div class="eg-title">📋 Publisher Requirements</div>'
-          +(s.req?s.req.split(/[.,;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
+          +(s.req&&s.req.trim()?s.req.split(/\n|[;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
             :'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>')
         +'</div>'
         +'<div class="eg-col">'
