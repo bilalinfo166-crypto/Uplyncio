@@ -1103,11 +1103,10 @@ function updateLiveSiteCount(){
   return total;
 }
 
-// ── AUTO-REFRESH every 30 seconds ──
+// ── AUTO-REFRESH every 5 minutes (not 30s - too aggressive) ──
 setInterval(function(){
   updateLiveSiteCount();
-  applyFilters();
-}, 30000);
+}, 300000);
 
 // ═══════════════════════════════════
 // BUILD CATEGORY SIDEBAR
@@ -1530,8 +1529,8 @@ function renderCard(s, idx){
         +'</div>'
       +'</div>'
     +'</div>';
-    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
-      +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+    return '<div class="site-card" id="card_'+idx+'">'
+      +'<div class="card-top-wrap" onclick="toggleExpand('+idx+')" style="cursor:pointer"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
       +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button></div>'
       +stats+'<div class="card-bottom li-bg" onclick="event.stopPropagation()">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
   }
