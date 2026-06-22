@@ -2383,19 +2383,16 @@ function switchSettTab(el, tab){
 
 function updateActivityStats(){
   try{
-
-  if(!Array.isArray(sampleOrders)) return;
-  var total = sampleOrders.length;
-  var done  = sampleOrders.filter(function(o){return o.status==='completed';}).length;
-  var rate  = total>0 ? Math.round((done/total)*100) : 0;
-  var t=document.getElementById('actTotalOrders');
-  var d=document.getElementById('actCompleted');
-  var r=document.getElementById('actCompRate');
-  if(t) t.textContent=total;
-  if(d) d.textContent=done;
-  if(r) r.textContent=rate+'%';
-}
-
+    if(!Array.isArray(sampleOrders)) return;
+    var total = sampleOrders.length;
+    var done = sampleOrders.filter(function(o){return o.status==='completed';}).length;
+    var rate = total>0 ? Math.round((done/total)*100) : 0;
+    var t=document.getElementById('actTotalOrders');
+    var d=document.getElementById('actCompleted');
+    var r=document.getElementById('actCompRate');
+    if(t) t.textContent=total;
+    if(d) d.textContent=done;
+    if(r) r.textContent=rate+'%';
   }catch(e){}
 }
 
@@ -2420,14 +2417,13 @@ function saveBillingDetails(){
   toast('✅ Billing details saved!','#16a34a');
 }
 
-function previewNotification(){ try{
-){
-  var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
-  var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
-  // WA preview already static — just show number
+function previewNotification(){
+  try{
+    var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
+    var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
+  }catch(e){}
 }
 
-}catch(e){} }
 
 function saveNotifSettings(){
   var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
@@ -2635,9 +2631,8 @@ function saveSettings(){
     setTimeout(function(){ status.style.display='none'; }, 3000);
   }
   toast('✅ Settings saved successfully!','#16a34a');
-}
-
   }catch(e){ console.warn("saveSettings error:",e); }
+}
 
 function editField(id){
   var el = document.getElementById(id);
