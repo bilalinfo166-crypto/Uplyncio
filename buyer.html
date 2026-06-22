@@ -1013,7 +1013,7 @@ function loadAllSites(){
             maxL: s.maxLinks||2,
             req: s.requirements||'',
             spam: parseInt(s.spam)||3,
-            minWords: parseInt(s.minWords)||500,
+            minWords: Math.max(500, parseInt(s.minWords)||500),
             indexed: true,
             domainAge: s.domainAge||'N/A'
           });
@@ -1389,7 +1389,7 @@ function renderCard(s, idx){
           +'</div>'
           +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
           // Min words
-          +'<div class="word-badge">✍️ Min '+(s.minWords||500)+' words</div>'
+          +'<div class="word-badge">✍️ Min '+(Math.max(500,s.minWords||500))+' words</div>'
           +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
           // Indexed
           +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+
