@@ -754,12 +754,8 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
   </div>
 
   <div class="nav-right">
-    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none">
-      🛒 Cart<span id="navCartCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span>
-    </a>
-    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none" onclick="localStorage.setItem('cartTab','saved')">
-      ❤️ Saved<span id="navSavedCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span>
-    </a>
+    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none">🛒 Cart<span id="navCartCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span></a>
+    <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none" onclick="localStorage.setItem('cartTab','saved')">❤️ Saved<span id="navSavedCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span></a>
     <div id="guestNav" style="display:flex;gap:7px">
       <button class="nav-btn btn-ghost" onclick="openLogin()">Sign In</button>
       <button class="nav-btn btn-accent" onclick="openBuyerSignup()">Get Started</button>
@@ -1279,97 +1275,465 @@ function toggleExpand(idx){
 function toggleCart(idx, isLI){
   var site = filteredSites[idx];
   if(!site) return;
-  var svc = isLI?'li':'article';
   var key = (isLI?'li_':'')+site.url;
   var btn = document.getElementById('cart_btn_'+idx);
   var stored = localStorage.getItem('cart_'+key);
   if(stored === '1'){
     localStorage.removeItem('cart_'+key);
-    var cartItems=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-    cartItems=cartItems.filter(function(c){ return !(c.url===site.url&&c.service===svc); });
-    localStorage.setItem('uplyncio_cart_items',JSON.stringify(cartItems));
-    if(btn){ btn.innerHTML='<span class="cart-icon">🛒</span> Add to Cart'; btn.classList.remove('added'); }
+    if(btn){ btn.innerHTML='🛒 Add to Cart'; btn.classList.remove('added'); }
     showToast('Removed from cart');
-    updateCartNav();
   } else {
-    localStorage.setItem('cart_'+key,'1');
-    var cartItems=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-    cartItems=cartItems.filter(function(c){ return !(c.url===site.url&&c.service===svc); });
-    cartItems.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:isLI?site.liP:site.gP,service:svc,linkType:site.linkType,addedAt:new Date().toISOString()});
-    localStorage.setItem('uplyncio_cart_items',JSON.stringify(cartItems));
-    if(btn){ btn.innerHTML='<span class="cart-icon">✅</span> Added'; btn.classList.add('added'); }
-    updateCartNav();
-    // Show cart popup if 3+ items
-    var total = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
-    if(total>=3){ showCartPopup(); }
-    else { showToast('✅ '+site.url+' added to cart!'); }
+    localStorage.setItem('cart_'+key, '1');
+    var cartItems = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+    cartItems = cartItems.filter(function(c){ return c.url !== site.url; });
+    cartItems.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:isLI?site.liP:site.gP,service:isLI?'li':'article',linkType:site.linkType,addedAt:new Date().toISOString()}); if(cartItems.length>=3) showCartPopup();
+    localStorage.setItem('uplyncio_cart_items', JSON.stringify(cartItems));
+    if(btn){ btn.innerHTML='✅ Added to Cart'; btn.classList.add('added'); }
+    showToast('✅ '+site.url+' added to cart!');
   }
 }
 
+// ═══════════════════════════════════
+// FILTERS + RENDER
+// ═══════════════════════════════════
+function applyFilters(){
+  var all = loadAllSites();
+  buildCatSidebar(all);
+
+  var search = (document.getElementById('globalSearch').value||'').toLowerCase().trim();
+  var pMin = parseFloat(document.getElementById('fPriceMin').value)||0;
+  var pMax = parseFloat(document.getElementById('fPriceMax').value)||999999;
+  var daMin = parseInt(document.getElementById('fDAMin').value)||0;
+  var daMax = parseInt(document.getElementById('fDAMax').value)||100;
+  var drMin = parseInt(document.getElementById('fDRMin').value)||0;
+  var drMax = parseInt(document.getElementById('fDRMax').value)||100;
+  var tMin = parseInt(document.getElementById('fTrafficMin').value)||0;
+  var tMax = parseInt(document.getElementById('fTrafficMax').value)||999999999;
+  var lt = document.getElementById('fLinkType').value;
+  var country = document.getElementById('fCountry').value;
+  var lang = document.getElementById('fLang').value;
+  var comp = parseInt(document.getElementById('fCompletion').value)||0;
+  var tat = parseInt(document.getElementById('fTAT').value)||999;
+  var tab = currentTab;
+  var sort = document.getElementById('sortBy').value;
+
+  // Count tabs
+  var artCnt=0, liCnt=0;
+  all.forEach(function(s){ artCnt++; if(s.liOk) liCnt++; });
+  document.getElementById('tcnt-article').textContent = artCnt;
+  document.getElementById('tcnt-link').textContent = liCnt;
+  document.getElementById('tcnt-press').textContent = 0;
+
+  filteredSites = all.filter(function(s){
+    if(tab==='link' && !s.liOk) return false;
+    if(tab==='press') return false;
+
+    var price = tab==='link' ? s.liP : s.gP;
+
+    // Category filter
+    if(currentCat && (s.cats||[]).indexOf(currentCat)<0) return false;
+
+    // Search: domain or category keyword
+    if(search){
+      var haystack = s.url + ' ' + (s.cats||[]).join(' ').toLowerCase() + ' ' + (s.req||'').toLowerCase();
+      if(haystack.indexOf(search)<0) return false;
+    }
+
+    if(price<pMin || price>pMax) return false;
+    if(s.da<daMin || s.da>daMax) return false;
+    if(s.dr<drMin || s.dr>drMax) return false;
+    if(s.traffic<tMin || s.traffic>tMax) return false;
+    if(lt && s.linkType!==lt) return false;
+    if(country && s.country!==country) return false;
+    if(lang && s.lang!==lang) return false;
+    if(s.comp<comp) return false;
+    if(s.tat>tat) return false;
+    return true;
+  });
+
+  // Sort
+  filteredSites.sort(function(a,b){
+    if(sort==='price-asc') return a.gP-b.gP;
+    if(sort==='price-desc') return b.gP-a.gP;
+    if(sort==='da-desc') return b.da-a.da;
+    if(sort==='dr-desc') return b.dr-a.dr;
+    if(sort==='traffic-desc') return b.traffic-a.traffic;
+    if(sort==='completion') return b.comp-a.comp;
+    // Default: DA desc
+    return b.da-a.da;
+  });
+
+  currentPage=1;
+  renderSites();
+}
+
+function fmtN(n){
+  if(!n) return 'N/A';
+  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
+  if(n>=1000) return Math.round(n/1000)+'K';
+  return n.toString();
+}
+
+function ringHtml(pct){
+  var r=11, c=2*Math.PI*r, off=c-(pct/100)*c;
+  var col=pct>=90?'#16a34a':pct>=70?'#d97706':'#dc2626';
+  return '<div class="c-ring"><svg width="28" height="28" viewBox="0 0 28 28"><circle cx="14" cy="14" r="'+r+'" fill="none" stroke="#f1f5f9" stroke-width="2.5"/><circle cx="14" cy="14" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'"/></svg><div class="c-ring-lbl" style="color:'+col+'">'+pct+'%</div></div>';
+}
+
+function renderCard(s, idx){
+  var ltB = s.linkType==='Dofollow'?'<span class="badge b-df">● Dofollow</span>':
+            s.linkType==='Sponsored'?'<span class="badge b-sp">● Sponsored</span>':
+            '<span class="badge b-nf">● Nofollow</span>';
+  var pubB = s.pub==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>';
+  var catB = (s.cats||[]).slice(0,3).map(function(c){ return '<span class="badge b-cat">'+c+'</span>'; }).join('');
+
+  var flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'};
+  var cFlag=flags[s.country]||'🌐';
+
+  // Live publisher performance
+  var _p=getPubPerformance(s.url);
+  var _lCol=_p.lifeRate>=90?'#16a34a':_p.lifeRate>=70?'#d97706':'#dc2626';
+  var _cCol=_p.compRate>=90?'#16a34a':_p.compRate>=70?'#d97706':'#dc2626';
+  var _st=''; for(var _si=0;_si<5;_si++){ if(_si<Math.floor(_p.avgRating)) _st+='<span style="color:#f59e0b;font-size:10px">★</span>'; else if(_si===Math.floor(_p.avgRating)&&(_p.avgRating%1)>=0.5) _st+='<span style="color:#fcd34d;font-size:10px">★</span>'; else _st+='<span style="color:#e2e8f0;font-size:10px">★</span>'; }
+  var _pName=_p.pubName?('<span style="display:inline-flex;align-items:center;gap:3px"><span style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff">'+_p.pubName.charAt(0).toUpperCase()+'</span><span style="font-size:11px;font-weight:600;color:#374151">'+_p.pubName+'</span></span>'):'<span style="font-size:11px;color:#94a3b8">'+s.pub+'</span>';
+
+  var stats='<div class="card-stats">'
+    +'<div class="st"><div class="st-v blue">'+s.da+'</div><div class="st-l">Moz DA</div></div>'
+    +'<div class="st"><div class="st-v teal">'+s.dr+'</div><div class="st-l">Ahrefs DR</div></div>'
+    +'<div class="st"><div class="st-v"><span class="a-dot">a</span>'+fmtN(s.traffic)+'</div><div class="st-l">Ahrefs Traffic</div></div>'
+    +'<div class="st"><div class="st-v">'+fmtN(s.semT)+'</div><div class="st-l">SemRush Traffic</div></div>'
+    +'<div class="st"><div class="st-v" style="justify-content:center">'+ringHtml(s.comp)+'</div><div class="st-l">Completion</div></div>'
+    +'<div class="st"><div class="st-v amber">'+Math.min(10,s.tat)+'d</div><div class="st-l">Max TAT</div></div>'
+    +'<div class="st"><div class="st-v" style="font-size:16px">'+cFlag+'</div><div class="st-l">'+s.country+'</div></div>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;padding:7px 16px;background:#fafbff;border-top:1px solid #f1f5f9;flex-wrap:wrap">'
+      +_pName
+      +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
+      +'<span style="display:inline-flex;align-items:center;gap:2px">'+_st+'<span style="font-size:11px;font-weight:700;color:#374151;margin-left:2px">'+_p.avgRating.toFixed(1)+'</span><span style="font-size:10px;color:#94a3b8;margin-left:1px">'+(_p.reviewCount>0?'('+_p.reviewCount+')':'(new)')+'</span></span>'
+      +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
+      +'<span style="display:inline-flex;align-items:center;gap:3px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="'+_lCol+'" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span style="font-size:11px;font-weight:700;color:'+_lCol+'">'+_p.lifeRate.toFixed(0)+'% Link Life</span>'+(_p.removedLinks>0?'<span style="font-size:9px;color:#dc2626;background:#fef2f2;border-radius:4px;padding:1px 5px">'+_p.removedLinks+' removed</span>':'<span style="font-size:9px;color:#16a34a;background:#f0fdf4;border-radius:4px;padding:1px 5px">All active</span>')+'</span>'
+    +'</div>';
+
+  if(currentTab==='article'){
+    var priceCols = '<div class="price-cols">'
+      +'<div class="pc"><div class="pc-lbl">Content Placement</div><div class="pc-val">$'+s.gP+'</div><div class="pc-sub">You write the article</div></div>'
+      +(s.wP?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Write & Publish</div><div class="pc-val">$'+s.wP+'</div><div class="pc-sub">Publisher writes</div></div>':'')
+      +'<div class="pc-sep"></div>'
+      +'<div class="pc"><div class="pc-lbl">Extra 500 Words</div><div class="pc-val '+(s.extraWordPrice?'':'muted')+'">'+(s.extraWordPrice?'$'+s.extraWordPrice:'—')+'</div><div class="pc-sub">'+(s.extraWordPrice?'Per 500 extra words':'Not available')+'</div></div>'
+      +'<div class="pc-sep"></div>'
+      +'<div class="pc"><div class="pc-lbl">Special Topic</div><div class="pc-val '+(s.specialTopicPrice?'':'muted')+'">'+(s.specialTopicPrice?'+$'+s.specialTopicPrice:'—')+'</div><div class="pc-sub">'+(s.specialTopicPrice?'Additional charge':'No extra charge')+'</div></div>'
+      +'</div>';
+    var inCartBtn = localStorage.getItem('cart_'+s.url)==='1';
+    var actions = '<div class="card-actions">'
+      +'<button class="btn-wish" onclick="event.stopPropagation();toggleSave('+idx+',this)" title="Save" id="wish_'+idx+'">'+( localStorage.getItem('saved_'+s.url)==='1'?'❤️':'♡' )+'</button>'
+      +(s.liOk?'<button class="btn-li" onclick="event.stopPropagation();openModal('+idx+',\'li\')">LI $'+s.liP+'</button>':'')
+      +'<button class="add-cart-btn'+(inCartBtn?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+')">'
+        +'<span class="cart-icon">'+(inCartBtn?'✅':'🛒')+'</span>'+(inCartBtn?' Added':' Add to Cart')
+      +'</button>'
+      +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'article\')">Buy Post</button>'
+      +'</div>';
+    var expandId='ex_'+idx;
+    var inCart=localStorage.getItem('cart_'+s.url)==='1';
+    var spamScore=s.spam||0;
+    var spamCol=spamScore<=3?'#16a34a':spamScore<=6?'#d97706':'#dc2626';
+    var spamLabel=spamScore<=3?'Low':spamScore<=6?'Medium':'High';
+    var expandHtml='<div class="card-expand" id="'+expandId+'" onclick="event.stopPropagation()">'
+      +'<div class="expand-grid">'
+        +'<div class="eg-col">'
+          +'<div class="eg-title">📋 Publisher Requirements</div>'
+          +(s.req&&s.req.trim()?s.req.split(/\n|\r\n|[.,;|]+/).filter(function(r){return r.trim()&&r.trim().length>2;}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
+            :'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>')
+        +'</div>'
+        +'<div class="eg-col">'
+          +'<div class="eg-title">✍️ Content Guidelines</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Minimum <strong>'+(s.minWords||500)+'</strong> words required</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>'+s.linkType+' link — max <strong>'+(s.maxL||2)+'</strong> links</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Language: <strong>'+s.lang+'</strong></div>'
+          +(s.liOk?'<div class="eg-item"><div class="eg-dot blue" style="background:#4f7cff"></div>Link insertion also accepted ($'+s.liP+')</div>':'')
+          +(s.liReq?'<div class="eg-item"><div class="eg-dot amber"></div>LI Note: '+s.liReq+'</div>':'')
+        +'</div>'
+        +'<div class="eg-col">'
+          +'<div class="eg-title">🌐 Site Details</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Country: <strong>'+s.country+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Domain Age: <strong>'+(s.domainAge||'N/A')+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Google Indexed: <strong>'+(s.indexed!==false?'Yes':'No')+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot '+(s.linkType==='Dofollow'?'green':'amber')+'"></div>Link Type: <strong>'+s.linkType+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>TAT: <strong>3 days accept + '+Math.max(1,Math.min(10,s.tat)-3)+' days delivery</strong></div>'
+        +'</div>'
+      +'</div>'
+      // Bottom bar: spam score + word badge + add to cart
+      +'<div class="expand-bottom">'
+        +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+          // Spam Score
+          +'<div style="display:flex;align-items:center;gap:6px">'
+            +'<span style="font-size:11px;color:#64748b;font-weight:600">Spam Score:</span>'
+            +'<div class="spam-track"><div class="spam-fill" style="width:'+(spamScore*10)+'%;background:'+spamCol+'"></div></div>'
+            +'<span style="font-size:11px;font-weight:700;color:'+spamCol+'">'+spamScore+'/10 '+spamLabel+'</span>'
+          +'</div>'
+          +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
+          // Min words
+          +'<div class="word-badge">✍️ Min '+(Math.max(500,s.minWords||500))+' words</div>'
+          +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
+          // Indexed
+          +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+
+            (s.indexed!==false?'✅ Google Indexed':'❌ Not Indexed')+'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
+      +'<div class="card-top-wrap">'
+        +'<div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+        +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button>'
+      +'</div>'
+      +stats
+      +'<div class="card-bottom" onclick="event.stopPropagation()">'+priceCols+actions+'</div>'
+      +expandHtml
+    +'</div>';
+  } else {
+    var priceCols2 = '<div class="price-cols">'
+      +'<div class="pc"><div class="pc-lbl">Link Insertion</div><div class="pc-val">$'+s.liP+'</div><div class="pc-sub">Add link to existing post</div></div>'
+      +(s.liReq?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Requirements</div><div class="pc-val" style="font-size:12px;font-weight:600;color:#64748b;line-height:1.4">'+s.liReq+'</div></div>':'')
+      +'</div>';
+    var inCartBtn2 = localStorage.getItem('cart_li_'+s.url)==='1';
+    var actions2 = '<div class="card-actions">'
+      +'<button class="btn-wish" onclick="event.stopPropagation();toggleSave('+idx+',this)" title="Save" id="wish_'+idx+'">'+( localStorage.getItem('saved_'+s.url)==='1'?'❤️':'♡' )+'</button>'
+      +'<button class="add-cart-btn'+(inCartBtn2?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+',true)">'
+        +'<span class="cart-icon">'+(inCartBtn2?'✅':'🛒')+'</span>'+(inCartBtn2?' Added':' Add to Cart')
+      +'</button>'
+      +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'li\')">Buy Insertion</button>'
+      +'</div>';
+    var expandId2='ex_'+idx;
+    var inCart2=localStorage.getItem('cart_li_'+s.url)==='1';
+    var spamScore2=s.spam||0;
+    var spamCol2=spamScore2<=3?'#16a34a':spamScore2<=6?'#d97706':'#dc2626';
+    var spamLabel2=spamScore2<=3?'Low':spamScore2<=6?'Medium':'High';
+    var liReqList=s.liReq?s.liReq.split(/[.,;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join(''):'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>';
+    var expandHtml2='<div class="card-expand" id="'+expandId2+'" onclick="event.stopPropagation()">'
+      +'<div class="expand-grid">'
+        +'<div class="eg-col"><div class="eg-title">📋 LI Requirements</div>'+liReqList+'</div>'
+        +'<div class="eg-col"><div class="eg-title">🔗 Link Details</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Type: <strong>'+s.linkType+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Max links per article: <strong>'+(s.maxL||2)+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Language: <strong>'+s.lang+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot amber"></div>TAT: <strong>5–10 business days</strong></div>'
+        +'</div>'
+        +'<div class="eg-col"><div class="eg-title">🌐 Site Details</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Country: <strong>'+s.country+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Domain Age: <strong>'+(s.domainAge||'N/A')+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Google Indexed: <strong>'+(s.indexed!==false?'Yes':'No')+'</strong></div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="expand-bottom">'
+        +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+          +'<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#64748b;font-weight:600">Spam Score:</span><div class="spam-track"><div class="spam-fill" style="width:'+(spamScore2*10)+'%;background:'+spamCol2+'"></div></div><span style="font-size:11px;font-weight:700;color:'+spamCol2+'">'+spamScore2+'/10 '+spamLabel2+'</span></div>'
+          +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
+          +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+(s.indexed!==false?'✅ Google Indexed':'❌ Not Indexed')+'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
+      +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+      +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button></div>'
+      +stats+'<div class="card-bottom li-bg" onclick="event.stopPropagation()">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
+  }
+}
+
+function renderSites(){
+  var list = document.getElementById('sitesList');
+  var info = document.getElementById('resInfo');
+  var start = (currentPage-1)*perPage;
+  var page = filteredSites.slice(start, start+perPage);
+
+  info.innerHTML = 'Results: <strong>'+filteredSites.length+' sites</strong>';
+
+  if(currentTab==='press'){
+    list.innerHTML='<div class="empty"><div class="empty-icon">📰</div><h3>Press Release — Coming Soon</h3><p>This service will be available shortly.</p></div>';
+    document.getElementById('pagination').innerHTML=''; return;
+  }
+  if(!filteredSites.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><h3>No sites found</h3><p>Try adjusting your filters or clearing the search.</p></div>';
+    document.getElementById('pagination').innerHTML=''; return;
+  }
+
+  list.innerHTML = page.map(function(s,i){ return renderCard(s, start+i); }).join('');
+  renderPagination();
+}
+
+function renderPagination(){
+  var total=Math.ceil(filteredSites.length/perPage);
+  if(total<=1){ document.getElementById('pagination').innerHTML=''; return; }
+  var h='<button class="pg" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>‹</button>';
+  for(var i=1;i<=Math.min(total,7);i++) h+='<button class="pg'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+  if(total>7) h+='<span style="color:#94a3b8;padding:0 3px">...</span><button class="pg'+(currentPage===total?' active':'')+'" onclick="goPage('+total+')">'+total+'</button>';
+  h+='<button class="pg" onclick="goPage('+(currentPage+1)+')" '+(currentPage===total?'disabled':'')+'>›</button>';
+  document.getElementById('pagination').innerHTML=h;
+}
+
+function goPage(n){
+  var t=Math.ceil(filteredSites.length/perPage);
+  if(n<1||n>t) return;
+  currentPage=n; renderSites();
+  document.querySelector('.content').scrollTop=0;
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  ['article','link','press'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  applyFilters();
+}
+
+function clearFilters(){
+  ['fPriceMin','fPriceMax','fDAMin','fDAMax','fDRMin','fDRMax','fTrafficMin','fTrafficMax'].forEach(function(id){ document.getElementById(id).value=''; });
+  ['fLinkType','fCountry','fLang','fCompletion','fTAT'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('globalSearch').value='';
+  currentCat='';
+  applyFilters();
+}
+
+// ═══════════════════════════════════
+// ORDER MODAL
+// ═══════════════════════════════════
+function openModal(idx, type){
+  selectedSite=filteredSites[idx];
+  selectedSvcType=type;
+  selectedPrice=type==='li'?selectedSite.liP:selectedSite.gP;
+
+  document.getElementById('mSiteUrl').textContent=selectedSite.url;
+  document.getElementById('mStats').innerHTML=
+    '<div class="ms"><div class="ms-v" style="color:#2563eb">'+selectedSite.da+'</div><div class="ms-l">Moz DA</div></div>'+
+    '<div class="ms"><div class="ms-v" style="color:#0d9488">'+selectedSite.dr+'</div><div class="ms-l">Ahrefs DR</div></div>'+
+    '<div class="ms"><div class="ms-v">'+fmtN(selectedSite.traffic)+'</div><div class="ms-l">Traffic</div></div>'+
+    '<div class="ms"><div class="ms-v" style="color:#16a34a">'+selectedSite.comp+'%</div><div class="ms-l">Completion</div></div>'+
+    '<div class="ms"><div class="ms-v" style="color:#d97706">'+selectedSite.tat+' days</div><div class="ms-l">TAT</div></div>'+
+    '<div class="ms"><div class="ms-v">'+selectedSite.lang+'</div><div class="ms-l">Language</div></div>';
+
+  document.getElementById('mTags').innerHTML=
+    '<div class="m-tag">🌍 <strong>'+selectedSite.country+'</strong></div>'+
+    '<div class="m-tag">🔗 <strong>'+selectedSite.linkType+'</strong></div>'+
+    '<div class="m-tag">📁 <strong>'+(selectedSite.cats||[]).join(', ')+'</strong></div>'+
+    '<div class="m-tag">🔢 Max <strong>'+selectedSite.maxL+' links</strong></div>'+
+    (selectedSite.req?'<div class="m-tag" style="color:#d97706">📌 '+selectedSite.req+'</div>':'');
+
+  // ── PUBLISHER LIVE PERFORMANCE ──
+  var _perf = getPubPerformance(selectedSite.url);
+  var _s = selectedSite;
+  var _flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰','France':'🇫🇷','Spain':'🇪🇸'};
+  var _cFlag=_flags[_s.country]||'🌐';
+  var _topFlag=_flags[_s.topCountry||_s.country]||'🌐';
+  var compRate=_perf.compRate, lifeRate=_perf.lifeRate;
+  var avgRating=_perf.avgRating, reviewCount=_perf.reviewCount;
+  var removedLinks=_perf.removedLinks, rejectedOrders=_perf.rejectedOrders;
+  var compCol=compRate>=90?'#16a34a':compRate>=70?'#d97706':'#dc2626';
+  var lifeCol=lifeRate>=90?'#2563eb':lifeRate>=70?'#d97706':'#dc2626';
+  var starCol=avgRating>=4?'#d97706':avgRating>=3?'#64748b':'#dc2626';
+  var compInfo=rejectedOrders>0?(rejectedOrders+' order'+(rejectedOrders>1?'s':'')+' rejected'):'All orders completed';
+  var lifeInfo=removedLinks>0?(removedLinks+' link'+(removedLinks>1?'s':'')+' removed'):'All links active';
+  var ratingInfo=reviewCount>0?(reviewCount+' review'+(reviewCount>1?'s':'')):'No reviews yet';
+  var stHtml=''; for(var _i=0;_i<5;_i++){ if(_i<Math.floor(avgRating)) stHtml+='<span style="color:#f59e0b">★</span>'; else if(_i<avgRating) stHtml+='<span style="color:#fcd34d">★</span>'; else stHtml+='<span style="color:#e2e8f0">★</span>'; }
+
+  document.getElementById('mPubPerf').innerHTML=
+    '<div class="pub-perf">'+
+      '<div class="pub-perf-title"><span>📊</span> Publisher Performance<span style="margin-left:auto;font-size:9px;color:#94a3b8;font-weight:400;text-transform:none;letter-spacing:0">Live</span></div>'+
+      (_perf.pubName?'<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:10px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">'+_perf.pubName.charAt(0).toUpperCase()+'</div>'+
+        '<div>'+
+          '<div style="font-size:12px;font-weight:700;color:#15803d">'+_perf.pubName+'</div>'+
+          '<div style="font-size:10px;color:#94a3b8">Verified Publisher · Uplyncio</div>'+
+        '</div>'+
+        '<div style="margin-left:auto;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;color:#15803d">✓ Verified</div>'+
+      '</div>':'')+ 
+      '<div class="pub-perf-grid">'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">📊</span><span class="pp-lbl">Completion Rate</span></div>'+
+          '<div class="pp-val" style="color:'+compCol+';font-size:20px;font-weight:900;font-family:Manrope">'+compRate.toFixed(2)+'%</div>'+
+          '<div class="pp-bar"><div class="pp-bar-fill" style="width:'+compRate+'%;background:'+compCol+'"></div></div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+compInfo+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">🔗</span><span class="pp-lbl">Link Lifetime</span></div>'+
+          '<div class="pp-val" style="color:'+lifeCol+';font-size:20px;font-weight:900;font-family:Manrope">'+lifeRate.toFixed(2)+'%</div>'+
+          '<div class="pp-bar"><div class="pp-bar-fill" style="width:'+lifeRate+'%;background:'+lifeCol+'"></div></div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+lifeInfo+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">⭐</span><span class="pp-lbl">Avg Client Rating</span></div>'+
+          '<div class="pp-val" style="color:'+starCol+';font-size:20px;font-weight:900;font-family:Manrope">'+avgRating.toFixed(1)+' <span style="font-size:12px;color:#94a3b8">/ 5</span></div>'+
+          '<div style="font-size:14px;line-height:1.2">'+stHtml+'</div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">'+ratingInfo+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">⚡</span><span class="pp-lbl">Turnaround Time</span></div>'+
+          '<div style="margin-top:4px">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'+
+              '<span style="font-size:10px;color:#64748b">Accept/Reject</span>'+
+              '<span style="font-size:11px;font-weight:700;color:#d97706;background:#fef3c7;border-radius:4px;padding:1px 6px">3 days</span>'+
+            '</div>'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'+
+              '<span style="font-size:10px;color:#64748b">Content Delivery</span>'+
+              '<span style="font-size:11px;font-weight:700;color:#2563eb;background:#dbeafe;border-radius:4px;padding:1px 6px">'+Math.min(10,Math.max(1,_s.tat-3))+' days</span>'+
+            '</div>'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;border-top:1px dashed #e2e8f0;padding-top:4px">'+
+              '<span style="font-size:10px;font-weight:700;color:#374151">Total Max</span>'+
+              '<span style="font-size:12px;font-weight:800;color:#16a34a;background:#f0fdf4;border-radius:4px;padding:1px 6px">'+Math.min(10,_s.tat)+' days</span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">🌐</span><span class="pp-lbl">Language</span></div>'+
+          '<div class="pp-val" style="font-size:13px;font-weight:700">'+_s.lang+'</div>'+
+          '<div class="pp-val" style="font-size:12px;color:#64748b;font-weight:600;margin-top:2px">'+_cFlag+' '+_s.country+'</div>'+
+        '</div>'+
+        '<div class="pp-item">'+
+          '<div style="display:flex;align-items:center;gap:5px"><span style="font-size:15px">📍</span><span class="pp-lbl">SemRush Top Country</span></div>'+
+          '<div class="pp-val" style="font-size:13px;font-weight:700">'+_topFlag+' '+(_s.topCountry||_s.country)+'</div>'+
+          '<div style="font-size:9.5px;color:#94a3b8;margin-top:2px">Top Country Traffic: '+(_s.topCountryTraffic||'N/A')+'</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+
+  document.getElementById('mTotal').textContent='$'+selectedPrice;
+  ['oUrl','oAnchor','oKeywords','oInstructions'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('orderModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function selSvc(type,price,el){
+  selectedSvcType=type; selectedPrice=price;
+  document.querySelectorAll('.m-opt').forEach(function(e){ e.classList.remove('sel'); });
+  el.classList.add('sel');
+  document.getElementById('mTotal').textContent='$'+price;
+}
+
+function closeModal(){
+  document.getElementById('orderModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function submitOrder(){
+  var url=document.getElementById('oUrl').value.trim();
+  var anchor=document.getElementById('oAnchor').value.trim();
+  if(!url){ showToast('⚠️ Please enter your target URL'); return; }
+  if(!anchor){ showToast('⚠️ Please enter anchor text'); return; }
+  var orders=JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+  var id='#OR'+Math.floor(1000+Math.random()*9000);
+  orders.push({id,site:selectedSite.url,svc:selectedSvcType,price:selectedPrice,url,anchor,
+    kw:document.getElementById('oKeywords').value,
+    note:document.getElementById('oInstructions').value,
+    status:'Pending',date:new Date().toISOString()});
+  localStorage.setItem('uplyncio_buyer_orders',JSON.stringify(orders));
+  closeModal();
+  var totalDays = Math.min(10, selectedSite.tat||7);
+  var delivDays = Math.max(1, totalDays-3);
+  showToast('✅ Order placed! Task ID: '+id+' · Publisher has 3 days to accept, '+delivDays+' days to deliver');
+}
 
 function showToast(msg){
   var t=document.getElementById('toast');
   t.innerHTML=msg; t.classList.add('show');
   setTimeout(function(){ t.classList.remove('show'); },4000);
-}
-
-function toggleSave(idx, btn){
-  var site = filteredSites[idx];
-  if(!site) return;
-  var key = 'saved_'+site.url;
-  var stored = localStorage.getItem(key);
-  if(stored==='1'){
-    localStorage.removeItem(key);
-    var saved=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-    saved=saved.filter(function(s){ return s.url!==site.url; });
-    localStorage.setItem('uplyncio_saved_sites',JSON.stringify(saved));
-    if(btn) btn.innerHTML='♡';
-    showToast('Removed from saved sites');
-  } else {
-    localStorage.setItem(key,'1');
-    var saved=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-    saved=saved.filter(function(s){ return s.url!==site.url; });
-    saved.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:site.gP,linkType:site.linkType,savedAt:new Date().toISOString()});
-    localStorage.setItem('uplyncio_saved_sites',JSON.stringify(saved));
-    if(btn) btn.innerHTML='❤️';
-    showToast('❤️ Saved! <a href="cart.html" style="color:#4f7cff;font-weight:700;text-decoration:none">View Saved →</a>');
-  }
-  updateCartNav();
-}
-
-function updateCartNav(){
-  var c=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
-  var s=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]').length;
-  var ce=document.getElementById('navCartCount');
-  if(ce){ ce.textContent=c; ce.style.display=c>0?'block':'none'; }
-  var se=document.getElementById('navSavedCount');
-  if(se){ se.textContent=s; se.style.display=s>0?'block':'none'; }
-}
-
-function showCartPopup(){
-  var items=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  var total=items.reduce(function(s,i){return s+parseFloat(i.price||0);},0);
-  var popup=document.getElementById('cartPopup');
-  if(!popup) return;
-  document.getElementById('cpCount').textContent=items.length+' site'+(items.length>1?'s':'');
-  document.getElementById('cpTotal').textContent='$'+total.toFixed(0);
-  // Show last 3 items
-  var list=document.getElementById('cpList');
-  list.innerHTML=items.slice(-3).reverse().map(function(i){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:12px">'
-      +'<span style="font-weight:600;color:#1a202c">'+i.url+'</span>'
-      +'<span style="font-weight:700;color:#4f7cff">$'+i.price+'</span>'
-      +'</div>';
-  }).join('');
-  popup.style.display='flex';
-  // Auto hide after 8 seconds
-  clearTimeout(window._popupTimer);
-  window._popupTimer=setTimeout(function(){ closeCartPopup(); },8000);
-}
-
-function closeCartPopup(){
-  var p=document.getElementById('cartPopup');
-  if(p) p.style.display='none';
 }
 
 // ═══════════════════════════════════
@@ -1422,6 +1786,28 @@ function onBuyerLogin(user){
     if(uid&&user&&user.verified) onBuyerLogin(user);
   }catch(e){}
 })();
+
+function toggleSave(idx,btn){
+  var site=filteredSites[idx]; if(!site) return;
+  var key='saved_'+site.url;
+  if(localStorage.getItem(key)==='1'){
+    localStorage.removeItem(key);
+    var sv=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+    sv=sv.filter(function(s){return s.url!==site.url;});
+    localStorage.setItem('uplyncio_saved_sites',JSON.stringify(sv));
+    if(btn) btn.innerHTML='♡';
+    showToast('Removed from saved');
+  } else {
+    localStorage.setItem(key,'1');
+    var sv=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+    sv=sv.filter(function(s){return s.url!==site.url;});
+    sv.push({url:site.url,da:site.da,dr:site.dr,traffic:site.traffic,cats:site.cats,price:site.gP,savedAt:new Date().toISOString()});
+    localStorage.setItem('uplyncio_saved_sites',JSON.stringify(sv));
+    if(btn) btn.innerHTML='❤️';
+    showToast('❤️ Saved! <a href="cart.html" style="color:#4f7cff;font-weight:700;text-decoration:none">View →</a>');
+  }
+  updateCartNav();
+}
 
 // Init
 applyFilters();
@@ -1724,19 +2110,19 @@ window.addEventListener('load', function(){
 
 
 <!-- CART POPUP -->
-<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
-  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
-    <div style="color:#fff;font-weight:700;font-size:14px">🛒 <span id="cpCount">0 sites</span> in cart</div>
-    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
+  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="color:#fff;font-weight:700;font-size:13px">🛒 <span id="cpCount">0 sites</span> in cart</div>
+    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1">✕</button>
   </div>
   <div style="padding:12px 16px">
     <div id="cpList"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:4px">
-      <div style="font-size:13px;color:#64748b;font-weight:600">Total: <strong style="color:#1a202c;font-size:16px" id="cpTotal">$0</strong></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
+      <span style="font-size:13px;color:#64748b">Total: <strong style="color:#1a202c;font-size:15px" id="cpTotal">$0</strong></span>
     </div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button onclick="closeCartPopup()" style="flex:1;padding:9px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Continue Browsing</button>
-      <a href="cart.html" style="flex:1;padding:9px;background:#4f7cff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="closeCartPopup()" style="flex:1;padding:8px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Keep Browsing</button>
+      <a href="cart.html" style="flex:1;padding:8px;background:#4f7cff;border-radius:8px;font-size:12px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
     </div>
   </div>
 </div>
@@ -1817,19 +2203,19 @@ window.addEventListener('load', function(){
 </div>
 
 <!-- CART POPUP -->
-<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
-  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
-    <div style="color:#fff;font-weight:700;font-size:14px">🛒 <span id="cpCount">0 sites</span> in cart</div>
-    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+<div id="cartPopup" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:#fff;border:1px solid #e2e8f0;border-radius:16px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,.12);flex-direction:column;overflow:hidden">
+  <div style="background:linear-gradient(135deg,#4f7cff,#00d4aa);padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="color:#fff;font-weight:700;font-size:13px">🛒 <span id="cpCount">0 sites</span> in cart</div>
+    <button onclick="closeCartPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1">✕</button>
   </div>
   <div style="padding:12px 16px">
     <div id="cpList"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;margin-top:4px">
-      <div style="font-size:13px;color:#64748b;font-weight:600">Total: <strong style="color:#1a202c;font-size:16px" id="cpTotal">$0</strong></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
+      <span style="font-size:13px;color:#64748b">Total: <strong style="color:#1a202c;font-size:15px" id="cpTotal">$0</strong></span>
     </div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button onclick="closeCartPopup()" style="flex:1;padding:9px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Continue Browsing</button>
-      <a href="cart.html" style="flex:1;padding:9px;background:#4f7cff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="closeCartPopup()" style="flex:1;padding:8px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">Keep Browsing</button>
+      <a href="cart.html" style="flex:1;padding:8px;background:#4f7cff;border-radius:8px;font-size:12px;font-weight:700;color:#fff;font-family:inherit;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">View Cart →</a>
     </div>
   </div>
 </div>
