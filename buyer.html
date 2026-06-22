@@ -216,6 +216,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 @media(max-width:900px){.sidebar{display:none}.card-stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:600px){.card-stats{grid-template-columns:repeat(3,1fr)}.m-opts{grid-template-columns:1fr}}
 
+/* ── BUYER PROFILE MENU ── */
+@keyframes menuFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.bmenu-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;font-weight:500;color:#374151;cursor:pointer;transition:background .15s}
+.bmenu-item:hover{background:#f8faff;color:#4f7cff}
+.bmenu-item span{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+
 /* ── CART POPUP ANIMATION ── */
 @keyframes popupSlide{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
@@ -786,7 +792,48 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         <div class="bal-item"><div class="bal-lbl">Reserved</div><div class="bal-val">$0.00</div></div>
       </div>
       <button class="nav-btn btn-accent" onclick="showToast('Contact info@uplyncio.com to add funds')">+ Add Funds</button>
-      <div class="nav-avatar" id="navAvatar">B</div>
+      <!-- Profile Avatar + Dropdown -->
+      <div style="position:relative">
+        <div class="nav-avatar" id="navAvatar" onclick="toggleBuyerMenu()" style="cursor:pointer;user-select:none">B</div>
+        <!-- Dropdown Menu -->
+        <div id="buyerMenu" style="display:none;position:absolute;top:44px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12);width:230px;z-index:9999;overflow:hidden;animation:menuFade .18s ease">
+          <!-- User info header -->
+          <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9">
+            <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Buyer</div>
+            <div style="font-size:13px;font-weight:600;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="buyerMenuEmail">—</div>
+          </div>
+          <!-- Menu items -->
+          <div style="padding:6px 0">
+            <div onclick="closeBuyerMenu();showToast('Contact info@uplyncio.com to add funds')" class="bmenu-item">
+              <span>💳</span> Add Funds
+            </div>
+            <div onclick="closeBuyerMenu()" class="bmenu-item">
+              <span>💰</span> Balance
+            </div>
+            <a href="cart.html" onclick="closeBuyerMenu()" class="bmenu-item" style="text-decoration:none;color:inherit">
+              <span>🛒</span> My Orders
+            </a>
+            <div onclick="closeBuyerMenu();showToast('Account settings coming soon')" class="bmenu-item">
+              <span>⚙️</span> Account Settings
+            </div>
+            <div onclick="closeBuyerMenu();showToast('Blocklist coming soon')" class="bmenu-item">
+              <span>🚫</span> Blocklist
+            </div>
+            <div onclick="closeBuyerMenu();showToast('Referral program coming soon')" class="bmenu-item">
+              <span>🔗</span> Referral Program
+            </div>
+            <div onclick="closeBuyerMenu();showToast('Media partner program coming soon')" class="bmenu-item" style="color:#4f7cff">
+              <span>📡</span> Switch to Media Partner
+            </div>
+          </div>
+          <!-- Logout -->
+          <div style="padding:6px 0;border-top:1px solid #f1f5f9">
+            <div onclick="buyerLogout()" class="bmenu-item" style="color:#ef4444">
+              <span>🚪</span> Log out
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
@@ -1798,6 +1845,8 @@ function onBuyerLogin(user){
   var un=document.getElementById('userNav'); un.style.display='flex';
   var av=document.getElementById('navAvatar');
   if(av) av.textContent=(user.name||'B').charAt(0).toUpperCase();
+  var em=document.getElementById('buyerMenuEmail');
+  if(em) em.textContent=user.email||'—';
 }
 // Check logged in
 (function(){
@@ -1807,6 +1856,48 @@ function onBuyerLogin(user){
     if(uid&&user&&user.verified) onBuyerLogin(user);
   }catch(e){}
 })();
+
+function toggleBuyerMenu(){
+  var m = document.getElementById('buyerMenu');
+  if(!m) return;
+  if(m.style.display==='none'){
+    m.style.display='block';
+    // Set email
+    try{
+      var user=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+      var el=document.getElementById('buyerMenuEmail');
+      if(el && user) el.textContent=user.email||'—';
+    }catch(e){}
+    // Close on outside click
+    setTimeout(function(){
+      document.addEventListener('click', closeBuyerMenuOutside);
+    },10);
+  } else {
+    m.style.display='none';
+  }
+}
+
+function closeBuyerMenu(){
+  var m=document.getElementById('buyerMenu');
+  if(m) m.style.display='none';
+  document.removeEventListener('click', closeBuyerMenuOutside);
+}
+
+function closeBuyerMenuOutside(e){
+  var menu=document.getElementById('buyerMenu');
+  var avatar=document.getElementById('navAvatar');
+  if(menu && !menu.contains(e.target) && e.target!==avatar){
+    closeBuyerMenu();
+  }
+}
+
+function buyerLogout(){
+  closeBuyerMenu();
+  localStorage.removeItem('uplyncio_loggedIn');
+  localStorage.removeItem('uplyncio_currentUid');
+  localStorage.removeItem('uplyncio_user');
+  window.location.href='uplyncio-full.html';
+}
 
 function toggleSave(idx,btn){
   var site=filteredSites[idx]; if(!site) return;
