@@ -226,10 +226,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .tx-row:hover{background:#fafbff}
 .tx-row:last-child{border-bottom:none}
 /* ── ADD FUNDS MODAL ── */
-.af-method{display:flex;align-items:center;gap:8px;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#374151;transition:all .18s;background:#fff}
+.af-method{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#374151;transition:all .18s;background:#fff}
 .af-method:hover{border-color:#4f7cff;background:#f0f4ff}
 .af-method.sel{border-color:#4f7cff;background:#eff6ff;color:#2563eb}
-.af-amt{padding:9px 6px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;color:#374151;text-align:center;transition:all .18s;background:#fff}
+.af-amt{padding:7px 4px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:#374151;text-align:center;transition:all .18s;background:#fff}
 .af-amt:hover{border-color:#4f7cff;background:#f0f4ff;color:#2563eb}
 .af-amt.sel{border-color:#4f7cff;background:#4f7cff;color:#fff}
 /* ── BUYER PROFILE MENU ── */
@@ -2457,23 +2457,23 @@ window.addEventListener('load', function(){
 
 <!-- ADD FUNDS MODAL -->
 <div id="addFundsModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:10000;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;margin:20px;box-shadow:0 24px 80px rgba(0,0,0,.18);overflow:hidden;animation:menuFade .22s ease">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:380px;margin:20px;box-shadow:0 16px 60px rgba(0,0,0,.15);overflow:hidden;animation:menuFade .22s ease">
     <!-- Header -->
-    <div style="padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between">
+    <div style="padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:space-between">
       <div>
-        <div style="font-family:Manrope,sans-serif;font-size:24px;font-weight:800;color:#1a202c">Top Up Balance</div>
+        <div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c">Top Up Balance</div>
         <div style="font-size:13px;color:#64748b;margin-top:4px">Add funds to your Uplyncio wallet instantly</div>
       </div>
       <button onclick="closeAddFunds()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8faff'">✕</button>
     </div>
 
     <!-- Bonus banner -->
-    <div style="margin:16px 28px 0;background:linear-gradient(135deg,#fef9ee,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+    <div style="margin:12px 20px 0;background:linear-gradient(135deg,#fef9ee,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
       <div style="font-size:22px">🎁</div>
       <div style="font-size:12.5px;color:#92400e">Get <strong>5% bonus credits</strong> on every top-up via <strong>USDT (TRC20)</strong> — fastest & cheapest method</div>
     </div>
 
-    <div style="padding:20px 28px 28px">
+    <div style="padding:14px 20px 20px">
       <!-- Payment Method -->
       <div style="margin-bottom:16px">
         <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Payment Method</label>
@@ -2493,7 +2493,7 @@ window.addEventListener('load', function(){
       <!-- Amount -->
       <div style="margin-bottom:16px">
         <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Select Amount</label>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
           <div onclick="selectAFAmt(this,50)" class="af-amt">$50</div>
           <div onclick="selectAFAmt(this,100)" class="af-amt sel">$100</div>
           <div onclick="selectAFAmt(this,250)" class="af-amt">$250</div>
@@ -2513,7 +2513,7 @@ window.addEventListener('load', function(){
       </div>
 
       <!-- Summary box -->
-      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:18px">
+      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-bottom:6px">
           <span>Amount</span><span id="afSumAmt">$100.00</span>
         </div>
@@ -2527,7 +2527,7 @@ window.addEventListener('load', function(){
       </div>
 
       <!-- CTA Button -->
-      <button onclick="submitAddFunds()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
+      <button onclick="submitAddFunds()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
         💳 Pay with PayPal — $100.00
       </button>
       <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">🔒 Secure & encrypted · Funds credited instantly after payment</div>
@@ -2751,23 +2751,23 @@ window.addEventListener('load', function(){
 
 <!-- ADD FUNDS MODAL -->
 <div id="addFundsModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);z-index:10000;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:20px;width:100%;max-width:480px;margin:20px;box-shadow:0 24px 80px rgba(0,0,0,.18);overflow:hidden;animation:menuFade .22s ease">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:380px;margin:20px;box-shadow:0 16px 60px rgba(0,0,0,.15);overflow:hidden;animation:menuFade .22s ease">
     <!-- Header -->
-    <div style="padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between">
+    <div style="padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:space-between">
       <div>
-        <div style="font-family:Manrope,sans-serif;font-size:24px;font-weight:800;color:#1a202c">Top Up Balance</div>
+        <div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c">Top Up Balance</div>
         <div style="font-size:13px;color:#64748b;margin-top:4px">Add funds to your Uplyncio wallet instantly</div>
       </div>
       <button onclick="closeAddFunds()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8faff'">✕</button>
     </div>
 
     <!-- Bonus banner -->
-    <div style="margin:16px 28px 0;background:linear-gradient(135deg,#fef9ee,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+    <div style="margin:12px 20px 0;background:linear-gradient(135deg,#fef9ee,#fef3c7);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px">
       <div style="font-size:22px">🎁</div>
       <div style="font-size:12.5px;color:#92400e">Get <strong>5% bonus credits</strong> on every top-up via <strong>USDT (TRC20)</strong> — fastest & cheapest method</div>
     </div>
 
-    <div style="padding:20px 28px 28px">
+    <div style="padding:14px 20px 20px">
       <!-- Payment Method -->
       <div style="margin-bottom:16px">
         <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Payment Method</label>
@@ -2787,7 +2787,7 @@ window.addEventListener('load', function(){
       <!-- Amount -->
       <div style="margin-bottom:16px">
         <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Select Amount</label>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
           <div onclick="selectAFAmt(this,50)" class="af-amt">$50</div>
           <div onclick="selectAFAmt(this,100)" class="af-amt sel">$100</div>
           <div onclick="selectAFAmt(this,250)" class="af-amt">$250</div>
@@ -2807,7 +2807,7 @@ window.addEventListener('load', function(){
       </div>
 
       <!-- Summary box -->
-      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:18px">
+      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin-bottom:6px">
           <span>Amount</span><span id="afSumAmt">$100.00</span>
         </div>
@@ -2821,7 +2821,7 @@ window.addEventListener('load', function(){
       </div>
 
       <!-- CTA Button -->
-      <button onclick="submitAddFunds()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
+      <button onclick="submitAddFunds()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
         💳 Pay with PayPal — $100.00
       </button>
       <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">🔒 Secure & encrypted · Funds credited instantly after payment</div>
