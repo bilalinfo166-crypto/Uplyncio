@@ -333,6 +333,37 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .ui::placeholder{color:var(--mu)}
 .un{background:var(--ac);color:#fff;border:none;padding:13px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
 .un:hover{background:#3d6aff}
+
+<style>
+/* Publisher settings CSS vars for buyer */
+:root{--ac:#4f7cff;--ac-soft:#eff6ff;--tx:#1a202c;--t1:#1a202c;--t2:#64748b;--mu:#94a3b8;--br:#e2e8f0;--bg:#f0f2f7;--wh:#fff;--gn:#16a34a}
+.stab{padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .18s;color:var(--mu)}
+.stab:hover{color:var(--ac)}
+.fi{width:100%;padding:10px 14px;border:1.5px solid var(--br);border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:var(--wh);transition:border .18s}
+.fi:focus{border-color:var(--ac)}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.3px}
+.fis{width:100%;padding:10px 14px;border:1.5px solid var(--br);border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:var(--wh);cursor:pointer}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.scard{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:20px 22px;margin-bottom:14px}
+.scard-title{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8faff}
+.toggle-wrap:last-child{border-bottom:none}
+.toggle-info{flex:1}
+.toggle-lbl{font-size:13.5px;font-weight:600;color:var(--t1)}
+.toggle-sub{font-size:12px;color:var(--mu);margin-top:2px}
+.toggle{width:40px;height:22px;border-radius:11px;cursor:pointer;transition:all .2s;border:none;position:relative;flex-shrink:0}
+.toggle.on{background:var(--ac)}
+.toggle.off{background:#e2e8f0}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:20px}
+.toggle.off::after{left:3px}
+.bc{font-size:13px;color:var(--mu);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.bc a{color:var(--ac);text-decoration:none;cursor:pointer;font-weight:600}
+.bc a:hover{text-decoration:underline}
+.cu{color:var(--t1);font-weight:600}
+</style>
 </style>
 <script>
 // ── UPLYNCIO AUTH SYSTEM v3 ──
@@ -2267,6 +2298,9 @@ document.addEventListener('change', function(e){
 var twoFaOn = true;
 var settingsData = {};
 
+function saveState(page, extra){ /* buyer stub - no page state needed */ }
+function hideAllPages(){ /* buyer stub */ }
+
 function showBuyerSettings(){
   
   var sp=document.getElementById('settingsPage');
@@ -2316,7 +2350,6 @@ function showBuyerSettings(){
 }
 
 function switchSettTab(el, tab){
-  saveState("settings",{settTab:tab});
   // Update tab styles
   document.querySelectorAll('#settingsPage .stab').forEach(function(t){
     t.style.color='var(--mu)';
