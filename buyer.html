@@ -96,7 +96,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .sites-list{display:flex;flex-direction:column;gap:8px}
 .site-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;transition:all .18s;cursor:default}
 .site-card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(79,124,255,.08)}
-.card-top{padding:13px 16px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-top{padding:13px 42px 10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .site-url{font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;color:#4f7cff;text-decoration:none}
 .site-url:hover{text-decoration:underline}
 .badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10.5px;font-weight:700;line-height:1.4}
@@ -215,6 +215,32 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 
 @media(max-width:900px){.sidebar{display:none}.card-stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:600px){.card-stats{grid-template-columns:repeat(3,1fr)}.m-opts{grid-template-columns:1fr}}
+
+/* ── EXPANDABLE CARD ── */
+.card-expand{display:none;border-top:2px solid #eff6ff;background:#fff;animation:slideDown .22s ease}
+.card-expand.open{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.site-card.expanded{border-color:#93c5fd;box-shadow:0 6px 24px rgba(79,124,255,.12)}
+.expand-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #f1f5f9}
+.eg-col{padding:14px 16px;border-right:1px solid #f1f5f9}
+.eg-col:last-child{border-right:none}
+.eg-title{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.eg-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;font-size:12px;color:#374151;line-height:1.5}
+.eg-dot{width:5px;height:5px;border-radius:50%;background:#4f7cff;flex-shrink:0;margin-top:5px}
+.eg-dot.green{background:#16a34a}
+.eg-dot.red{background:#dc2626}
+.eg-dot.amber{background:#d97706}
+.expand-bottom{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#f8faff}
+.spam-bar{display:flex;align-items:center;gap:8px;flex:1}
+.spam-track{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;max-width:120px}
+.spam-fill{height:100%;border-radius:3px;transition:width .4s}
+.add-cart-btn{display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.add-cart-btn:hover{opacity:.88;transform:translateY(-1px)}
+.add-cart-btn.added{background:linear-gradient(135deg,#16a34a,#0d9488)}
+.word-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:700;color:#2563eb}
+.expand-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#f0f2f7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;color:#64748b;font-size:11px}
+.expand-toggle:hover{background:#dbeafe;color:#4f7cff}
+.card-top-wrap{position:relative}
 </style>
 <script>
 // ── UPLYNCIO AUTH SYSTEM v3 ──
@@ -918,26 +944,26 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 // SAMPLE SITES (merged with publisher localStorage sites)
 // ═══════════════════════════════════
 var SAMPLE = [
-  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:7,comp:100,pub:'Contributor',maxL:2,req:'No gambling',topCountry:'USA',linkLifetime:'Up to 100%'},
-  {url:'hackernoon.com',da:88,dr:85,traffic:320000,semT:1200000,refD:95000,cats:['Tech','Internet'],linkType:'Dofollow',gP:300,wP:380,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:98,pub:'Contributor',maxL:2,req:'No promotional content'},
-  {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semT:8000000,refD:650000,cats:['Business','Finance'],linkType:'Dofollow',gP:600,wP:750,liOk:true,liP:400,liReq:'Business topics only',country:'USA',lang:'English',tat:14,comp:95,pub:'Contributor',maxL:1,req:''},
-  {url:'finextra.com',da:78,dr:74,traffic:95000,semT:380000,refD:28000,cats:['Finance','Crypto'],linkType:'Dofollow',gP:200,wP:260,liOk:true,liP:120,liReq:'Finance only',country:'UK',lang:'English',tat:7,comp:100,pub:'Owner',maxL:2,req:''},
-  {url:'dev.to',da:87,dr:83,traffic:280000,semT:1100000,refD:72000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:280,wP:340,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:5,comp:99,pub:'Contributor',maxL:2,req:''},
-  {url:'startupbonsai.com',da:61,dr:58,traffic:32000,semT:120000,refD:8000,cats:['SaaS','Marketing'],linkType:'Dofollow',gP:90,wP:120,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:5,comp:100,pub:'Owner',maxL:1,req:'SaaS topics only'},
-  {url:'metapress.com',da:76,dr:79,traffic:45000,semT:126347,refD:28035,cats:['Business','Technology'],linkType:'Dofollow',gP:45,wP:55,liOk:true,liP:30,liReq:'',country:'USA',lang:'English',tat:10,comp:100,pub:'Owner',maxL:2,req:''},
-  {url:'urbansplatter.com',da:47,dr:62,traffic:31726,semT:123945,refD:8339,cats:['Real Estate','Travel'],linkType:'Dofollow',gP:33,wP:36,liOk:true,liP:20,liReq:'',country:'USA',lang:'English',tat:8,comp:100,pub:'Contributor',maxL:2,req:''},
-  {url:'mirrorreview.com',da:64,dr:65,traffic:3260,semT:52388,refD:5200,cats:['Tech','Business'],linkType:'Dofollow',gP:72,wP:79,liOk:true,liP:45,liReq:'',country:'India',lang:'English',tat:5,comp:100,pub:'Owner',maxL:2,req:''},
-  {url:'thedatascientist.com',da:39,dr:65,traffic:17366,semT:83931,refD:4727,cats:['Tech','SaaS'],linkType:'Dofollow',gP:52,wP:57,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:1,comp:100,pub:'Contributor',maxL:1,req:''},
-  {url:'kulfly.com',da:71,dr:60,traffic:26807,semT:72548,refD:7173,cats:['Business','Travel'],linkType:'Dofollow',gP:32,wP:45,liOk:true,liP:22,liReq:'',country:'India',lang:'English',tat:5,comp:100,pub:'Owner',maxL:2,req:''},
-  {url:'apnews.com',da:92,dr:92,traffic:5669883,semT:76078335,refD:345530,cats:['News & Media','Business'],linkType:'Nofollow',gP:90,wP:90,liOk:true,liP:90,liReq:'News topics',country:'USA',lang:'English',tat:7,comp:93,pub:'Contributor',maxL:1,req:''},
-  {url:'healthline.com',da:94,dr:91,traffic:8500000,semT:42000000,refD:280000,cats:['Health','Fitness'],linkType:'Dofollow',gP:700,wP:850,liOk:true,liP:400,liReq:'Medical topics only',country:'USA',lang:'English',tat:14,comp:90,pub:'Contributor',maxL:1,req:'Health/medical only'},
-  {url:'medicalnewstoday.com',da:91,dr:88,traffic:6200000,semT:18000000,refD:190000,cats:['Health'],linkType:'Nofollow',gP:450,wP:550,liOk:false,liP:0,liReq:'',country:'UK',lang:'English',tat:10,comp:92,pub:'Contributor',maxL:1,req:'Medical content only'},
-  {url:'coindesk.com',da:89,dr:87,traffic:3100000,semT:9500000,refD:155000,cats:['Crypto','Finance'],linkType:'Dofollow',gP:500,wP:620,liOk:true,liP:300,liReq:'Crypto topics only',country:'USA',lang:'English',tat:10,comp:94,pub:'Contributor',maxL:1,req:''},
-  {url:'cointelegraph.com',da:87,dr:85,traffic:4200000,semT:12000000,refD:170000,cats:['Crypto','Finance'],linkType:'Dofollow',gP:450,wP:560,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:96,pub:'Contributor',maxL:2,req:'Crypto only'},
-  {url:'investopedia.com',da:92,dr:90,traffic:12000000,semT:55000000,refD:320000,cats:['Finance','Business'],linkType:'Dofollow',gP:800,wP:950,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:88,pub:'Contributor',maxL:1,req:'Finance only'},
-  {url:'tomsguide.com',da:89,dr:87,traffic:7500000,semT:28000000,refD:140000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:350,wP:430,liOk:true,liP:200,liReq:'Tech topics',country:'USA',lang:'English',tat:10,comp:91,pub:'Contributor',maxL:1,req:''},
-  {url:'marketwatch.com',da:93,dr:91,traffic:9200000,semT:42000000,refD:380000,cats:['Finance','News & Media'],linkType:'Dofollow',gP:750,wP:900,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:87,pub:'Contributor',maxL:1,req:'Finance/market topics'},
-  {url:'searchenginejournal.com',da:82,dr:79,traffic:1200000,semT:3800000,refD:85000,cats:['Marketing','SaaS'],linkType:'Dofollow',gP:220,wP:280,liOk:true,liP:130,liReq:'SEO/Marketing topics',country:'USA',lang:'English',tat:7,comp:97,pub:'Contributor',maxL:2,req:''},
+  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:7,comp:100,pub:'Contributor',maxL:2,req:'No gambling, no adult content. Article must be related to finance or technology. Minimum 500 words required.',topCountry:'USA',linkLifetime:'Up to 100%',spam:2,minWords:500,indexed:true,domainAge:'8 years'},
+  {url:'hackernoon.com',da:88,dr:85,traffic:320000,semT:1200000,refD:95000,cats:['Tech','Internet'],linkType:'Dofollow',gP:300,wP:380,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:98,pub:'Contributor',maxL:2,req:'No promotional content',spam:3,minWords:600,indexed:true,domainAge:'12 years'},
+  {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semT:8000000,refD:650000,cats:['Business','Finance'],linkType:'Dofollow',gP:600,wP:750,liOk:true,liP:400,liReq:'Business topics only',country:'USA',lang:'English',tat:14,comp:95,pub:'Contributor',maxL:1,req:'',spam:1,minWords:800,indexed:true,domainAge:'25 years'},
+  {url:'finextra.com',da:78,dr:74,traffic:95000,semT:380000,refD:28000,cats:['Finance','Crypto'],linkType:'Dofollow',gP:200,wP:260,liOk:true,liP:120,liReq:'Finance only',country:'UK',lang:'English',tat:7,comp:100,pub:'Owner',maxL:2,req:'',spam:2,minWords:600,indexed:true,domainAge:'15 years'},
+  {url:'dev.to',da:87,dr:83,traffic:280000,semT:1100000,refD:72000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:280,wP:340,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:5,comp:99,pub:'Contributor',maxL:2,req:'',spam:4,minWords:500,indexed:true,domainAge:'7 years'},
+  {url:'startupbonsai.com',da:61,dr:58,traffic:32000,semT:120000,refD:8000,cats:['SaaS','Marketing'],linkType:'Dofollow',gP:90,wP:120,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:5,comp:100,pub:'Owner',maxL:1,req:'SaaS topics only',spam:5,minWords:500,indexed:true,domainAge:'5 years'},
+  {url:'metapress.com',da:76,dr:79,traffic:45000,semT:126347,refD:28035,cats:['Business','Technology'],linkType:'Dofollow',gP:45,wP:55,liOk:true,liP:30,liReq:'',country:'USA',lang:'English',tat:10,comp:100,pub:'Owner',maxL:2,req:'',spam:6,minWords:500,indexed:true,domainAge:'4 years'},
+  {url:'urbansplatter.com',da:47,dr:62,traffic:31726,semT:123945,refD:8339,cats:['Real Estate','Travel'],linkType:'Dofollow',gP:33,wP:36,liOk:true,liP:20,liReq:'',country:'USA',lang:'English',tat:8,comp:100,pub:'Contributor',maxL:2,req:'',spam:8,minWords:500,indexed:true,domainAge:'6 years'},
+  {url:'mirrorreview.com',da:64,dr:65,traffic:3260,semT:52388,refD:5200,cats:['Tech','Business'],linkType:'Dofollow',gP:72,wP:79,liOk:true,liP:45,liReq:'',country:'India',lang:'English',tat:5,comp:100,pub:'Owner',maxL:2,req:'',spam:7,minWords:500,indexed:true,domainAge:'5 years'},
+  {url:'thedatascientist.com',da:39,dr:65,traffic:17366,semT:83931,refD:4727,cats:['Tech','SaaS'],linkType:'Dofollow',gP:52,wP:57,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:1,comp:100,pub:'Contributor',maxL:1,req:'',spam:5,minWords:500,indexed:true,domainAge:'4 years'},
+  {url:'kulfly.com',da:71,dr:60,traffic:26807,semT:72548,refD:7173,cats:['Business','Travel'],linkType:'Dofollow',gP:32,wP:45,liOk:true,liP:22,liReq:'',country:'India',lang:'English',tat:5,comp:100,pub:'Owner',maxL:2,req:'',spam:9,minWords:500,indexed:true,domainAge:'3 years'},
+  {url:'apnews.com',da:92,dr:92,traffic:5669883,semT:76078335,refD:345530,cats:['News & Media','Business'],linkType:'Nofollow',gP:90,wP:90,liOk:true,liP:90,liReq:'News topics',country:'USA',lang:'English',tat:7,comp:93,pub:'Contributor',maxL:1,req:'',spam:1,minWords:700,indexed:true,domainAge:'40 years'},
+  {url:'healthline.com',da:94,dr:91,traffic:8500000,semT:42000000,refD:280000,cats:['Health','Fitness'],linkType:'Dofollow',gP:700,wP:850,liOk:true,liP:400,liReq:'Medical topics only',country:'USA',lang:'English',tat:14,comp:90,pub:'Contributor',maxL:1,req:'Health/medical only',spam:1,minWords:800,indexed:true,domainAge:'18 years'},
+  {url:'medicalnewstoday.com',da:91,dr:88,traffic:6200000,semT:18000000,refD:190000,cats:['Health'],linkType:'Nofollow',gP:450,wP:550,liOk:false,liP:0,liReq:'',country:'UK',lang:'English',tat:10,comp:92,pub:'Contributor',maxL:1,req:'Medical content only',spam:2,minWords:700,indexed:true,domainAge:'20 years'},
+  {url:'coindesk.com',da:89,dr:87,traffic:3100000,semT:9500000,refD:155000,cats:['Crypto','Finance'],linkType:'Dofollow',gP:500,wP:620,liOk:true,liP:300,liReq:'Crypto topics only',country:'USA',lang:'English',tat:10,comp:94,pub:'Contributor',maxL:1,req:'',spam:3,minWords:600,indexed:true,domainAge:'11 years'},
+  {url:'cointelegraph.com',da:87,dr:85,traffic:4200000,semT:12000000,refD:170000,cats:['Crypto','Finance'],linkType:'Dofollow',gP:450,wP:560,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:96,pub:'Contributor',maxL:2,req:'Crypto only',spam:2,minWords:600,indexed:true,domainAge:'10 years'},
+  {url:'investopedia.com',da:92,dr:90,traffic:12000000,semT:55000000,refD:320000,cats:['Finance','Business'],linkType:'Dofollow',gP:800,wP:950,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:88,pub:'Contributor',maxL:1,req:'Finance only',spam:1,minWords:800,indexed:true,domainAge:'25 years'},
+  {url:'tomsguide.com',da:89,dr:87,traffic:7500000,semT:28000000,refD:140000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:350,wP:430,liOk:true,liP:200,liReq:'Tech topics',country:'USA',lang:'English',tat:10,comp:91,pub:'Contributor',maxL:1,req:'',spam:3,minWords:600,indexed:true,domainAge:'15 years'},
+  {url:'marketwatch.com',da:93,dr:91,traffic:9200000,semT:42000000,refD:380000,cats:['Finance','News & Media'],linkType:'Dofollow',gP:750,wP:900,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:87,pub:'Contributor',maxL:1,req:'Finance/market topics',spam:1,minWords:800,indexed:true,domainAge:'28 years'},
+  {url:'searchenginejournal.com',da:82,dr:79,traffic:1200000,semT:3800000,refD:85000,cats:['Marketing','SaaS'],linkType:'Dofollow',gP:220,wP:280,liOk:true,liP:130,liReq:'SEO/Marketing topics',country:'USA',lang:'English',tat:7,comp:97,pub:'Contributor',maxL:2,req:'',spam:4,minWords:600,indexed:true,domainAge:'14 years'},
 ];
 
 // ═══════════════════════════════════
@@ -1120,6 +1146,69 @@ function getPubPerformance(siteUrl){
 }
 
 // ═══════════════════════════════════
+// EXPAND & CART FUNCTIONS
+// ═══════════════════════════════════
+var _expandedIdx = null;
+
+function toggleExpand(idx){
+  var el = document.getElementById('ex_'+idx);
+  var card = document.getElementById('card_'+idx);
+  var toggle = document.getElementById('toggle_'+idx);
+  if(!el) return;
+
+  if(_expandedIdx !== null && _expandedIdx !== idx){
+    // Close previously opened
+    var prevEl = document.getElementById('ex_'+_expandedIdx);
+    var prevCard = document.getElementById('card_'+_expandedIdx);
+    var prevToggle = document.getElementById('toggle_'+_expandedIdx);
+    if(prevEl){ prevEl.classList.remove('open'); }
+    if(prevCard){ prevCard.classList.remove('expanded'); }
+    if(prevToggle){ prevToggle.textContent='▼'; prevToggle.style.transform='translateY(-50%) rotate(0deg)'; }
+  }
+
+  var isOpen = el.classList.contains('open');
+  if(isOpen){
+    el.classList.remove('open');
+    card.classList.remove('expanded');
+    toggle.textContent='▼';
+    toggle.style.transform='translateY(-50%) rotate(0deg)';
+    _expandedIdx = null;
+  } else {
+    el.classList.add('open');
+    card.classList.add('expanded');
+    toggle.textContent='▲';
+    toggle.style.transform='translateY(-50%) rotate(0deg)';
+    toggle.style.background='#dbeafe';
+    toggle.style.color='#4f7cff';
+    _expandedIdx = idx;
+    // Smooth scroll into view
+    setTimeout(function(){
+      el.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }, 50);
+  }
+}
+
+function toggleCart(idx, key){
+  var btn = document.getElementById('cart_btn_'+idx);
+  var stored = localStorage.getItem('cart_'+key);
+  if(stored === '1'){
+    localStorage.removeItem('cart_'+key);
+    if(btn){ btn.textContent='🛒 Add to Cart'; btn.classList.remove('added'); }
+    showToast('Removed from cart');
+  } else {
+    localStorage.setItem('cart_'+key, '1');
+    // Save full site data to cart
+    var site = filteredSites[idx];
+    var cartItems = JSON.parse(localStorage.getItem('uplyncio_cart')||'[]');
+    cartItems = cartItems.filter(function(c){ return c.url !== site.url; });
+    cartItems.push({url:site.url, da:site.da, dr:site.dr, price:site.gP, cats:site.cats, addedAt:new Date().toISOString()});
+    localStorage.setItem('uplyncio_cart', JSON.stringify(cartItems));
+    if(btn){ btn.innerHTML='✅ Added to Cart'; btn.classList.add('added'); }
+    showToast('✅ '+site.url+' added to cart!');
+  }
+}
+
+// ═══════════════════════════════════
 // FILTERS + RENDER
 // ═══════════════════════════════════
 function applyFilters(){
@@ -1250,14 +1339,112 @@ function renderCard(s, idx){
       +(s.liOk?'<button class="btn-li" onclick="event.stopPropagation();openModal('+idx+',\'li\')">LI $'+s.liP+'</button>':'')
       +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'article\')">Buy Post</button>'
       +'</div>';
-    return '<div class="site-card"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'+stats+'<div class="card-bottom">'+priceCols+actions+'</div></div>';
+    var expandId='ex_'+idx;
+    var cartKey='cart_'+s.url;
+    var inCart=localStorage.getItem(cartKey)==='1';
+    var spamScore=s.spam||0;
+    var spamCol=spamScore<=3?'#16a34a':spamScore<=6?'#d97706':'#dc2626';
+    var spamLabel=spamScore<=3?'Low':spamScore<=6?'Medium':'High';
+    var expandHtml='<div class="card-expand" id="'+expandId+'">'
+      +'<div class="expand-grid">'
+        // Publisher Requirements
+        +'<div class="eg-col">'
+          +'<div class="eg-title">📋 Publisher Requirements</div>'
+          +(s.req?s.req.split(/[.,;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
+            :'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>')
+        +'</div>'
+        // Content Guidelines
+        +'<div class="eg-col">'
+          +'<div class="eg-title">✍️ Content Guidelines</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Minimum <strong>'+(s.minWords||500)+'</strong> words required</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>'+s.linkType+' link — max <strong>'+(s.maxL||2)+'</strong> links</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Language: <strong>'+s.lang+'</strong></div>'
+          +(s.liOk?'<div class="eg-item"><div class="eg-dot blue" style="background:#4f7cff"></div>Link insertion also accepted ($'+s.liP+')</div>':'')
+          +(s.liReq?'<div class="eg-item"><div class="eg-dot amber"></div>LI Note: '+s.liReq+'</div>':'')
+        +'</div>'
+        // Site Info
+        +'<div class="eg-col">'
+          +'<div class="eg-title">🌐 Site Details</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Country: <strong>'+s.country+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Domain Age: <strong>'+(s.domainAge||'N/A')+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Google Indexed: <strong>'+(s.indexed!==false?'Yes':'No')+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot '+(s.linkType==='Dofollow'?'green':'amber')+'"></div>Link Type: <strong>'+s.linkType+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>TAT: <strong>3 days accept + '+Math.max(1,Math.min(10,s.tat)-3)+' days delivery</strong></div>'
+        +'</div>'
+      +'</div>'
+      // Bottom bar: spam score + word badge + add to cart
+      +'<div class="expand-bottom">'
+        +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+          // Spam Score
+          +'<div style="display:flex;align-items:center;gap:6px">'
+            +'<span style="font-size:11px;color:#64748b;font-weight:600">Spam Score:</span>'
+            +'<div class="spam-track"><div class="spam-fill" style="width:'+(spamScore*10)+'%;background:'+spamCol+'"></div></div>'
+            +'<span style="font-size:11px;font-weight:700;color:'+spamCol+'">'+spamScore+'/10 '+spamLabel+'</span>'
+          +'</div>'
+          +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
+          // Min words
+          +'<div class="word-badge">✍️ Min '+(s.minWords||500)+' words</div>'
+          +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
+          // Indexed
+          +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+
+            (s.indexed!==false?'✅ Google Indexed':'❌ Not Indexed')+'</div>'
+        +'</div>'
+        // Add to Cart button
+        +'<button class="add-cart-btn'+(inCart?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+',''+s.url+'')">'
+          +(inCart?'✅ Added to Cart':'🛒 Add to Cart')
+        +'</button>'
+      +'</div>'
+    +'</div>';
+    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
+      +'<div class="card-top-wrap">'
+        +'<div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+        +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button>'
+      +'</div>'
+      +stats
+      +'<div class="card-bottom">'+priceCols+actions+'</div>'
+      +expandHtml
+    +'</div>';
   } else {
     var priceCols2 = '<div class="price-cols">'
       +'<div class="pc"><div class="pc-lbl">Link Insertion</div><div class="pc-val">$'+s.liP+'</div><div class="pc-sub">Add link to existing post</div></div>'
       +(s.liReq?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Requirements</div><div class="pc-val" style="font-size:12px;font-weight:600;color:#64748b;line-height:1.4">'+s.liReq+'</div></div>':'')
       +'</div>';
     var actions2 = '<div class="card-actions"><button class="btn-wish">♡</button><button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'li\')">Buy Insertion</button></div>';
-    return '<div class="site-card"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'+stats+'<div class="card-bottom li-bg">'+priceCols2+actions2+'</div></div>';
+    var expandId2='ex_'+idx;
+    var cartKey2='cart_li_'+s.url;
+    var inCart2=localStorage.getItem(cartKey2)==='1';
+    var spamScore2=s.spam||0;
+    var spamCol2=spamScore2<=3?'#16a34a':spamScore2<=6?'#d97706':'#dc2626';
+    var spamLabel2=spamScore2<=3?'Low':spamScore2<=6?'Medium':'High';
+    var liReqList=s.liReq?s.liReq.split(/[.,;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join(''):'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>';
+    var expandHtml2='<div class="card-expand" id="'+expandId2+'">'
+      +'<div class="expand-grid">'
+        +'<div class="eg-col"><div class="eg-title">📋 LI Requirements</div>'+liReqList+'</div>'
+        +'<div class="eg-col"><div class="eg-title">🔗 Link Details</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Type: <strong>'+s.linkType+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Max links per article: <strong>'+(s.maxL||2)+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Language: <strong>'+s.lang+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot amber"></div>TAT: <strong>3 days accept + '+Math.max(1,Math.min(10,s.tat)-3)+' days</strong></div>'
+        +'</div>'
+        +'<div class="eg-col"><div class="eg-title">🌐 Site Details</div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Country: <strong>'+s.country+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Domain Age: <strong>'+(s.domainAge||'N/A')+'</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot green"></div>Google Indexed: <strong>'+(s.indexed!==false?'Yes':'No')+'</strong></div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="expand-bottom">'
+        +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+          +'<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#64748b;font-weight:600">Spam Score:</span><div class="spam-track"><div class="spam-fill" style="width:'+(spamScore2*10)+'%;background:'+spamCol2+'"></div></div><span style="font-size:11px;font-weight:700;color:'+spamCol2+'">'+spamScore2+'/10 '+spamLabel2+'</span></div>'
+          +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
+          +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+(s.indexed!==false?'✅ Google Indexed':'❌ Not Indexed')+'</div>'
+        +'</div>'
+        +'<button class="add-cart-btn'+(inCart2?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+','li_'+s.url+'')">'+(inCart2?'✅ Added to Cart':'🛒 Add to Cart')+'</button>'
+      +'</div>'
+    +'</div>';
+    return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
+      +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+      +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button></div>'
+      +stats+'<div class="card-bottom li-bg">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
   }
 }
 
