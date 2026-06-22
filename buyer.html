@@ -242,6 +242,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .expand-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#f0f2f7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;color:#64748b;font-size:11px}
 .expand-toggle:hover{background:#dbeafe;color:#4f7cff}
 .card-top-wrap{position:relative}
+.pc-val.muted{color:#94a3b8;font-size:14px;font-weight:600}
 </style>
 <script>
 // ── UPLYNCIO AUTH SYSTEM v3 ──
@@ -1012,7 +1013,9 @@ function loadAllSites(){
             gP: parseFloat((s.guestPostPrice||s.p1||s.price||'50').toString().replace('$',''))||50,
             wP: parseFloat((s.writePublishPrice||s.p2||s.writePrice||'0').toString().replace('$',''))||0,
             liOk: s.liAccepted==='Yes'||s.liAccepted===true,
-            liP: parseFloat((s.liPrice||s.p3||'0').toString().replace('$',''))||0,
+            liP: parseFloat((s.liPrice||s.p5||s.p3||'0').toString().replace('$',''))||0,
+            extraWordPrice: parseFloat((s.p3||'0').toString().replace('$',''))||0,
+            specialTopicPrice: parseFloat((s.p4||'0').toString().replace('$',''))||0,
             liReq: s.liRequirements||'',
             country: s.country||'USA',
             lang: s.language||s.lang||'English',
@@ -1385,6 +1388,10 @@ function renderCard(s, idx){
     var priceCols = '<div class="price-cols">'
       +'<div class="pc"><div class="pc-lbl">Content Placement</div><div class="pc-val">$'+s.gP+'</div><div class="pc-sub">You write the article</div></div>'
       +(s.wP?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Write & Publish</div><div class="pc-val">$'+s.wP+'</div><div class="pc-sub">Publisher writes</div></div>':'')
+      +'<div class="pc-sep"></div>'
+      +'<div class="pc"><div class="pc-lbl">Extra 500 Words</div><div class="pc-val '+(s.extraWordPrice?'':'muted')+'">'+(s.extraWordPrice?'$'+s.extraWordPrice:'—')+'</div><div class="pc-sub">'+(s.extraWordPrice?'Per 500 extra words':'Not available')+'</div></div>'
+      +'<div class="pc-sep"></div>'
+      +'<div class="pc"><div class="pc-lbl">Special Topic</div><div class="pc-val '+(s.specialTopicPrice?'':'muted')+'">'+(s.specialTopicPrice?'+$'+s.specialTopicPrice:'—')+'</div><div class="pc-sub">'+(s.specialTopicPrice?'Additional charge':'No extra charge')+'</div></div>'
       +'</div>';
     var inCartBtn = localStorage.getItem('cart_'+s.url)==='1';
     var actions = '<div class="card-actions">'
@@ -1656,7 +1663,7 @@ function openModal(idx, type){
       '</div>'+
     '</div>';
 
-  document.getElementById('mPricing').innerHTML=opts;
+
   document.getElementById('mTotal').textContent='$'+selectedPrice;
   ['oUrl','oAnchor','oKeywords','oInstructions'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('orderModal').classList.add('open');

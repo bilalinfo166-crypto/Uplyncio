@@ -2233,9 +2233,11 @@ function submit(){
 
   // Get prices
   var piInputs = document.querySelectorAll('.pi-w input');
-  var p1 = piInputs[0]?piInputs[0].value:'';
-  var p2 = piInputs[1]?piInputs[1].value:'';
-  var p3 = piInputs[2]?piInputs[2].value:'';
+  var p1 = piInputs[0]?piInputs[0].value:''; // Content placement
+  var p2 = piInputs[1]?piInputs[1].value:''; // Writing & placement
+  var p3 = piInputs[2]?piInputs[2].value:''; // Extra-size content (per 500w)
+  var p4 = piInputs[3]?piInputs[3].value:''; // Special topic
+  var p5 = piInputs[4]?piInputs[4].value:''; // Link Insertion
   var mainPrice = p1||p2||p3||'0';
 
   // Get lang/country from auto-detect display
@@ -2254,7 +2256,7 @@ function submit(){
     url: url.replace(/https?:\/\//, ''),
     da: daVal, dr: drVal, traffic: trVal,
     cat: catStr, lt: lt, price: '$'+mainPrice,
-    p1: p1, p2: p2, p3: p3,
+    p1: p1, p2: p2, p3: p3, p4: p4, p5: p5,
     lang: langTxt, country: countryTxt,
     maxLinks: maxLinks,
     role: siteRole,
@@ -2468,6 +2470,8 @@ function editSite(id){
   if(piInputs[0]) piInputs[0].value=s.p1||'';
   if(piInputs[1]) piInputs[1].value=s.p2||'';
   if(piInputs[2]) piInputs[2].value=s.p3||'';
+  if(piInputs[3]) piInputs[3].value=s.p4||'';
+  if(piInputs[4]) piInputs[4].value=s.p5||'';
   // Store editing id
   window._editingId = id;
   go(4);
