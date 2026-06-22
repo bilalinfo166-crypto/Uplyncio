@@ -1440,7 +1440,7 @@ function renderCard(s, idx){
       +'<div class="expand-grid">'
         +'<div class="eg-col">'
           +'<div class="eg-title">📋 Publisher Requirements</div>'
-          +(s.req&&s.req.trim()?s.req.split(/\n|[;]+/).filter(function(r){return r.trim();}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
+          +(s.req&&s.req.trim()?s.req.split(/\n|\r\n|[.,;|]+/).filter(function(r){return r.trim()&&r.trim().length>2;}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
             :'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>')
         +'</div>'
         +'<div class="eg-col">'

@@ -2253,7 +2253,7 @@ function submit(){
   var siteRole = roleInp ? roleInp.value : 'Owner';
 
   // Get special requirements from textarea
-  var reqTextarea = document.querySelector('.ic2 .ta');
+  var reqTextarea = document.querySelector('textarea.ta');
   var reqVal = reqTextarea ? reqTextarea.value.trim() : '';
 
   var site = {
@@ -2265,6 +2265,7 @@ function submit(){
     maxLinks: maxLinks,
     role: siteRole,
     requirements: reqVal,
+    req: reqVal,
     status: 'Live', id: Date.now()
   };
 
@@ -2477,7 +2478,7 @@ function editSite(id){
   if(piInputs[2]) piInputs[2].value=s.p3||'';
   if(piInputs[3]) piInputs[3].value=s.p4||'';
   if(piInputs[4]) piInputs[4].value=s.p5||'';
-  var reqTa = document.querySelector('.ic2 .ta');
+  var reqTa = document.querySelector('textarea.ta');
   if(reqTa) reqTa.value = s.requirements||'';
   // Store editing id
   window._editingId = id;
