@@ -2303,11 +2303,15 @@ document.addEventListener('change', function(e){
 var twoFaOn = true;
 var settingsData = {};
 
-function saveState(page, extra){ /* buyer stub - no page state needed */ }
+function saveState(page, extra){ /* buyer stub */ }
 function hideAllPages(){ /* buyer stub */ }
+// Buyer stubs for publisher functions
+var sampleOrders = [];
+var mySites = [];
+function applyFilters_pub(){ /* stub */ }
 
 function showBuyerSettings(){
-  
+  saveBuyerState('settings');
   var sp=document.getElementById('settingsPage');
   if(sp){ sp.style.display='block'; document.body.style.overflow='hidden'; }
   document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
@@ -2316,7 +2320,7 @@ function showBuyerSettings(){
     var saved = localStorage.getItem('uplyncio_settings');
     if(saved){
       settingsData = JSON.parse(saved);
-      var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settPaypal','settUsdt','settEmail'];
+      var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settEmail'];
       fields.forEach(function(id){
         var el = document.getElementById(id);
         if(el && settingsData[id]) el.value = settingsData[id];
@@ -2378,6 +2382,8 @@ function switchSettTab(el, tab){
 }
 
 function updateActivityStats(){
+  try{
+
   if(!Array.isArray(sampleOrders)) return;
   var total = sampleOrders.length;
   var done  = sampleOrders.filter(function(o){return o.status==='completed';}).length;
@@ -2388,6 +2394,9 @@ function updateActivityStats(){
   if(t) t.textContent=total;
   if(d) d.textContent=done;
   if(r) r.textContent=rate+'%';
+}
+
+  }catch(e){}
 }
 
 function toggleBillingType(type){
@@ -2411,11 +2420,14 @@ function saveBillingDetails(){
   toast('✅ Billing details saved!','#16a34a');
 }
 
-function previewNotification(){
+function previewNotification(){ try{
+){
   var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
   var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
   // WA preview already static — just show number
 }
+
+}catch(e){} }
 
 function saveNotifSettings(){
   var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
@@ -2554,28 +2566,24 @@ function toggleNotif(toggle){
 }
 
 function checkVerification(){
+  try{
   var required = ['settName','settPhone','settCountry','settState','settCity','settAddr','settZip'];
-  var paypal = document.getElementById('settPaypal');
-  var usdt = document.getElementById('settUsdt');
-  var hasPayment = (paypal && paypal.value.trim()) || (usdt && usdt.value.trim());
   var allFilled = required.every(function(id){
-    var el = document.getElementById(id);
-    return el && el.value.trim();
-  }) && hasPayment;
-
-  var vBadge = document.getElementById('verifiedBadge');
-  var uBadge = document.getElementById('unverifiedBadge');
-  if(allFilled){
-    if(vBadge) vBadge.style.display='flex';
-    if(uBadge) uBadge.style.display='none';
-  } else {
-    if(vBadge) vBadge.style.display='none';
-    if(uBadge) uBadge.style.display='flex';
-  }
+    var el=document.getElementById(id);
+    return el && el.value && el.value.trim();
+  });
+  var vb=document.getElementById('verifiedBadge');
+  var ub=document.getElementById('unverifiedBadge');
+  var evb=document.getElementById('emailVerifiedBadge');
+  if(vb) vb.style.display = allFilled?'flex':'none';
+  if(ub) ub.style.display = allFilled?'none':'flex';
+  if(evb) evb.style.display = allFilled?'flex':'none';
+  }catch(e){}
 }
 
 function saveSettings(){
-  var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settPaypal','settUsdt','settEmail'];
+  try{
+  var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settEmail'];
   fields.forEach(function(id){
     var el = document.getElementById(id);
     if(el) settingsData[id] = el.value;
@@ -2628,6 +2636,8 @@ function saveSettings(){
   }
   toast('✅ Settings saved successfully!','#16a34a');
 }
+
+  }catch(e){ console.warn("saveSettings error:",e); }
 
 function editField(id){
   var el = document.getElementById(id);
