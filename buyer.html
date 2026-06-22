@@ -1238,8 +1238,6 @@ function renderCard(s, idx){
       +'<span style="display:inline-flex;align-items:center;gap:2px">'+_st+'<span style="font-size:11px;font-weight:700;color:#374151;margin-left:2px">'+_p.avgRating.toFixed(1)+'</span><span style="font-size:10px;color:#94a3b8;margin-left:1px">'+(_p.reviewCount>0?'('+_p.reviewCount+')':'(new)')+'</span></span>'
       +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
       +'<span style="display:inline-flex;align-items:center;gap:3px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="'+_lCol+'" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span style="font-size:11px;font-weight:700;color:'+_lCol+'">'+_p.lifeRate.toFixed(0)+'% Link Life</span>'+(_p.removedLinks>0?'<span style="font-size:9px;color:#dc2626;background:#fef2f2;border-radius:4px;padding:1px 5px">'+_p.removedLinks+' removed</span>':'<span style="font-size:9px;color:#16a34a;background:#f0fdf4;border-radius:4px;padding:1px 5px">All active</span>')+'</span>'
-      +'<span style="width:1px;height:13px;background:#e2e8f0;display:inline-block"></span>'
-      +'<span style="font-size:10.5px;color:#94a3b8">Completion: <strong style="color:'+_cCol+'">'+_p.compRate.toFixed(0)+'%</strong></span>'
     +'</div>';
 
   if(currentTab==='article'){
