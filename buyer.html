@@ -3799,7 +3799,7 @@ window.addEventListener('load', function(){
   </div>
 
   <!-- ACCOUNT CREDENTIALS -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+  <div style="margin-bottom:16px">
     <!-- Left: Email + Password -->
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px">
       <div>
@@ -3817,23 +3817,6 @@ window.addEventListener('load', function(){
         <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
           <input id="settPass" type="password" placeholder="••••••••" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
           <button onclick="editField('settPass')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
-        </div>
-      </div>
-    </div>
-    <!-- Right: PayPal + USDT -->
-    <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px">
-      <div>
-        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">💳 PayPal email</label></div>
-        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
-          <input id="settPaypal" type="email" placeholder="your@paypal.com" oninput="checkVerification()" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
-          <button onclick="editField('settPaypal')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
-        </div>
-      </div>
-      <div>
-        <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">🪙 USDT (TRC20) address</label></div>
-        <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
-          <input id="settUsdt" type="text" placeholder="T..." oninput="checkVerification()" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent;font-family:monospace">
-          <button onclick="editField('settUsdt')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
         </div>
       </div>
     </div>
