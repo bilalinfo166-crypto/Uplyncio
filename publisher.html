@@ -732,6 +732,27 @@ window.addEventListener('DOMContentLoaded', function(){
           <div id="catsDisplay" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:7px">
           </div>
         </div>
+        <!-- Owner / Contributor -->
+        <div class="fg" style="margin-top:4px">
+          <label class="fl">Your Role on This Site *</label>
+          <div style="display:flex;gap:10px">
+            <label style="flex:1;display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px solid var(--br);border-radius:10px;cursor:pointer;transition:all .18s" id="role-owner-lbl">
+              <input type="radio" name="siteRole" value="Owner" id="role-owner" onchange="updateRoleDisplay()" style="accent-color:var(--ac);width:15px;height:15px">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--t1)">👤 Owner</div>
+                <div style="font-size:11px;color:var(--t2);margin-top:1px">I own this website</div>
+              </div>
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px solid var(--br);border-radius:10px;cursor:pointer;transition:all .18s" id="role-contrib-lbl">
+              <input type="radio" name="siteRole" value="Contributor" id="role-contrib" onchange="updateRoleDisplay()" style="accent-color:var(--ac);width:15px;height:15px">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--t1)">✏️ Contributor</div>
+                <div style="font-size:11px;color:var(--t2);margin-top:1px">I can post on this site</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div class="fsec" style="margin-top:8px">Products</div>
         <div style="display:flex;gap:0;border:1px solid var(--br);border-radius:8px;overflow:hidden;margin-bottom:14px;width:fit-content">
           <div class="utab on" onclick="spt(this,'pa')" style="border-bottom:none;border-right:1px solid var(--br)">Article Posting</div>
@@ -2176,6 +2197,10 @@ function submit(){
   var maxLinksEl = document.querySelector('.ic2 select.fis:last-of-type');
   var maxLinks = maxLinksEl?maxLinksEl.value:'No limit';
 
+  // Get Owner/Contributor role
+  var roleInp = document.querySelector('input[name="siteRole"]:checked');
+  var siteRole = roleInp ? roleInp.value : 'Owner';
+
   var site = {
     url: url.replace(/https?:\/\//, ''),
     da: daVal, dr: drVal, traffic: trVal,
@@ -2183,6 +2208,7 @@ function submit(){
     p1: p1, p2: p2, p3: p3,
     lang: langTxt, country: countryTxt,
     maxLinks: maxLinks,
+    role: siteRole,
     status: 'Live', id: Date.now()
   };
 

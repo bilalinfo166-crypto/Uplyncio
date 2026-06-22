@@ -1009,7 +1009,7 @@ function loadAllSites(){
             lang: s.language||'English',
             tat: parseInt(s.tat)||7,
             comp: 100,
-            pub: 'Owner',
+            pub: s.role||'Owner',
             maxL: s.maxLinks||2,
             req: s.requirements||'',
             spam: parseInt(s.spam)||3,
