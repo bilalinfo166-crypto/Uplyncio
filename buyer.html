@@ -234,9 +234,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .spam-bar{display:flex;align-items:center;gap:8px;flex:1}
 .spam-track{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;max-width:120px}
 .spam-fill{height:100%;border-radius:3px;transition:width .4s}
-.add-cart-btn{display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.add-cart-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}
 .add-cart-btn:hover{opacity:.88;transform:translateY(-1px)}
 .add-cart-btn.added{background:linear-gradient(135deg,#16a34a,#0d9488)}
+.cart-icon{font-size:15px}
 .word-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:700;color:#2563eb}
 .expand-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#f0f2f7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;color:#64748b;font-size:11px}
 .expand-toggle:hover{background:#dbeafe;color:#4f7cff}
@@ -1339,9 +1340,13 @@ function renderCard(s, idx){
       +'<div class="pc"><div class="pc-lbl">Content Placement</div><div class="pc-val">$'+s.gP+'</div><div class="pc-sub">You write the article</div></div>'
       +(s.wP?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Write & Publish</div><div class="pc-val">$'+s.wP+'</div><div class="pc-sub">Publisher writes</div></div>':'')
       +'</div>';
+    var inCartBtn = localStorage.getItem('cart_'+s.url)==='1';
     var actions = '<div class="card-actions">'
-      +'<button class="btn-wish">♡</button>'
+      +'<button class="btn-wish" onclick="event.stopPropagation();" title="Save">♡</button>'
       +(s.liOk?'<button class="btn-li" onclick="event.stopPropagation();openModal('+idx+',\'li\')">LI $'+s.liP+'</button>':'')
+      +'<button class="add-cart-btn'+(inCartBtn?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+')">'
+        +'<span class="cart-icon">'+(inCartBtn?'✅':'🛒')+'</span>'+(inCartBtn?' Added':' Add to Cart')
+      +'</button>'
       +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'article\')">Buy Post</button>'
       +'</div>';
     var expandId='ex_'+idx;
@@ -1390,10 +1395,6 @@ function renderCard(s, idx){
           +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+
             (s.indexed!==false?'✅ Google Indexed':'❌ Not Indexed')+'</div>'
         +'</div>'
-        // Add to Cart button
-        +'<button class="add-cart-btn'+(inCart?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+')">'
-          +(inCart?'✅ Added to Cart':'🛒 Add to Cart')
-        +'</button>'
       +'</div>'
     +'</div>';
     return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
@@ -1410,7 +1411,14 @@ function renderCard(s, idx){
       +'<div class="pc"><div class="pc-lbl">Link Insertion</div><div class="pc-val">$'+s.liP+'</div><div class="pc-sub">Add link to existing post</div></div>'
       +(s.liReq?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Requirements</div><div class="pc-val" style="font-size:12px;font-weight:600;color:#64748b;line-height:1.4">'+s.liReq+'</div></div>':'')
       +'</div>';
-    var actions2 = '<div class="card-actions"><button class="btn-wish">♡</button><button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'li\')">Buy Insertion</button></div>';
+    var inCartBtn2 = localStorage.getItem('cart_li_'+s.url)==='1';
+    var actions2 = '<div class="card-actions">'
+      +'<button class="btn-wish" onclick="event.stopPropagation();" title="Save">♡</button>'
+      +'<button class="add-cart-btn'+(inCartBtn2?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+',true)">'
+        +'<span class="cart-icon">'+(inCartBtn2?'✅':'🛒')+'</span>'+(inCartBtn2?' Added':' Add to Cart')
+      +'</button>'
+      +'<button class="btn-buy" onclick="event.stopPropagation();openModal('+idx+',\'li\')">Buy Insertion</button>'
+      +'</div>';
     var expandId2='ex_'+idx;
     var inCart2=localStorage.getItem('cart_li_'+s.url)==='1';
     var spamScore2=s.spam||0;
@@ -1424,7 +1432,7 @@ function renderCard(s, idx){
           +'<div class="eg-item"><div class="eg-dot green"></div>Type: <strong>'+s.linkType+'</strong></div>'
           +'<div class="eg-item"><div class="eg-dot green"></div>Max links per article: <strong>'+(s.maxL||2)+'</strong></div>'
           +'<div class="eg-item"><div class="eg-dot green"></div>Language: <strong>'+s.lang+'</strong></div>'
-          +'<div class="eg-item"><div class="eg-dot amber"></div>TAT: <strong>3 days accept + '+Math.max(1,Math.min(10,s.tat)-3)+' days</strong></div>'
+          +'<div class="eg-item"><div class="eg-dot amber"></div>TAT: <strong>5–10 days</strong> (3 days accept + '+Math.max(1,Math.min(10,s.tat)-3)+' days delivery)</div>'
         +'</div>'
         +'<div class="eg-col"><div class="eg-title">🌐 Site Details</div>'
           +'<div class="eg-item"><div class="eg-dot green"></div>Country: <strong>'+s.country+'</strong></div>'
@@ -1438,7 +1446,6 @@ function renderCard(s, idx){
           +'<div style="width:1px;height:14px;background:#e2e8f0"></div>'
           +'<div style="font-size:11px;font-weight:600;color:'+(s.indexed!==false?'#16a34a':'#dc2626')+'">'+(s.indexed!==false?'✅ Google Indexed':'❌ Not Indexed')+'</div>'
         +'</div>'
-        +'<button class="add-cart-btn'+(inCart2?' added':'')+'" id="cart_btn_'+idx+'" onclick="event.stopPropagation();toggleCart('+idx+',true)">'+(inCart2?'✅ Added to Cart':'🛒 Add to Cart')+'</button>'
       +'</div>'
     +'</div>';
     return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')">'
