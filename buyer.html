@@ -3674,7 +3674,7 @@ function openPaymentModal(){
 
   // Header
   document.getElementById('payModalSite').textContent = siteName;
-  document.getElementById('payBalanceAmt').textContent = 'Balance: $' + balance.toFixed(2);
+  // payBalanceAmt removed
   if(document.getElementById('balanceShowAmt')) document.getElementById('balanceShowAmt').textContent = '$' + balance.toFixed(2);
 
   // Store for download
@@ -3682,7 +3682,7 @@ function openPaymentModal(){
 
   // Show balance warning if insufficient
   var balWarn = document.getElementById('balanceWarning');
-  var confirmBtn = document.querySelector('#paymentModal .m-submit') || document.querySelector('#paymentModal button[onclick="confirmPayment()"]');
+  // confirmBtn reference removed
   if(balWarn){
     if(balance < price){
       balWarn.style.display = 'block';
