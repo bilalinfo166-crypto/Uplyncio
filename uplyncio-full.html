@@ -1984,16 +1984,71 @@ const sites=[
 function render(data){
   document.getElementById('mpTable').innerHTML=data.map(s=>`
     <tr>
-      <td><div class="s-name">${s.n}</div><div class="s-url">${s.u}</div></td>
+      <td><div class="s-name">${s.n}</div><div class="s-url">${s.u||s.url||''}</div></td>
       <td><span class="bdg b-da">DA ${s.da}</span></td>
       <td><span class="bdg b-dr">DR ${s.dr}</span></td>
-      <td><span class="bdg b-tr">${s.trD}</span></td>
-      <td><span class="niche-pill">${s.niche}</span></td>
+      <td><span class="bdg b-tr">${s.trD||formatTraffic(s.tr||0)}</span></td>
+      <td><span class="niche-pill">${s.niche||s.cats||'General'}</span></td>
       <td><span class="df-lbl"><span class="df-dot"></span>Dofollow</span></td>
-      <td><span class="ptag">$${s.price}</span></td>
-      <td><button class="btn-ord" onclick='openModal(${JSON.stringify(s)})'>Order Now</button></td>
+      <td><span class="ptag">$${s.price||s.gP||0}</span></td>
+      <td><button class="btn-ord" onclick="handleOrderNow('${s.u||s.url||''}','${s.n||s.url||''}',${s.price||s.gP||0})">Order Now</button></td>
     </tr>`).join('');
   document.getElementById('mpCount').textContent=data.length;
+}
+
+function formatTraffic(n){
+  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
+  if(n>=1000) return Math.round(n/1000)+'K';
+  return n||'—';
+}
+
+function handleOrderNow(url, name, price){
+  // Check if user is logged in as buyer
+  var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+  if(user && user.role==='buyer'){
+    // Already logged in as buyer - go to buyer page
+    window.location.href = 'buyer.html';
+  } else if(user && user.role==='publisher'){
+    // Logged in as publisher - can't order
+    alert('Please log in as a Buyer to place orders.');
+  } else {
+    // Not logged in - show buyer signup modal
+    _pendingOrder = {url:url, name:name, price:price};
+    openBuyerSignup();
+  }
+}
+
+var _pendingOrder = null;
+
+function getMergedSites(){
+  // Get publisher sites from localStorage
+  var allSites = [...sites];
+  try{
+    var keys = Object.keys(localStorage).filter(k => k.startsWith('uplyncio_data_'));
+    keys.forEach(function(key){
+      var data = JSON.parse(localStorage.getItem(key)||'{}');
+      if(data.sites && Array.isArray(data.sites)){
+        data.sites.forEach(function(s){
+          if(s.status !== 'Inactive' && s.url){
+            allSites.push({
+              n: s.url.replace(/https?:\/\/(www\.)?/,'').split('/')[0],
+              u: s.url,
+              url: s.url,
+              da: parseInt(s.da)||0,
+              dr: parseInt(s.dr)||0,
+              tr: parseInt(s.traffic)||0,
+              trD: formatTraffic(parseInt(s.traffic)||0),
+              niche: (s.cats||[]).join(', ')||'General',
+              cats: (s.cats||[]).join(', '),
+              price: parseFloat(s.gP)||0,
+              gP: parseFloat(s.gP)||0
+            });
+          }
+        });
+      }
+    });
+  }catch(e){}
+  return allSites;
 }
 
 function applyFilters(){
@@ -2006,7 +2061,7 @@ function applyFilters(){
   const trMax=parseInt(document.getElementById('fTrMax').value)||1e9;
   const prMin=parseInt(document.getElementById('fPrMin').value)||0;
   const prMax=parseInt(document.getElementById('fPrMax').value)||9999;
-  render(sites.filter(s=>
+  render(getMergedSites().filter(s=>
     (!cat||s.niche===cat)&&
     s.da>=daMin&&s.da<=daMax&&
     s.dr>=drMin&&s.dr<=drMax&&
@@ -2043,7 +2098,7 @@ const td=[
 const t=document.getElementById('ticker');
 t.innerHTML=[...td,...td].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <em>${x.da}</em> · ${x.p}</div>`).join('');
 
-render(sites);
+render(getMergedSites());
 
 // SLIDER
 const track=document.getElementById('sliderTrack');
@@ -2770,7 +2825,10 @@ function completeAuth(role, email, name){
   
   // Redirect based on role
   if(role==='publisher') window.location.href='publisher.html';
-  else window.location.href='buyer.html';
+  else {
+    if(_pendingOrder) sessionStorage.setItem('pendingOrderSite', JSON.stringify(_pendingOrder));
+    window.location.href='buyer.html';
+  }
 }
 
 function showForgotPassword(role){
