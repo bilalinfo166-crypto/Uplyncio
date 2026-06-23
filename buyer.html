@@ -2220,7 +2220,7 @@ function onBuyerLogin(user){
   try{
     var uid=localStorage.getItem('uplyncio_currentUid');
     var user=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(uid&&user&&user.verified) onBuyerLogin(user);
+    if(uid&&user&&(user.role==='buyer'||user.role===undefined)) onBuyerLogin(user);
   }catch(e){}
 })();
 
@@ -3614,6 +3614,17 @@ function closeBuyerSettings(){
 }
 
 function updateCartNav(){
+  // Also restore login state if needed
+  try{
+    var uid=localStorage.getItem('uplyncio_currentUid');
+    var user=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var gn=document.getElementById('guestNav');
+    var un=document.getElementById('userNav');
+    if(uid&&user&&gn&&un&&gn.style.display!=='none'&&un.style.display==='none'){
+      onBuyerLogin(user);
+    }
+  }catch(e){}
+
   var c=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]').length;
   var s=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]').length;
   var ce=document.getElementById('navCartCount');
