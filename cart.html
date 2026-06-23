@@ -23,7 +23,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* SIDEBAR */
 .sidebar{width:200px;flex-shrink:0}
 .sb-section-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;padding:0 12px;margin-bottom:8px;margin-top:16px}
-.sb-link{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--t2);cursor:pointer;border-radius:9px;text-align:left;font-family:inherit;transition:all .15s}
+.sb-link{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--t2);cursor:pointer;border-radius:9px;text-align:left;font-family:inherit;transition:all .15s;text-decoration:none}
 .sb-link:hover{background:#f0f4ff;color:var(--ac)}
 .sb-link.act{background:#eff6ff;color:var(--ac)}
 .sb-icon{font-size:16px;width:20px;text-align:center}
@@ -69,11 +69,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sb-section-title">Browse</div>
-    <a href="buyer.html" class="sb-link"><div class="sb-icon">🌐</div> All Sites</a>
+    <a href="buyer.html" class="sb-link" style="text-decoration:none"><div class="sb-icon">🌐</div> All Sites</a>
     <button class="sb-link" onclick="showOrders()"><div class="sb-icon">📦</div> My Orders</button>
     <button class="sb-link act" id="sb-cart"><div class="sb-icon">🛒</div> My Cart</button>
     <button class="sb-link" onclick="showSaved()"><div class="sb-icon">❤️</div> Saved Sites</button>
-    <a href="buyer.html" onclick="setTimeout(function(){if(window.opener||window.parent){}},100)" class="sb-link"><div class="sb-icon">✍️</div> Order Content</a>
+    <a href="buyer.html" class="sb-link" style="text-decoration:none"><div class="sb-icon">✍️</div> Order Content</a>
   </aside>
 
   <!-- MAIN CONTENT -->
