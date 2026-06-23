@@ -3,387 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Cart & Saved Sites — Uplyncio</title>
+<title>My Cart — Uplyncio</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:4px}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--ac:#4f7cff;--br:#e2e8f0;--bg:#f0f2f7;--tx:#1a202c;--t2:#64748b;--mu:#94a3b8;--wh:#fff;--r:12px}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
 
 /* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 20px;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-.nav-logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;text-decoration:none;letter-spacing:-.5px;display:flex;align-items:center;gap:6px;white-space:nowrap}
-.nav-logo .lb{width:30px;height:30px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}
-.nav-logo em{font-style:normal;color:#4f7cff}
-.nav-right{margin-left:auto;display:flex;gap:8px}
-.nbtn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
-.nbtn-ghost{background:#f8faff;border:1px solid #e2e8f0;color:#64748b}
-.nbtn-ghost:hover{border-color:#4f7cff;color:#4f7cff}
-.nbtn-accent{background:#4f7cff;color:#fff}
-.nbtn-accent:hover{background:#3d6bef}
+.nav{background:var(--wh);border-bottom:1px solid var(--br);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:var(--tx);text-decoration:none}
+.nav-logo em{font-style:normal;color:var(--ac)}
+.nav-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--t2);text-decoration:none;cursor:pointer}
+.nav-back:hover{color:var(--ac)}
 
 /* LAYOUT */
-.wrap{max-width:1100px;margin:0 auto;padding:74px 20px 40px}
+.layout{display:flex;flex:1;max-width:1200px;margin:0 auto;width:100%;padding:24px 20px;gap:24px}
 
-/* TABS */
-.tabs{display:flex;gap:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:20px}
-.tab{flex:1;padding:13px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;color:#64748b;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px;border-right:1px solid #e2e8f0}
-.tab:last-child{border-right:none}
-.tab.active{background:#4f7cff;color:#fff}
-.tab-cnt{background:rgba(255,255,255,.25);border-radius:100px;padding:1px 8px;font-size:11px;font-weight:700}
-.tab:not(.active) .tab-cnt{background:#f0f2f7;color:#64748b}
+/* SIDEBAR */
+.sidebar{width:200px;flex-shrink:0}
+.sb-section-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;padding:0 12px;margin-bottom:8px;margin-top:16px}
+.sb-link{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--t2);cursor:pointer;border-radius:9px;text-align:left;font-family:inherit;transition:all .15s}
+.sb-link:hover{background:#f0f4ff;color:var(--ac)}
+.sb-link.act{background:#eff6ff;color:var(--ac)}
+.sb-icon{font-size:16px;width:20px;text-align:center}
 
-/* CART SECTION */
-.section{display:none}
-.section.active{display:block}
+/* MAIN */
+.main{flex:1}
+.page-title{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:var(--tx);margin-bottom:20px}
 
-/* CART ITEM */
-.cart-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:all .18s}
-.cart-item:hover{border-color:#93c5fd;box-shadow:0 2px 12px rgba(79,124,255,.06)}
-.cart-cb{width:18px;height:18px;accent-color:#4f7cff;cursor:pointer;flex-shrink:0}
-.cart-info{flex:1;min-width:0}
-.cart-url{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#4f7cff;text-decoration:none}
-.cart-url:hover{text-decoration:underline}
-.cart-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:5px;align-items:center}
-.cart-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700}
-.cb-blue{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
-.cb-green{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
-.cb-gray{background:#f8faff;color:#64748b;border:1px solid #e2e8f0}
-.cart-svc{font-size:12px;color:#64748b;margin-top:3px}
-.cart-price{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;flex-shrink:0;text-align:right}
-.cart-price-sub{font-size:10.5px;color:#94a3b8;margin-top:1px;text-align:right}
-.cart-del{width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;transition:all .18s;flex-shrink:0}
-.cart-del:hover{border-color:#ef4444;color:#ef4444;background:#fef2f2}
+/* CART ITEMS */
+.cart-item{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
+.cart-item-info{flex:1}
+.cart-item-site{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.cart-item-type{font-size:12.5px;color:var(--t2)}
+.cart-item-price{font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:var(--tx)}
+.cart-item-remove{width:30px;height:30px;border:1px solid var(--br);background:var(--bg);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mu);transition:all .15s}
+.cart-item-remove:hover{border-color:#ef4444;color:#ef4444;background:#fee2e2}
 
-/* CART SUMMARY */
-.cart-summary{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;position:sticky;top:74px}
-.sum-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#64748b;margin-bottom:10px}
-.sum-row.total{font-size:17px;font-weight:800;color:#1a202c;padding-top:12px;border-top:2px solid #f1f5f9;margin-top:4px}
-.sum-row.total .val{color:#4f7cff;font-family:'Manrope',sans-serif;font-size:22px}
-.pay-btn{width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#00d4aa);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;margin-top:14px}
-.pay-btn:hover{opacity:.88;transform:translateY(-1px)}
-.pay-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.sel-all{display:flex;align-items:center;gap:8px;font-size:13px;color:#64748b;cursor:pointer;padding:10px 0;border-bottom:1px solid #f1f5f9;margin-bottom:12px}
-.sel-all input{accent-color:#4f7cff;width:16px;height:16px}
+/* ORDER SUMMARY */
+.order-summary{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:20px;position:sticky;top:76px;width:280px;flex-shrink:0}
+.summary-title{font-size:14px;font-weight:800;color:var(--tx);margin-bottom:16px}
+.summary-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:10px}
+.summary-total{display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--tx);padding-top:12px;border-top:1px solid var(--br);margin-top:4px}
+.btn-checkout{width:100%;padding:13px;background:linear-gradient(135deg,var(--ac),#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px}
+.btn-checkout:hover{opacity:.9}
 
-/* SAVED SITES */
-.saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-.saved-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;transition:all .18s;position:relative}
-.saved-card:hover{border-color:#93c5fd;box-shadow:0 2px 12px rgba(79,124,255,.06)}
-.saved-url{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#4f7cff;text-decoration:none;display:block;margin-bottom:8px}
-.saved-url:hover{text-decoration:underline}
-.saved-stats{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.saved-stat{display:flex;flex-direction:column;align-items:center}
-.saved-stat-v{font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;color:#1a202c}
-.saved-stat-l{font-size:10px;color:#94a3b8;margin-top:1px}
-.saved-price{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:10px}
-.saved-actions{display:flex;gap:7px}
-.saved-add-cart{flex:1;padding:8px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}
-.saved-add-cart:hover{background:#3d6bef}
-.saved-unsave{width:34px;height:34px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .18s;color:#ef4444}
-.saved-unsave:hover{border-color:#ef4444;background:#fef2f2}
-.saved-date{font-size:10.5px;color:#94a3b8;margin-top:8px}
-
-/* EMPTY STATE */
-.empty{text-align:center;padding:70px 20px;color:#94a3b8}
-.empty-icon{font-size:52px;margin-bottom:16px;opacity:.35}
-.empty h3{font-size:18px;font-weight:700;color:#1a202c;margin-bottom:8px}
-.empty p{font-size:14px;margin-bottom:20px}
-.empty-btn{padding:11px 22px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;display:inline-block}
-
-/* TOAST */
-.toast{position:fixed;bottom:22px;right:22px;background:#1a202c;border-radius:9px;padding:11px 16px;color:#fff;font-size:12.5px;font-weight:600;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}
-.toast.show{transform:translateY(0);opacity:1}
-
-/* GRID LAYOUT */
-.cart-layout{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
-@media(max-width:768px){.cart-layout{grid-template-columns:1fr}.cart-summary{position:static}}
+.empty-state{text-align:center;padding:60px 20px;color:var(--mu)}
+.empty-state .icon{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty-state h3{font-size:16px;font-weight:700;color:var(--t2);margin-bottom:8px}
+.empty-state p{font-size:13px}
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav class="nav">
-  <a href="buyer.html" class="nav-logo">
-    <div class="lb">U</div><span style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;letter-spacing:-.5px">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span></a>
-  <div class="nav-right">
-    <a href="buyer.html" class="nbtn nbtn-ghost">← Browse Sites</a>
-    <button class="nbtn nbtn-accent" onclick="proceedToPay()">Proceed to Pay</button>
-  </div>
+  <a href="buyer.html" class="nav-logo">Uply<em>ncio</em></a>
+  <a href="buyer.html" class="nav-back">← Back to Browse</a>
 </nav>
 
-<div class="wrap">
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab active" id="tab-cart" onclick="switchTab('cart')">
-      🛒 My Cart <span class="tab-cnt" id="cart-cnt">0</span>
-    </button>
-    <button class="tab" id="tab-saved" onclick="switchTab('saved')">
-      ❤️ Saved Sites <span class="tab-cnt" id="saved-cnt">0</span>
-    </button>
-  </div>
+<!-- LAYOUT -->
+<div class="layout">
 
-  <!-- CART TAB -->
-  <div class="section active" id="sec-cart">
-    <div class="cart-layout">
-      <!-- Items -->
-      <div>
-        <label class="sel-all">
-          <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
-          Select All
-          <span style="margin-left:auto;font-size:12px;color:#94a3b8" id="selCount">0 selected</span>
-        </label>
-        <div id="cartItems"></div>
-      </div>
-      <!-- Summary -->
-      <div class="cart-summary">
-        <div style="font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;margin-bottom:14px">Order Summary</div>
-        <div class="sum-row"><span>Selected sites</span><span id="sumSites">0</span></div>
-        <div class="sum-row"><span>Subtotal</span><span id="sumSubtotal">$0</span></div>
-        <div class="sum-row total"><span>Total</span><span class="val" id="sumTotal">$0</span></div>
-        <button class="pay-btn" id="payBtn" onclick="proceedToPay()" disabled>
-          💳 Proceed to Pay
-        </button>
-        <div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:10px">
-          Secure payment via PayPal or USDT
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section-title">Browse</div>
+    <a href="buyer.html" class="sb-link"><div class="sb-icon">🌐</div> All Sites</a>
+    <button class="sb-link" onclick="showOrders()"><div class="sb-icon">📦</div> My Orders</button>
+    <button class="sb-link act" id="sb-cart"><div class="sb-icon">🛒</div> My Cart</button>
+    <button class="sb-link" onclick="showSaved()"><div class="sb-icon">❤️</div> Saved Sites</button>
+    <a href="buyer.html" onclick="setTimeout(function(){if(window.opener||window.parent){}},100)" class="sb-link"><div class="sb-icon">✍️</div> Order Content</a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- MY CART VIEW -->
+    <div id="view-cart">
+      <div class="page-title">🛒 My Cart</div>
+      <div style="display:flex;gap:20px;align-items:flex-start">
+        <div style="flex:1" id="cartItemsList"></div>
+        <div class="order-summary" id="cartSummaryBox" style="display:none">
+          <div class="summary-title">Order Summary</div>
+          <div class="summary-row"><span>Items</span><span id="sumCount">0</span></div>
+          <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">$0.00</span></div>
+          <div class="summary-total"><span>Total</span><span id="sumTotal">$0.00</span></div>
+          <button class="btn-checkout" onclick="alert('Contact info@uplyncio.com to complete your order')">Proceed to Checkout →</button>
+          <div style="font-size:11px;color:var(--mu);text-align:center;margin-top:10px">🔒 Secure checkout · SSL encrypted</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- SAVED TAB -->
-  <div class="section" id="sec-saved">
-    <div class="saved-grid" id="savedItems"></div>
+    <!-- SAVED SITES VIEW -->
+    <div id="view-saved" style="display:none">
+      <div class="page-title">❤️ Saved Sites</div>
+      <div id="savedItemsList"></div>
+    </div>
+
+    <!-- MY ORDERS VIEW -->
+    <div id="view-orders" style="display:none">
+      <div class="page-title">📦 My Orders</div>
+      <div id="ordersListCart"></div>
+    </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// ── DATA ──
-function getCart(){
-  try{ return JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]'); }catch(e){ return []; }
-}
-function saveCart(items){
-  localStorage.setItem('uplyncio_cart_items', JSON.stringify(items));
-  updateCounts();
-}
-function getSaved(){
-  try{ return JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]'); }catch(e){ return []; }
-}
-function saveSaved(items){
-  localStorage.setItem('uplyncio_saved_sites', JSON.stringify(items));
-  updateCounts();
-}
-
-// ── TABS ──
-function switchTab(tab){
-  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
-  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
-  document.getElementById('tab-'+tab).classList.add('active');
-  document.getElementById('sec-'+tab).classList.add('active');
-  if(tab==='cart') renderCart();
-  else renderSaved();
-}
-
-// ── COUNTS ──
-function updateCounts(){
-  var cart = getCart();
-  var saved = getSaved();
-  document.getElementById('cart-cnt').textContent = cart.length;
-  document.getElementById('saved-cnt').textContent = saved.length;
-}
-
-// ── RENDER CART ──
 function renderCart(){
-  var items = getCart();
-  var container = document.getElementById('cartItems');
+  var items = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+  var list = document.getElementById('cartItemsList');
+  var summaryBox = document.getElementById('cartSummaryBox');
+
   if(!items.length){
-    container.innerHTML = '<div class="empty"><div class="empty-icon">🛒</div><h3>Your cart is empty</h3><p>Browse sites and add them to your cart</p><a href="buyer.html" class="empty-btn">Browse Sites →</a></div>';
-    updateSummary();
+    list.innerHTML = '<div class="empty-state"><div class="icon">🛒</div><h3>Your cart is empty</h3><p>Browse sites and add them to your cart</p><br><a href="buyer.html" style="padding:10px 24px;background:var(--ac);color:#fff;border-radius:9px;text-decoration:none;font-size:13.5px;font-weight:700">Browse Sites</a></div>';
+    summaryBox.style.display='none';
     return;
   }
-  container.innerHTML = items.map(function(item, i){
-    return '<div class="cart-item" id="ci_'+i+'">'
-      +'<input type="checkbox" class="cart-cb item-cb" data-idx="'+i+'" checked onchange="updateSummary()">'
-      +'<div class="cart-info">'
-        +'<a class="cart-url" href="https://'+item.url+'" target="_blank">'+item.url+'</a>'
-        +'<div class="cart-meta">'
-          +(item.da?'<span class="cart-badge cb-blue">DA '+item.da+'</span>':'')
-          +(item.dr?'<span class="cart-badge cb-blue">DR '+item.dr+'</span>':'')
-          +(item.cats&&item.cats.length?'<span class="cart-badge cb-gray">'+item.cats[0]+'</span>':'')
-        +'</div>'
-        +'<div class="cart-svc">'+(item.service==='li'?'Link Insertion':item.service==='write'?'Write & Publish':'Content Placement')+'</div>'
+
+  summaryBox.style.display='block';
+  var total = 0;
+  list.innerHTML = items.map(function(item, i){
+    var price = parseFloat(item.price)||0;
+    total += price;
+    return '<div class="cart-item">'
+      +'<div class="cart-item-info">'
+        +'<div class="cart-item-site">'+item.site+'</div>'
+        +'<div class="cart-item-type">'+( item.type||'Article Posting')+'</div>'
       +'</div>'
-      +'<div>'
-        +'<div class="cart-price">$'+item.price+'</div>'
-        +'<div class="cart-price-sub">incl. all fees</div>'
-      +'</div>'
-      +'<button class="cart-del" onclick="removeFromCart('+i+')" title="Remove">🗑</button>'
+      +'<div class="cart-item-price">$'+price.toFixed(2)+'</div>'
+      +'<button class="cart-item-remove" onclick="removeFromCart('+i+')" title="Remove">✕</button>'
     +'</div>';
   }).join('');
-  updateSummary();
-  updateSelectAll();
-}
 
-function updateSummary(){
-  var cbs = document.querySelectorAll('.item-cb:checked');
-  var total = 0;
-  var items = getCart();
-  cbs.forEach(function(cb){
-    var idx = parseInt(cb.dataset.idx);
-    if(items[idx]) total += parseFloat(items[idx].price)||0;
-  });
-  var count = cbs.length;
-  document.getElementById('sumSites').textContent = count;
+  document.getElementById('sumCount').textContent = items.length;
   document.getElementById('sumSubtotal').textContent = '$'+total.toFixed(2);
   document.getElementById('sumTotal').textContent = '$'+total.toFixed(2);
-  document.getElementById('selCount').textContent = count+' selected';
-  var payBtn = document.getElementById('payBtn');
-  if(payBtn){ payBtn.disabled = count===0; }
-}
-
-function updateSelectAll(){
-  var all = document.querySelectorAll('.item-cb');
-  var checked = document.querySelectorAll('.item-cb:checked');
-  var sa = document.getElementById('selectAll');
-  if(sa) sa.checked = all.length>0 && checked.length===all.length;
-}
-
-function toggleSelectAll(checked){
-  document.querySelectorAll('.item-cb').forEach(function(cb){ cb.checked=checked; });
-  updateSummary();
 }
 
 function removeFromCart(idx){
-  var items = getCart();
-  var url = items[idx]?items[idx].url:'';
+  var items = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
   items.splice(idx,1);
-  saveCart(items);
-  // Remove cart key flag
-  if(url) localStorage.removeItem('cart_'+url);
+  localStorage.setItem('uplyncio_cart_items', JSON.stringify(items));
   renderCart();
-  showToast('Removed from cart');
-  // Update buyer page buttons if open
-  syncCartButtons();
 }
 
-function syncCartButtons(){
-  // Update add-to-cart buttons on buyer page (if in same session)
-  try{
-    var frames = window.opener;
-    if(frames) frames.location.reload();
-  }catch(e){}
-}
-
-// ── SAVED SITES ──
 function renderSaved(){
-  var items = getSaved();
-  var container = document.getElementById('savedItems');
+  var items = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+  var list = document.getElementById('savedItemsList');
   if(!items.length){
-    container.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">❤️</div><h3>No saved sites yet</h3><p>Click the ♡ heart icon on any site to save it here</p><a href="buyer.html" class="empty-btn">Browse Sites →</a></div>';
+    list.innerHTML = '<div class="empty-state"><div class="icon">❤️</div><h3>No saved sites yet</h3><p>Heart any site to save it for later</p><br><a href="buyer.html" style="padding:10px 24px;background:var(--ac);color:#fff;border-radius:9px;text-decoration:none;font-size:13.5px;font-weight:700">Browse Sites</a></div>';
     return;
   }
-  container.innerHTML = items.map(function(item,i){
-    var inCart = getCart().some(function(c){ return c.url===item.url; });
-    return '<div class="saved-card">'
-      +'<a class="saved-url" href="https://'+item.url+'" target="_blank">'+item.url+'</a>'
-      +'<div class="saved-stats">'
-        +(item.da?'<div class="saved-stat"><div class="saved-stat-v" style="color:#2563eb">'+item.da+'</div><div class="saved-stat-l">Moz DA</div></div>':'')
-        +(item.dr?'<div class="saved-stat"><div class="saved-stat-v" style="color:#0d9488">'+item.dr+'</div><div class="saved-stat-l">Ahrefs DR</div></div>':'')
-        +(item.traffic?'<div class="saved-stat"><div class="saved-stat-v">'+fmtN(item.traffic)+'</div><div class="saved-stat-l">Traffic</div></div>':'')
+  list.innerHTML = items.map(function(item,i){
+    return '<div class="cart-item">'
+      +'<div class="cart-item-info">'
+        +'<div class="cart-item-site">'+(item.url||item.site||'Site')+'</div>'
+        +'<div class="cart-item-type">'+(item.niche||'Guest Post')+'</div>'
       +'</div>'
-      +(item.cats&&item.cats.length?'<div style="margin-bottom:10px"><span class="cart-badge cb-gray">'+item.cats.join(' · ')+'</span></div>':'')
-      +'<div class="saved-price">$'+item.price+'</div>'
-      +'<div class="saved-actions">'
-        +'<button class="saved-add-cart" style="'+(inCart?'background:#16a34a':'')+'" onclick="addSavedToCart('+i+')">'
-          +(inCart?'✅ In Cart':'🛒 Add to Cart')
-        +'</button>'
-        +'<button class="saved-unsave" onclick="unsaveSite('+i+')" title="Remove from saved">♥</button>'
-      +'</div>'
-      +'<div class="saved-date">Saved '+fmtDate(item.savedAt)+'</div>'
+      +'<button onclick="addToCart('+i+')" style="padding:7px 14px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px">Add to Cart</button>'
+      +'<button class="cart-item-remove" onclick="removeSaved('+i+')" title="Remove">✕</button>'
     +'</div>';
   }).join('');
 }
 
-function unsaveSite(idx){
-  var items = getSaved();
-  var url = items[idx]?items[idx].url:'';
-  items.splice(idx,1);
-  saveSaved(items);
-  if(url) localStorage.removeItem('saved_'+url);
-  renderSaved();
-  showToast('Removed from saved sites');
+function addToCart(idx){
+  var saved = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+  var cart = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+  if(saved[idx]) cart.push(saved[idx]);
+  localStorage.setItem('uplyncio_cart_items', JSON.stringify(cart));
+  showCart();
 }
 
-function addSavedToCart(idx){
-  var saved = getSaved();
-  var site = saved[idx];
-  if(!site) return;
-  // Check if already in cart
-  var cart = getCart();
-  if(cart.some(function(c){ return c.url===site.url; })){
-    showToast('Already in cart!');
+function removeSaved(idx){
+  var items = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+  items.splice(idx,1);
+  localStorage.setItem('uplyncio_saved_sites', JSON.stringify(items));
+  renderSaved();
+}
+
+function renderOrders(){
+  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+  var list = document.getElementById('ordersListCart');
+  if(!orders.length){
+    list.innerHTML = '<div class="empty-state"><div class="icon">📦</div><h3>No orders yet</h3><p>Place your first order from the site listings</p><br><a href="buyer.html" style="padding:10px 24px;background:var(--ac);color:#fff;border-radius:9px;text-decoration:none;font-size:13.5px;font-weight:700">Browse Sites</a></div>';
     return;
   }
-  cart.push({
-    url: site.url,
-    da: site.da,
-    dr: site.dr,
-    traffic: site.traffic,
-    cats: site.cats,
-    price: site.price,
-    service: 'article',
-    addedAt: new Date().toISOString()
-  });
-  saveCart(cart);
-  localStorage.setItem('cart_'+site.url,'1');
-  renderSaved(); // Refresh to show "In Cart"
-  showToast('✅ Added to cart!');
+  var statusColors = {'Pending':'#f59e0b','In Progress':'#3b82f6','Completed':'#16a34a','Rejected':'#ef4444'};
+  list.innerHTML = orders.map(function(o){
+    var sc = statusColors[o.status]||'#94a3b8';
+    return '<div class="cart-item">'
+      +'<div class="cart-item-info">'
+        +'<div class="cart-item-site">'+(o.site||'Unknown')+'<span style="margin-left:10px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:'+sc+'22;color:'+sc+'">'+o.status+'</span></div>'
+        +'<div class="cart-item-type">'+(o.type||'Article Posting')+' · '+(o.id||'')+'</div>'
+      +'</div>'
+      +'<div class="cart-item-price">$'+(o.price||'—')+'</div>'
+    +'</div>';
+  }).join('');
 }
 
-function proceedToPay(){
-  var cbs = document.querySelectorAll('.item-cb:checked');
-  if(!cbs.length){ showToast('⚠️ Select at least one site'); return; }
-  var items = getCart();
-  var selected = [];
-  cbs.forEach(function(cb){ 
-    var i=parseInt(cb.dataset.idx);
-    if(items[i]) selected.push(items[i]);
-  });
-  var total = selected.reduce(function(s,i){ return s+parseFloat(i.price||0); },0);
-  showToast('💳 Total: $'+total.toFixed(2)+' — Payment gateway coming soon! Contact info@uplyncio.com');
+function showCart(){
+  document.getElementById('view-cart').style.display='block';
+  document.getElementById('view-saved').style.display='none';
+  document.getElementById('view-orders').style.display='none';
+  document.querySelectorAll('.sb-link').forEach(function(b){b.classList.remove('act')});
+  document.getElementById('sb-cart').classList.add('act');
+  renderCart();
 }
 
-function fmtN(n){
-  if(!n) return 'N/A';
-  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
-  if(n>=1000) return Math.round(n/1000)+'K';
-  return n.toString();
+function showSaved(){
+  document.getElementById('view-cart').style.display='none';
+  document.getElementById('view-saved').style.display='block';
+  document.getElementById('view-orders').style.display='none';
+  renderSaved();
 }
 
-function fmtDate(d){
-  if(!d) return '';
-  try{
-    var dt = new Date(d);
-    return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-  }catch(e){ return ''; }
-}
-
-function showToast(msg){
-  var t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); },4000);
+function showOrders(){
+  document.getElementById('view-cart').style.display='none';
+  document.getElementById('view-saved').style.display='none';
+  document.getElementById('view-orders').style.display='block';
+  renderOrders();
 }
 
 // Init
-updateCounts();
-// Check if opened from saved link
-if(window.location.hash==='#saved' || localStorage.getItem('cartTab')==='saved'){
-  localStorage.removeItem('cartTab');
-  switchTab('saved');
-} else {
-  renderCart();
-}
+var hash = window.location.hash;
+if(hash==='#saved') showSaved();
+else if(hash==='#orders') showOrders();
+else showCart();
 </script>
 </body>
 </html>
