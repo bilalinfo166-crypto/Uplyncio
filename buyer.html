@@ -1894,6 +1894,20 @@ function clearFilters(){
 function openModal(idx, type){
   selectedSite=filteredSites[idx];
   if(!selectedSite) return;
+  // Safe fallbacks for publisher-added sites
+  selectedSite.da = selectedSite.da || 0;
+  selectedSite.dr = selectedSite.dr || 0;
+  selectedSite.traffic = selectedSite.traffic || 0;
+  selectedSite.comp = selectedSite.comp || 95;
+  selectedSite.tat = selectedSite.tat || 7;
+  selectedSite.lang = selectedSite.lang || 'English';
+  selectedSite.country = selectedSite.country || 'Global';
+  selectedSite.linkType = selectedSite.linkType || 'Dofollow';
+  selectedSite.cats = selectedSite.cats || ['General'];
+  selectedSite.maxL = selectedSite.maxL || 2;
+  selectedSite.req = selectedSite.req || '';
+  selectedSite.gP = selectedSite.gP || selectedSite.price || 0;
+  selectedSite.liP = selectedSite.liP || 0;
   selectedSvcType=type;
   selectedPrice=type==='li'?(selectedSite.liP||0):(selectedSite.gP||selectedSite.price||0);
 
