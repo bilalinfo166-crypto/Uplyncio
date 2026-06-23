@@ -18,6 +18,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 /* ── NAV ── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .nav-logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;text-decoration:none;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
 .nav-logo .logo-box{width:30px;height:30px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}
 .nav-logo .logo-txt{color:#1a202c}
@@ -3662,6 +3663,7 @@ function openPaymentModal(){
   document.getElementById('invAmount').textContent = '$' + price;
   document.getElementById('invSubtotal').textContent = '$' + price;
   document.getElementById('invTotal').textContent = '$' + price;
+  if(document.getElementById('invPayMethod')) document.getElementById('invPayMethod').textContent = 'Pending selection';
 
   // Tags
   var tags = '';
@@ -3673,6 +3675,7 @@ function openPaymentModal(){
   // Header
   document.getElementById('payModalSite').textContent = siteName;
   document.getElementById('payBalanceAmt').textContent = 'Balance: $' + balance.toFixed(2);
+  if(document.getElementById('balanceShowAmt')) document.getElementById('balanceShowAmt').textContent = '$' + balance.toFixed(2);
 
   // Store for download
   window._currentInvoice = {id:orderId, date:dateStr, client:user, site:site, price:price, svcType:svcType, svcLabel:svcLabel};
@@ -3688,21 +3691,46 @@ function closePaymentModal(){
 
 function selectPayMethod(el, method){
   _selectedPayMethod = method;
+
+  var methodLabels = {
+    'balance':'Account Balance','card':'Credit / Debit Card',
+    'paypal':'PayPal','payoneer':'Payoneer',
+    'usdt':'USDT TRC20','wise':'Wise / Bank Transfer'
+  };
+
+  // Update card styles
   document.querySelectorAll('.pay-method-card').forEach(function(c){
     c.style.borderColor = '#e2e8f0';
     c.style.background = '#fff';
+    c.style.transform = '';
   });
   if(el){
     el.style.borderColor = '#4f7cff';
     el.style.background = '#eff6ff';
+    el.style.transform = 'translateY(-1px)';
   }
-  // Show/hide detail sections
+
+  // Update invoice payment method
+  var invPM = document.getElementById('invPayMethod');
+  if(invPM) invPM.textContent = methodLabels[method] || method;
+  if(window._currentInvoice) window._currentInvoice.payMethod = methodLabels[method]||method;
+
+  // Hide all detail sections
   ['balance','card','paypal','payoneer','usdt','wise'].forEach(function(m){
-    var el2 = document.getElementById('pay-'+m+'-detail');
-    if(el2) el2.style.display = m===method ? 'block' : 'none';
+    var sec = document.getElementById('pay-'+m+'-detail');
+    if(sec) sec.style.display = 'none';
   });
+
+  // Show selected section with animation
+  var active = document.getElementById('pay-'+method+'-detail');
+  if(active){
+    active.style.display = 'block';
+    active.style.animation = 'fadeSlide .2s ease';
+  }
+
+  // TX hash for crypto
   var txSection = document.getElementById('txHashSection');
-  if(txSection) txSection.style.display = (method==='usdt'||method==='paypal') ? 'block' : 'none';
+  if(txSection) txSection.style.display = (method==='usdt') ? 'block' : 'none';
 }
 
 function confirmPayment(){
@@ -3723,11 +3751,13 @@ function confirmPayment(){
     placeOrderSuccess(price, 'Balance');
   } else if(_selectedPayMethod === 'paypal'){
     var email = document.getElementById('payPaypalEmail').value.trim();
+    var txid = document.getElementById('payPaypalTxId') ? document.getElementById('payPaypalTxId').value.trim() : '';
     if(!email){ errEl.textContent = '⚠️ Please enter your PayPal email.'; errEl.style.display='block'; return; }
+    if(!txid){ errEl.textContent = '⚠️ Please enter the PayPal Transaction ID.'; errEl.style.display='block'; return; }
     placeOrderSuccess(price, 'PayPal');
   } else if(_selectedPayMethod === 'usdt'){
-    var hash = document.getElementById('payTxHash').value.trim();
-    if(!hash){ errEl.textContent = '⚠️ Please enter your transaction hash.'; errEl.style.display='block'; return; }
+    var hash = document.getElementById('payTxHashUsdt') ? document.getElementById('payTxHashUsdt').value.trim() : '';
+    if(!hash){ errEl.textContent = '⚠️ Please paste your USDT transaction hash.'; errEl.style.display='block'; return; }
     placeOrderSuccess(price, 'USDT TRC20');
   } else {
     placeOrderSuccess(price, 'Wise/Bank Transfer');
@@ -4989,6 +5019,7 @@ window.addEventListener('load', function(){
     <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
     <style>
       @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     </style>
   </svg>
   <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Up<em style="font-style:normal;color:#4f7cff">lyncio</em></span>
@@ -5125,8 +5156,11 @@ window.addEventListener('load', function(){
             <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#64748b;margin-bottom:8px">
               <span>Subtotal</span><span id="invSubtotal" style="font-weight:600;color:#1a202c"></span>
             </div>
-            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#64748b;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#64748b;margin-bottom:8px">
               <span>Platform Fee</span><span style="font-weight:600;color:#16a34a">Included</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#64748b;margin-bottom:10px">
+              <span>Payment Method</span><span id="invPayMethod" style="font-weight:700;color:#4f7cff">—</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif;padding-top:10px;border-top:1.5px solid #e2e8f0">
               <span>Total Due</span><span id="invTotal" style="color:#4f7cff"></span>
@@ -5183,44 +5217,83 @@ window.addEventListener('load', function(){
       <div id="payDetailSection">
         <!-- Balance -->
         <div id="pay-balance-detail">
-          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px;font-size:13.5px;color:#15803d;font-weight:600">
-            ✅ Payment will be deducted from your Uplyncio balance instantly.
+          <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:16px 18px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <div style="font-size:24px">💰</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#15803d">Pay from Account Balance</div>
+                <div style="font-size:12px;color:#64748b;margin-top:1px">Instant deduction · No transaction fees</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:9px;padding:10px 14px;border:1px solid #bbf7d0">
+              <span style="font-size:13px;color:#64748b">Available Balance</span>
+              <span id="balanceShowAmt" style="font-size:16px;font-weight:800;color:#16a34a;font-family:Manrope,sans-serif">$0.00</span>
+            </div>
           </div>
         </div>
         <!-- PayPal -->
         <div id="pay-paypal-detail" style="display:none">
-          <div style="margin-bottom:12px">
-            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Your PayPal Email</label>
-            <input id="payPaypalEmail" type="email" placeholder="your@paypal.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
-          </div>
-          <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#92400e">
-            📧 Send payment to: <strong>info@uplyncio.com</strong> — include your Order ID in the note.
+          <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px 18px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div style="font-size:24px">🅿️</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#1a202c">Pay via PayPal</div>
+                <div style="font-size:12px;color:#64748b">Send to our PayPal · Instant confirmation</div>
+              </div>
+            </div>
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:12px 14px;margin-bottom:14px">
+              <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px">Send payment to:</div>
+              <div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">info@uplyncio.com</div>
+              <div style="font-size:11px;color:#92400e;margin-top:4px">⚠️ Include your Order ID in the PayPal note/message</div>
+            </div>
+            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Your PayPal Email *</label>
+            <input id="payPaypalEmail" type="email" placeholder="your@paypal.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#0070ba'" onblur="this.style.borderColor='#e2e8f0'">
+            <div style="font-size:11px;color:#94a3b8;margin-top:6px">After sending, paste the PayPal Transaction ID below:</div>
+            <input id="payPaypalTxId" type="text" placeholder="PayPal Transaction ID (e.g. 7TR12345AB)" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;margin-top:6px" onfocus="this.style.borderColor='#0070ba'" onblur="this.style.borderColor='#e2e8f0'">
           </div>
         </div>
         <!-- USDT -->
         <div id="pay-usdt-detail" style="display:none">
-          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:12px">
-            <div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:6px">USDT TRC20 Wallet Address:</div>
-            <div style="font-size:13px;font-family:monospace;color:#1a202c;background:#fff;padding:8px 12px;border-radius:7px;border:1px solid #bbf7d0;word-break:break-all">TXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
-            <div style="font-size:11px;color:#64748b;margin-top:6px">⚠️ Send exact amount. TRC20 network only.</div>
+          <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px 18px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div style="font-size:24px">🪙</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#1a202c">Pay via USDT TRC20</div>
+                <div style="font-size:12px;color:#16a34a;font-weight:600">+5% bonus credits on your balance!</div>
+              </div>
+            </div>
+            <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:9px;padding:12px 14px;margin-bottom:14px">
+              <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Our TRC20 Wallet Address</div>
+              <div style="font-size:12px;font-family:monospace;color:#1a202c;background:#fff;padding:10px 12px;border-radius:7px;border:1px solid #bbf7d0;word-break:break-all;cursor:pointer" onclick="navigator.clipboard.writeText(this.textContent);showToast('Address copied!')">TXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+              <div style="font-size:10px;color:#64748b;margin-top:6px">👆 Click to copy · TRC20 network only · Send exact amount</div>
+            </div>
+            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Transaction Hash *</label>
+            <input id="payTxHashUsdt" type="text" placeholder="e.g. a1b2c3d4e5f6..." style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#16a34a'" onblur="this.style.borderColor='#e2e8f0'">
           </div>
         </div>
         <!-- Wise/Bank -->
         <div id="pay-wise-detail" style="display:none">
-          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;font-size:13px;color:#1e40af">
-            <div style="font-weight:700;margin-bottom:6px">Bank / Wise Transfer Details:</div>
-            <div>Account Name: <strong>Uplyncio Ltd</strong></div>
-            <div>Email (Wise): <strong>info@uplyncio.com</strong></div>
-            <div style="margin-top:6px;font-size:11.5px;color:#64748b">Include Order ID in transfer reference.</div>
+          <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px 18px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+              <div style="font-size:24px">🏦</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:#1a202c">Pay via Wise / Bank Transfer</div>
+                <div style="font-size:12px;color:#64748b">1–3 business days</div>
+              </div>
+            </div>
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:14px;margin-bottom:14px">
+              <div style="font-size:11px;font-weight:700;color:#1e40af;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Bank / Wise Details</div>
+              <div style="font-size:13px;color:#1a202c;margin-bottom:4px">Account Name: <strong>Uplyncio Ltd</strong></div>
+              <div style="font-size:13px;color:#1a202c;margin-bottom:4px">Wise Email: <strong>info@uplyncio.com</strong></div>
+              <div style="font-size:11px;color:#64748b;margin-top:6px">⚠️ Include your Order ID as payment reference</div>
+            </div>
+            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Your Name / Reference *</label>
+            <input id="payWiseName" type="text" placeholder="Full name used for transfer" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
           </div>
         </div>
       </div>
 
-      <!-- TX Hash (for crypto) -->
-      <div id="txHashSection" style="display:none;margin-top:14px">
-        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px">Transaction Hash / ID</label>
-        <input id="payTxHash" type="text" placeholder="Paste your transaction hash here" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none">
-      </div>
+
 
       <!-- Error/Success -->
       <div id="payError" style="display:none;background:#fff5f5;border:1.5px solid #fca5a5;border-radius:9px;padding:10px 14px;font-size:13px;color:#ef4444;margin-top:12px"></div>
