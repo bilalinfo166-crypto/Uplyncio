@@ -3993,27 +3993,20 @@ function placeOrderSuccess(price, payMethod){
     sidebar.style.height = (window.innerHeight - 54) + 'px';
 
     var layout = document.querySelector('.layout');
-    var footer = document.getElementById('siteFooter');
     if(!layout) return;
 
-    var windowH = window.innerHeight;
-
-    // Total page scroll height EXCLUDING footer
-    var footerH = footer ? footer.offsetHeight : 0;
-    var totalPageScroll = document.body.scrollHeight - windowH;
-    var sitesOnlyScroll = totalPageScroll - footerH; // exclude footer
-
-    if(sitesOnlyScroll <= 0) return;
+    // Sites section scroll = layout height - viewport
+    var sitesScrollHeight = layout.offsetHeight - window.innerHeight;
+    if(sitesScrollHeight <= 0) return;
 
     // Sidebar scrollable range
     var sidebarScrollable = sidebar.scrollHeight - sidebar.clientHeight;
     if(sidebarScrollable <= 0) return;
 
-    // Scroll ratio based on sites section only (not footer)
-    var currentScroll = Math.min(window.scrollY, sitesOnlyScroll);
-    var ratio = currentScroll / sitesOnlyScroll;
+    // How far user has scrolled through sites (0 to 1)
+    var ratio = Math.min(1, Math.max(0, window.scrollY / sitesScrollHeight));
 
-    // Move sidebar proportionally
+    // Scroll sidebar at same ratio
     sidebar.scrollTop = ratio * sidebarScrollable;
   }
 
