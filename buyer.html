@@ -4372,20 +4372,54 @@ window.addEventListener('load', function(){
 
 
 </div>
-  <!-- Settings Footer -->
-  <div style="background:#1a202c;color:#94a3b8;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:24px;border-radius:12px">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="width:22px;height:22px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">U</div>
-      <span style="font-family:Manrope,sans-serif;font-size:13px;font-weight:800;color:#fff">Uply<span style="color:#4f7cff">ncio</span></span>
+
+  <div style="margin-top:24px">
+  <div class="footer-g">
+    <div class="f-brand">
+      <a href="#" class="nav-logo" style="font-size:24px">Up<em>lyncio</em></a>
+      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches. Trusted by agencies and brands worldwide.</p>
+      <div class="f-socials">
+        <a class="soc-btn" href="https://www.linkedin.com/company/uplyncio" target="_blank">in</a>
+        <a class="soc-btn" href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank">fb</a>
+        <a class="soc-btn" href="https://www.instagram.com/uplyncio" target="_blank">ig</a>
+        <a class="soc-btn" href="https://wa.me/923001234567" target="_blank">wa</a>
+      </div>
     </div>
-    <div style="font-size:11px;color:#64748b">© 2025 Uplyncio. All rights reserved.</div>
-    <div style="display:flex;gap:14px">
-      <a href="uplyncio-full.html" style="font-size:11px;color:#64748b;text-decoration:none">Home</a>
-      <a href="#" style="font-size:11px;color:#64748b;text-decoration:none">Privacy Policy</a>
-      <a href="#" style="font-size:11px;color:#64748b;text-decoration:none">Terms</a>
-      <a href="mailto:info@uplyncio.com" style="font-size:11px;color:#64748b;text-decoration:none">Support</a>
+    <div class="f-col"><h4>Services</h4><ul>
+      <li><a href="#">Guest Posting</a></li>
+      <li><a href="#">Link Building</a></li>
+      <li><a href="#">Press Release</a></li>
+      <li><a href="#">Content Writing</a></li>
+      <li><a href="#">High DA Links</a></li>
+      <li><a href="#">White Label</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Company</h4><ul>
+      <li><a href="https://uplyncio.com/about-us/">About Us</a></li>
+      <li><a href="https://uplyncio.com/blog/">Blog</a></li>
+      <li><a href="https://uplyncio.com/case-studies/">Case Studies</a></li>
+      <li><a href="https://uplyncio.com/contact-us/">Contact Us</a></li>
+      <li><a href="#" onclick="openPublisherSignup();return false">Become a Publisher</a></li>
+      <li><a href="#">Affiliate Program</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Support</h4><ul>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://uplyncio.com/refund_returns/">Refund Policy</a></li>
+      <li><a href="https://uplyncio.com/privacy-policy/">Privacy Policy</a></li>
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="https://wa.me/923001234567">Live Chat</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bot">
+    <p>© 2026 Uplyncio. All rights reserved.</p>
+    <div class="pay-badges">
+      <div class="pay-b">PayPal</div>
+      <div class="pay-b">Wise</div>
+      <div class="pay-b">USDT</div>
+      <div class="pay-b">Bank Transfer</div>
     </div>
   </div>
+</div>
 
 </div>
 
@@ -4470,17 +4504,94 @@ window.addEventListener('load', function(){
 
 
 <!-- FOOTER -->
-<footer style="background:#1a202c;color:#94a3b8;padding:24px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:auto">
-  <div style="display:flex;align-items:center;gap:10px">
-    <div style="width:28px;height:28px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff">U</div>
-    <span style="font-family:Manrope,sans-serif;font-size:15px;font-weight:800;color:#fff">Uply<span style="color:#4f7cff">ncio</span></span>
+
+<style>
+:root{
+  --bg:#07090f;
+  --bg2:#0b0f1c;
+  --surface:#0f1628;
+  --card:#111a2e;
+  --card2:#141f35;
+  --border:#1c2a45;
+  --border2:#243356;
+  --accent:#4f7cff;
+  --accent-soft:rgba(79,124,255,0.12);
+  --teal:#00d4aa;
+  --teal-soft:rgba(0,212,170,0.1);
+  --text:#eef2ff;
+  --text2:#8fa3c8;
+  --muted:#4a607f;
+  --green:#22c55e;
+  --yellow:#f59e0b;
+  --r:12px;
+  --r-sm:8px;
+}
+
+footer{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px 0}
+.footer-g{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid var(--border)}
+.f-brand p{font-size:13.5px;color:var(--text2);line-height:1.8;max-width:270px;margin:14px 0 22px}
+.f-socials{display:flex;gap:9px}
+.soc-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;text-decoration:none;font-size:13px;transition:all .2s;font-weight:700;font-family:'Manrope',sans-serif}
+.soc-btn:hover{border-color:var(--accent);color:var(--accent)}
+.f-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:18px;font-family:'Manrope',sans-serif}
+.f-col ul{list-style:none}
+.f-col ul li{margin-bottom:11px}
+.f-col ul li a{color:var(--text2);text-decoration:none;font-size:13.5px;transition:color .2s;font-weight:500}
+.f-col ul li a:hover{color:var(--text)}
+.footer-bot{max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-bot p{font-size:12.5px;color:var(--muted)}
+.pay-badges{display:flex;gap:8px}
+.pay-b{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--muted)}
+.footer-g{grid-template-columns:1fr 1fr}
+.footer-g{grid-template-columns:1fr}
+footer{padding:44px 18px 0}
+</style>
+<footer>
+  <div class="footer-g">
+    <div class="f-brand">
+      <a href="#" class="nav-logo" style="font-size:24px">Up<em>lyncio</em></a>
+      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches. Trusted by agencies and brands worldwide.</p>
+      <div class="f-socials">
+        <a class="soc-btn" href="https://www.linkedin.com/company/uplyncio" target="_blank">in</a>
+        <a class="soc-btn" href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank">fb</a>
+        <a class="soc-btn" href="https://www.instagram.com/uplyncio" target="_blank">ig</a>
+        <a class="soc-btn" href="https://wa.me/923001234567" target="_blank">wa</a>
+      </div>
+    </div>
+    <div class="f-col"><h4>Services</h4><ul>
+      <li><a href="#">Guest Posting</a></li>
+      <li><a href="#">Link Building</a></li>
+      <li><a href="#">Press Release</a></li>
+      <li><a href="#">Content Writing</a></li>
+      <li><a href="#">High DA Links</a></li>
+      <li><a href="#">White Label</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Company</h4><ul>
+      <li><a href="https://uplyncio.com/about-us/">About Us</a></li>
+      <li><a href="https://uplyncio.com/blog/">Blog</a></li>
+      <li><a href="https://uplyncio.com/case-studies/">Case Studies</a></li>
+      <li><a href="https://uplyncio.com/contact-us/">Contact Us</a></li>
+      <li><a href="#" onclick="openPublisherSignup();return false">Become a Publisher</a></li>
+      <li><a href="#">Affiliate Program</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Support</h4><ul>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="https://uplyncio.com/refund_returns/">Refund Policy</a></li>
+      <li><a href="https://uplyncio.com/privacy-policy/">Privacy Policy</a></li>
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="https://wa.me/923001234567">Live Chat</a></li>
+      <li><a href="#contact">Contact Us</a></li>
+    </ul></div>
   </div>
-  <div style="font-size:12px;color:#64748b">© 2025 Uplyncio. All rights reserved.</div>
-  <div style="display:flex;gap:18px">
-    <a href="uplyncio-full.html" style="font-size:12px;color:#64748b;text-decoration:none" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Home</a>
-    <a href="#" style="font-size:12px;color:#64748b;text-decoration:none" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Privacy Policy</a>
-    <a href="#" style="font-size:12px;color:#64748b;text-decoration:none" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Terms of Service</a>
-    <a href="mailto:info@uplyncio.com" style="font-size:12px;color:#64748b;text-decoration:none" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#64748b'">Support</a>
+  <div class="footer-bot">
+    <p>© 2026 Uplyncio. All rights reserved.</p>
+    <div class="pay-badges">
+      <div class="pay-b">PayPal</div>
+      <div class="pay-b">Wise</div>
+      <div class="pay-b">USDT</div>
+      <div class="pay-b">Bank Transfer</div>
+    </div>
   </div>
 </footer>
 </body>
