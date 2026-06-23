@@ -3638,6 +3638,7 @@ function restoreBuyerState(){
 var _selectedPayMethod = 'balance';
 
 function openPaymentModal(){
+  try{
   var site = selectedSite;
   if(!site) return;
   
@@ -3692,6 +3693,7 @@ function openPaymentModal(){
   }
   document.getElementById('payError').style.display = 'none';
   document.getElementById('paymentModal').style.display = 'flex';
+  }catch(e){ alert('Payment error: '+e.message); }
 }
 
 function closePaymentModal(){
