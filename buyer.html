@@ -963,7 +963,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
       <button class="sb-link" onclick="showToast('My Orders coming soon')">
         <div class="sb-icon">📦</div> My Orders
       </button>
-      <button class="sb-link" onclick="showToast('Saved sites coming soon')">
+      <button class="sb-link" onclick="window.location.href='cart.html#saved'">
         <div class="sb-icon">❤️</div> Saved Sites
       </button>
       <button class="sb-link" onclick="openContentPurchase()">
@@ -2187,6 +2187,112 @@ function toggleSave(idx,btn){
 var _cpType = 'Blog Post';
 var _cpDeadline = '5 days';
 var _cpPrices = {'500 words':20,'750 words':28,'1,000 words':35,'1,500 words':48,'2,000 words':60,'2,500 words':72,'3,000+ words':90};
+
+
+// ── MY ORDERS ──
+var _ordersFilter = 'all';
+
+function openOrdersPage(){
+  saveBuyerState('orders');
+  document.getElementById('ordersModal').style.display='flex';
+  document.body.style.overflow='hidden';
+  renderOrders();
+}
+
+function closeOrdersPage(){
+  saveBuyerState('browse');
+  document.getElementById('ordersModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function filterOrders(btn, status){
+  _ordersFilter = status;
+  document.querySelectorAll('.ord-tab').forEach(function(b){
+    b.style.borderBottomColor='transparent';
+    b.style.color='#94a3b8';
+  });
+  btn.style.borderBottomColor='#4f7cff';
+  btn.style.color='#4f7cff';
+  renderOrders();
+}
+
+function renderOrders(){
+  var list = document.getElementById('ordersList');
+  if(!list) return;
+
+  // Get orders from localStorage
+  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+
+  // Filter
+  var filtered = _ordersFilter==='all' ? orders : orders.filter(function(o){ return o.status===_ordersFilter; });
+
+  if(!filtered.length){
+    list.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#94a3b8">'
+      +'<div style="font-size:48px;margin-bottom:16px;opacity:.3">📦</div>'
+      +'<div style="font-size:16px;font-weight:600;color:#374151;margin-bottom:8px">No orders yet</div>'
+      +'<div style="font-size:13px">Browse sites and place your first order!</div>'
+      +'<button onclick="closeOrdersPage()" style="margin-top:18px;padding:10px 24px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">Browse Sites</button>'
+      +'</div>';
+    return;
+  }
+
+  var statusColors = {
+    'Pending':'#f59e0b','In Progress':'#3b82f6','Completed':'#16a34a',
+    'Rejected':'#ef4444','Revision':'#8b5cf6','Delivered':'#0d9488'
+  };
+
+  list.innerHTML = filtered.map(function(o){
+    var sc = statusColors[o.status]||'#94a3b8';
+    var date = o.date ? new Date(o.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    return '<div style="background:#fff;border-radius:14px;padding:18px 20px;margin-bottom:12px;border:1px solid #e2e8f0;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">'
+        +'<div style="flex:1">'
+          +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+            +'<div style="font-family:Manrope,sans-serif;font-size:15px;font-weight:800;color:#1a202c">'+(o.site||o.domain||'Unknown Site')+'</div>'
+            +'<span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:'+sc+'22;color:'+sc+'">'+o.status+'</span>'
+          +'</div>'
+          +'<div style="font-size:12.5px;color:#64748b;margin-bottom:8px">'+
+            '<span style="margin-right:14px">📋 '+(o.type||o.orderType||'Article Posting')+'</span>'
+            +'<span style="margin-right:14px">🗓 '+date+'</span>'
+            +'<span>🔖 '+(o.id||'#—')+'</span>'
+          +'</div>'
+          +(o.url ? '<div style="font-size:12px;color:#94a3b8">🔗 Target: <a href="'+o.url+'" target="_blank" style="color:#4f7cff;text-decoration:none">'+o.url+'</a></div>' : '')
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0">'
+          +'<div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c">$'+(o.price||'—')+'</div>'
+          +(o.status==='Completed' ? '<a href="'+(o.liveUrl||'#')+'" target="_blank" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#dcfce7;color:#16a34a;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none">View Live →</a>' : '')
+          +(o.status==='Pending' ? '<button onclick="cancelOrder(''+o.id+'')" style="margin-top:8px;padding:6px 14px;background:#fee2e2;color:#ef4444;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancel</button>' : '')
+        +'</div>'
+      +'</div>'
+      // Progress bar
+      +'<div style="margin-top:12px">'
+        +'<div style="height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden">'
+          +'<div style="height:100%;background:'+sc+';border-radius:2px;width:'+getOrderProgress(o.status)+'%;transition:width .3s"></div>'
+        +'</div>'
+        +'<div style="display:flex;justify-content:space-between;margin-top:6px">'
+          +'<span style="font-size:10.5px;color:#94a3b8">Order Placed</span>'
+          +'<span style="font-size:10.5px;color:#94a3b8">In Progress</span>'
+          +'<span style="font-size:10.5px;color:#94a3b8">Delivered</span>'
+          +'<span style="font-size:10.5px;color:#94a3b8">Completed</span>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+function getOrderProgress(status){
+  var map = {'Pending':10,'In Progress':45,'Delivered':75,'Revision':60,'Completed':100,'Rejected':0};
+  return map[status]||10;
+}
+
+function cancelOrder(id){
+  if(!confirm('Cancel this order?')) return;
+  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+  orders = orders.map(function(o){ if(o.id===id) o.status='Rejected'; return o; });
+  localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
+  renderOrders();
+  showToast('Order cancelled');
+}
 
 function openContentPurchase(){
   saveBuyerState('contentOrder');
@@ -4509,6 +4615,37 @@ window.addEventListener('load', function(){
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4;font-family:Manrope,sans-serif">Wise</div>
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4;font-family:Manrope,sans-serif">USDT</div>
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4;font-family:Manrope,sans-serif">Bank Transfer</div>
+    </div>
+  </div>
+</div>
+
+<!-- MY ORDERS MODAL -->
+<div id="ordersModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(5px);z-index:10000;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px">
+  <div style="background:#f0f2f7;border-radius:20px;width:100%;max-width:900px;margin:0 auto;overflow:hidden;animation:menuFade .22s ease">
+
+    <!-- Header -->
+    <div style="background:#fff;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e2e8f0">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#4f7cff,#6366f1);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px">📦</div>
+        <div>
+          <div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c">My Orders</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:1px">Track and manage your orders</div>
+        </div>
+      </div>
+      <button onclick="closeOrdersPage()" style="width:34px;height:34px;border-radius:9px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div style="background:#fff;border-bottom:1px solid #e2e8f0;padding:0 28px;display:flex;gap:0">
+      <button onclick="filterOrders(this,'all')" class="ord-tab active" style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid #4f7cff;color:#4f7cff;font-family:inherit">All Orders</button>
+      <button onclick="filterOrders(this,'Pending')" class="ord-tab" style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;font-family:inherit">Pending</button>
+      <button onclick="filterOrders(this,'In Progress')" class="ord-tab" style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;font-family:inherit">In Progress</button>
+      <button onclick="filterOrders(this,'Completed')" class="ord-tab" style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;font-family:inherit">Completed</button>
+      <button onclick="filterOrders(this,'Rejected')" class="ord-tab" style="padding:12px 18px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:#94a3b8;font-family:inherit">Rejected</button>
+    </div>
+
+    <div style="padding:20px 28px">
+      <div id="ordersList"></div>
     </div>
   </div>
 </div>
