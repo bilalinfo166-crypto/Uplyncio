@@ -8,228 +8,226 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 a,a:hover,a:visited{text-decoration:none}
-:root{--ac:#4f7cff;--br:#e2e8f0;--bg:#f0f2f7;--tx:#1a202c;--t2:#64748b;--mu:#94a3b8;--wh:#fff;--r:12px}
+:root{--ac:#4f7cff;--br:#e2e8f0;--bg:#f0f2f7;--tx:#1a202c;--t2:#64748b;--mu:#94a3b8;--wh:#fff;--r:14px;--gn:#16a34a}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
 
 /* NAV */
-.nav{background:var(--wh);border-bottom:1px solid var(--br);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.nav-logo{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:var(--tx);text-decoration:none}
+nav{background:var(--wh);border-bottom:1px solid var(--br);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.nav-logo{font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:var(--tx)}
 .nav-logo em{font-style:normal;color:var(--ac)}
-.nav-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--t2);text-decoration:none;cursor:pointer}
-.nav-back:hover{color:var(--ac)}
+.nav-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--t2);padding:7px 14px;border:1px solid var(--br);border-radius:8px;transition:all .15s}
+.nav-back:hover{color:var(--ac);border-color:var(--ac);background:#f0f4ff}
 
-/* LAYOUT */
-.layout{display:flex;flex:1;max-width:1200px;margin:0 auto;width:100%;padding:24px 20px;gap:24px}
-
-/* SIDEBAR */
-.sidebar{width:200px;flex-shrink:0}
-.sb-section-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;padding:0 12px;margin-bottom:8px;margin-top:16px}
-.sb-link{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--t2);cursor:pointer;border-radius:9px;text-align:left;font-family:inherit;transition:all .15s;text-decoration:none}
-.sb-link:hover{background:#f0f4ff;color:var(--ac)}
-.sb-link.act{background:#eff6ff;color:var(--ac)}
-.sb-icon{font-size:16px;width:20px;text-align:center}
+/* TABS */
+.tabs-bar{background:var(--wh);border-bottom:2px solid var(--br);padding:0 32px;display:flex;gap:0}
+.tab-btn{padding:14px 22px;font-size:14px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:8px}
+.tab-btn:hover{color:var(--tx)}
+.tab-btn.act{color:var(--ac);border-bottom-color:var(--ac)}
+.tab-cnt{background:var(--ac);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;font-weight:700}
 
 /* MAIN */
-.main{flex:1}
-.page-title{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:var(--tx);margin-bottom:20px}
+.container{max-width:1100px;margin:0 auto;width:100%;padding:28px 24px;flex:1;display:flex;gap:24px;align-items:flex-start}
+.cart-main{flex:1}
 
-/* CART ITEMS */
-.cart-item{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
-.cart-item-info{flex:1}
-.cart-item-site{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px}
-.cart-item-type{font-size:12.5px;color:var(--t2)}
-.cart-item-price{font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:var(--tx)}
-.cart-item-remove{width:30px;height:30px;border:1px solid var(--br);background:var(--bg);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mu);transition:all .15s}
-.cart-item-remove:hover{border-color:#ef4444;color:#ef4444;background:#fee2e2}
+/* CART ITEM */
+.cart-item{background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:18px 22px;margin-bottom:12px;display:flex;align-items:center;gap:18px;transition:box-shadow .2s}
+.cart-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.ci-favicon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4f7cff22,#6366f122);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ci-info{flex:1}
+.ci-site{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.ci-meta{display:flex;gap:12px;flex-wrap:wrap}
+.ci-badge{font-size:11.5px;color:var(--t2);display:flex;align-items:center;gap:4px}
+.ci-badge strong{color:var(--tx);font-weight:700}
+.ci-type{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eff6ff;color:var(--ac)}
+.ci-price{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:var(--tx);flex-shrink:0}
+.ci-remove{width:32px;height:32px;border:1px solid var(--br);background:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--mu);transition:all .15s;flex-shrink:0}
+.ci-remove:hover{border-color:#ef4444;color:#ef4444;background:#fff5f5}
 
 /* ORDER SUMMARY */
-.order-summary{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:20px;position:sticky;top:76px;width:280px;flex-shrink:0}
-.summary-title{font-size:14px;font-weight:800;color:var(--tx);margin-bottom:16px}
-.summary-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:10px}
-.summary-total{display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--tx);padding-top:12px;border-top:1px solid var(--br);margin-top:4px}
-.btn-checkout{width:100%;padding:13px;background:linear-gradient(135deg,var(--ac),#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px}
-.btn-checkout:hover{opacity:.9}
+.order-summary{width:300px;flex-shrink:0;position:sticky;top:76px}
+.summary-card{background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px;margin-bottom:14px}
+.summary-title{font-size:15px;font-weight:800;color:var(--tx);margin-bottom:18px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--t2);margin-bottom:12px}
+.summary-row span:last-child{font-weight:600;color:var(--tx)}
+.summary-divider{border:none;border-top:1px solid var(--br);margin:14px 0}
+.summary-total{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:800;color:var(--tx)}
+.btn-checkout{width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3);transition:all .18s;margin-top:16px}
+.btn-checkout:hover{opacity:.9;transform:translateY(-1px)}
+.trust-badges{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.trust-b{font-size:11px;color:var(--mu);display:flex;align-items:center;gap:4px}
 
-.empty-state{text-align:center;padding:60px 20px;color:var(--mu)}
-.empty-state .icon{font-size:48px;margin-bottom:16px;opacity:.3}
-.empty-state h3{font-size:16px;font-weight:700;color:var(--t2);margin-bottom:8px}
-.empty-state p{font-size:13px}
+/* EMPTY */
+.empty{text-align:center;padding:80px 20px;color:var(--mu)}
+.empty .icon{font-size:56px;margin-bottom:18px;opacity:.25;display:block}
+.empty h3{font-size:18px;font-weight:700;color:var(--t2);margin-bottom:8px}
+.empty p{font-size:13.5px;margin-bottom:22px}
+.btn-browse{display:inline-block;padding:11px 28px;background:var(--ac);color:#fff;border-radius:10px;font-size:14px;font-weight:700}
+
+/* SAVED SITE CARD */
+.saved-item{background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.btn-add{padding:8px 16px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-unsave{padding:8px 12px;background:#fee2e2;color:#ef4444;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
+<nav>
   <a href="buyer.html" class="nav-logo">Uply<em>ncio</em></a>
   <a href="buyer.html" class="nav-back">← Back to Browse</a>
 </nav>
 
-<!-- LAYOUT -->
-<div class="layout">
+<div class="tabs-bar">
+  <button class="tab-btn act" id="tab-cart" onclick="showTab('cart')">
+    🛒 My Cart <span class="tab-cnt" id="cnt-cart">0</span>
+  </button>
+  <button class="tab-btn" id="tab-saved" onclick="showTab('saved')">
+    ❤️ Saved Sites <span class="tab-cnt" id="cnt-saved" style="background:#94a3b8">0</span>
+  </button>
+</div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sb-section-title">Browse</div>
-    <a href="buyer.html" class="sb-link" style="text-decoration:none"><div class="sb-icon">🌐</div> All Sites</a>
-    <button class="sb-link" onclick="showOrders()"><div class="sb-icon">📦</div> My Orders</button>
-    <button class="sb-link act" id="sb-cart"><div class="sb-icon">🛒</div> My Cart</button>
-    <button class="sb-link" onclick="showSaved()"><div class="sb-icon">❤️</div> Saved Sites</button>
-    <a href="buyer.html" class="sb-link" style="text-decoration:none"><div class="sb-icon">✍️</div> Order Content</a>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <div class="main">
-    <!-- MY CART VIEW -->
-    <div id="view-cart">
-      <div class="page-title">🛒 My Cart</div>
-      <div style="display:flex;gap:20px;align-items:flex-start">
-        <div style="flex:1" id="cartItemsList"></div>
-        <div class="order-summary" id="cartSummaryBox" style="display:none">
-          <div class="summary-title">Order Summary</div>
-          <div class="summary-row"><span>Items</span><span id="sumCount">0</span></div>
-          <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">$0.00</span></div>
-          <div class="summary-total"><span>Total</span><span id="sumTotal">$0.00</span></div>
-          <button class="btn-checkout" onclick="alert('Contact info@uplyncio.com to complete your order')">Proceed to Checkout →</button>
-          <div style="font-size:11px;color:var(--mu);text-align:center;margin-top:10px">🔒 Secure checkout · SSL encrypted</div>
-        </div>
+<!-- MY CART -->
+<div id="view-cart" class="container">
+  <div class="cart-main" id="cartList"></div>
+  <div class="order-summary" id="summaryBox" style="display:none">
+    <div class="summary-card">
+      <div class="summary-title">Order Summary</div>
+      <div class="summary-row"><span>Items</span><span id="sumItems">0</span></div>
+      <div class="summary-row"><span>Subtotal</span><span id="sumSub">$0.00</span></div>
+      <div class="summary-row" style="color:#16a34a"><span>💰 Balance discount</span><span>$0.00</span></div>
+      <hr class="summary-divider">
+      <div class="summary-total"><span>Total</span><span id="sumTotal" style="color:var(--ac)">$0.00</span></div>
+      <button class="btn-checkout" onclick="proceedCheckout()">Proceed to Checkout →</button>
+      <div class="trust-badges">
+        <span class="trust-b">🔒 SSL Secure</span>
+        <span class="trust-b">💳 PayPal / USDT</span>
       </div>
     </div>
-
-    <!-- SAVED SITES VIEW -->
-    <div id="view-saved" style="display:none">
-      <div class="page-title">❤️ Saved Sites</div>
-      <div id="savedItemsList"></div>
-    </div>
-
-    <!-- MY ORDERS VIEW -->
-    <div id="view-orders" style="display:none">
-      <div class="page-title">📦 My Orders</div>
-      <div id="ordersListCart"></div>
+    <div class="summary-card" style="background:#f0fdf4;border-color:#bbf7d0">
+      <div style="font-size:12.5px;color:#15803d;line-height:1.6">
+        💡 <strong>Need help?</strong> Contact us at <a href="mailto:info@uplyncio.com" style="color:#15803d;font-weight:700">info@uplyncio.com</a> for bulk orders or custom packages.
+      </div>
     </div>
   </div>
 </div>
 
+<!-- SAVED SITES -->
+<div id="view-saved" class="container" style="display:none">
+  <div style="flex:1" id="savedList"></div>
+</div>
+
 <script>
+function showTab(tab){
+  document.getElementById('view-cart').style.display = tab==='cart'?'flex':'none';
+  document.getElementById('view-saved').style.display = tab==='saved'?'flex':'none';
+  document.getElementById('tab-cart').className = 'tab-btn'+(tab==='cart'?' act':'');
+  document.getElementById('tab-saved').className = 'tab-btn'+(tab==='saved'?' act':'');
+  if(tab==='cart') renderCart();
+  else renderSaved();
+}
+
 function renderCart(){
   var items = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  var list = document.getElementById('cartItemsList');
-  var summaryBox = document.getElementById('cartSummaryBox');
+  var list = document.getElementById('cartList');
+  var box = document.getElementById('summaryBox');
+  document.getElementById('cnt-cart').textContent = items.length;
 
   if(!items.length){
-    list.innerHTML = '<div class="empty-state"><div class="icon">🛒</div><h3>Your cart is empty</h3><p>Browse sites and add them to your cart</p><br><a href="buyer.html" style="padding:10px 24px;background:var(--ac);color:#fff;border-radius:9px;text-decoration:none;font-size:13.5px;font-weight:700">Browse Sites</a></div>';
-    summaryBox.style.display='none';
+    list.innerHTML = '<div class="empty"><span class="icon">🛒</span><h3>Your cart is empty</h3><p>Browse our marketplace and add sites to get started.</p><a href="buyer.html" class="btn-browse">Browse Sites</a></div>';
+    box.style.display='none';
     return;
   }
 
-  summaryBox.style.display='block';
   var total = 0;
   list.innerHTML = items.map(function(item, i){
     var price = parseFloat(item.price)||0;
     total += price;
+    var svcLabel = item.service==='li' ? 'Link Insertion' : 'Article Posting';
+    var svcIcon = item.service==='li' ? '🔗' : '📝';
     return '<div class="cart-item">'
-      +'<div class="cart-item-info">'
-        +'<div class="cart-item-site">'+item.site+'</div>'
-        +'<div class="cart-item-type">'+( item.type||'Article Posting')+'</div>'
+      +'<div class="ci-favicon">🌐</div>'
+      +'<div class="ci-info">'
+        +'<div class="ci-site">'+(item.url||'Unknown Site')+'</div>'
+        +'<div class="ci-meta">'
+          +'<span class="ci-badge"><strong>DA</strong> '+(item.da||'—')+'</span>'
+          +'<span class="ci-badge"><strong>DR</strong> '+(item.dr||'—')+'</span>'
+          +'<span class="ci-badge">📊 '+(item.traffic||'—')+'/mo</span>'
+          +'<span class="ci-type">'+svcIcon+' '+svcLabel+'</span>'
+        +'</div>'
       +'</div>'
-      +'<div class="cart-item-price">$'+price.toFixed(2)+'</div>'
-      +'<button class="cart-item-remove" onclick="removeFromCart('+i+')" title="Remove">✕</button>'
+      +'<div class="ci-price">$'+price.toFixed(2)+'</div>'
+      +'<button class="ci-remove" onclick="removeItem('+i+')" title="Remove">✕</button>'
     +'</div>';
   }).join('');
 
-  document.getElementById('sumCount').textContent = items.length;
-  document.getElementById('sumSubtotal').textContent = '$'+total.toFixed(2);
+  box.style.display='block';
+  document.getElementById('sumItems').textContent = items.length;
+  document.getElementById('sumSub').textContent = '$'+total.toFixed(2);
   document.getElementById('sumTotal').textContent = '$'+total.toFixed(2);
 }
 
-function removeFromCart(idx){
+function removeItem(i){
   var items = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  items.splice(idx,1);
+  var item = items[i];
+  if(item) localStorage.removeItem('cart_'+(item.service==='li'?'li_':'')+item.url);
+  items.splice(i,1);
   localStorage.setItem('uplyncio_cart_items', JSON.stringify(items));
   renderCart();
 }
 
 function renderSaved(){
   var items = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-  var list = document.getElementById('savedItemsList');
+  var list = document.getElementById('savedList');
+  document.getElementById('cnt-saved').textContent = items.length;
+
   if(!items.length){
-    list.innerHTML = '<div class="empty-state"><div class="icon">❤️</div><h3>No saved sites yet</h3><p>Heart any site to save it for later</p><br><a href="buyer.html" style="padding:10px 24px;background:var(--ac);color:#fff;border-radius:9px;text-decoration:none;font-size:13.5px;font-weight:700">Browse Sites</a></div>';
+    list.innerHTML = '<div class="empty"><span class="icon">❤️</span><h3>No saved sites yet</h3><p>Click the heart icon on any site to save it here.</p><a href="buyer.html" class="btn-browse">Browse Sites</a></div>';
     return;
   }
+
   list.innerHTML = items.map(function(item,i){
-    return '<div class="cart-item">'
-      +'<div class="cart-item-info">'
-        +'<div class="cart-item-site">'+(item.url||item.site||'Site')+'</div>'
-        +'<div class="cart-item-type">'+(item.niche||'Guest Post')+'</div>'
+    return '<div class="saved-item">'
+      +'<div class="ci-favicon">🌐</div>'
+      +'<div class="ci-info" style="flex:1">'
+        +'<div class="ci-site">'+(item.url||'Unknown Site')+'</div>'
+        +'<div class="ci-meta">'
+          +'<span class="ci-badge"><strong>DA</strong> '+(item.da||'—')+'</span>'
+          +'<span class="ci-badge"><strong>DR</strong> '+(item.dr||'—')+'</span>'
+          +'<span class="ci-badge">📊 '+(item.traffic||'—')+'/mo</span>'
+        +'</div>'
       +'</div>'
-      +'<button onclick="addToCart('+i+')" style="padding:7px 14px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-right:8px">Add to Cart</button>'
-      +'<button class="cart-item-remove" onclick="removeSaved('+i+')" title="Remove">✕</button>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+        +'<div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:var(--tx);margin-right:8px">$'+(parseFloat(item.price||item.gP||0)).toFixed(2)+'</div>'
+        +'<button class="btn-add" onclick="addToCart('+i+')">+ Add to Cart</button>'
+        +'<button class="btn-unsave" onclick="removeSaved('+i+')">✕</button>'
+      +'</div>'
     +'</div>';
   }).join('');
 }
 
-function addToCart(idx){
+function addToCart(i){
   var saved = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
   var cart = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  if(saved[idx]) cart.push(saved[idx]);
+  if(saved[i]){ cart.push(saved[i]); }
   localStorage.setItem('uplyncio_cart_items', JSON.stringify(cart));
-  showCart();
+  showTab('cart');
 }
 
-function removeSaved(idx){
+function removeSaved(i){
   var items = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-  items.splice(idx,1);
+  if(items[i]) localStorage.removeItem('saved_'+items[i].url);
+  items.splice(i,1);
   localStorage.setItem('uplyncio_saved_sites', JSON.stringify(items));
   renderSaved();
 }
 
-function renderOrders(){
-  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
-  var list = document.getElementById('ordersListCart');
-  if(!orders.length){
-    list.innerHTML = '<div class="empty-state"><div class="icon">📦</div><h3>No orders yet</h3><p>Place your first order from the site listings</p><br><a href="buyer.html" style="padding:10px 24px;background:var(--ac);color:#fff;border-radius:9px;text-decoration:none;font-size:13.5px;font-weight:700">Browse Sites</a></div>';
-    return;
-  }
-  var statusColors = {'Pending':'#f59e0b','In Progress':'#3b82f6','Completed':'#16a34a','Rejected':'#ef4444'};
-  list.innerHTML = orders.map(function(o){
-    var sc = statusColors[o.status]||'#94a3b8';
-    return '<div class="cart-item">'
-      +'<div class="cart-item-info">'
-        +'<div class="cart-item-site">'+(o.site||'Unknown')+'<span style="margin-left:10px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:'+sc+'22;color:'+sc+'">'+o.status+'</span></div>'
-        +'<div class="cart-item-type">'+(o.type||'Article Posting')+' · '+(o.id||'')+'</div>'
-      +'</div>'
-      +'<div class="cart-item-price">$'+(o.price||'—')+'</div>'
-    +'</div>';
-  }).join('');
-}
-
-function showCart(){
-  document.getElementById('view-cart').style.display='block';
-  document.getElementById('view-saved').style.display='none';
-  document.getElementById('view-orders').style.display='none';
-  document.querySelectorAll('.sb-link').forEach(function(b){b.classList.remove('act')});
-  document.getElementById('sb-cart').classList.add('act');
-  renderCart();
-}
-
-function showSaved(){
-  document.getElementById('view-cart').style.display='none';
-  document.getElementById('view-saved').style.display='block';
-  document.getElementById('view-orders').style.display='none';
-  renderSaved();
-}
-
-function showOrders(){
-  document.getElementById('view-cart').style.display='none';
-  document.getElementById('view-saved').style.display='none';
-  document.getElementById('view-orders').style.display='block';
-  renderOrders();
+function proceedCheckout(){
+  alert('To complete your order please contact us at info@uplyncio.com or use your account balance.');
 }
 
 // Init
 var hash = window.location.hash;
-if(hash==='#saved') showSaved();
-else if(hash==='#orders') showOrders();
-else showCart();
+if(hash==='#saved') showTab('saved');
+else { showTab('cart'); }
 </script>
 </body>
 </html>
