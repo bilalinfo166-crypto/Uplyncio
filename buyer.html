@@ -2219,65 +2219,51 @@ function filterOrders(btn, status){
 function renderOrders(){
   var list = document.getElementById('ordersList');
   if(!list) return;
-
-  // Get orders from localStorage
   var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
-
-  // Filter
   var filtered = _ordersFilter==='all' ? orders : orders.filter(function(o){ return o.status===_ordersFilter; });
 
   if(!filtered.length){
-    list.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#94a3b8">'
-      +'<div style="font-size:48px;margin-bottom:16px;opacity:.3">📦</div>'
-      +'<div style="font-size:16px;font-weight:600;color:#374151;margin-bottom:8px">No orders yet</div>'
-      +'<div style="font-size:13px">Browse sites and place your first order!</div>'
-      +'<button onclick="closeOrdersPage()" style="margin-top:18px;padding:10px 24px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">Browse Sites</button>'
-      +'</div>';
+    list.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#94a3b8"><div style="font-size:48px;margin-bottom:16px;opacity:.3">📦</div><div style="font-size:16px;font-weight:600;color:#374151;margin-bottom:8px">No orders yet</div><div style="font-size:13px">Browse sites and place your first order!</div><button onclick="closeOrdersPage()" style="margin-top:18px;padding:10px 24px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">Browse Sites</button></div>';
     return;
   }
 
-  var statusColors = {
-    'Pending':'#f59e0b','In Progress':'#3b82f6','Completed':'#16a34a',
-    'Rejected':'#ef4444','Revision':'#8b5cf6','Delivered':'#0d9488'
-  };
-
-  list.innerHTML = filtered.map(function(o){
+  var html = '';
+  filtered.forEach(function(o){
+    var statusColors = {'Pending':'#f59e0b','In Progress':'#3b82f6','Completed':'#16a34a','Rejected':'#ef4444','Revision':'#8b5cf6','Delivered':'#0d9488'};
     var sc = statusColors[o.status]||'#94a3b8';
     var date = o.date ? new Date(o.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
-    return '<div style="background:#fff;border-radius:14px;padding:18px 20px;margin-bottom:12px;border:1px solid #e2e8f0;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">'
+    var prog = getOrderProgress(o.status);
+    var liveBtn = o.status==='Completed' ? '<a href="'+(o.liveUrl||'#')+'" target="_blank" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#dcfce7;color:#16a34a;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none">View Live →</a>' : '';
+    var oid = o.id||''; var cancelBtn = o.status==='Pending' ? '<button onclick="cancelOrder(\'' + oid + '\')" style="margin-top:8px;padding:6px 14px;background:#fee2e2;color:#ef4444;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancel</button>' : '';
+
+    html += '<div style="background:#fff;border-radius:14px;padding:18px 20px;margin-bottom:12px;border:1px solid #e2e8f0">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">'
         +'<div style="flex:1">'
           +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
             +'<div style="font-family:Manrope,sans-serif;font-size:15px;font-weight:800;color:#1a202c">'+(o.site||o.domain||'Unknown Site')+'</div>'
             +'<span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:'+sc+'22;color:'+sc+'">'+o.status+'</span>'
           +'</div>'
-          +'<div style="font-size:12.5px;color:#64748b;margin-bottom:8px">'+
-            '<span style="margin-right:14px">📋 '+(o.type||o.orderType||'Article Posting')+'</span>'
-            +'<span style="margin-right:14px">🗓 '+date+'</span>'
-            +'<span>🔖 '+(o.id||'#—')+'</span>'
-          +'</div>'
-          +(o.url ? '<div style="font-size:12px;color:#94a3b8">🔗 Target: <a href="'+o.url+'" target="_blank" style="color:#4f7cff;text-decoration:none">'+o.url+'</a></div>' : '')
+          +'<div style="font-size:12.5px;color:#64748b;margin-bottom:6px">📋 '+(o.type||o.orderType||'Article Posting')+' &nbsp;🗓 '+date+' &nbsp;🔖 '+(o.id||'#—')+'</div>'
         +'</div>'
         +'<div style="text-align:right;flex-shrink:0">'
           +'<div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c">$'+(o.price||'—')+'</div>'
-          +(o.status==='Completed' ? '<a href="'+(o.liveUrl||'#')+'" target="_blank" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#dcfce7;color:#16a34a;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none">View Live →</a>' : '')
-          +(o.status==='Pending' ? '<button onclick="cancelOrder(''+o.id+'')" style="margin-top:8px;padding:6px 14px;background:#fee2e2;color:#ef4444;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Cancel</button>' : '')
+          +liveBtn+cancelBtn
         +'</div>'
       +'</div>'
-      // Progress bar
       +'<div style="margin-top:12px">'
         +'<div style="height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden">'
-          +'<div style="height:100%;background:'+sc+';border-radius:2px;width:'+getOrderProgress(o.status)+'%;transition:width .3s"></div>'
+          +'<div style="height:100%;background:'+sc+';border-radius:2px;width:'+prog+'%"></div>'
         +'</div>'
-        +'<div style="display:flex;justify-content:space-between;margin-top:6px">'
-          +'<span style="font-size:10.5px;color:#94a3b8">Order Placed</span>'
+        +'<div style="display:flex;justify-content:space-between;margin-top:5px">'
+          +'<span style="font-size:10.5px;color:#94a3b8">Placed</span>'
           +'<span style="font-size:10.5px;color:#94a3b8">In Progress</span>'
           +'<span style="font-size:10.5px;color:#94a3b8">Delivered</span>'
           +'<span style="font-size:10.5px;color:#94a3b8">Completed</span>'
         +'</div>'
       +'</div>'
     +'</div>';
-  }).join('');
+  });
+  list.innerHTML = html;
 }
 
 function getOrderProgress(status){
