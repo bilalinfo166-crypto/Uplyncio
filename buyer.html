@@ -3980,27 +3980,27 @@ function placeOrderSuccess(price, payMethod){
 
 
 
-// Sidebar stops before footer - pushes up when footer appears
+// Sidebar stops before footer
 function updateSidebarBottom(){
   var sidebar = document.querySelector('.sidebar');
-  var footer = document.querySelector('.layout ~ div');
   if(!sidebar) return;
+  // Find footer by background color (dark footer)
+  var footer = document.getElementById('siteFooter');
   if(!footer){
     sidebar.style.bottom = '0';
     return;
   }
-  var footerRect = footer.getBoundingClientRect();
+  var footerTop = footer.getBoundingClientRect().top;
   var windowH = window.innerHeight;
-  if(footerRect.top < windowH){
-    // Footer is visible - push sidebar up
-    sidebar.style.bottom = (windowH - footerRect.top) + 'px';
+  if(footerTop < windowH){
+    sidebar.style.bottom = Math.max(0, windowH - footerTop) + 'px';
   } else {
     sidebar.style.bottom = '0';
   }
 }
 window.addEventListener('scroll', updateSidebarBottom, {passive:true});
 window.addEventListener('resize', updateSidebarBottom);
-updateSidebarBottom();
+setTimeout(updateSidebarBottom, 300);
 
 // ── INIT ──
 applyFilters();
@@ -5149,7 +5149,7 @@ window.addEventListener('load', function(){
 </div>
 
 <!-- SITE FOOTER -->
-<div style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:52px 48px 0;font-family:'Plus Jakarta Sans',sans-serif;width:100%;box-sizing:border-box">
+<div id="siteFooter" style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:52px 48px 0;font-family:'Plus Jakarta Sans',sans-serif;width:100%;box-sizing:border-box">
   <div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)">
     <div>
       <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
