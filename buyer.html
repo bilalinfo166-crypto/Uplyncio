@@ -2215,13 +2215,20 @@ function onBuyerLogin(user){
   var em=document.getElementById('buyerMenuEmail');
   if(em) em.textContent=user.email||'—';
 }
-// Check logged in
+// Check logged in - redirect if not
 (function(){
   try{
     var uid=localStorage.getItem('uplyncio_currentUid');
     var user=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(uid&&user&&(user.role==='buyer'||user.role===undefined)) onBuyerLogin(user);
-  }catch(e){}
+    if(uid && user && (user.role==='buyer' || user.role===undefined)){
+      onBuyerLogin(user);
+    } else {
+      // Not logged in - redirect to home with buyer login modal
+      window.location.href='uplyncio-full.html?action=buyer-login';
+    }
+  }catch(e){
+    window.location.href='uplyncio-full.html?action=buyer-login';
+  }
 })();
 
 // ── BALANCE PAGE ──
