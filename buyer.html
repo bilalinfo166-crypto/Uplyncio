@@ -2281,7 +2281,6 @@ function cancelOrder(id){
 }
 
 function openContentPurchase(){
-  saveBuyerState('contentOrder');
   document.getElementById('cpWarningModal').style.display='flex';
   document.body.style.overflow='hidden';
 }
@@ -2293,6 +2292,7 @@ function openContentForm(){
 }
 
 function closeCPForm(){
+  saveBuyerState('browse');
   document.getElementById('cpFormModal').style.display='none';
   document.body.style.overflow='';
 }
@@ -3404,8 +3404,6 @@ function restoreBuyerState(){
       setTimeout(function(){ window.location.href='cart.html'; }, 100);
     } else if(page === 'orders'){
       setTimeout(function(){ showMyOrders(); }, 300);
-    } else if(page === 'contentOrder'){
-      setTimeout(function(){ openContentPurchase(); }, 300);
     }
   }catch(e){}
 }
@@ -3953,7 +3951,7 @@ window.addEventListener('load', function(){
       <button onclick="openContentForm()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3);transition:all .18s" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
         Continue to Order Content →
       </button>
-      <button onclick="document.getElementById('cpWarningModal').style.display='none'" style="background:none;border:none;font-size:13.5px;color:#64748b;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px">
+      <button onclick="saveBuyerState('browse');document.getElementById('cpWarningModal').style.display='none'" style="background:none;border:none;font-size:13.5px;color:#64748b;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px">
         Go back to Search for sites
       </button>
     </div>
