@@ -46,10 +46,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
 
 /* ── LAYOUT ── */
-.layout{display:flex;margin-top:54px;min-height:calc(100vh - 54px);align-items:flex-start}
+.layout{display:flex;margin-top:54px;min-height:calc(100vh - 54px)}
 
 /* ── LEFT SIDEBAR ── */
-.sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;scrollbar-width:none}.sidebar::-webkit-scrollbar{display:none}
+.sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;position:fixed;top:54px;left:0;bottom:0;height:calc(100vh - 54px);overflow-y:auto;scrollbar-width:none;z-index:200}.sidebar::-webkit-scrollbar{display:none}.sidebar::-webkit-scrollbar{display:none}
 .sidebar::-webkit-scrollbar{width:3px}
 .sb-section{padding:14px 14px 8px}
 .sb-section-title{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
@@ -68,7 +68,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .sb-cat-item.active .cat-cnt{background:#dbeafe;color:#2563eb}
 
 /* ── MAIN ── */
-.main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;margin-top:0}
+.main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;margin-top:0;margin-left:220px}
 
 /* ── FILTER BAR ── */
 .filter-bar{background:#fff;border-bottom:2px solid #e2e8f0;padding:16px 22px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin-top:0;border-top:3px solid #4f7cff}
