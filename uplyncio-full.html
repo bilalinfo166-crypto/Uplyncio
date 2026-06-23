@@ -996,7 +996,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 <div class="mp-outer"><div class="sec" style="max-width:1180px;margin:0 auto;padding-top:48px">
   <div class="sec-header">
     <div><div class="sec-eye">Live Inventory</div><div class="sec-title">Browse <span class="grad">Publisher Sites</span></div></div>
-    <button class="view-all">View All 8,500+ Sites →</button>
+    <button class="view-all" onclick="handleOrderNow('','',0)">View All 8,500+ Sites →</button>
   </div>
   <div class="filter-block">
     <div class="filter-block-title">
@@ -1041,7 +1041,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
   </div>
   <div class="mp-footer">
     <div class="mp-ct">Showing <strong id="mpCount">20</strong> of <strong>8,500+</strong> sites</div>
-    <button class="view-all">View full marketplace →</button>
+    <button class="view-all" onclick="handleOrderNow('','',0)">View full marketplace →</button>
   </div>
 </div></div>
 
@@ -2003,17 +2003,13 @@ function formatTraffic(n){
 }
 
 function handleOrderNow(url, name, price){
-  // Check if user is logged in as buyer
   var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
   if(user && user.role==='buyer'){
-    // Already logged in as buyer - go to buyer page
     window.location.href = 'buyer.html';
   } else if(user && user.role==='publisher'){
-    // Logged in as publisher - can't order
-    alert('Please log in as a Buyer to place orders.');
+    alert('Please log in as a Buyer to place orders or browse sites.');
   } else {
-    // Not logged in - show buyer signup modal
-    _pendingOrder = {url:url, name:name, price:price};
+    _pendingOrder = url ? {url:url, name:name, price:price} : null;
     openBuyerSignup();
   }
 }
