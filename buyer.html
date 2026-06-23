@@ -17,6 +17,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 
 /* ── NAV ── */
 .nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+@keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
 .nav-logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;text-decoration:none;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
 .nav-logo .logo-box{width:30px;height:30px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}
 .nav-logo .logo-txt{color:#1a202c}
@@ -881,8 +882,17 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 
 <!-- NAV -->
 <nav class="nav">
-  <a href="uplyncio-full.html" class="nav-logo">
-    <div class="logo-box">U</div>
+  <a href="uplyncio-full.html" class="nav-logo" style="display:flex;align-items:center;gap:10px">
+    <svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+    <rect width="64" height="64" rx="14" fill="#0f1628"/>
+    <g style="animation:chainMove 2.5s ease-in-out infinite">
+      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+    </g>
+    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
+      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+    </g>
+    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+    </svg>
     <span class="logo-txt">Uply<em>ncio</em></span>
   </a>
 
