@@ -2407,8 +2407,8 @@ setInterval(updateAllCounters, 15000);
 </script>
 
 <!-- ROLE PICKER MODAL -->
-<div id="rolePickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeRolePicker()">
-  <div style="background:#0d1117;border:1px solid rgba(255,255,255,.12);border-radius:20px;width:480px;max-width:95vw;padding:36px 32px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:fadeIn .2s ease;text-align:center">
+<div id="rolePickerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10001;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="closeRolePicker()">
+  <div style="background:#0d1117;border:1px solid rgba(255,255,255,.12);border-radius:20px;width:480px;max-width:95vw;padding:36px 32px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:fadeIn .2s ease;text-align:center" onclick="event.stopPropagation()">
     <button onclick="closeRolePicker()" style="position:absolute;top:-12px;right:-12px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:#1a2035;cursor:pointer;font-size:14px;color:#fff;display:flex;align-items:center;justify-content:center;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.4)">✕</button>
     <div style="width:52px;height:52px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:24px">🔗</div>
     <h2 style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:8px">Welcome to Uplyncio</h2>
@@ -2432,8 +2432,8 @@ setInterval(updateAllCounters, 15000);
 </html>
 
 <!-- ROLE SELECTION MODAL<!-- PUBLISHER MODAL -->
-<div id="publisherModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closePublisherModal()">
-  <div style="background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:900px;max-width:96vw;max-height:90vh;overflow:visible;display:flex;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:fadeIn .25s ease">
+<div id="publisherModal"style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="closePublisherModal()">
+  <div style="background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:900px;max-width:96vw;max-height:90vh;overflow:visible;display:flex;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:fadeIn .25s ease" onclick="event.stopPropagation()">
     <button onclick="closePublisherModal()" style="position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:#1a2035;cursor:pointer;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.4)">✕</button>
 
     <!-- LEFT: Benefits -->
@@ -2531,8 +2531,8 @@ setInterval(updateAllCounters, 15000);
 </div>
 
 <!-- BUYER MODAL -->
-<div id="buyerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="if(event.target===this)closeBuyerModal()">
-  <div style="background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:900px;max-width:96vw;max-height:90vh;overflow:visible;display:flex;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:fadeIn .25s ease">
+<div id="buyerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(10px)" onclick="closeBuyerModal()">
+  <div style="background:#0d1117;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:900px;max-width:96vw;max-height:90vh;overflow:visible;display:flex;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.5);animation:fadeIn .25s ease" onclick="event.stopPropagation()">
     <button onclick="closeBuyerModal()" style="position:absolute;top:-14px;right:-14px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:#1a2035;cursor:pointer;font-size:16px;color:#fff;display:flex;align-items:center;justify-content:center;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.4)">✕</button>
 
     <!-- LEFT: Benefits -->
