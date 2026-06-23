@@ -3979,6 +3979,29 @@ function placeOrderSuccess(price, payMethod){
 }
 
 
+
+// Sidebar stops before footer - pushes up when footer appears
+function updateSidebarBottom(){
+  var sidebar = document.querySelector('.sidebar');
+  var footer = document.querySelector('.layout ~ div');
+  if(!sidebar) return;
+  if(!footer){
+    sidebar.style.bottom = '0';
+    return;
+  }
+  var footerRect = footer.getBoundingClientRect();
+  var windowH = window.innerHeight;
+  if(footerRect.top < windowH){
+    // Footer is visible - push sidebar up
+    sidebar.style.bottom = (windowH - footerRect.top) + 'px';
+  } else {
+    sidebar.style.bottom = '0';
+  }
+}
+window.addEventListener('scroll', updateSidebarBottom, {passive:true});
+window.addEventListener('resize', updateSidebarBottom);
+updateSidebarBottom();
+
 // ── INIT ──
 applyFilters();
 
