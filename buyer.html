@@ -1893,8 +1893,9 @@ function clearFilters(){
 // ═══════════════════════════════════
 function openModal(idx, type){
   selectedSite=filteredSites[idx];
+  if(!selectedSite) return;
   selectedSvcType=type;
-  selectedPrice=type==='li'?selectedSite.liP:selectedSite.gP;
+  selectedPrice=type==='li'?(selectedSite.liP||0):(selectedSite.gP||selectedSite.price||0);
 
   document.getElementById('mSiteUrl').textContent=selectedSite.url;
   document.getElementById('mStats').innerHTML=
@@ -1994,6 +1995,7 @@ function openModal(idx, type){
   ['oUrl','oAnchor','oKeywords','oInstructions'].forEach(function(id){ document.getElementById(id).value=''; });
   document.getElementById('orderModal').classList.add('open');
   document.body.style.overflow='hidden';
+  setTimeout(initPlacementPrices, 100);
 }
 
 function selSvc(type,price,el){
