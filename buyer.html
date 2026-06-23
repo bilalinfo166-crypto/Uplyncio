@@ -3663,7 +3663,7 @@ function openPaymentModal(){
   document.getElementById('invAmount').textContent = '$' + price;
   document.getElementById('invSubtotal').textContent = '$' + price;
   document.getElementById('invTotal').textContent = '$' + price;
-  if(document.getElementById('invPayMethod')) document.getElementById('invPayMethod').textContent = 'Pending selection';
+  if(document.getElementById('invPayMethod')) document.getElementById('invPayMethod').textContent = 'Account Balance';
 
   // Tags
   var tags = '';
@@ -3680,7 +3680,16 @@ function openPaymentModal(){
   // Store for download
   window._currentInvoice = {id:orderId, date:dateStr, client:user, site:site, price:price, svcType:svcType, svcLabel:svcLabel};
 
-  selectPayMethod(document.querySelector('.pay-method-card'), 'balance');
+  // Show balance warning if insufficient
+  var balWarn = document.getElementById('balanceWarning');
+  var confirmBtn = document.querySelector('#paymentModal .m-submit') || document.querySelector('#paymentModal button[onclick="confirmPayment()"]');
+  if(balWarn){
+    if(balance < price){
+      balWarn.style.display = 'block';
+    } else {
+      balWarn.style.display = 'none';
+    }
+  }
   document.getElementById('payError').style.display = 'none';
   document.getElementById('paymentModal').style.display = 'flex';
 }
