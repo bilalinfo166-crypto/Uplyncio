@@ -3670,7 +3670,7 @@ function selectPayMethod(el, method){
     el.style.background = '#eff6ff';
   }
   // Show/hide detail sections
-  ['balance','paypal','usdt','wise'].forEach(function(m){
+  ['balance','card','paypal','payoneer','usdt','wise'].forEach(function(m){
     var el2 = document.getElementById('pay-'+m+'-detail');
     if(el2) el2.style.display = m===method ? 'block' : 'none';
   });
@@ -3707,6 +3707,15 @@ function confirmPayment(){
   }
 }
 
+function formatCard(el){
+  var v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(\d{4})(?=\d)/g,'$1 ');
+}
+function formatExpiry(el){
+  var v = el.value.replace(/\D/g,'').substring(0,4);
+  if(v.length >= 2) v = v.substring(0,2)+' / '+v.substring(2);
+  el.value = v;
+}
 function placeOrderSuccess(price, payMethod){
   var site = selectedSite;
   var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
@@ -4966,17 +4975,27 @@ window.addEventListener('load', function(){
 
       <!-- Payment Method -->
       <div style="font-size:13px;font-weight:700;color:#374151;margin-bottom:10px">Select Payment Method</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">
         <div onclick="selectPayMethod(this,'balance')" class="pay-method-card selected" style="border:2px solid #4f7cff;border-radius:11px;padding:14px;cursor:pointer;background:#eff6ff;transition:all .2s">
           <div style="font-size:20px;margin-bottom:6px">💰</div>
           <div style="font-size:13px;font-weight:700;color:#1a202c">Account Balance</div>
           <div style="font-size:11.5px;color:#64748b;margin-top:2px">Instant · No fees</div>
           <div style="font-size:12px;font-weight:700;color:#4f7cff;margin-top:4px" id="payBalanceAmt"></div>
         </div>
+        <div onclick="selectPayMethod(this,'card')" class="pay-method-card" style="border:2px solid #e2e8f0;border-radius:11px;padding:14px;cursor:pointer;background:#fff;transition:all .2s">
+          <div style="font-size:20px;margin-bottom:6px">💳</div>
+          <div style="font-size:13px;font-weight:700;color:#1a202c">Credit / Debit Card</div>
+          <div style="font-size:11.5px;color:#64748b;margin-top:2px">Visa · MC · Amex</div>
+        </div>
         <div onclick="selectPayMethod(this,'paypal')" class="pay-method-card" style="border:2px solid #e2e8f0;border-radius:11px;padding:14px;cursor:pointer;background:#fff;transition:all .2s">
           <div style="font-size:20px;margin-bottom:6px">🅿️</div>
           <div style="font-size:13px;font-weight:700;color:#1a202c">PayPal</div>
           <div style="font-size:11.5px;color:#64748b;margin-top:2px">Secure · Instant</div>
+        </div>
+        <div onclick="selectPayMethod(this,'payoneer')" class="pay-method-card" style="border:2px solid #e2e8f0;border-radius:11px;padding:14px;cursor:pointer;background:#fff;transition:all .2s">
+          <div style="font-size:20px;margin-bottom:6px">🟠</div>
+          <div style="font-size:13px;font-weight:700;color:#1a202c">Payoneer</div>
+          <div style="font-size:11.5px;color:#64748b;margin-top:2px">Global · Fast</div>
         </div>
         <div onclick="selectPayMethod(this,'usdt')" class="pay-method-card" style="border:2px solid #e2e8f0;border-radius:11px;padding:14px;cursor:pointer;background:#fff;transition:all .2s">
           <div style="font-size:20px;margin-bottom:6px">🪙</div>
