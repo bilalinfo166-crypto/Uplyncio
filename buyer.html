@@ -72,9 +72,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 
 /* ── FILTER BAR ── */
 .filter-bar{background:#fff;border-bottom:2px solid #e2e8f0;padding:16px 22px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin-top:0;border-top:3px solid #4f7cff}
-.filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.fi-lbl{font-size:10.5px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;min-width:fit-content}
-.fi{height:34px;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:8px;padding:0 10px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;font-weight:500}.fi:focus{border-color:#4f7cff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.1)}
+.filter-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fi-lbl{font-size:11px;font-weight:800;color:#4f7cff;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;flex-shrink:0}
+.fi{height:36px;min-width:90px;background:#fff;border:1.5px solid #c7d4e8;border-radius:9px;padding:0 12px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;font-weight:500;box-sizing:border-box}.fi:focus{border-color:#4f7cff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.12)}
 .fi:focus{border-color:#4f7cff}
 .fi::placeholder{color:#94a3b8}
 .fi-range{display:flex;align-items:center;gap:3px}
@@ -1014,14 +1014,14 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
       <div class="filter-row">
         <span class="fi-lbl">Price ($)</span>
         <div class="fi-range">
-          <input class="fi" type="number" id="fPriceMin" placeholder="Min" style="width:60px" oninput="applyFilters()">
+          <input class="fi" type="number" id="fPriceMin" placeholder="Min" style="width:80px" style="width:60px" oninput="applyFilters()">
           <span>–</span>
-          <input class="fi" type="number" id="fPriceMax" placeholder="Max" style="width:60px" oninput="applyFilters()">
+          <input class="fi" type="number" id="fPriceMax" placeholder="Max" style="width:80px" style="width:60px" oninput="applyFilters()">
         </div>
         <div class="fi-sep"></div>
         <span class="fi-lbl">Ahrefs DR</span>
         <div class="fi-range">
-          <input class="fi" type="number" id="fDRMin" placeholder="1" style="width:52px" oninput="applyFilters()">
+          <input class="fi" type="number" id="fDRMin" placeholder="1" style="width:70px" style="width:52px" oninput="applyFilters()">
           <span>–</span>
           <input class="fi" type="number" id="fDRMax" placeholder="100" style="width:52px" oninput="applyFilters()">
         </div>
@@ -1034,14 +1034,14 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         </div>
         <div class="fi-sep"></div>
         <span class="fi-lbl">Country</span>
-        <select class="fi-sel" id="fCountry" style="width:100px" onchange="applyFilters()">
+        <select class="fi-sel" id="fCountry" style="min-width:120px" style="width:100px" onchange="applyFilters()">
           <option value="">All</option>
           <option>USA</option><option>UK</option><option>Canada</option>
           <option>Australia</option><option>India</option><option>Germany</option><option>UAE</option>
         </select>
         <div class="fi-sep"></div>
         <span class="fi-lbl">Language</span>
-        <select class="fi-sel" id="fLang" style="width:95px" onchange="applyFilters()">
+        <select class="fi-sel" id="fLang" style="min-width:100px" style="width:95px" onchange="applyFilters()">
           <option value="">All</option>
           <option>English</option><option>German</option><option>Spanish</option><option>French</option>
         </select>
@@ -1050,13 +1050,13 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
       <div class="filter-row">
         <span class="fi-lbl">Moz DA</span>
         <div class="fi-range">
-          <input class="fi" type="number" id="fDAMin" placeholder="1" style="width:52px" oninput="applyFilters()">
+          <input class="fi" type="number" id="fDAMin" placeholder="1" style="width:70px" style="width:52px" oninput="applyFilters()">
           <span>–</span>
-          <input class="fi" type="number" id="fDAMax" placeholder="100" style="width:52px" oninput="applyFilters()">
+          <input class="fi" type="number" id="fDAMax" placeholder="100" style="width:70px" style="width:52px" oninput="applyFilters()">
         </div>
         <div class="fi-sep"></div>
         <span class="fi-lbl">Link Type</span>
-        <select class="fi-sel" id="fLinkType" style="width:110px" onchange="applyFilters()">
+        <select class="fi-sel" id="fLinkType" style="min-width:120px" style="width:110px" onchange="applyFilters()">
           <option value="">All Types</option>
           <option value="Dofollow">Dofollow</option>
           <option value="Nofollow">Nofollow</option>
@@ -1064,14 +1064,14 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         </select>
         <div class="fi-sep"></div>
         <span class="fi-lbl">Completion</span>
-        <select class="fi-sel" id="fCompletion" style="width:105px" onchange="applyFilters()">
+        <select class="fi-sel" id="fCompletion" style="min-width:100px" style="width:105px" onchange="applyFilters()">
           <option value="">All</option>
           <option value="95">95%+</option><option value="90">90%+</option>
           <option value="80">80%+</option><option value="70">70%+</option>
         </select>
         <div class="fi-sep"></div>
         <span class="fi-lbl">TAT</span>
-        <select class="fi-sel" id="fTAT" style="width:110px" onchange="applyFilters()">
+        <select class="fi-sel" id="fTAT" style="min-width:100px" style="width:110px" onchange="applyFilters()">
           <option value="">Any</option>
           <option value="3">Up to 3 days</option>
           <option value="5">Up to 5 days</option>
