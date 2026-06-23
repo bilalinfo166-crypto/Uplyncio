@@ -3978,6 +3978,25 @@ function placeOrderSuccess(price, payMethod){
   updateCartNav();
 }
 
+
+// Dynamic sidebar bottom - stop at footer
+function adjustSidebarBottom(){
+  var footer = document.querySelector('.layout ~ div');
+  if(!footer) return;
+  var sidebar = document.querySelector('.sidebar');
+  if(!sidebar) return;
+  var footerTop = footer.getBoundingClientRect().top;
+  var windowH = window.innerHeight;
+  if(footerTop < windowH){
+    sidebar.style.bottom = (windowH - footerTop) + 'px';
+  } else {
+    sidebar.style.bottom = '0';
+  }
+}
+window.addEventListener('scroll', adjustSidebarBottom);
+window.addEventListener('resize', adjustSidebarBottom);
+adjustSidebarBottom();
+
 // ── INIT ──
 applyFilters();
 updateLiveSiteCount();
