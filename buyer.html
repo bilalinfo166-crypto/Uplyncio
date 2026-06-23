@@ -3990,29 +3990,31 @@ function placeOrderSuccess(price, payMethod){
   if(!sidebar || !mainWrap) return;
 
   function updateSidebar(){
-    var sidebarContent = sidebar.scrollHeight;
-    var sidebarVisible = sidebar.clientHeight || (window.innerHeight - 54);
     sidebar.style.height = (window.innerHeight - 54) + 'px';
 
     var layout = document.querySelector('.layout');
+    var footer = document.getElementById('siteFooter');
     if(!layout) return;
 
-    // Total scrollable height of sites section
-    var layoutH = layout.scrollHeight;
     var windowH = window.innerHeight;
-    var maxPageScroll = layoutH - windowH + 54;
 
-    // Sidebar scrollable content
+    // Total page scroll height EXCLUDING footer
+    var footerH = footer ? footer.offsetHeight : 0;
+    var totalPageScroll = document.body.scrollHeight - windowH;
+    var sitesOnlyScroll = totalPageScroll - footerH; // exclude footer
+
+    if(sitesOnlyScroll <= 0) return;
+
+    // Sidebar scrollable range
     var sidebarScrollable = sidebar.scrollHeight - sidebar.clientHeight;
+    if(sidebarScrollable <= 0) return;
 
-    if(maxPageScroll <= 0 || sidebarScrollable <= 0) return;
-
-    // Current scroll position (0 to 1)
-    var scrolled = window.scrollY / maxPageScroll;
-    scrolled = Math.min(1, Math.max(0, scrolled));
+    // Scroll ratio based on sites section only (not footer)
+    var currentScroll = Math.min(window.scrollY, sitesOnlyScroll);
+    var ratio = currentScroll / sitesOnlyScroll;
 
     // Move sidebar proportionally
-    sidebar.scrollTop = scrolled * sidebarScrollable;
+    sidebar.scrollTop = ratio * sidebarScrollable;
   }
 
   window.addEventListener('scroll', updateSidebar, {passive:true});
