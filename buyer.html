@@ -3663,7 +3663,7 @@ function openPaymentModal(){
   document.getElementById('invAmount').textContent = '$' + price;
   document.getElementById('invSubtotal').textContent = '$' + price;
   document.getElementById('invTotal').textContent = '$' + price;
-  if(document.getElementById('invPayMethod')) document.getElementById('invPayMethod').textContent = 'Account Balance';
+
 
   // Tags
   var tags = '';
@@ -5168,9 +5168,7 @@ window.addEventListener('load', function(){
             <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#64748b;margin-bottom:8px">
               <span>Platform Fee</span><span style="font-weight:600;color:#16a34a">Included</span>
             </div>
-            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#64748b;margin-bottom:10px">
-              <span>Payment Method</span><span id="invPayMethod" style="font-weight:700;color:#4f7cff">—</span>
-            </div>
+
             <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif;padding-top:10px;border-top:1.5px solid #e2e8f0">
               <span>Total Due</span><span id="invTotal" style="color:#4f7cff"></span>
             </div>
