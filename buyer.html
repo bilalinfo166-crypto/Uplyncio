@@ -46,7 +46,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
 
 /* ── LAYOUT ── */
-.layout{display:flex;margin-top:54px;min-height:calc(100vh - 54px)}
+.layout{display:flex;margin-top:54px;min-height:calc(100vh - 54px);align-items:flex-start}
 
 /* ── LEFT SIDEBAR ── */
 .sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;scrollbar-width:none}.sidebar::-webkit-scrollbar{display:none}
@@ -1267,7 +1267,32 @@ var SAMPLE = [
   {url:'tomsguide.com',da:89,dr:87,traffic:7500000,semT:28000000,refD:140000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:350,wP:430,liOk:true,liP:200,liReq:'Tech topics',country:'USA',lang:'English',tat:10,comp:91,pub:'Contributor',maxL:1,req:'',spam:3,minWords:600,indexed:true,domainAge:'15 years'},
   {url:'marketwatch.com',da:93,dr:91,traffic:9200000,semT:42000000,refD:380000,cats:['Finance','News & Media'],linkType:'Dofollow',gP:750,wP:900,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:87,pub:'Contributor',maxL:1,req:'Finance/market topics',spam:1,minWords:800,indexed:true,domainAge:'28 years'},
   {url:'searchenginejournal.com',da:82,dr:79,traffic:1200000,semT:3800000,refD:85000,cats:['Marketing','SaaS'],linkType:'Dofollow',gP:220,wP:280,liOk:true,liP:130,liReq:'SEO/Marketing topics',country:'USA',lang:'English',tat:7,comp:97,pub:'Contributor',maxL:2,req:'',spam:4,minWords:600,indexed:true,domainAge:'14 years'},
-];
+,
+  {url:'forbes.com',da:94,dr:92,traffic:32000000,semT:98000000,refD:420000,cats:['Business','Entrepreneurship'],linkType:'Dofollow',gP:1200,wP:1500,liOk:true,liP:800,country:'USA',lang:'English',comp:88,tat:14,maxL:2,spam:2},
+  {url:'huffpost.com',da:91,dr:89,traffic:18000000,semT:55000000,refD:380000,cats:['News & Media','Lifestyle'],linkType:'Dofollow',gP:950,wP:1200,liOk:false,liP:0,country:'USA',lang:'English',comp:85,tat:12,maxL:1,spam:3},
+  {url:'psychologytoday.com',da:91,dr:87,traffic:14000000,semT:42000000,refD:290000,cats:['Mental Health','Psychology'],linkType:'Dofollow',gP:880,wP:1100,liOk:true,liP:600,country:'USA',lang:'English',comp:90,tat:10,maxL:2,spam:1},
+  {url:'foodnetwork.com',da:90,dr:88,traffic:22000000,semT:67000000,refD:310000,cats:['Food & Recipes','Lifestyle'],linkType:'Dofollow',gP:820,wP:1000,liOk:false,liP:0,country:'USA',lang:'English',comp:87,tat:12,maxL:1,spam:2},
+  {url:'pcmag.com',da:91,dr:89,traffic:12000000,semT:38000000,refD:260000,cats:['Technology','Gadgets'],linkType:'Dofollow',gP:760,wP:950,liOk:true,liP:500,country:'USA',lang:'English',comp:92,tat:8,maxL:2,spam:1},
+  {url:'shopify.com/blog',da:93,dr:91,traffic:9000000,semT:28000000,refD:480000,cats:['E-commerce','Entrepreneurship'],linkType:'Dofollow',gP:900,wP:1100,liOk:true,liP:650,country:'USA',lang:'English',comp:89,tat:10,maxL:2,spam:1},
+  {url:'mayoclinic.org',da:93,dr:90,traffic:28000000,semT:85000000,refD:440000,cats:['Health','Medical'],linkType:'Dofollow',gP:1100,wP:1400,liOk:false,liP:0,country:'USA',lang:'English',comp:94,tat:14,maxL:1,spam:1},
+  {url:'lonelyplanet.com',da:89,dr:85,traffic:8500000,semT:26000000,refD:220000,cats:['Travel','Adventure'],linkType:'Dofollow',gP:680,wP:850,liOk:true,liP:480,country:'UK',lang:'English',comp:88,tat:10,maxL:2,spam:2},
+  {url:'investopedia.com',da:91,dr:90,traffic:25000000,semT:78000000,refD:390000,cats:['Finance','Investing'],linkType:'Dofollow',gP:1050,wP:1300,liOk:true,liP:720,country:'USA',lang:'English',comp:91,tat:12,maxL:2,spam:1},
+  {url:'homeadvisor.com',da:82,dr:78,traffic:6500000,semT:19000000,refD:140000,cats:['Home & Garden','Real Estate'],linkType:'Dofollow',gP:480,wP:600,liOk:true,liP:320,country:'USA',lang:'English',comp:85,tat:8,maxL:3,spam:3},
+  {url:'autotrader.com',da:85,dr:82,traffic:11000000,semT:34000000,refD:190000,cats:['Automotive','Finance'],linkType:'Dofollow',gP:620,wP:780,liOk:true,liP:420,country:'USA',lang:'English',comp:87,tat:10,maxL:2,spam:2},
+  {url:'fashionista.com',da:80,dr:76,traffic:3500000,semT:11000000,refD:95000,cats:['Fashion','Lifestyle'],linkType:'Dofollow',gP:420,wP:530,liOk:true,liP:280,country:'USA',lang:'English',comp:83,tat:8,maxL:2,spam:3},
+  {url:'sportsillustrated.com',da:88,dr:85,traffic:9000000,semT:27000000,refD:210000,cats:['Sports','Fitness'],linkType:'Dofollow',gP:720,wP:900,liOk:true,liP:500,country:'USA',lang:'English',comp:86,tat:10,maxL:2,spam:2},
+  {url:'edutopia.org',da:82,dr:78,traffic:4200000,semT:13000000,refD:130000,cats:['Education','E-Learning'],linkType:'Dofollow',gP:460,wP:580,liOk:false,liP:0,country:'USA',lang:'English',comp:91,tat:10,maxL:2,spam:1},
+  {url:'coursera.org/blog',da:91,dr:88,traffic:7800000,semT:24000000,refD:340000,cats:['Education','E-Learning'],linkType:'Dofollow',gP:780,wP:980,liOk:true,liP:540,country:'USA',lang:'English',comp:90,tat:12,maxL:2,spam:1},
+  {url:'legalzoom.com',da:81,dr:77,traffic:4800000,semT:15000000,refD:120000,cats:['Legal','Business'],linkType:'Dofollow',gP:520,wP:660,liOk:true,liP:360,country:'USA',lang:'English',comp:86,tat:10,maxL:2,spam:2},
+  {url:'healthyeating.org',da:72,dr:68,traffic:1800000,semT:5500000,refD:48000,cats:['Food & Recipes','Health'],linkType:'Dofollow',gP:280,wP:360,liOk:true,liP:180,country:'USA',lang:'English',comp:84,tat:7,maxL:2,spam:2},
+  {url:'petmd.com',da:80,dr:76,traffic:5200000,semT:16000000,refD:108000,cats:['Pets & Animals','Health'],linkType:'Dofollow',gP:420,wP:530,liOk:true,liP:280,country:'USA',lang:'English',comp:87,tat:8,maxL:2,spam:2},
+  {url:'reliefweb.int',da:82,dr:79,traffic:2100000,semT:6400000,refD:142000,cats:['Non-Profit','News & Media'],linkType:'Dofollow',gP:460,wP:580,liOk:false,liP:0,country:'Global',lang:'English',comp:89,tat:12,maxL:2,spam:1},
+  {url:'techradar.com',da:90,dr:87,traffic:11000000,semT:34000000,refD:270000,cats:['Technology','Gadgets'],linkType:'Dofollow',gP:820,wP:1030,liOk:true,liP:560,country:'UK',lang:'English',comp:91,tat:10,maxL:2,spam:1},
+  {url:'environmentalleader.com',da:68,dr:63,traffic:890000,semT:2700000,refD:32000,cats:['Environment','Sustainability'],linkType:'Dofollow',gP:220,wP:280,liOk:true,liP:140,country:'USA',lang:'English',comp:82,tat:7,maxL:3,spam:3},
+  {url:'greenbiz.com',da:74,dr:70,traffic:1400000,semT:4200000,refD:58000,cats:['Sustainability','Business'],linkType:'Dofollow',gP:320,wP:400,liOk:true,liP:210,country:'USA',lang:'English',comp:85,tat:8,maxL:2,spam:2},
+  {url:'buildingsanddata.com',da:58,dr:53,traffic:320000,semT:980000,refD:14000,cats:['Architecture','Real Estate'],linkType:'Dofollow',gP:150,wP:190,liOk:true,liP:95,country:'UK',lang:'English',comp:80,tat:7,maxL:3,spam:4},
+  {url:'medscape.com',da:91,dr:88,traffic:16000000,semT:49000000,refD:320000,cats:['Medical','Health'],linkType:'Dofollow',gP:980,wP:1230,liOk:false,liP:0,country:'USA',lang:'English',comp:93,tat:14,maxL:1,spam:1},
+  {url:'securityweek.com',da:74,dr:70,traffic:2200000,semT:6800000,refD:62000,cats:['Cybersecurity','Technology'],linkType:'Dofollow',gP:360,wP:450,liOk:true,liP:240,country:'USA',lang:'English',comp:88,tat:8,maxL:2,spam:2}];
 
 // ═══════════════════════════════════
 // STATE
