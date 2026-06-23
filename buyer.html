@@ -1892,6 +1892,7 @@ function clearFilters(){
 // ORDER MODAL
 // ═══════════════════════════════════
 function openModal(idx, type){
+  try{
   selectedSite=filteredSites[idx];
   if(!selectedSite) return;
   // Safe fallbacks for publisher-added sites
@@ -2010,6 +2011,7 @@ function openModal(idx, type){
   document.getElementById('orderModal').classList.add('open');
   document.body.style.overflow='hidden';
   setTimeout(initPlacementPrices, 100);
+  }catch(err){ alert('Modal error: '+err.message); console.error(err); }
 }
 
 function selSvc(type,price,el){
