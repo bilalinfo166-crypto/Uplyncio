@@ -382,7 +382,10 @@ window.addEventListener('DOMContentLoaded', function(){
   <a class="si" href="#" onclick="showTrending();return false">&#128293;&nbsp; Trending</a>
   <a class="si" href="#" onclick="showOrders();return false">&#128230;&nbsp; Orders</a>
   <a class="si" href="#" onclick="showReferral();return false">&#128279;&nbsp; Referral Program</a>
-  
+  <div class="sb-bot">
+    <a class="si" href="uplyncio-full.html" style="font-size:12px;color:var(--mu);border:none;padding:8px 12px">&#8249; Back to Main Site</a>
+
+  </div>
 </div>
 
 <div class="tb">
@@ -2144,10 +2147,3568 @@ window.addEventListener('DOMContentLoaded', function(){
 
   </div>
 </div>
+
+<div class="pf">
+  <div style="display:flex;gap:8px"><span class="pl">VISA</span><span class="pl">Mastercard</span><span class="pl">Maestro</span><span class="pl">AMEX</span></div>
+  <span style="font-size:12px;color:var(--mu)">info@uplyncio.com</span>
+  <div class="fla"><a href="#">Terms</a><a href="#">Privacy</a><a href="uplyncio-full.html">Main Site</a></div>
+</div>
+
+</div>
+
+<script>
+// Auto-save sites whenever user navigates
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ saveSites(); }
+});
+window.addEventListener('beforeunload', function(){ saveSites(); });
+
+function go(n){
+  // Only save step if it's a real navigation (not init)
+  if(n>1) saveState("main",{step:n});
+  else saveState("main",{step:1});
+  for(var i=1;i<=5;i++){
+    var e=document.getElementById('s'+i);
+    if(e) e.style.display=(i==n)?'block':'none';
+  }
+  // Always render sites on step 1 so empty state shows
+  if(n===1 && typeof renderSites==='function') renderSites();
+  window.scrollTo(0,0);
+}
+// Initialization handled by DOMContentLoaded above
+function stab(el,id){
+  document.querySelectorAll('.utab').forEach(function(t){t.classList.remove('on');});
+  ['t1','t2','t3','t4'].forEach(function(t){var e=document.getElementById(t);if(e)e.style.display='none';});
+  el.classList.add('on');
+  var e=document.getElementById(id);
+  if(e) e.style.display='block';
+}
+function spt(el,id){
+  document.querySelectorAll('.utab').forEach(function(t){t.classList.remove('on');});
+  ['pa','pl'].forEach(function(t){var e=document.getElementById(t);if(e)e.style.display='none';});
+  el.classList.add('on');
+  var e=document.getElementById(id);
+  if(e) e.style.display='block';
+}
+function next3(){
+  var v=document.getElementById('urlIn').value.trim();
+  if(!v){alert('Please enter your site URL');return;}
+  var clean=v.replace(/https?:\/\//,'').replace(/\/.*$/,'');
+  var d=document.getElementById('du');
+  if(d) d.textContent=clean;
+  autoDetect(clean);
+  go(4);
+}
+
+function addL(){
+  var d=document.createElement('div');
+  d.className='lr';
+  d.innerHTML='<input class="lf" type="url" placeholder="https://yoursite.com/article" oninput="validateSampleLink(this)"><button class="lrm" onclick="this.parentElement.remove()">-</button>';
+  document.getElementById('links').appendChild(d);
+  // Focus new input
+  var inp=d.querySelector('input');
+  if(inp) inp.focus();
+}
+
+function validateSampleLink(input){
+  var siteUrl = (document.getElementById('urlIn')?document.getElementById('urlIn').value:'').toLowerCase().trim();
+  siteUrl = siteUrl.replace(/https?:\/\//,'').replace(/\/$/,'').split('/')[0];
+  var val = input.value.toLowerCase().trim();
+  if(!siteUrl || !val){ 
+    input.style.borderColor='';
+    return; 
+  }
+  // Extract domain from entered URL
+  var entered = val.replace(/https?:\/\//,'').split('/')[0];
+  var isMatch = entered === siteUrl || entered.endsWith('.'+siteUrl) || siteUrl.endsWith('.'+entered);
+  if(val && !isMatch){
+    input.style.borderColor='#ef4444';
+    input.style.background='#fef2f2';
+    var err=document.getElementById('linksError');
+    if(err){ err.textContent='⚠️ URL must be from your site: '+siteUrl; err.style.display='block'; }
+  } else {
+    input.style.borderColor = val ? '#16a34a' : '';
+    input.style.background = val ? '#f0fdf4' : '';
+    var err=document.getElementById('linksError');
+    if(err) err.style.display='none';
+  }
+}
+
+function validateAllSampleLinks(){
+  var siteUrl = (document.getElementById('urlIn')?document.getElementById('urlIn').value:'').toLowerCase().trim();
+  siteUrl = siteUrl.replace(/https?:\/\//,'').replace(/\/$/,'').split('/')[0];
+  if(!siteUrl) return true; // No URL set yet, skip validation
+  var inputs = document.querySelectorAll('#links .lf');
+  var hasError = false;
+  inputs.forEach(function(inp){
+    if(!inp.value.trim()) return; // Skip empty
+    var entered = inp.value.toLowerCase().replace(/https?:\/\//,'').split('/')[0];
+    var isMatch = entered===siteUrl || entered.endsWith('.'+siteUrl) || siteUrl.endsWith('.'+entered);
+    if(!isMatch){ hasError=true; inp.style.borderColor='#ef4444'; inp.style.background='#fef2f2'; }
+  });
+  if(hasError){
+    var err=document.getElementById('linksError');
+    if(err){ err.textContent='⚠️ All sample article links must be from your site: '+siteUrl; err.style.display='block'; }
+    return false;
+  }
+  return true;
+}
+function setWC(el){
+  document.querySelectorAll('.wc').forEach(function(e){e.classList.remove('on');});
+  el.classList.add('on');
+}
+// ── PERSISTENT SITES STORAGE ──
+function loadSites(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    if(!uid){
+      // Not logged in — return empty (will reload after login)
+      return [];
+    }
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    if(userData.sites && Array.isArray(userData.sites)){
+      return userData.sites; // Return even if empty array — user's real data
+    }
+  }catch(e){ console.warn('loadSites error:', e); }
+  return [];
+}
+
+function saveSites(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    if(!uid) return; // Don't save if not logged in
+    var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    userData.sites = mySites;
+    localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
+    localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
+  }catch(e){ console.warn('saveSites error:', e); }
+}
+
+// Reload sites when UID becomes available (after login)
+function reloadSitesForUser(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  if(!uid) return;
+  mySites = loadSites();
+  applyFilters();
+}
+
+var mySites = loadSites();
+
+function submit(){
+  var url = document.getElementById('urlIn').value.trim();
+  if(!url){ alert('Please go back and enter your site URL'); return; }
+  // Validate sample links match site domain
+  if(!validateAllSampleLinks()){ return; }
+
+  // Collect form data
+  var da = document.querySelector('.ic2 input[type=number]') ? document.querySelector('.ic2 .two input:nth-child(1)') : null;
+  var allInputs = document.querySelectorAll('.ic2 .fi');
+  var daVal = allInputs[0] ? allInputs[0].value || '—' : '—';
+  var drVal = allInputs[1] ? allInputs[1].value || '—' : '—';
+  var trVal = allInputs[2] ? allInputs[2].value || '—' : '—';
+
+  // Get selected categories
+  var catSel = document.querySelector('.ic2 select[multiple]');
+  var cats = [];
+  if(catSel){ for(var i=0;i<catSel.options.length;i++){ if(catSel.options[i].selected) cats.push(catSel.options[i].value); } }
+  var catStr = cats.length ? cats.join(', ') : 'General';
+
+  // Get link type
+  var ltInp = document.querySelector('input[name="lt"]:checked');
+  var lt = ltInp ? ltInp.closest('.ro').textContent.trim() : 'Dofollow';
+
+  // Get price
+  var priceInps = document.querySelectorAll('.pi-w input');
+  var price = '—';
+  for(var j=0;j<priceInps.length;j++){ if(priceInps[j].value){ price='$'+priceInps[j].value; break; } }
+
+  // Get prices
+  var piInputs = document.querySelectorAll('.pi-w input');
+  var p1 = piInputs[0]?piInputs[0].value:''; // Content placement
+  var p2 = piInputs[1]?piInputs[1].value:''; // Writing & placement
+  var p3 = piInputs[2]?piInputs[2].value:''; // Extra-size content (per 500w)
+  var p4 = piInputs[3]?piInputs[3].value:''; // Special topic
+  var p5 = piInputs[4]?piInputs[4].value:''; // Link Insertion
+  var mainPrice = p1||p2||p3||'0';
+  // Save word count selection
+  var wcEl = document.querySelector('.wc.on');
+  var wordCount = wcEl ? wcEl.textContent.trim() : '500';
+
+  // Get lang/country from auto-detect display
+  var langTxt = document.getElementById('langVal')?document.getElementById('langVal').textContent:'English';
+  var countryTxt = document.getElementById('countryVal')?document.getElementById('countryVal').textContent:'USA';
+
+  // Max links
+  var maxLinksEl = document.querySelector('.ic2 select.fis:last-of-type');
+  var maxLinks = maxLinksEl?maxLinksEl.value:'No limit';
+
+  // Get Owner/Contributor role
+  var roleInp = document.querySelector('input[name="siteRole"]:checked');
+  var siteRole = roleInp ? roleInp.value : 'Owner';
+
+  // Get special requirements from textarea
+  var reqTextarea = document.querySelector('textarea.ta');
+  var reqVal = reqTextarea ? reqTextarea.value.trim() : '';
+
+  var site = {
+    url: url.replace(/https?:\/\//, ''),
+    da: daVal, dr: drVal, traffic: trVal,
+    cat: catStr, lt: lt, price: '$'+mainPrice,
+    p1: p1, p2: p2, p3: p3, p4: p4, p5: p5,
+    lang: langTxt, country: countryTxt,
+    maxLinks: maxLinks,
+    role: siteRole,
+    wordCount: wordCount,
+    requirements: reqVal,
+    req: reqVal,
+    status: 'Live', id: Date.now()
+  };
+
+  if(window._editingId){
+    var idx=mySites.findIndex(function(x){return x.id===window._editingId;});
+    if(idx>-1){ site.id=window._editingId; mySites[idx]=site; }
+    window._editingId=null;
+  } else {
+    mySites.push(site);
+  }
+  saveSites();
+  applyFilters();
+  document.getElementById('urlIn').value = '';
+  go(1);
+}
+
+var currentTab = 'all';
+
+function filterTab(el, tab){
+  document.querySelectorAll('.stab').forEach(function(t){
+    t.style.color='var(--mu)';
+    t.style.borderBottomColor='transparent';
+  });
+  el.style.color='var(--ac)';
+  el.style.borderBottomColor='var(--ac)';
+  currentTab = tab;
+  applyFilters();
+}
+
+function applyFilters(){
+  var q=(document.getElementById('siteSearch')||{value:''}).value.toLowerCase();
+  var lt=(document.getElementById('ltFilter')||{value:''}).value;
+  var cat=(document.getElementById('catFilter')||{value:''}).value;
+  var pMin=parseInt((document.getElementById('priceMin')||{value:''}).value)||0;
+  var pMax=parseInt((document.getElementById('priceMax')||{value:''}).value)||999999;
+  var daMin=parseInt((document.getElementById('daMin')||{value:''}).value)||0;
+  var daMax=parseInt((document.getElementById('daMax')||{value:''}).value)||100;
+
+  var filtered = mySites.filter(function(s){
+    if(q && !s.url.toLowerCase().includes(q)) return false;
+    if(lt && s.lt !== lt) return false;
+    if(cat && !s.cat.includes(cat)) return false;
+    var sp = parseInt(s.price.replace('$',''))||0;
+    if(sp < pMin || sp > pMax) return false;
+    var da = parseInt(s.da)||0;
+    if(da < daMin || da > daMax) return false;
+    if(currentTab==='live' && s.status!=='Live') return false;
+    if(currentTab==='pending' && s.status!=='Pending Review') return false;
+    if(currentTab==='issues' && s.status!=='Issues') return false;
+    return true;
+  });
+
+  renderSites(filtered);
+}
+
+function clearFilters(){
+  ['siteSearch','ltFilter','catFilter','priceMin','priceMax','daMin','daMax'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  applyFilters();
+}
+
+function updateTabCounts(){
+  document.getElementById('tabAllCount').textContent = mySites.length;
+  document.getElementById('tabLiveCount').textContent = mySites.filter(function(s){return s.status==='Live';}).length;
+  document.getElementById('tabPendCount').textContent = mySites.filter(function(s){return s.status==='Pending Review';}).length;
+  document.getElementById('tabIssCount').textContent = mySites.filter(function(s){return s.status==='Issues';}).length;
+  saveSites(); // Always persist current state
+}
+
+function renderSites(list){
+  if(list===undefined) list=mySites;
+  updateTabCounts();
+  var tbody = document.getElementById('sitesTbody');
+  var emptyEl = document.getElementById('emptyState');
+  var listEl = document.getElementById('sitesList');
+  var countEl = document.getElementById('siteCount');
+  var noRes = document.getElementById('noResultsMsg');
+
+  if(mySites.length === 0){
+    emptyEl.style.display = 'block';
+    listEl.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  listEl.style.display = 'block';
+  if(noRes) noRes.style.display = list.length===0?'block':'none';
+  if(countEl) countEl.textContent = list.length + ' of ' + mySites.length + ' site' + (mySites.length>1?'s':'') + ' shown';
+
+  tbody.innerHTML = list.map(function(s){
+    return "<tr style='border-bottom:1px solid #e2e8f0' onmouseover=\"this.style.background='#f8faff'\" onmouseout=\"this.style.background='#fff'\">" +
+      "<td style='padding:13px 16px'><div style='font-weight:700;font-size:13.5px'>" + s.url + "</div></td>" +
+      "<td style='padding:13px 16px'><span style='background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px'>DA " + s.da + "</span></td>" +
+      "<td style='padding:13px 16px'><span style='background:#ccfbf1;color:#0d9488;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px'>DR " + s.dr + "</span></td>" +
+      "<td style='padding:13px 16px;font-size:13px;color:#475569'>" + s.traffic + "</td>" +
+      "<td style='padding:13px 16px'><span style='background:#fef3c7;color:#d97706;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px'>" + s.cat.split(',')[0] + "</span></td>" +
+      "<td style='padding:13px 16px'><span style='background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px'>" + s.lt + "</span></td>" +
+      "<td style='padding:13px 16px;font-family:Manrope,sans-serif;font-size:15px;font-weight:800'>" + s.price + "</td>" +
+      "<td style='padding:13px 16px'><span style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#16a34a'><span style='width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block'></span>" + s.status + "</span></td>" +
+      "<td style='padding:13px 16px'>" +
+        "<div style='display:flex;align-items:center;gap:8px'>" +
+          "<span style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#16a34a'><span style='width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block'></span>Active</span>" +
+          "<button onclick='editSite(" + s.id + ")' title='Edit' style='display:flex;align-items:center;gap:5px;background:#f0f4ff;border:1px solid #c7d7ff;color:var(--ac);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit'><span>✏️</span> Edit</button>" +
+          "<button onclick='toggleDetails(" + s.id + ")' title='More options' style='background:#f1f5f9;border:1px solid var(--br);color:var(--t2);border-radius:7px;padding:6px 10px;font-size:14px;cursor:pointer;font-family:inherit'>•••</button>" +
+        "</div>" +
+      "</td></tr>" +
+      "<tr id='det-" + s.id + "' style='display:none'>" +
+        "<td colspan='9' style='padding:0;border-bottom:2px solid #e0e7ff'>" +
+          "<div style='background:linear-gradient(135deg,#f8faff 0%,#f0f4ff 100%);padding:24px 24px 20px;border-left:4px solid #4f7cff'>" +
+
+            /* TOP STATS ROW */
+            "<div style='display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)'>" +
+              "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Status</div><div style='display:flex;align-items:center;gap:6px'><span style='width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block'></span><span style='font-size:14px;font-weight:800;color:#15803d'>Approved</span></div><div style='font-size:11px;color:#94a3b8;margin-top:2px'>Contributor</div></div>" +
+              "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Completion Rate</div><div style='font-size:14px;font-weight:800;color:#0f172a'>N/A</div></div>" +
+              "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Avg Lifetime of Links</div><div style='font-size:14px;font-weight:800;color:#0f172a'>Permanent ♾️</div></div>" +
+              "<div style='padding:16px 20px'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Turnaround Time</div><div style='font-size:14px;font-weight:800;color:#0f172a'>3–7 days</div></div>" +
+            "</div>" +
+
+            /* MAIN DETAIL CARDS */
+            "<div style='display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px;margin-bottom:18px'>" +
+
+              /* PRICING CARD */
+              "<div style='background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05)'>" +
+                "<div style='padding:12px 16px;background:#f8faff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:7px'><span style='font-size:15px'>💰</span><span style='font-size:12px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:.5px'>Pricing</span></div>" +
+                "<div style='padding:14px 16px'>" +
+                  "<div style='display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9'>" +
+                    "<span style='font-size:13px;color:#64748b'>Content placement</span>" +
+                    "<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p1-" + s.id + "'>" + (s.p1?'$'+s.p1:'N/A') + "</span><button onclick='editPrice(" + s.id + ",1)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
+                  "</div>" +
+                  "<div style='display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9'>" +
+                    "<span style='font-size:13px;color:#64748b'>Writing &amp; placement</span>" +
+                    "<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p2-" + s.id + "'>" + (s.p2?'$'+s.p2:'N/A') + "</span><button onclick='editPrice(" + s.id + ",2)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
+                  "</div>" +
+                  "<div style='display:flex;align-items:center;justify-content:space-between;padding:8px 0'>" +
+                    "<span style='font-size:13px;color:#64748b'>Special topic</span>" +
+                    "<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p3-" + s.id + "'>" + (s.p3?'$'+s.p3:'N/A') + "</span><button onclick='editPrice(" + s.id + ",3)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
+                  "</div>" +
+                "</div>" +
+              "</div>" +
+
+              /* SITE INFO CARD */
+              "<div style='background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05)'>" +
+                "<div style='padding:12px 16px;background:#f8faff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:7px'><span style='font-size:15px'>🌐</span><span style='font-size:12px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:.5px'>Site Info</span></div>" +
+                "<div style='padding:14px 16px;display:flex;flex-direction:column;gap:9px'>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Categories</span><span style='font-size:13px;font-weight:700;color:#0f172a;text-align:right;max-width:140px'>" + s.cat + "</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Country</span><span style='font-size:13px;font-weight:700;color:#0f172a'>" + (s.country||'USA') + "</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Language</span><span style='font-size:13px;font-weight:700;color:#0f172a'>" + (s.lang||'English') + "</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Max links/article</span><span style='font-size:13px;font-weight:700;color:#0f172a'>" + (s.maxLinks||'No limit') + "</span></div>" +
+                "</div>" +
+              "</div>" +
+
+              /* CONTENT POLICY CARD */
+              "<div style='background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05)'>" +
+                "<div style='padding:12px 16px;background:#f8faff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:7px'><span style='font-size:15px'>📋</span><span style='font-size:12px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:.5px'>Content Policy</span></div>" +
+                "<div style='padding:14px 16px;display:flex;flex-direction:column;gap:9px'>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Link type</span><span style='background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px'>" + s.lt + "</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Sponsored label</span><span style='font-size:13px;font-weight:700;color:#0f172a'>No</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Free articles</span><span style='font-size:13px;font-weight:700;color:#0f172a'>No</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>DA / DR</span><span style='font-size:13px;font-weight:700;color:#0f172a'>DA " + s.da + " / DR " + s.dr + "</span></div>" +
+                "</div>" +
+              "</div>" +
+
+            "</div>" +
+
+            /* ACTION BUTTONS */
+            "<div style='display:flex;align-items:center;gap:10px'>" +
+              "<button onclick='deactivateSite(" + s.id + ")' style='background:#0f172a;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px'>⏸️ Deactivate</button>" +
+              "<button onclick='editSite(" + s.id + ")' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px'>✏️ Edit Site</button>" +
+              "<button onclick='delSite(" + s.id + ")' style='background:#fef2f2;border:1px solid #fecaca;color:#ef4444;border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer'>🗑️</button>" +
+            "</div>" +
+
+          "</div>" +
+        "</td>" +
+      "</tr>";
+  }).join('');
+}
+
+function toggleDetails(id){
+  var row = document.getElementById('det-'+id);
+  if(row) row.style.display = row.style.display==='none'?'table-row':'none';
+}
+
+function editSite(id){
+  var s = mySites.find(function(x){return x.id===id;});
+  if(!s) return;
+
+  // ── URL ──
+  var urlIn = document.getElementById('urlIn');
+  if(urlIn) urlIn.value = s.url;
+  var du = document.getElementById('du');
+  if(du) du.textContent = s.url;
+
+  // ── DA, DR, Traffic, Semrush ──
+  var allInputs = document.querySelectorAll('.ic2 .fi');
+  if(allInputs[0]) allInputs[0].value = s.da||'';
+  if(allInputs[1]) allInputs[1].value = s.dr||'';
+  if(allInputs[2]) allInputs[2].value = s.traffic||'';
+
+  // ── Language & Country (auto-detected display) ──
+  var lv=document.getElementById('langVal'), cv=document.getElementById('countryVal');
+  if(lv) lv.textContent = s.lang||'English';
+  if(cv) cv.textContent = s.country||'USA';
+
+  // ── Categories display ──
+  var cd=document.getElementById('catsDisplay');
+  if(cd && s.cat){
+    var colors=['#e0e7ff:#4f7cff','#fef3c7:#d97706','#fce7f3:#db2777'];
+    cd.innerHTML=s.cat.split(',').slice(0,3).map(function(cat,i){
+      var col=colors[i%3]; var bg=col.split(':')[0],tx=col.split(':')[1];
+      return '<span style="background:'+bg+';color:'+tx+';font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px">'+cat.trim()+'</span>';
+    }).join('');
+  }
+
+  // ── Link Type (radio) ──
+  var ltVal = (s.lt||s.linkType||'Dofollow').trim();
+  document.querySelectorAll('input[name="lt"]').forEach(function(r){
+    var label = r.closest('.ro');
+    if(label && label.textContent.trim()===ltVal){
+      r.checked=true;
+      document.querySelectorAll('.ro').forEach(function(l){l.classList.remove('sel');});
+      label.classList.add('sel');
+    }
+  });
+
+  // ── Word Count ──
+  var wcVal = s.wordCount||'500';
+  document.querySelectorAll('.wc').forEach(function(w){
+    w.classList.remove('on');
+    if(w.textContent.trim()===wcVal) w.classList.add('on');
+  });
+
+  // ── Prices ──
+  var piInputs=document.querySelectorAll('.pi-w input');
+  if(piInputs[0]) piInputs[0].value=s.p1||'';
+  if(piInputs[1]) piInputs[1].value=s.p2||'';
+  if(piInputs[2]) piInputs[2].value=s.p3||'';
+  if(piInputs[3]) piInputs[3].value=s.p4||'';
+  if(piInputs[4]) piInputs[4].value=s.p5||'';
+
+  // ── Max Links ──
+  var mlSel=document.querySelector('.ic2 select.fis:last-of-type')||document.querySelector('select.fis');
+  if(mlSel && s.maxLinks){ mlSel.value=s.maxLinks; }
+
+  // ── Owner / Contributor Role ──
+  var roleVal = s.role||'Owner';
+  document.querySelectorAll('input[name="siteRole"]').forEach(function(r){
+    r.checked = (r.value===roleVal);
+    var lbl = document.getElementById('role-'+r.value.toLowerCase()+'-lbl');
+    if(lbl){
+      lbl.style.borderColor = r.checked?'var(--ac)':'var(--br)';
+      lbl.style.background  = r.checked?'var(--ac-soft)':'';
+    }
+  });
+
+  // ── Requirements ──
+  var reqTa=document.querySelector('textarea.ta');
+  if(reqTa) reqTa.value=s.requirements||s.req||'';
+
+  window._editingId=id;
+  go(4);
+}
+
+function editPrice(siteId, priceNum){
+  var s=mySites.find(function(x){return x.id===siteId;});
+  if(!s) return;
+  var key='p'+priceNum;
+  var cur=s[key]||'0';
+  var newVal=prompt('Enter new price ($):', cur);
+  if(newVal===null) return;
+  newVal=newVal.replace('$','').trim();
+  if(!newVal||isNaN(newVal)) return;
+  s[key]=newVal;
+  if(priceNum===1) s.price='$'+newVal;
+  var el=document.getElementById('p'+priceNum+'-'+siteId);
+  if(el) el.textContent='$'+newVal;
+}
+
+function deactivateSite(id){
+  var s=mySites.find(function(x){return x.id===id;});
+  if(!s) return;
+  var isActive = s.status!=='Inactive' && s.status!=='Deactivated';
+  if(!confirm((isActive?'Deactivate':'Reactivate')+' '+s.url+'?')) return;
+  s.status = isActive ? 'Inactive' : 'Live';
+  saveSites();
+  applyFilters();
+  showToast(isActive ? 'Site deactivated — hidden from buyers' : 'Site reactivated — visible to buyers');
+}
+
+function delSite(id){
+  if(!confirm('Remove this site from your listings?')) return;
+  mySites = mySites.filter(function(s){ return s.id !== id; });
+  saveSites();
+  applyFilters();
+}
+
+// saveSites defined above
+document.querySelectorAll('.ro input').forEach(function(inp){
+  inp.addEventListener('change',function(){
+    var g=this.name;
+    document.querySelectorAll('input[name="'+g+'"]').forEach(function(i){i.closest('.ro').classList.remove('sel');});
+    this.closest('.ro').classList.add('sel');
+  });
+});
+
+// ── AUTO DETECT ──
+function autoDetectInfo(url){
+  var u=url.toLowerCase();
+  var lang='English', country='USA';
+  if(u.match(/\.pk$|\.pk\//))       {lang='Urdu/English';country='Pakistan';}
+  else if(u.match(/\.de$|\.de\//))  {lang='German';country='Germany';}
+  else if(u.match(/\.fr$|\.fr\//))  {lang='French';country='France';}
+  else if(u.match(/\.es$|\.es\//))  {lang='Spanish';country='Spain';}
+  else if(u.match(/\.in$|\.in\//))  {lang='English';country='India';}
+  else if(u.match(/\.co\.uk$|\.uk$/)){lang='English';country='UK';}
+  else if(u.match(/\.com\.au$|\.au$/)){lang='English';country='Australia';}
+  else if(u.match(/\.ca$|\.ca\//))  {lang='English';country='Canada';}
+  else if(u.match(/\.br$|\.br\//))  {lang='Portuguese';country='Brazil';}
+  else if(u.match(/\.ae$|\.ae\//))  {lang='Arabic';country='UAE';}
+  else if(u.match(/\.sa$|\.sa\//))  {lang='Arabic';country='Saudi Arabia';}
+  else if(u.match(/\.nl$|\.nl\//))  {lang='Dutch';country='Netherlands';}
+  else if(u.match(/\.it$|\.it\//))  {lang='Italian';country='Italy';}
+  else if(u.match(/\.jp$|\.jp\//))  {lang='Japanese';country='Japan';}
+
+  var cats=[];
+  if(u.match(/tech|digital|code|dev|software|app|cyber|gadget|hack|program/)) cats.push('Tech');
+  if(u.match(/finance|money|invest|bank|forex|trading|stock|fund|wealth|economy/)) cats.push('Finance');
+  if(u.match(/health|medical|fitness|wellness|diet|pharma|doctor|clinic/)) cats.push('Health');
+  if(u.match(/market|seo|social|brand|content|agency|advertis|growth/)) cats.push('Marketing');
+  if(u.match(/saas|software|tool|platform|cloud|crm|automation/)) cats.push('SaaS');
+  if(u.match(/business|entrepreneur|startup|company|corp|enterprise|biz/)) cats.push('Business');
+  if(u.match(/crypto|bitcoin|blockchain|nft|web3|defi|coin/)) cats.push('Crypto');
+  if(u.match(/travel|tour|hotel|holiday|trip|flight|vacation/)) cats.push('Travel');
+  if(u.match(/law|legal|attorney|lawyer|court|justice/)) cats.push('Law');
+  if(u.match(/edu|learn|course|school|college|university|tutor/)) cats.push('Education');
+  if(u.match(/fashion|style|beauty|makeup|skincare|lifestyle/)) cats.push('Lifestyle');
+  if(u.match(/food|recipe|restaurant|cook|chef|meal/)) cats.push('Food');
+  if(u.match(/sport|football|cricket|soccer|fitness|gym/)) cats.push('Sports');
+  if(u.match(/news|press|media|journal|magazine|report/)) cats.push('News');
+  if(u.match(/realestate|property|home|house|realtor|mortgage/)) cats.push('Real Estate');
+  if(cats.length===0) cats=['Tech','Business'];
+  return {lang:lang, country:country, cats:cats.slice(0,3)};
+}
+
+// ── SINGLE URL AUTO DETECT (Step 3 → Step 4) ──
+function autoDetect(url){
+  var info=autoDetectInfo(url);
+  var lv=document.getElementById('langVal');
+  var cv=document.getElementById('countryVal');
+  if(lv) lv.textContent=info.lang;
+  if(cv) cv.textContent=info.country;
+  var colors=['#e0e7ff:#4f7cff','#fef3c7:#d97706','#fce7f3:#db2777'];
+  var disp=document.getElementById('catsDisplay');
+  if(disp){
+    disp.innerHTML=info.cats.map(function(cat,i){
+      var c2=colors[i]||colors[0];
+      return '<span style="background:'+c2.split(':')[0]+';color:'+c2.split(':')[1]+';font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px">'+cat+'</span>';
+    }).join('');
+  }
+}
+
+// ── CSV/EXCEL BULK UPLOAD ──
+var parsedSites=[];
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZone').style.background='#fafbff';
+  document.getElementById('dropZone').style.borderColor='#c7d7ff';
+  var file=e.dataTransfer.files[0];
+  if(file) handleFile(file);
+}
+
+function handleFile(file){
+  if(!file) return;
+  var name=file.name.toLowerCase();
+  showStatus('processing','⏳ Processing '+file.name+'...');
+  if(name.endsWith('.csv')){
+    var r=new FileReader();
+    r.onload=function(e){parseCSV(e.target.result,file.name);};
+    r.readAsText(file);
+  } else if(name.endsWith('.xlsx')||name.endsWith('.xls')){
+    if(typeof XLSX==='undefined'){
+      var s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload=function(){readExcel(file);};
+      document.head.appendChild(s);
+    } else { readExcel(file); }
+  } else { showStatus('error','❌ Please upload .csv, .xlsx or .xls file'); }
+}
+
+function readExcel(file){
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      parseCSV(XLSX.utils.sheet_to_csv(ws),file.name);
+    } catch(err){ showStatus('error','❌ Could not read Excel file. Try CSV format.'); }
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function parseCSV(text, fname){
+  var lines=text.trim().split(/\r?\n/);
+  if(lines.length<2){showStatus('error','❌ File is empty or has no data rows');return;}
+
+  var headers=lines[0].split(',').map(function(h){
+    return h.trim().toLowerCase()
+      .replace(/['"]/g,'')           // remove quotes
+      .replace(/\s+/g,' ')           // normalize spaces
+      .trim();
+  });
+
+  function col(names){
+    for(var i=0;i<names.length;i++){
+      // exact match
+      var idx=headers.indexOf(names[i].toLowerCase().trim());
+      if(idx>-1) return idx;
+      // partial match
+      for(var j=0;j<headers.length;j++){
+        if(headers[j].indexOf(names[i].toLowerCase().trim())>-1 || names[i].toLowerCase().trim().indexOf(headers[j])>-1){
+          return j;
+        }
+      }
+    }
+    return -1;
+  }
+
+  var urlIdx=col(['website url','website_url','url','site url','site_url','website','domain','url*']);
+  var daIdx =col(['da','da (domain authority)','domain authority','domain_authority','moz da','moz_da']);
+  var drIdx =col(['dr','dr (domain rating)','domain rating','domain_rating','ahrefs dr','ahrefs_dr']);
+  var trIdx =col(['traffic','monthly traffic','monthly_traffic','visitors','monthly organic traffic']);
+  var catIdx=col(['category','categories','niche','topic']);
+  var ltIdx =col(['link type (df/nf)','link type','link_type','linktype','dofollow','links']);
+  var prIdx =col(['guest post price ($)','guest post price','guest_post_price','price','cost','rate','amount']);
+  var wpIdx =col(['write & publish price ($)','write and publish price','write & publish price','writing price','write_publish_price']);
+  var spIdx =col(['sample post url','sample post','sample_post','example post','sample article']);
+  var liAccIdx=col(['link insertion accepted (yes/no)','link insertion accepted','link_insertion_accepted','link insertion','li accepted','li_accepted']);
+  var liPrIdx =col(['link insertion price ($)','link insertion price','link_insertion_price','li price','li_price']);
+  var liReqIdx=col(['link insertion requirements','link_insertion_requirements','li requirements','li_requirements']);
+  var langIdx=col(['language','lang']);
+  var cntIdx =col(['country','location']);
+  var mlIdx  =col(['max links per article','max links','max_links','maxlinks','links per article','links_per_article']);
+  var reqIdx =col(['guest post requirements','requirements','notes','special_requirements','guest_post_requirements']);
+
+  if(urlIdx===-1){showStatus('error','❌ Could not find "website_url" column. Check your sheet format.');return;}
+
+  parsedSites=[];
+  var errors=0;
+
+  for(var i=1;i<lines.length;i++){
+    var row=lines[i].split(',');
+    if(!row[urlIdx]||!row[urlIdx].trim()){errors++;continue;}
+    var url=row[urlIdx].trim().replace(/https?:\/\//,'').replace(/\/.*$/,'');
+    if(!url){errors++;continue;}
+
+    // AUTO DETECT from URL
+    var detected=autoDetectInfo(url);
+
+    // Sheet values override auto-detect only if provided
+    var finalCat =(catIdx>-1&&row[catIdx]&&row[catIdx].trim()) ? row[catIdx].trim() : detected.cats.join(', ');
+    var finalLang=(langIdx>-1&&row[langIdx]&&row[langIdx].trim()) ? row[langIdx].trim() : detected.lang;
+    var finalCnt =(cntIdx>-1&&row[cntIdx]&&row[cntIdx].trim())  ? row[cntIdx].trim()  : detected.country;
+
+    var priceVal=prIdx>-1?(row[prIdx]||'').trim().replace('$',''):'0';
+
+    var liAcc = liAccIdx>-1?(row[liAccIdx]||'').trim().toLowerCase():'';
+    var liAccepted = (liAcc==='yes'||liAcc==='true'||liAcc==='1') ? 'Yes' : (liAcc==='no'||liAcc==='false'||liAcc==='0') ? 'No' : 'Yes';
+    var liPrice = liPrIdx>-1?(row[liPrIdx]||'').trim().replace('$',''):'';
+    var liReq   = liReqIdx>-1?(row[liReqIdx]||'').trim():'';
+    var wpPrice = wpIdx>-1?(row[wpIdx]||'').trim().replace('$',''):'';
+    var samplePost = spIdx>-1?(row[spIdx]||'').trim():'';
+
+    parsedSites.push({
+      id:Date.now()+i,
+      url:url,
+      da:  daIdx>-1?(row[daIdx]||'').trim():'—',
+      dr:  drIdx>-1?(row[drIdx]||'').trim():'—',
+      traffic:trIdx>-1?(row[trIdx]||'').trim():'—',
+      cat: finalCat,
+      lt:  ltIdx>-1?(row[ltIdx]||'Dofollow').trim():'Dofollow',
+      price:'$'+(priceVal||'0'),
+      p1:priceVal,
+      p2:wpPrice,
+      p3:liPrice,
+      liAccepted:liAccepted,
+      liPrice:liPrice,
+      liReq:liReq,
+      samplePost:samplePost,
+      lang:finalLang, country:finalCnt,
+      maxLinks:mlIdx>-1?(row[mlIdx]||'No limit').trim():'No limit',
+      notes:reqIdx>-1?(row[reqIdx]||'').trim():'',
+      status:'Live'
+    });
+  }
+
+  if(parsedSites.length===0){showStatus('error','❌ No valid sites found in the file');return;}
+  showStatus('success','✅ Found '+parsedSites.length+' sites'+(errors?' ('+errors+' rows skipped)':'')+' from '+fname);
+  showPreview();
+}
+
+function showPreview(){
+  document.getElementById('previewWrap').style.display='block';
+  document.getElementById('previewCount').textContent='('+parsedSites.length+' sites)';
+  var tbody=document.getElementById('previewTbody');
+  tbody.innerHTML=parsedSites.slice(0,50).map(function(s){
+    var liColor = s.liAccepted==='Yes'?'background:#dcfce7;color:#16a34a':'background:#fee2e2;color:#ef4444';
+    return "<tr style='border-bottom:1px solid #f1f5f9'>" +
+      "<td style='padding:8px 12px;font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap'>"+s.url+"</td>" +
+      "<td style='padding:8px 12px'><span style='background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.da+"</span></td>" +
+      "<td style='padding:8px 12px'><span style='background:#ccfbf1;color:#0d9488;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.dr+"</span></td>" +
+      "<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+s.traffic+"</td>" +
+      "<td style='padding:8px 12px'><span style='background:#fef3c7;color:#d97706;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.cat.split(',')[0].trim()+"</span></td>" +
+      "<td style='padding:8px 12px'><span style='background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.lt+"</span></td>" +
+      "<td style='padding:8px 12px;font-weight:800;color:#0f172a'>"+s.price+"</td>" +
+      "<td style='padding:8px 12px'><span style='"+liColor+";font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.liAccepted+"</span></td>" +
+      "<td style='padding:8px 12px;font-weight:700;color:#0f172a'>"+(s.liPrice?'$'+s.liPrice:'—')+"</td>" +
+      "<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+s.lang+"</td>" +
+      "<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+s.country+"</td>" +
+      "</tr>";
+  }).join('')+(parsedSites.length>50?'<tr><td colspan="11" style="padding:10px;text-align:center;font-size:12px;color:#64748b">...and '+(parsedSites.length-50)+' more sites</td></tr>':'');
+}
+
+function importSites(){
+  if(!parsedSites.length) return;
+  mySites=mySites.concat(parsedSites);
+  parsedSites=[];
+  clearUpload();
+  applyFilters();
+  go(1);
+  setTimeout(function(){
+    var msg=document.createElement('div');
+    msg.style.cssText='position:fixed;bottom:24px;right:24px;background:#16a34a;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2)';
+    msg.innerHTML='✅ Sites imported to your dashboard!';
+    document.body.appendChild(msg);
+    setTimeout(function(){msg.remove();},3500);
+  },300);
+}
+
+function clearUpload(){
+  parsedSites=[];
+  var pw=document.getElementById('previewWrap');
+  var us=document.getElementById('uploadStatus');
+  var fi=document.getElementById('fileInput');
+  if(pw) pw.style.display='none';
+  if(us) us.style.display='none';
+  if(fi) fi.value='';
+}
+
+function showStatus(type,msg){
+  var el=document.getElementById('uploadStatus');
+  if(!el) return;
+  var styles={
+    processing:'background:#f0f4ff;border:1px solid #c7d7ff;color:#3b5bdb',
+    success:'background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d',
+    error:'background:#fef2f2;border:1px solid #fecaca;color:#dc2626'
+  };
+  el.setAttribute('style','display:block;'+(styles[type]||styles.processing)+';border-radius:8px;padding:11px 14px;font-size:13px;font-weight:600');
+  el.textContent=msg;
+}
+
+// ── BALANCE SYSTEM ──
+function updateBalance(){
+  if(!Array.isArray(sampleOrders)) return;
+  var balance = 0, reserved = 0;
+  sampleOrders.forEach(function(o){
+    if(o.status==='completed') balance += (o.price||0);
+    else if(['acceptance','review','progress','approval','improvement','guarantee'].indexOf(o.status)>-1) reserved += (o.price||0);
+  });
+  var b = document.getElementById('balanceAmt');
+  var r = document.getElementById('reservedAmt');
+  if(b) b.textContent = '$'+balance.toFixed(2);
+  if(r) r.textContent = '$'+reserved.toFixed(2);
+}
+
+// ── SEND FOR APPROVAL ──
+function sendForApproval(){
+  if(!currentOrderId) return;
+  var url = document.getElementById('odPublishedUrl').value.trim();
+  if(!url){ alert('Please enter the published article URL first!'); return; }
+  sampleOrders = OrderManager.saveContent(sampleOrders, currentOrderId, document.getElementById('odArticleBox').innerHTML, url);
+  sampleOrders = OrderManager.updateStatus(sampleOrders, currentOrderId, 'approval', 'Article published at: '+url+' — Sent for client approval');
+  closeOrderDetail();
+  renderOrders();
+  updateBalance();
+  toast('✅ Sent for approval! Client has been notified.','#9333ea');
+}
+
+// ── CHAT SYSTEM ──
+var currentChatOrderId = null;
+
+function openChat(orderId){
+  currentChatOrderId = orderId;
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(!o) return;
+  o.unreadChat = false;
+  OrderManager.save(sampleOrders);
+  var title = document.getElementById('chatOrderTitle');
+  var idEl = document.getElementById('chatOrderId');
+  if(title) title.textContent = o.siteUrl + ' — ' + o.type;
+  if(idEl) idEl.textContent = '#'+o.taskId;
+  renderChatMessages(o);
+  document.getElementById('chatModal').style.display='flex';
+  document.body.style.overflow='hidden';
+  setTimeout(function(){
+    var msgs = document.getElementById('chatMessages');
+    if(msgs) msgs.scrollTop = msgs.scrollHeight;
+    var inp = document.getElementById('chatInput');
+    if(inp) inp.focus();
+  },100);
+}
+
+function closeChat(){
+  document.getElementById('chatModal').style.display='none';
+  document.body.style.overflow='';
+  currentChatOrderId = null;
+  renderOrders();
+}
+
+function renderChatMessages(o){
+  var container = document.getElementById('chatMessages');
+  if(!container) return;
+  var msgs = o.chat||[];
+  if(msgs.length===0){
+    container.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:13px;margin-top:60px"><div style="font-size:36px;margin-bottom:10px">💬</div>No messages yet</div>';
+    return;
+  }
+  container.innerHTML = msgs.map(function(m){
+    var isMe = m.sender==='publisher';
+    var isFile = m.isFile;
+    var msgContent = isFile
+      ? '📎 <a href="'+(m.fileUrl||'#')+'" style="color:'+(isMe?'#fff':'#4f7cff')+';text-decoration:underline" target="_blank">'+m.text+'</a>'
+      : m.text;
+    return '<div style="display:flex;flex-direction:'+(isMe?'row-reverse':'row')+';gap:8px;align-items:flex-end">'+
+      '<div style="width:30px;height:30px;border-radius:50%;background:'+(isMe?'linear-gradient(135deg,#4f7cff,#00d4aa)':'linear-gradient(135deg,#f59e0b,#ef4444)')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">'+(isMe?'P':'C')+'</div>'+
+      '<div style="max-width:72%">'+
+        '<div style="background:'+(isMe?'#4f7cff':'#fff')+';color:'+(isMe?'#fff':'#0f172a')+';border-radius:'+(isMe?'16px 16px 4px 16px':'16px 16px 16px 4px')+';padding:10px 14px;font-size:13.5px;line-height:1.55;border:1px solid '+(isMe?'transparent':'#e2e8f0')+'">'+msgContent+'</div>'+
+        '<div style="font-size:10px;color:#94a3b8;margin-top:3px;text-align:'+(isMe?'right':'left')+'">'+fmtDate(m.timestamp)+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function sendChatMsg(){
+  if(!currentChatOrderId) return;
+  var inp = document.getElementById('chatInput');
+  var text = inp.value.trim();
+  if(!text) return;
+  var o = sampleOrders.find(function(x){return x.id===currentChatOrderId;});
+  if(!o) return;
+  if(!o.chat) o.chat=[];
+  o.chat.push({sender:'publisher', text:text, timestamp:new Date().toISOString(), read:false});
+  inp.value='';
+  OrderManager.save(sampleOrders);
+  renderChatMessages(o);
+  var msgs = document.getElementById('chatMessages');
+  if(msgs) msgs.scrollTop = msgs.scrollHeight;
+  // Simulate client reply after 2 seconds
+  setTimeout(function(){
+    var replies = [
+      'Thanks for the update! I will review it.',
+      'Looks good, checking the article now.',
+      'Please make sure the anchor text is exactly as specified.',
+      'Great work! Will confirm shortly.',
+      'Can you share the published URL as well?'
+    ];
+    var reply = replies[Math.floor(Math.random()*replies.length)];
+    o.chat.push({sender:'client', text:reply, timestamp:new Date().toISOString(), read:false});
+    o.unreadChat = true;
+    OrderManager.save(sampleOrders);
+    renderChatMessages(o);
+    var msgs2 = document.getElementById('chatMessages');
+    if(msgs2) msgs2.scrollTop = msgs2.scrollHeight;
+  }, 2000);
+}
+
+// ── IMPROVEMENT ──
+var improvementOrderId = null;
+
+function openImprovementFromClient(){
+  closeClientReview();
+  setTimeout(function(){ openImprovement(improvementOrderId||currentChatOrderId); }, 200);
+}
+
+function openImprovement(orderId){
+  improvementOrderId = orderId;
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(!o) return;
+  var el = document.getElementById('impOrderId');
+  if(el) el.textContent = '#'+o.taskId+' — '+o.siteUrl;
+  document.getElementById('improvementNote').value='';
+  document.getElementById('improvementModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeImprovement(){
+  document.getElementById('improvementModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function submitImprovement(){
+  var note = document.getElementById('improvementNote').value.trim();
+  if(!note){ alert('Please describe what needs to be improved.'); return; }
+  var orderId = improvementOrderId;
+  sampleOrders = OrderManager.updateStatus(sampleOrders, orderId, 'improvement', 'Client requested improvement: '+note);
+  // Add to chat as client message
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(o){
+    if(!o.chat) o.chat=[];
+    o.chat.push({sender:'client', text:'📝 Improvement requested: '+note, timestamp:new Date().toISOString(), read:false});
+    o.unreadChat = true;
+    OrderManager.save(sampleOrders);
+  }
+  var impOrder = sampleOrders.find(function(x){return x.id===improvementOrderId;});
+  var impNote = document.getElementById('improvementNote').value.trim();
+  closeImprovement();
+  renderOrders();
+  updateBalance();
+  updateInboxDot();
+  if(impOrder) sendNotification('improvement', impOrder, impNote);
+  toast('📝 Improvement request sent to publisher.','#f59e0b');
+}
+
+// ── CLIENT REVIEW (simulate) ──
+function openClientReview(orderId){
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(!o) return;
+  improvementOrderId = orderId;
+  var el = document.getElementById('crOrderId');
+  if(el) el.textContent = '#'+o.taskId+' — Simulating client dashboard';
+  var urlEl = document.getElementById('crPublishedUrl');
+  if(urlEl){ urlEl.href=o.publishedUrl||'#'; urlEl.textContent=o.publishedUrl||'No URL provided'; }
+  document.getElementById('clientReviewModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeClientReview(){
+  document.getElementById('clientReviewModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function clientComplete(){
+  var orderId = improvementOrderId;
+  sampleOrders = OrderManager.updateStatus(sampleOrders, orderId, 'completed', 'Client approved and marked as complete');
+  // Add chat message
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(o){
+    if(!o.chat) o.chat=[];
+    o.chat.push({sender:'client', text:'✅ Order completed! Payment has been released. Great work!', timestamp:new Date().toISOString(), read:false});
+    o.unreadChat = true;
+    OrderManager.save(sampleOrders);
+  }
+  var compOrder = sampleOrders.find(function(x){return x.id===improvementOrderId;});
+  closeClientReview();
+  renderOrders();
+  updateBalance();
+  updateInboxDot();
+  if(compOrder) sendNotification('order_completed', compOrder);
+  toast('🎉 Order completed! Payment added to your balance.','#16a34a');
+}
+
+// Update renderOrders to call updateBalance
+
+// ── INBOX / GLOBAL CHAT ──
+function getTotalUnread(){
+  if(!Array.isArray(sampleOrders)) return 0;
+  return sampleOrders.filter(function(o){ return o.unreadChat; }).length;
+}
+
+function updateInboxDot(){
+  var n = getTotalUnread();
+  var dot = document.getElementById('inboxDot');
+  var ndot = document.getElementById('notifDot');
+  if(dot) dot.style.display = n>0?'block':'none';
+  if(ndot) ndot.style.display = n>0?'block':'none';
+}
+
+function openInbox(){
+  renderInboxList();
+  document.getElementById('inboxModal').style.display='flex';
+  // Reset to empty state
+  document.getElementById('inboxChatEmpty').style.display='flex';
+  document.getElementById('inboxChatPanel').style.display='none';
+  document.body.style.overflow='hidden';
+}
+
+function closeInbox(){
+  document.getElementById('inboxModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+var currentInboxOrderId = null;
+
+function openInboxChat(orderId){
+  currentInboxOrderId = orderId;
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(!o) return;
+  o.unreadChat = false;
+  OrderManager.save(sampleOrders);
+  updateInboxDot();
+  renderInboxList();
+
+  var isCompleted = o.status==='completed';
+  var sc = statusConfig[o.status]||{label:o.status,bg:'#f1f5f9',color:'#64748b'};
+
+  document.getElementById('inboxChatTitle').textContent = o.siteUrl+' — '+o.type;
+  document.getElementById('inboxChatSubtitle').textContent = '#'+o.taskId+' · '+fmtDateShort(o.createdAt);
+  // Show TAT deadline
+  try{
+    var orderDate = new Date(o.createdAt);
+    var maxDays = 10;
+    var deadlineDate = new Date(orderDate);
+    deadlineDate.setDate(deadlineDate.getDate() + maxDays);
+    var now = new Date();
+    var daysLeft = Math.ceil((deadlineDate - now)/(1000*60*60*24));
+    var acceptDeadline = new Date(orderDate);
+    acceptDeadline.setDate(acceptDeadline.getDate() + 3);
+    var acceptLeft = Math.ceil((acceptDeadline - now)/(1000*60*60*24));
+    var tatEl = document.getElementById('orderTatDeadline');
+    if(tatEl){
+      if(o.status==='acceptance'){
+        tatEl.innerHTML = acceptLeft>0
+          ? '<span style="color:#d97706">⏱ Accept within: <strong>'+acceptLeft+' day'+(acceptLeft>1?'s':'')+' left</strong></span>'
+          : '<span style="color:#dc2626">⚠️ Acceptance deadline passed!</span>';
+      } else if(['progress','improvement'].indexOf(o.status)>=0){
+        tatEl.innerHTML = daysLeft>0
+          ? '<span style="color:#2563eb">📅 Delivery deadline: <strong>'+daysLeft+' day'+(daysLeft>1?'s':'')+' left</strong></span>'
+          : '<span style="color:#dc2626">⚠️ Delivery overdue!</span>';
+      } else {
+        tatEl.innerHTML = '';
+      }
+    }
+  }catch(e){}
+  var statusEl = document.getElementById('inboxChatStatus');
+  statusEl.textContent = sc.label;
+  statusEl.style.background = sc.bg;
+  statusEl.style.color = sc.color;
+
+  // Show/hide input
+  document.getElementById('inboxChatInputArea').style.display = isCompleted?'none':'block';
+  document.getElementById('inboxChatLocked').style.display = isCompleted?'block':'none';
+  if(!isCompleted){
+    var inp = document.getElementById('inboxChatInput');
+    if(inp) inp.disabled=false;
+  }
+
+  // Render messages
+  renderInboxMessages(o);
+
+  document.getElementById('inboxChatEmpty').style.display='none';
+  document.getElementById('inboxChatPanel').style.display='flex';
+  document.getElementById('inboxChatPanel').style.flexDirection='column';
+  document.getElementById('inboxChatPanel').style.height='100vh';
+
+  setTimeout(function(){
+    var msgs=document.getElementById('inboxChatMessages');
+    if(msgs) msgs.scrollTop=msgs.scrollHeight;
+    if(!isCompleted){
+      var inp=document.getElementById('inboxChatInput');
+      if(inp) inp.focus();
+    }
+  },100);
+}
+
+function renderInboxMessages(o){
+  var container = document.getElementById('inboxChatMessages');
+  if(!container) return;
+  var msgs = o.chat||[];
+  if(msgs.length===0){
+    container.innerHTML='<div style="text-align:center;color:#94a3b8;font-size:13px;margin-top:40px">No messages yet. Start the conversation!</div>';
+    return;
+  }
+  container.innerHTML = msgs.map(function(m){
+    var isMe = m.sender==='publisher';
+    var isFile = m.isFile;
+    return '<div style="display:flex;flex-direction:'+(isMe?'row-reverse':'row')+';gap:8px;align-items:flex-end">'+
+      '<div style="width:30px;height:30px;border-radius:50%;background:'+(isMe?'linear-gradient(135deg,#4f7cff,#00d4aa)':'linear-gradient(135deg,#f59e0b,#ef4444)')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">'+(isMe?'P':'C')+'</div>'+
+      '<div style="max-width:72%">'+
+        '<div style="background:'+(isMe?'#4f7cff':'#fff')+';color:'+(isMe?'#fff':'#0f172a')+';border-radius:'+(isMe?'16px 16px 4px 16px':'16px 16px 16px 4px')+';padding:10px 14px;font-size:13.5px;line-height:1.55;border:1px solid '+(isMe?'transparent':'#e2e8f0')+'">'+(isFile?'📎 <a href="'+m.fileUrl+'" style="color:'+(isMe?'#fff':'#4f7cff')+';text-decoration:underline" target="_blank">'+m.text+'</a>':m.text)+'</div>'+
+        '<div style="font-size:10px;color:#94a3b8;margin-top:3px;text-align:'+(isMe?'right':'left')+'">'+fmtDate(m.timestamp)+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function sendInboxMsg(){
+  if(!currentInboxOrderId) return;
+  var o=sampleOrders.find(function(x){return x.id===currentInboxOrderId;});
+  if(!o||o.status==='completed') return;
+  var inp=document.getElementById('inboxChatInput');
+  var text=inp.value.trim();
+  if(!text) return;
+  if(!o.chat) o.chat=[];
+  o.chat.push({sender:'publisher',text:text,timestamp:new Date().toISOString()});
+  inp.value='';
+  OrderManager.save(sampleOrders);
+  renderInboxMessages(o);
+  renderInboxList();
+  var msgs=document.getElementById('inboxChatMessages');
+  if(msgs) msgs.scrollTop=msgs.scrollHeight;
+  // Simulate reply
+  setTimeout(function(){
+    var o2=sampleOrders.find(function(x){return x.id===currentInboxOrderId;});
+    if(!o2||o2.status==='completed') return;
+    var replies=['Thanks!','Got it, reviewing now.','Please check the published URL.','Will confirm shortly.','Looks good!'];
+    var clientReply = replies[Math.floor(Math.random()*replies.length)];
+    o2.chat.push({sender:'client',text:clientReply,timestamp:new Date().toISOString()});
+    o2.unreadChat=false;
+    OrderManager.save(sampleOrders);
+    if(currentInboxOrderId===o2.id) renderInboxMessages(o2);
+    renderInboxList();
+    var m=document.getElementById('inboxChatMessages');
+    if(m) m.scrollTop=m.scrollHeight;
+    sendNotification('new_message', o2, clientReply);
+  },1800);
+}
+
+function chatAttachFile(inp){
+  if(!currentChatOrderId||!inp.files[0]) return;
+  var o=sampleOrders.find(function(x){return x.id===currentChatOrderId;});
+  if(!o) return;
+  var file=inp.files[0];
+  if(!o.chat) o.chat=[];
+  o.chat.push({sender:'publisher',text:file.name,isFile:true,fileUrl:'#',timestamp:new Date().toISOString()});
+  OrderManager.save(sampleOrders);
+  renderChatMessages(o);
+  document.getElementById('chatFileName').textContent=file.name;
+  inp.value='';
+}
+
+function attachFile(inp){
+  if(!currentInboxOrderId||!inp.files[0]) return;
+  var o=sampleOrders.find(function(x){return x.id===currentInboxOrderId;});
+  if(!o) return;
+  var file=inp.files[0];
+  if(!o.chat) o.chat=[];
+  o.chat.push({sender:'publisher',text:file.name,isFile:true,fileUrl:'#',timestamp:new Date().toISOString()});
+  OrderManager.save(sampleOrders);
+  renderInboxMessages(o);
+  var msgs=document.getElementById('inboxChatMessages');
+  if(msgs) msgs.scrollTop=msgs.scrollHeight;
+  document.getElementById('inboxFileName').textContent=file.name;
+  inp.value='';
+}
+
+function renderInboxList(){
+  if(!Array.isArray(sampleOrders)) return;
+  var el = document.getElementById('inboxList');
+  var countEl = document.getElementById('inboxCount');
+  if(!el) return;
+
+  // Sort by latest message
+  var withChat = sampleOrders.filter(function(o){ return o.chat && o.chat.length>0; });
+  withChat.sort(function(a,b){
+    var ta = a.chat[a.chat.length-1].timestamp;
+    var tb = b.chat[b.chat.length-1].timestamp;
+    return new Date(tb)-new Date(ta);
+  });
+
+  if(countEl) countEl.textContent = '('+withChat.length+')';
+
+  if(withChat.length===0){
+    el.innerHTML='<div style="text-align:center;padding:60px 24px;color:#94a3b8"><div style="font-size:48px;margin-bottom:14px">💬</div><div style="font-size:15px;font-weight:600;color:#475569;margin-bottom:6px">No messages yet</div><div style="font-size:13px">Start a conversation from any order</div></div>';
+    return;
+  }
+
+  var rows = withChat.map(function(o){
+    var lastMsg = o.chat[o.chat.length-1];
+    var unread = o.unreadChat;
+    var isCompleted = o.status==='completed';
+    var bgColor = unread ? '#f8faff' : '#fff';
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:16px 24px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;align-items:center;gap:14px;background:'+bgColor;
+    row.onmouseover = function(){ this.style.background='#f0f4ff'; };
+    row.onmouseout  = function(){ this.style.background=bgColor; };
+    row.onclick = (function(id){ return function(){
+      openInboxChat(id);
+      // Highlight selected row
+      document.querySelectorAll('#inboxList > div').forEach(function(r){ r.style.background=''; });
+      row.style.background='#f0f4ff';
+    }; })(o.id);
+    row.innerHTML =
+      '<div style="position:relative;flex-shrink:0">'+
+        '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#c7d7ff);display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>'+
+        '<span style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:'+(isCompleted?'#94a3b8':'#22c55e')+';border:2px solid #fff"></span>'+
+      '</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">'+
+          '<div style="font-size:13.5px;font-weight:'+(unread?'800':'600')+';color:#0f172a">#'+o.taskId+'</div>'+
+          '<div style="font-size:11px;color:#94a3b8;margin-left:8px">'+fmtDateShort(lastMsg.timestamp)+'</div>'+
+        '</div>'+
+        '<div style="font-size:12px;color:#64748b;margin-bottom:3px">'+o.siteUrl+' &middot; '+o.type+'</div>'+
+        '<div style="font-size:12.5px;color:'+(unread?'#0f172a':'#94a3b8')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:'+(unread?'600':'400')+'">'+
+          (lastMsg.sender==='client'?'Client: ':'')+lastMsg.text+
+        '</div>'+
+      '</div>'+
+      (unread?'<span style="width:9px;height:9px;border-radius:50%;background:#4f7cff;display:inline-block;flex-shrink:0"></span>':'')+
+      (isCompleted?'<span style="font-size:10px;font-weight:700;background:#f1f5f9;color:#94a3b8;padding:2px 8px;border-radius:100px">Closed</span>':'');
+    return row;
+  });
+  el.innerHTML='';
+  rows.forEach(function(r){ el.appendChild(r); });
+}
+
+function openChatFromInbox(orderId){
+  openInboxChat(orderId);
+}
+
+// Override openChat to block messaging on completed orders
+var _origOpenChat = openChat;
+function openChat(orderId){
+  currentChatOrderId = orderId;
+  var o = sampleOrders.find(function(x){return x.id===orderId;});
+  if(!o) return;
+  o.unreadChat = false;
+  OrderManager.save(sampleOrders);
+  updateInboxDot();
+  renderOrders();
+
+  var title = document.getElementById('chatOrderTitle');
+  var idEl = document.getElementById('chatOrderId');
+  var inp = document.getElementById('chatInput');
+  var sendBtn = document.querySelector('#chatModal button[onclick="sendChatMsg()"]');
+  var isCompleted = o.status==='completed';
+
+  if(title) title.textContent = o.siteUrl+' — '+o.type;
+  if(idEl) idEl.textContent = '#'+o.taskId;
+
+  // Sidebar info
+  var sidebar = document.getElementById('chatSidebarContent');
+  if(sidebar){
+    var sc2 = statusConfig[o.status]||{label:o.status,bg:'#f1f5f9',color:'#64748b'};
+    sidebar.innerHTML =
+      '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px">'+
+        '<div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Order Info</div>'+
+        '<div style="display:flex;flex-direction:column;gap:8px">'+
+          '<div><div style="font-size:11px;color:#94a3b8">Task ID</div><div style="font-size:14px;font-weight:800;color:#4f7cff">#'+o.taskId+'</div></div>'+
+          '<div><div style="font-size:11px;color:#94a3b8">Site</div><div style="font-size:13px;font-weight:700;color:#0f172a">'+o.siteUrl+'</div></div>'+
+          '<div><div style="font-size:11px;color:#94a3b8">Type</div><div style="font-size:13px;color:#475569">'+o.type+'</div></div>'+
+          '<div><div style="font-size:11px;color:#94a3b8">Anchor</div><div style="font-size:13px;color:#475569">'+o.anchor+'</div></div>'+
+          '<div><div style="font-size:11px;color:#94a3b8">Price</div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:900;color:#0f172a">$'+o.price+'</div></div>'+
+          '<div><div style="font-size:11px;color:#94a3b8;margin-bottom:4px">Status</div><span style="background:'+sc2.bg+';color:'+sc2.color+';font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px">'+sc2.label+'</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px">'+
+        '<div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Requirements</div>'+
+        '<div style="font-size:12px;color:#475569;line-height:1.6">'+( o.requirements||'None')+'</div>'+
+      '</div>';
+  }
+
+  // Show/hide input
+  var inputWrap = document.getElementById('chatInputWrap');
+  var lockedBar = document.getElementById('chatLockedBar');
+  if(inputWrap) inputWrap.style.display = isCompleted?'none':'block';
+  if(lockedBar) lockedBar.style.display = isCompleted?'block':'none';
+  if(inp){
+    inp.disabled=isCompleted;
+    inp.placeholder=isCompleted?'🔒 Chat closed':'Type your message...';
+  }
+
+  renderChatMessages(o);
+  document.getElementById('chatModal').style.display='flex';
+  document.body.style.overflow='hidden';
+  setTimeout(function(){
+    var msgs=document.getElementById('chatMessages');
+    if(msgs) msgs.scrollTop=msgs.scrollHeight;
+    if(inp && !isCompleted) inp.focus();
+  },100);
+}
+
+// Override sendChatMsg to block on completed
+var _origSend = typeof sendChatMsg !== 'undefined' ? sendChatMsg : null;
+function sendChatMsg(){
+  if(!currentChatOrderId) return;
+  var o=sampleOrders.find(function(x){return x.id===currentChatOrderId;});
+  if(!o) return;
+
+  // BLOCK if completed
+  if(o.status==='completed'){
+    toast('🔒 Chat is closed for completed orders.','#64748b');
+    return;
+  }
+
+  var inp=document.getElementById('chatInput');
+  var text=inp.value.trim();
+  if(!text) return;
+  if(!o.chat) o.chat=[];
+  o.chat.push({sender:'publisher',text:text,timestamp:new Date().toISOString(),read:false});
+  inp.value='';
+  OrderManager.save(sampleOrders);
+  renderChatMessages(o);
+  updateInboxDot();
+  var msgs=document.getElementById('chatMessages');
+  if(msgs) msgs.scrollTop=msgs.scrollHeight;
+
+  // Simulate client reply
+  setTimeout(function(){
+    var o2=sampleOrders.find(function(x){return x.id===currentChatOrderId;});
+    if(!o2||o2.status==='completed') return;
+    var replies=[
+      'Thanks for the update!',
+      'Looks good, reviewing now.',
+      'Please make sure anchor text is exactly as specified.',
+      'Great work! Will confirm shortly.',
+      'Can you share the published URL?'
+    ];
+    var reply=replies[Math.floor(Math.random()*replies.length)];
+    o2.chat.push({sender:'client',text:reply,timestamp:new Date().toISOString(),read:false});
+    o2.unreadChat=true;
+    OrderManager.save(sampleOrders);
+    renderChatMessages(o2);
+    updateInboxDot();
+    var msgs2=document.getElementById('chatMessages');
+    if(msgs2) msgs2.scrollTop=msgs2.scrollHeight;
+  },2000);
+}
+
+
+// ── PROFILE MENU ──
+var activityOn = true;
+
+function toggleProfileMenu(){
+  var m = document.getElementById('profileMenu');
+  m.style.display = m.style.display==='none' ? 'block' : 'none';
+}
+
+function closeProfileMenu(){
+  var m = document.getElementById('profileMenu');
+  if(m) m.style.display='none';
+}
+
+function toggleActivity(){
+  activityOn = !activityOn;
+  var toggle = document.getElementById('activityToggle');
+  var thumb = document.getElementById('activityThumb');
+  if(activityOn){
+    toggle.style.background='#22c55e';
+    thumb.style.left='21px';
+  } else {
+    toggle.style.background='#94a3b8';
+    thumb.style.left='3px';
+  }
+}
+
+// Close profile menu when clicking outside
+document.addEventListener('click', function(e){
+  var menu = document.getElementById('profileMenu');
+  var avatar = document.getElementById('profileAvatar');
+  if(menu && avatar && !menu.contains(e.target) && !avatar.contains(e.target)){
+    menu.style.display='none';
+  }
+});
+
+
+// ── BALANCE PAGE ──
+var currentTxnFilter = 'all';
+
+function showBalance(){
+  saveState("balance");
+  hideAllPages();
+  var bp=document.getElementById('balancePage');
+  if(bp) bp.style.display='block';
+  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  renderBalancePage();
+  checkWithdrawWindow();
+}
+
+function renderBalancePage(){
+  if(!Array.isArray(sampleOrders)) return;
+  var bal=0, res=0;
+  sampleOrders.forEach(function(o){
+    if(o.status==='completed') bal+=o.price;
+    else if(['acceptance','review','progress','approval','improvement','guarantee'].indexOf(o.status)>-1) res+=o.price;
+  });
+  var bm=document.getElementById('balCardMain');
+  var br=document.getElementById('balCardReserved');
+  if(bm) bm.textContent='$'+bal.toFixed(2);
+  if(br) br.textContent='$'+res.toFixed(2);
+  renderTxnList(currentTxnFilter);
+}
+
+function renderTxnList(filter){
+  if(!Array.isArray(sampleOrders)) return;
+  var txns=[];
+  var runBal=0;
+  // Build transactions from orders
+  var sorted=sampleOrders.slice().sort(function(a,b){return new Date(a.createdAt)-new Date(b.createdAt);});
+  sorted.forEach(function(o){
+    if(o.statusHistory){
+      o.statusHistory.forEach(function(h){
+        if(h.status==='completed'){
+          runBal+=o.price;
+          txns.push({date:h.timestamp,type:'earning',desc:'Task payment transferred from reserved to main balance. Task ID: #'+o.taskId,amount:'+'+o.price,bal:runBal,orderId:o.taskId});
+        }
+        if(h.status==='acceptance'){
+          txns.push({date:h.timestamp,type:'earning',desc:'Task reserved in your balance. Task ID: #'+o.taskId,amount:'(reserved) $'+o.price,bal:runBal,orderId:o.taskId});
+        }
+      });
+    }
+  });
+  // Add sample withdrawal
+  if(runBal>60){
+    txns.push({date:new Date(Date.now()-86400000*3).toISOString(),type:'withdraw',desc:'Funds withdrawn from main balance to your payment address. Commission deducted.',amount:'-'+(runBal*0.9).toFixed(2),bal:(runBal*0.1).toFixed(2)});
+  }
+  txns.sort(function(a,b){return new Date(b.date)-new Date(a.date);});
+
+  var filtered=txns.filter(function(t){
+    if(filter==='earning') return t.type==='earning';
+    if(filter==='withdraw') return t.type==='withdraw';
+    if(filter==='other') return t.type==='other';
+    return true;
+  });
+
+  var el=document.getElementById('txnList');
+  var empty=document.getElementById('txnEmpty');
+  if(!el) return;
+  if(filtered.length===0){
+    el.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  var txnStore = {};
+  var fragment = document.createDocumentFragment();
+  filtered.forEach(function(t, idx){
+    var isNeg = t.amount && t.amount.toString().startsWith('-');
+    var amtColor = isNeg ? '#ef4444' : '#16a34a';
+    var txnId = 'txn_'+idx+'_'+Date.now();
+    txnStore[txnId] = t;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:120px 1fr 120px 100px 40px;gap:0;padding:13px 20px;border-bottom:1px solid #f1f5f9;align-items:start;cursor:default';
+    row.onmouseenter = function(){ this.style.background='#f8faff'; };
+    row.onmouseleave = function(){ this.style.background=''; };
+    var btn = document.createElement('button');
+    btn.style.cssText = 'background:none;border:none;color:#94a3b8;cursor:pointer;font-size:18px;font-weight:700;padding:4px 8px;border-radius:6px;transition:all .2s';
+    btn.textContent = '•••';
+    btn.onmouseenter = function(){ this.style.background='#f0f4ff'; this.style.color='#4f7cff'; };
+    btn.onmouseleave = function(){ this.style.background=''; this.style.color='#94a3b8'; };
+    btn.onclick = (function(txnData){ return function(e){ e.stopPropagation(); openTxnDetail(txnData); }; })(t);
+    row.innerHTML =
+      '<div style="font-size:12px;color:#64748b;padding-right:8px">'+fmtDateShort(t.date)+'</div>'+
+      '<div>'+
+        '<div style="font-size:13px;color:#0f172a;line-height:1.6">'+t.desc+'</div>'+
+        (t.orderId ? '<div style="font-size:11px;color:#4f7cff;margin-top:2px;font-weight:700">#'+t.orderId+'</div>' : '')+
+      '</div>'+
+      '<div style="font-size:14px;font-weight:800;color:'+amtColor+';text-align:right;font-family:Manrope,sans-serif">'+t.amount+'</div>'+
+      '<div style="font-size:13px;font-weight:700;color:#0f172a;text-align:right">$'+Number(t.bal).toFixed(2)+'</div>';
+    var btnWrap = document.createElement('div');
+    btnWrap.style.textAlign = 'center';
+    btnWrap.appendChild(btn);
+    row.appendChild(btnWrap);
+    fragment.appendChild(row);
+  });
+  el.innerHTML='';
+  el.appendChild(fragment);
+}
+
+function filterTxn(el, filter){
+  currentTxnFilter=filter;
+  document.querySelectorAll('.txn-pill').forEach(function(p){
+    p.style.border='1px solid var(--br)';
+    p.style.background='var(--wh)';
+    p.style.color='var(--t2)';
+  });
+  el.style.border='1px solid var(--ac)';
+  el.style.background='#f0f4ff';
+  el.style.color='var(--ac)';
+  renderTxnList(filter);
+}
+
+function toggleHowItWorks(){
+  var body=document.getElementById('howItWorksBody');
+  var arrow=document.getElementById('howArrow');
+  if(body.style.display==='none'){
+    body.style.display='block';
+    if(arrow) arrow.style.transform='rotate(180deg)';
+  } else {
+    body.style.display='none';
+    if(arrow) arrow.style.transform='rotate(0deg)';
+  }
+}
+
+function checkWithdrawWindow(){
+  var now=new Date();
+  var day=now.getDate();
+  var infoEl=document.getElementById('withdrawWindowInfo');
+  var btnEl=document.getElementById('withdrawBtn');
+  var wdTextEl=document.getElementById('wdWindowText');
+
+  var window1Open = (day>=20&&day<=25);
+  var window2Open = (day>=10&&day<=15);
+  var isOpen = window1Open||window2Open;
+
+  var nextInfo='';
+  if(window1Open){ nextInfo='Window 1 open (20–25): Request now → Payment arrives 1st–5th next month'; }
+  else if(window2Open){ nextInfo='Window 2 open (10–15): Request now → Payment arrives 20th–25th this month'; }
+  else if(day<10){ nextInfo='Next window opens on the 10th. Request 10–15 → Payment 20–25 this month'; }
+  else if(day>15&&day<20){ nextInfo='Next window opens on the 20th. Request 20–25 → Payment 1–5 next month'; }
+  else { nextInfo='Withdrawal window closed. Next window opens on the '+(day>25?'10th next month':'upcoming date'); }
+
+  if(infoEl) infoEl.textContent=nextInfo;
+  if(wdTextEl) wdTextEl.textContent=nextInfo;
+
+  if(btnEl){
+    if(!isOpen){
+      btnEl.disabled=true;
+      btnEl.style.opacity='0.5';
+      btnEl.style.cursor='not-allowed';
+      btnEl.textContent='Window Closed';
+    } else {
+      btnEl.disabled=false;
+      btnEl.style.opacity='1';
+      btnEl.style.cursor='pointer';
+      btnEl.textContent='Request Earnings';
+    }
+  }
+}
+
+function openWithdrawModal(){
+  var bal=0;
+  if(Array.isArray(sampleOrders)){
+    sampleOrders.forEach(function(o){ if(o.status==='completed') bal+=o.price; });
+  }
+  var wdAv=document.getElementById('wdAvailable');
+  if(wdAv) wdAv.textContent='$'+bal.toFixed(2);
+  checkWithdrawWindow();
+  document.getElementById('withdrawModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeWithdrawModal(){
+  document.getElementById('withdrawModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function openTxnDetail(t){
+  var isNeg = t.amount && t.amount.toString().startsWith('-');
+  var amtColor = isNeg ? '#ef4444' : '#16a34a';
+
+  var titleEl = document.getElementById('tdTitle');
+  var dateEl  = document.getElementById('tdDate');
+  var amtEl   = document.getElementById('tdAmount');
+  var descEl  = document.getElementById('tdDesc');
+  var balEl   = document.getElementById('tdBal');
+
+  if(titleEl) titleEl.textContent = t.type==='withdraw' ? 'Withdrawal Transaction' : t.type==='earning' ? 'Earning Received' : 'Transaction Detail';
+  if(dateEl)  dateEl.textContent  = fmtDate(t.date);
+  if(amtEl){  amtEl.textContent   = t.amount; amtEl.style.color = amtColor; }
+  if(descEl)  descEl.textContent  = t.desc;
+  if(balEl)   balEl.textContent   = '$'+Number(t.bal).toFixed(2);
+
+  // Populate billing from settings
+  try{
+    var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var bd = JSON.parse(localStorage.getItem('uplyncio_billing')||'{}');
+    // Prefer billing details over settings for billing panel
+    if(bd['billName']) s['settName'] = bd['billName'];
+    if(bd['billEmail']) s['settEmail'] = bd['billEmail'];
+    if(bd['billPhone']) s['settPhone'] = bd['billPhone'];
+    if(bd['billState']) s['settState'] = bd['billState'];
+    if(bd['billCity']) s['settCity'] = bd['billCity'];
+    if(bd['billAddr']) s['settAddr'] = bd['billAddr'];
+    if(bd['billZip']) s['settZip'] = bd['billZip'];
+    if(bd['billCountry']) s['settCountry'] = bd['billCountry'];
+    if(bd['billApt']) s['settApt'] = bd['billApt'];
+    var g = function(id){ return s[id]||'—'; };
+    var set = function(elId, val){ var el=document.getElementById(elId); if(el) el.textContent=val||'—'; };
+    set('bdName',    g('settName'));
+    set('bdEmail',   g('settEmail'));
+    set('bdPhone',   g('settPhone'));
+    set('bdState',   g('settState'));
+    set('bdCity',    g('settCity'));
+    set('bdAddr',    g('settAddr'));
+    set('bdZip',     g('settZip'));
+    set('bdCountry', g('settCountry'));
+    var aptEl = document.getElementById('bdApt');
+    if(aptEl) aptEl.textContent = s['settApt']||'not provided';
+  }catch(e){}
+
+  document.getElementById('txnDetailModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeTxnDetail(){
+  document.getElementById('txnDetailModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function submitWithdraw(){
+  var method=document.getElementById('wdMethod').value;
+  var address=document.getElementById('wdAddress').value.trim();
+  var bal=parseFloat(document.getElementById('mainBal')?.textContent?.replace('$','')||'0')||0;
+  if(!method){toast('Please select a payment method','#ef4444');return;}
+  if(!address){toast('Please enter your payment address','#ef4444');return;}
+  if(bal<60){toast('Minimum withdrawal is $60. Current balance: $'+bal.toFixed(2),'#ef4444');return;}
+
+  // Calculate net after commission
+  var commRate = method==='paypal' ? 0.075 : 0.095; // 7.5% PayPal, 9.5% USDT
+  var commission = bal * commRate;
+  var netAmount = bal - commission;
+
+  closeWithdrawModal();
+  toast('✅ Withdrawal requested! You will receive $'+netAmount.toFixed(2)+' after '+((commRate*100).toFixed(1))+'% commission. Processing in scheduled window.','#16a34a');
+}
+
+
+// ── ACCOUNT SETTINGS ──
+var twoFaOn = true;
+var settingsData = {};
+
+function showSettings(){
+  saveState("settings");
+  setTimeout(load2FAState, 100);
+  hideAllPages();
+  var sp=document.getElementById('settingsPage');
+  if(sp) sp.style.display='block';
+  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  // Load saved settings
+  try{
+    var saved = localStorage.getItem('uplyncio_settings');
+    if(saved){
+      settingsData = JSON.parse(saved);
+      var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settPaypal','settUsdt','settEmail'];
+      fields.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && settingsData[id]) el.value = settingsData[id];
+      });
+    }
+  }catch(e){}
+  checkVerification();
+  loadNotifSettings();
+  // Load billing details
+  try{
+    var billSaved = localStorage.getItem('uplyncio_billing');
+    if(billSaved){
+      var bd = JSON.parse(billSaved);
+      ['billName','billPhone','billEmail','billCountry','billState','billCity','billAddr','billZip','billApt'].forEach(function(id){
+        var el=document.getElementById(id); if(el&&bd[id]) el.value=bd[id];
+      });
+    }
+  }catch(e){}
+  // Sync profile header
+  if(settingsData['settName']||settingsData['settEmail']){
+    var nameVal  = settingsData['settName']||'Publisher';
+    var emailVal = settingsData['settEmail']||'Not set';
+    var pn=document.getElementById('profileName');
+    var pe=document.getElementById('profileEmail');
+    var av=document.getElementById('profileAvatar');
+    if(pn) pn.textContent=nameVal;
+    if(pe) pe.textContent=emailVal;
+    if(av){
+      var parts=nameVal.trim().split(' ');
+      var initials=parts.length>=2?parts[0][0]+parts[parts.length-1][0]:nameVal.slice(0,2);
+      av.textContent=initials.toUpperCase();
+    }
+    var evb=document.getElementById('emailVerifiedBadge');
+    if(evb) evb.style.display=emailVal&&emailVal!=='Not set'?'inline':'none';
+  }
+}
+
+function switchSettTab(el, tab){
+  saveState("settings",{settTab:tab});
+  // Update tab styles
+  document.querySelectorAll('#settingsPage .stab').forEach(function(t){
+    t.style.color='var(--mu)';
+    t.style.borderBottomColor='transparent';
+  });
+  el.style.color='var(--ac)';
+  el.style.borderBottomColor='var(--ac)';
+
+  // Hide all tab contents
+  ['account','contact','billing','notif','activity'].forEach(function(t){
+    var el2=document.getElementById('stab-'+t+'-content');
+    if(el2) el2.style.display='none';
+  });
+
+  // Show selected
+  var active = document.getElementById('stab-'+tab+'-content');
+  if(active) active.style.display='block';
+
+  // Update activity stats if needed
+  if(tab==='activity') updateActivityStats();
+}
+
+function updateActivityStats(){
+  if(!Array.isArray(sampleOrders)) return;
+  var total = sampleOrders.length;
+  var done  = sampleOrders.filter(function(o){return o.status==='completed';}).length;
+  var rate  = total>0 ? Math.round((done/total)*100) : 0;
+  var t=document.getElementById('actTotalOrders');
+  var d=document.getElementById('actCompleted');
+  var r=document.getElementById('actCompRate');
+  if(t) t.textContent=total;
+  if(d) d.textContent=done;
+  if(r) r.textContent=rate+'%';
+}
+
+function toggleBillingType(type){
+  var row = document.getElementById('companyNameRow');
+  if(row) row.style.display = type==='company'?'block':'none';
+}
+
+function saveBillingDetails(){
+  var guarantee = document.getElementById('billGuarantee');
+  if(!guarantee||!guarantee.checked){
+    toast('⚠️ Please check the guarantee checkbox to save billing details.','#d97706');
+    return;
+  }
+  var fields = ['billName','billPhone','billEmail','billCountry','billState','billCity','billAddr','billZip','billApt','billCompanyName'];
+  var data = {};
+  fields.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) data[id]=el.value;
+  });
+  try{ localStorage.setItem('uplyncio_billing', JSON.stringify(data)); }catch(e){}
+  toast('✅ Billing details saved!','#16a34a');
+}
+
+function previewNotification(){
+  var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
+  var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
+  // WA preview already static — just show number
+}
+
+function saveNotifSettings(){
+  var wa = (document.getElementById('notifWhatsapp')||{value:''}).value.trim();
+  var em = (document.getElementById('notifEmail')||{value:''}).value.trim();
+  if(!wa && !em){ toast('⚠️ Please add at least one notification channel (WhatsApp or Email).','#d97706'); return; }
+  try{
+    var ns = {whatsapp: wa, email: em};
+    localStorage.setItem('uplyncio_notif', JSON.stringify(ns));
+  }catch(e){}
+  toast('✅ Notification settings saved! You will receive alerts on new orders.','#16a34a');
+}
+
+// Load notification settings when settings page opens
+function loadNotifSettings(){
+  try{
+    var ns = JSON.parse(localStorage.getItem('uplyncio_notif')||'{}');
+    var waEl = document.getElementById('notifWhatsapp');
+    var emEl = document.getElementById('notifEmail');
+    if(waEl && ns.whatsapp) waEl.value = ns.whatsapp;
+    if(emEl && ns.email)    emEl.value = ns.email;
+  }catch(e){}
+}
+
+// Simulate sending notification when order accepted
+// ── NOTIFICATION SYSTEM ──
+var notifTypes = {
+  new_order: {
+    wa: function(name, o){ return 'Hi *'+name+'*! 👋\n\nYou have received a *new order* on Uplyncio.\n\n📋 *Task ID:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n💰 *Amount:* $'+o.price+'\n📝 *Type:* '+o.type+'\n\nPlease log in to review and accept the order within *3 business days*.\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'New Order Received — #',
+    email_body: function(name, o){ return 'Hello <strong>'+name+'</strong>,<br><br>Great news! You have received a <strong>new order</strong> on Uplyncio. Please review and accept within <strong>3 business days</strong>.<br><br>📋 Task ID: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br>💰 Amount: <strong>$'+o.price+'</strong><br>📝 Type: <strong>'+o.type+'</strong><br><br><a href="https://uplyncio.com/publisher" style="background:#4f7cff;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">View Order →</a>'; },
+    icon: '📦', color: '#4f7cff', label: 'New Order'
+  },
+  order_completed: {
+    wa: function(name, o){ return 'Hi *'+name+'*! ✅\n\nYour order has been *completed and approved* by the client!\n\n📋 *Task ID:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n💰 *Payment:* $'+o.price+' added to your balance\n\nThank you for your great work! 🎉\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'Order Completed & Payment Released — #',
+    email_body: function(name, o){ return 'Hello <strong>'+name+'</strong>,<br><br>🎉 Your order has been <strong>completed and approved</strong> by the client!<br><br>📋 Task ID: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br>💰 <strong>$'+o.price+'</strong> has been added to your main balance<br><br>Keep up the great work! You can request a withdrawal from your Balance page.<br><br><a href="https://uplyncio.com/publisher" style="background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">View Balance →</a>'; },
+    icon: '✅', color: '#16a34a', label: 'Order Completed'
+  },
+  improvement: {
+    wa: function(name, o, note){ return 'Hi *'+name+'*! 📝\n\nThe client has requested an *improvement* on your order.\n\n📋 *Task ID:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n\n📌 *Client note:* '+(note||'Please check the order for details')+'\n\nPlease log in to review and resubmit.\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'Improvement Requested — #',
+    email_body: function(name, o, note){ return 'Hello <strong>'+name+'</strong>,<br><br>The client has requested an <strong>improvement</strong> on your submitted order.<br><br>📋 Task ID: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br><br>📌 <strong>Client note:</strong><br><div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:4px;margin:10px 0">'+(note||'Please check the order for details')+'</div><br><a href="https://uplyncio.com/publisher" style="background:#f59e0b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">Review & Resubmit →</a>'; },
+    icon: '📝', color: '#d97706', label: 'Improvement Requested'
+  },
+  new_message: {
+    wa: function(name, o, msg){ return 'Hi *'+name+'*! 💬\n\nYou have a *new message* from a client on Uplyncio.\n\n📋 *Order:* #'+o.taskId+'\n🌐 *Site:* '+o.siteUrl+'\n\n💬 *Message:* '+(msg||'Check your inbox for the message')+'\n\nReply in your Uplyncio inbox.\n\n🔗 uplyncio.com/publisher'; },
+    email_subj: 'New Message from Client — #',
+    email_body: function(name, o, msg){ return 'Hello <strong>'+name+'</strong>,<br><br>You have received a <strong>new message</strong> from a client on Uplyncio.<br><br>📋 Order: <strong>#'+o.taskId+'</strong><br>🌐 Site: <strong>'+o.siteUrl+'</strong><br><br>💬 <strong>Message:</strong><br><div style="background:#f0f4ff;border-left:3px solid #4f7cff;padding:10px 14px;border-radius:4px;margin:10px 0">'+(msg||'Check your inbox')+'</div><br><a href="https://uplyncio.com/publisher" style="background:#4f7cff;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700">Reply in Inbox →</a>'; },
+    icon: '💬', color: '#4f7cff', label: 'New Message'
+  }
+};
+
+function sendNotification(type, order, extra){
+  try{
+    var ns   = JSON.parse(localStorage.getItem('uplyncio_notif')||'{}');
+    var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var name = sett['settName']||'Publisher';
+    var conf = notifTypes[type];
+    if(!conf || (!ns.whatsapp && !ns.email)) return;
+
+    var waText    = conf.wa(name, order, extra);
+    var emailBody = conf.email_body(name, order, extra);
+
+    // Show preview popup bottom-left
+    var popup = document.createElement('div');
+    popup.setAttribute('style','position:fixed;bottom:24px;left:24px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;max-width:340px;z-index:99999;box-shadow:0 12px 40px rgba(0,0,0,.18);animation:slideIn .3s ease');
+    
+    var closeBtn = '<button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8;font-weight:700">✕</button>';
+
+    // WA preview
+    var waHtml = '';
+    if(ns.whatsapp){
+      waHtml = '<div style="padding:12px 14px;border-bottom:1px solid #f1f5f9">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/></svg>'+
+          '</div>'+
+          '<div>'+
+            '<div style="font-size:12px;font-weight:800;color:#0f172a">Uplyncio</div>'+
+            '<div style="font-size:10px;color:#94a3b8">WhatsApp Business · +'+ns.whatsapp+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="background:#e7ffd1;border-radius:0 10px 10px 10px;padding:10px 12px;font-size:12px;color:#0f172a;line-height:1.65;white-space:pre-wrap">'+waText.replace(/\*/g,'')+'</div>'+
+        '<div style="font-size:10px;color:#94a3b8;text-align:right;margin-top:4px">info@uplyncio.com</div>'+
+      '</div>';
+    }
+
+    // Email preview
+    var emailHtml = '';
+    if(ns.email){
+      emailHtml = '<div style="padding:12px 14px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:'+conf.color+';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">'+conf.icon+'</div>'+
+          '<div>'+
+            '<div style="font-size:12px;font-weight:800;color:#0f172a">Email: '+conf.email_subj+'#'+order.taskId+'</div>'+
+            '<div style="font-size:10px;color:#94a3b8">From: Uplyncio &lt;info@uplyncio.com&gt; → '+ns.email+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#475569;line-height:1.6">'+emailBody+'</div>'+
+      '</div>';
+    }
+
+    popup.innerHTML =
+      '<div style="background:'+conf.color+';padding:10px 14px;display:flex;align-items:center;gap:8px">'+
+        '<span style="font-size:16px">'+conf.icon+'</span>'+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:800;color:#fff">'+conf.label+'</div>'+
+          '<div style="font-size:10px;color:rgba(255,255,255,.75)">Notification sent via Uplyncio</div>'+
+        '</div>'+
+      '</div>'+
+      closeBtn+
+      waHtml+
+      emailHtml;
+
+    document.body.appendChild(popup);
+    setTimeout(function(){ if(popup.parentElement) popup.remove(); }, 10000);
+
+  }catch(e){ console.error('Notification error:',e); }
+}
+
+// Keep old function name for backward compat
+function sendOrderNotification(order){
+  sendNotification('new_order', order);
+}
+
+function toggleNotif(toggle){
+  var thumb = toggle.querySelector('div');
+  var isOn = toggle.style.background==='rgb(34, 197, 94)'||toggle.style.background==='#22c55e';
+  if(isOn){
+    toggle.style.background='#94a3b8';
+    if(thumb) thumb.style.left='3px';
+  } else {
+    toggle.style.background='#22c55e';
+    if(thumb) thumb.style.left='21px';
+  }
+}
+
+function checkVerification(){
+  var required = ['settName','settPhone','settCountry','settState','settCity','settAddr','settZip'];
+  var paypal = document.getElementById('settPaypal');
+  var usdt = document.getElementById('settUsdt');
+  var hasPayment = (paypal && paypal.value.trim()) || (usdt && usdt.value.trim());
+  var allFilled = required.every(function(id){
+    var el = document.getElementById(id);
+    return el && el.value.trim();
+  }) && hasPayment;
+
+  var vBadge = document.getElementById('verifiedBadge');
+  var uBadge = document.getElementById('unverifiedBadge');
+  if(allFilled){
+    if(vBadge) vBadge.style.display='flex';
+    if(uBadge) uBadge.style.display='none';
+  } else {
+    if(vBadge) vBadge.style.display='none';
+    if(uBadge) uBadge.style.display='flex';
+  }
+}
+
+function saveSettings(){
+  var fields = ['settName','settPhone','settCountry','settState','settCity','settAddr','settApt','settZip','settPaypal','settUsdt','settEmail'];
+  fields.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) settingsData[id] = el.value;
+  });
+  try{ localStorage.setItem('uplyncio_settings', JSON.stringify(settingsData)); }catch(e){}
+
+  // Update txn billing details with new info
+  var nameEl = document.getElementById('settName');
+  var emailEl = document.getElementById('settEmail');
+  var phoneEl = document.getElementById('settPhone');
+  var stateEl = document.getElementById('settState');
+  var cityEl  = document.getElementById('settCity');
+  var addrEl  = document.getElementById('settAddr');
+  var aptEl   = document.getElementById('settApt');
+  var zipEl   = document.getElementById('settZip');
+  var cntryEl = document.getElementById('settCountry');
+
+  // Update billing panel elements if they exist
+  var names = document.querySelectorAll('#txnDetailModal [data-field]');
+  names.forEach(function(el){
+    var f = el.getAttribute('data-field');
+    var val = settingsData['sett'+f.charAt(0).toUpperCase()+f.slice(1)];
+    if(val) el.textContent = val;
+  });
+
+  checkVerification();
+
+  // Update profile dropdown + avatar
+  var nameVal  = settingsData['settName']||'Publisher';
+  var emailVal = settingsData['settEmail']||'Not set';
+  var pn = document.getElementById('profileName');
+  var pe = document.getElementById('profileEmail');
+  var av = document.getElementById('profileAvatar');
+  if(pn) pn.textContent = nameVal;
+  if(pe) pe.textContent = emailVal;
+  if(av){
+    var parts = nameVal.trim().split(' ');
+    var initials = parts.length>=2 ? parts[0][0]+parts[parts.length-1][0] : nameVal.slice(0,2);
+    av.textContent = initials.toUpperCase();
+  }
+
+  // Show verified badge on email if filled
+  var evb = document.getElementById('emailVerifiedBadge');
+  if(evb) evb.style.display = emailVal&&emailVal!=='Not set' ? 'inline' : 'none';
+
+  var status = document.getElementById('settSaveStatus');
+  if(status){
+    status.style.display='block';
+    setTimeout(function(){ status.style.display='none'; }, 3000);
+  }
+  toast('✅ Settings saved successfully!','#16a34a');
+}
+
+function editField(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.focus();
+  el.select();
+  el.style.borderColor = 'var(--ac)';
+}
+
+
+// ── REAL 2FA TOTP SYSTEM ──
+var _2faSecret = '';
+
+function toggleTwoFa(){
+  var toggle = document.getElementById('twoFaToggle');
+  var isOn = toggle && toggle.style.background === 'rgb(34, 197, 94)' || 
+             (toggle && toggle.getAttribute('data-on') === '1');
+  
+  if(isOn){
+    // Turn OFF - confirm first
+    if(!confirm('Disable Two-Factor Authentication? This will make your account less secure.')) return;
+    toggle.style.background = '#e2e8f0';
+    toggle.style.setProperty('--tw', '3px');
+    toggle.setAttribute('data-on','0');
+    if(toggle.firstElementChild) toggle.firstElementChild.style.left = '3px';
+    // Save disabled state
+    try{
+      var uid = localStorage.getItem('uplyncio_currentUid')||'';
+      var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      ud.twoFaEnabled = false; ud.twoFaSecret = '';
+      localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
+    }catch(e){}
+    showToast('🔓 Two-Factor Authentication disabled');
+  } else {
+    // Start 2FA setup
+    open2FASetup();
+  }
+}
+
+function open2FASetup(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  var email = user.email || 'user@uplyncio.com';
+  
+  // Show setup modal
+  var modal = document.getElementById('twoFaModal');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  
+  // Reset to step 1
+  show2FAStep(1);
+  
+  // Generate secret via API
+  document.getElementById('twoFaQR').src = '';
+  document.getElementById('twoFaQR').style.display = 'none';
+  document.getElementById('twoFaLoading').style.display = 'flex';
+  document.getElementById('twoFaSecret').textContent = 'Generating...';
+  
+  fetch('/api/2fa', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'generate', email:email})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){
+      _2faSecret = d.secret;
+      document.getElementById('twoFaSecret').textContent = d.secret;
+      document.getElementById('twoFaQR').src = d.qrUrl;
+      document.getElementById('twoFaQR').onload = function(){
+        document.getElementById('twoFaLoading').style.display = 'none';
+        document.getElementById('twoFaQR').style.display = 'block';
+      };
+    }
+  })
+  .catch(function(e){
+    document.getElementById('twoFaLoading').style.display = 'none';
+    document.getElementById('twoFaSecret').textContent = 'Error generating secret. Retry.';
+  });
+}
+
+function show2FAStep(n){
+  [1,2].forEach(function(i){
+    var el = document.getElementById('twoFaStep'+i);
+    if(el) el.style.display = i===n ? 'block' : 'none';
+  });
+}
+
+function verify2FACode(){
+  var code = (document.getElementById('twoFaCode')||{value:''}).value.trim().replace(/\s/g,'');
+  var errEl = document.getElementById('twoFaErr');
+  
+  if(code.length !== 6 || !/^\d+$/.test(code)){
+    if(errEl) errEl.textContent = '⚠️ Please enter the 6-digit code from your authenticator app';
+    return;
+  }
+  
+  var btn = document.getElementById('twoFaVerifyBtn');
+  if(btn){ btn.textContent = 'Verifying...'; btn.disabled = true; }
+  
+  fetch('/api/2fa', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'verify', secret:_2faSecret, token:code})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.valid){
+      // Save 2FA enabled
+      try{
+        var uid = localStorage.getItem('uplyncio_currentUid')||'';
+        var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+        ud.twoFaEnabled = true; ud.twoFaSecret = _2faSecret;
+        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
+      }catch(e){}
+      // Update toggle
+      var toggle = document.getElementById('twoFaToggle');
+      if(toggle){
+        toggle.style.background = '#22c55e';
+        toggle.setAttribute('data-on','1');
+        if(toggle.firstElementChild) toggle.firstElementChild.style.left = '21px';
+      }
+      close2FAModal();
+      showToast('🔐 Two-Factor Authentication enabled successfully!');
+    } else {
+      if(errEl) errEl.textContent = '❌ Invalid code. Please try again.';
+      if(btn){ btn.textContent = 'Verify & Enable'; btn.disabled = false; }
+    }
+  })
+  .catch(function(){
+    if(errEl) errEl.textContent = '⚠️ Verification failed. Check your connection.';
+    if(btn){ btn.textContent = 'Verify & Enable'; btn.disabled = false; }
+  });
+}
+
+function close2FAModal(){
+  var m = document.getElementById('twoFaModal');
+  if(m) m.style.display = 'none';
+  document.body.style.overflow = '';
+  var code = document.getElementById('twoFaCode');
+  if(code) code.value = '';
+  var err = document.getElementById('twoFaErr');
+  if(err) err.textContent = '';
+}
+
+function copy2FASecret(){
+  var s = document.getElementById('twoFaSecret');
+  if(s && navigator.clipboard){
+    navigator.clipboard.writeText(s.textContent);
+    showToast('Secret key copied!');
+  }
+}
+
+// Load 2FA state on settings open
+function load2FAState(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    var toggle = document.getElementById('twoFaToggle');
+    if(toggle && ud.twoFaEnabled){
+      toggle.style.background = '#22c55e';
+      toggle.setAttribute('data-on','1');
+      if(toggle.firstElementChild) toggle.firstElementChild.style.left = '21px';
+    } else if(toggle){
+      toggle.style.background = '#e2e8f0';
+      toggle.setAttribute('data-on','0');
+      if(toggle.firstElementChild) toggle.firstElementChild.style.left = '3px';
+    }
+  }catch(e){}
+}
+
+function linkGoogle(){
+  openOAuthModal('google');
+}
+function linkFacebook(){
+  openOAuthModal('facebook');
+}
+
+function openOAuthModal(provider){
+  var modal = document.getElementById('oauthModal');
+  var title = document.getElementById('oauthTitle');
+  var icon  = document.getElementById('oauthIcon');
+  var btn   = document.getElementById('oauthContinueBtn');
+  var desc  = document.getElementById('oauthDesc');
+  var perms = document.getElementById('oauthPerms');
+
+  if(provider==='google'){
+    title.textContent = 'Sign in with Google';
+    icon.innerHTML = '<svg width="32" height="32" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>';
+    desc.textContent = 'Connect your Google account to Uplyncio Publisher Portal';
+    perms.innerHTML =
+      '<div style="font-size:12px;color:#475569;margin-bottom:8px;font-weight:600">Uplyncio will receive:</div>'+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your name and profile photo</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your email address</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Basic account info</div>'+
+      '</div>';
+    btn.style.background = '#4285F4';
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google';
+    btn.onclick = function(){ connectOAuth('google'); };
+  } else {
+    title.textContent = 'Connect with Facebook';
+    icon.innerHTML = '<svg width="32" height="32" viewBox="0 0 48 48"><path fill="#1877F2" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/><path fill="#fff" d="M33.334 30.938L34.397 24H27.75v-4.477c0-1.9.928-3.75 3.906-3.75h3.023V9.871s-2.745-.469-5.367-.469c-5.474 0-9.053 3.318-9.053 9.328V24h-6.094v6.938H20.25V47.708a24.21 24.21 0 003.75.292 24.21 24.21 0 003.75-.292V30.937h5.584z"/></svg>';
+    desc.textContent = 'Connect your Facebook account to Uplyncio Publisher Portal';
+    perms.innerHTML =
+      '<div style="font-size:12px;color:#475569;margin-bottom:8px;font-weight:600">Uplyncio will receive:</div>'+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your name and profile photo</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Your email address</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155"><span style="color:#16a34a">✓</span> Public profile info</div>'+
+      '</div>';
+    btn.style.background = '#1877F2';
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/></svg> Continue with Facebook';
+    btn.onclick = function(){ connectOAuth('facebook'); };
+  }
+
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function closeOAuthModal(){
+  document.getElementById('oauthModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function connectOAuth(provider){
+  var btn = document.getElementById('oauthContinueBtn');
+  btn.innerHTML = '⏳ Opening...';
+  btn.style.opacity = '.8';
+  btn.disabled = true;
+
+  var w = 500, h = 600;
+  var left = (screen.width/2)-(w/2);
+  var top  = (screen.height/2)-(h/2);
+  var features = 'width='+w+',height='+h+',top='+top+',left='+left+',toolbar=no,menubar=no,scrollbars=yes,resizable=yes';
+
+  var popup;
+  if(provider==='google'){
+    // Real Google OAuth URL — replace CLIENT_ID with your Google App Client ID
+    var CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+    var REDIRECT  = encodeURIComponent(window.location.href.split('?')[0]);
+    var scope     = encodeURIComponent('openid email profile');
+    var googleUrl = 'https://accounts.google.com/o/oauth2/v2/auth'
+      +'?client_id='+CLIENT_ID
+      +'&redirect_uri='+REDIRECT
+      +'&response_type=token'
+      +'&scope='+scope
+      +'&prompt=select_account';
+    popup = window.open(googleUrl, 'GoogleLogin', features);
+  } else {
+    // Real Facebook OAuth URL — replace APP_ID with your Facebook App ID
+    var APP_ID    = 'YOUR_FACEBOOK_APP_ID';
+    var REDIRECT2 = encodeURIComponent(window.location.href.split('?')[0]);
+    var fbUrl = 'https://www.facebook.com/v18.0/dialog/oauth'
+      +'?client_id='+APP_ID
+      +'&redirect_uri='+REDIRECT2
+      +'&scope=email,public_profile'
+      +'&response_type=token';
+    popup = window.open(fbUrl, 'FacebookLogin', features);
+  }
+
+  // Poll popup for result
+  var timer = setInterval(function(){
+    try{
+      if(!popup || popup.closed){
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        if(provider==='google'){
+          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.02 17.74 9.5 24 9.5z"/><path fill="#fff" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#fff" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#fff" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.52-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google';
+        } else {
+          btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#fff" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.937h-6.094V24H20.25v-5.27c0-6.01 3.579-9.328 9.053-9.328 2.622 0 5.367.469 5.367.469v5.902h-3.023c-2.979 0-3.906 1.85-3.906 3.75V24h6.656l-1.063 6.938H27.75V47.708C39.224 45.908 48 35.979 48 24z"/></svg> Continue with Facebook';
+        }
+        return;
+      }
+      // Check URL for token/code
+      var url = popup.location.href;
+      if(url && (url.includes('access_token') || url.includes('code='))){
+        clearInterval(timer);
+        popup.close();
+        closeOAuthModal();
+        onOAuthSuccess(provider);
+      }
+      // Check for cancellation/error
+      if(url && url.includes('error=')){
+        clearInterval(timer);
+        popup.close();
+        btn.disabled=false; btn.style.opacity='1';
+        toast('Connection cancelled.','#64748b');
+      }
+    }catch(e){
+      // Cross-origin — popup is on OAuth page, keep polling
+    }
+  }, 500);
+}
+
+function onOAuthSuccess(provider){
+  if(provider==='google'){
+    var gBtn = document.getElementById('googleBtn');
+    if(gBtn) gBtn.outerHTML = '<div id="googleBtn" onclick="unlinkGoogle()" style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:#15803d;cursor:pointer">Connected ✓</div>';
+  } else {
+    var fBtn = document.getElementById('fbBtn');
+    if(fBtn){ fBtn.textContent='Connected ✓'; fBtn.style.background='#e7f3ff'; fBtn.style.color='#1877F2'; fBtn.style.border='1px solid #bfdbfe'; fBtn.disabled=false; fBtn.style.opacity='1'; fBtn.onclick=function(){unlinkFacebook();}; }
+  }
+  toast('✅ '+(provider==='google'?'Google':'Facebook')+' account connected!','#16a34a');
+}
+
+function unlinkGoogle(){
+  if(!confirm('Unlink Google account?')) return;
+  var gBtn = document.getElementById('googleBtn');
+  if(gBtn) gBtn.outerHTML = '<button id="googleBtn" onclick="linkGoogle()" style="background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Link Account</button>';
+  toast('Google account unlinked.','#64748b');
+}
+
+function unlinkFacebook(){
+  if(!confirm('Unlink Facebook account?')) return;
+  var fBtn = document.getElementById('fbBtn');
+  if(fBtn){ fBtn.textContent='Link Account'; fBtn.style.background='#0f172a'; fBtn.style.color='#fff'; fBtn.style.border='none'; fBtn.onclick=function(){linkFacebook();}; }
+  toast('Facebook account unlinked.','#64748b');
+}
+
+
+// ── RATING & REVIEWS — LIVE PERFORMANCE ──
+var publisherReviews = [];
+var removedLinks = 0; // tracks how many links were removed
+
+function showRating(){
+  saveState("rating");
+  hideAllPages();
+  var rp=document.getElementById('ratingPage');
+  if(rp) rp.style.display='block';
+  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  renderRatingPage();
+}
+
+function renderRatingPage(){
+  // Publisher name
+  try{
+    var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var ne=document.getElementById('ratingName');
+    if(ne&&s['settName']) ne.textContent=s['settName'];
+  }catch(e){}
+
+  if(!Array.isArray(sampleOrders)) sampleOrders=[];
+
+  var total     = sampleOrders.length;
+  var completed = sampleOrders.filter(function(o){return o.status==='completed';}).length;
+  var rejected  = sampleOrders.filter(function(o){return o.status==='rejected';}).length;
+  var accepted  = sampleOrders.filter(function(o){return o.status!=='acceptance';}).length;
+
+  // COMPLETION RATE: completed / accepted * 100 (min 0)
+  var compRate = accepted>0 ? Math.min(100, Math.max(0, (completed/accepted)*100)) : 100;
+
+  // LINK LIFETIME: each removed link reduces by (1/completed)*100
+  var lifeRate = completed>0 ? Math.max(0, 100 - (removedLinks/completed)*100) : 100;
+
+  // AVG CLIENT RATING: from reviews
+  var avgRating = 5.0;
+  if(publisherReviews.length>0){
+    var sum=publisherReviews.reduce(function(a,r){return a+(r.stars||5);},0);
+    avgRating = sum/publisherReviews.length;
+  }
+
+  // OVERALL SCORE: weighted average
+  var overallScore = Math.max(0, Math.min(5, (
+    (compRate/100)*2.0 +
+    (lifeRate/100)*1.5 +
+    (avgRating/5)*1.5
+  )));
+
+  // Stars HTML
+  var fullStars = Math.floor(overallScore);
+  var hasHalf   = (overallScore-fullStars)>=0.5;
+  var starsHtml = '';
+  for(var i=0;i<5;i++){
+    if(i<fullStars) starsHtml+='⭐';
+    else if(i===fullStars&&hasHalf) starsHtml+='<span style="opacity:.5">⭐</span>';
+    else starsHtml+='<span style="opacity:.2">⭐</span>';
+  }
+
+  // Update score card
+  var scoreEl=document.getElementById('ratingScore');
+  if(scoreEl) scoreEl.textContent=overallScore.toFixed(1);
+  var starsEl=document.getElementById('ratingStars');
+  if(starsEl) starsEl.innerHTML=starsHtml;
+  var cntEl=document.getElementById('ratingCount');
+  if(cntEl) cntEl.textContent=publisherReviews.length+' review'+(publisherReviews.length!==1?'s':'');
+
+  // Bar graphs
+  var setBar=function(barId,pctId,pct,color){
+    var b=document.getElementById(barId);
+    var p=document.getElementById(pctId);
+    if(b) b.style.width=pct+'%';
+    if(b) b.style.background=pct>=80?color:'#ef4444';
+    if(p) p.textContent=Math.round(pct)+'%';
+  };
+  setBar('barCompletion','barCompPct',compRate,'#4ade80');
+  setBar('barLifetime','barLifePct',lifeRate,'#60a5fa');
+  setBar('barRating','barRatingPct',(avgRating/5)*100,'#f59e0b');
+
+  // 3 stats
+  var compColor = compRate>=80?'#16a34a':compRate>=60?'#d97706':'#ef4444';
+  var lifeColor = lifeRate>=80?'#2563eb':lifeRate>=60?'#d97706':'#ef4444';
+  var domColor  = avgRating>=4?'#d97706':avgRating>=3?'#64748b':'#ef4444';
+
+  var ce=document.getElementById('ratingCompletion');
+  if(ce){ ce.innerHTML=Math.floor(compRate)+'<span style="font-size:16px">.'+(compRate%1).toFixed(2).slice(2)+'%</span>'; ce.style.color=compColor; }
+  var cb=document.getElementById('compBar');
+  if(cb){ cb.style.width=compRate+'%'; cb.style.background=compColor; }
+  var ci=document.getElementById('compInfo');
+  if(ci) ci.textContent = rejected>0?(rejected+' order'+(rejected>1?'s':'')+' rejected'):'All orders completed';
+
+  var le=document.getElementById('ratingLifetime');
+  if(le){ le.innerHTML=Math.floor(lifeRate)+'<span style="font-size:16px">.'+(lifeRate%1).toFixed(2).slice(2)+'%</span>'; le.style.color=lifeColor; }
+  var lb=document.getElementById('lifeBar');
+  if(lb){ lb.style.width=lifeRate+'%'; lb.style.background=lifeColor; }
+  var li=document.getElementById('lifeInfo');
+  if(li) li.textContent = removedLinks>0?(removedLinks+' link'+(removedLinks>1?'s':'')+' removed — balance deducted'):'All links active';
+
+  var de=document.getElementById('ratingDomain');
+  if(de){ de.innerHTML=avgRating.toFixed(1)+'<span style="font-size:16px"> / 5</span>'; de.style.color=domColor; }
+  var db=document.getElementById('domBar');
+  if(db){ db.style.width=((avgRating/5)*100)+'%'; db.style.background=domColor; }
+  var di=document.getElementById('domInfo');
+  if(di) di.textContent = publisherReviews.length>0?(publisherReviews.length+' review'+(publisherReviews.length>1?'s':'')):'No ratings yet';
+
+  renderReviews();
+}
+
+function simulateLinkRemoval(){
+  if(!Array.isArray(sampleOrders)) return;
+  var comp = sampleOrders.filter(function(o){return o.status==='completed';});
+  if(comp.length===0){ toast('No completed orders to simulate link removal.','#64748b'); return; }
+
+  var order = comp[Math.floor(Math.random()*comp.length)];
+  removedLinks++;
+
+  // Deduct order amount from balance
+  order.linkRemoved = true;
+  var deduction = order.price;
+  // Add penalty transaction
+  sampleOrders.push({
+    id:'penalty_'+Date.now(), taskId:'PENALTY', type:'Penalty',
+    service:'Link Removal Penalty', siteUrl:order.siteUrl,
+    price:-deduction, status:'rejected',
+    createdAt:new Date().toISOString(), updatedAt:new Date().toISOString(),
+    statusHistory:[{status:'rejected',timestamp:new Date().toISOString(),note:'Link removed from '+order.siteUrl+'. $'+deduction+' deducted from balance.'}],
+    chat:[], isLinkPenalty:true
+  });
+  OrderManager.save(sampleOrders);
+
+  renderRatingPage();
+  updateBalance();
+  toast('⚠️ Link removed from '+order.siteUrl+'! $'+deduction+' deducted from balance. Link Lifetime rate dropped.','#ef4444');
+}
+
+function renderReviews(){
+  var listEl  = document.getElementById('reviewsList');
+  var emptyEl = document.getElementById('reviewsEmpty');
+  var header  = document.getElementById('reviewsHeader');
+  if(!listEl) return;
+
+  // Load reviews from localStorage + order completions
+  try{
+    var saved = localStorage.getItem('uplyncio_reviews');
+    if(saved) publisherReviews = JSON.parse(saved);
+  }catch(e){}
+
+  // Add auto reviews from completed orders
+  if(Array.isArray(sampleOrders)){
+    sampleOrders.forEach(function(o){
+      if(o.status==='completed' && !publisherReviews.find(function(r){return r.orderId===o.id;})){
+        var autoReviews = [
+          {emoji:'😍', label:'Excellent', text:'Great work! Article was published quickly and the link is exactly as requested.'},
+          {emoji:'😍', label:'Excellent', text:'A polished posting that was promptly indexed. Highly recommend this publisher!'},
+          {emoji:'😊', label:'Good', text:'Good quality article, delivered on time. Will order again.'},
+          {emoji:'😍', label:'Excellent', text:'Instant service and great communication throughout the process.'},
+        ];
+        var r = autoReviews[Math.floor(Math.random()*autoReviews.length)];
+        publisherReviews.push({
+          orderId: o.id, taskId: o.taskId, site: o.siteUrl,
+          emoji: r.emoji, label: r.label, text: r.text,
+          date: o.updatedAt||new Date().toISOString(),
+          reviewer: 'Advertiser'
+        });
+      }
+    });
+    try{ localStorage.setItem('uplyncio_reviews', JSON.stringify(publisherReviews)); }catch(e){}
+  }
+
+  if(header) header.textContent = "Advertisers' reviews ("+publisherReviews.length+")";
+
+  if(publisherReviews.length===0){
+    if(emptyEl) emptyEl.style.display='block';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display='none';
+
+  var reviewsHtml = publisherReviews.slice().reverse().map(function(r){
+    var labelColor = r.label==='Excellent'?'#4f46e5':r.label==='Good'?'#0369a1':'#64748b';
+    var labelBg    = r.label==='Excellent'?'#ede9fe':r.label==='Good'?'#e0f2fe':'#f1f5f9';
+    return '<div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:18px 20px;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">'+
+        '<div style="width:44px;height:44px;border-radius:12px;background:'+labelBg+';display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+r.emoji+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">'+
+            '<span style="background:'+labelBg+';color:'+labelColor+';font-size:12px;font-weight:800;padding:3px 12px;border-radius:100px">'+r.label+'</span>'+
+          '</div>'+
+          '<div style="font-size:12px;color:var(--mu)">'+r.reviewer+' · '+fmtDateShort(r.date)+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;font-size:11px;color:var(--mu)">Order #'+r.taskId+'<br>'+r.site+'</div>'+
+      '</div>'+
+      '<div style="font-size:13.5px;color:var(--t2);line-height:1.7">'+r.text+'</div>'+
+    '</div>';
+  }).join('');
+
+  listEl.innerHTML = (emptyEl ? emptyEl.outerHTML : '') + reviewsHtml;
+  if(emptyEl) document.getElementById('reviewsEmpty').style.display='none';
+}
+
+function toggleRatingAccordion(){
+  var body  = document.getElementById('ratingAccordionBody');
+  var arrow = document.getElementById('ratingArrow');
+  if(body.style.display==='none'){
+    body.style.display='block';
+    if(arrow) arrow.textContent='－';
+  } else {
+    body.style.display='none';
+    if(arrow) arrow.textContent='＋';
+  }
+}
+
+function openPublisherRules(){
+  document.getElementById('publisherRulesModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closePublisherRules(){
+  document.getElementById('publisherRulesModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+
+// ── REFERRAL PROGRAM ──
+function hideAllPages(){
+  // Hide all special pages
+  ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.style.display='none';
+  });
+  // Hide onboarding steps
+  for(var i=1;i<=5;i++){var el=document.getElementById('s'+i);if(el)el.style.display='none';}
+  // Hide sites dashboard
+  var sd=document.getElementById('sitesList'); if(sd) sd.style.display='none';
+  var se=document.getElementById('emptyState'); if(se) se.style.display='none';
+}
+
+function setActiveSidebar(text){
+  document.querySelectorAll('.si').forEach(function(s){
+    s.classList.remove('on');
+    if(s.textContent.trim().includes(text)) s.classList.add('on');
+  });
+}
+
+function showReferral(){
+  saveState("referral");
+  hideAllPages();
+  var rfp=document.getElementById('referralPage');
+  if(rfp) rfp.style.display='block';
+  setActiveSidebar('Referral');
+  loadReferralPage();
+}
+
+function setTrendTab(el, tab){
+  document.querySelectorAll('#trendingPage .opill').forEach(function(t){
+    t.style.border='1px solid var(--br)'; t.style.background='var(--wh)'; t.style.color='var(--t2)'; t.style.borderWidth='1px';
+  });
+  el.style.border='2px solid var(--ac)'; el.style.background='#f0f4ff'; el.style.color='var(--ac)';
+  renderTrending(tab);
+}
+
+var trendingSites = [
+  {rank:1, url:'techbullion.com', da:72, dr:68, traffic:'48K', price:120, orders:47, cat:'Tech'},
+  {rank:2, url:'finextra.com', da:78, dr:74, traffic:'95K', price:200, orders:38, cat:'Finance'},
+  {rank:3, url:'hackernoon.com', da:88, dr:85, traffic:'320K', price:300, orders:35, cat:'Tech'},
+  {rank:4, url:'healthline.com', da:94, dr:91, traffic:'8.5M', price:700, orders:29, cat:'Health'},
+  {rank:5, url:'startupbonsai.com', da:61, dr:58, traffic:'32K', price:90, orders:26, cat:'Business'},
+  {rank:6, url:'entrepreneur.com', da:92, dr:89, traffic:'4.2M', price:650, orders:24, cat:'Business'},
+  {rank:7, url:'coindesk.com', da:91, dr:88, traffic:'2.8M', price:580, orders:22, cat:'Finance'},
+  {rank:8, url:'webmd.com', da:95, dr:92, traffic:'12M', price:900, orders:19, cat:'Health'},
+  {rank:9, url:'searchengineland.com', da:87, dr:83, traffic:'1.1M', price:420, orders:18, cat:'Tech'},
+  {rank:10, url:'forbes.com', da:95, dr:93, traffic:'85M', price:1200, orders:15, cat:'Business'},
+];
+
+function renderTrending(filter){
+  var el = document.getElementById('trendingList');
+  if(!el) return;
+  var filtered = filter==='all' ? trendingSites : trendingSites.filter(function(s){ return s.cat.toLowerCase()===filter; });
+  if(filtered.length===0){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--mu)">No sites found in this category</div>'; return; }
+  el.innerHTML='';
+  filtered.forEach(function(s,i){
+    var row = document.createElement('div');
+    row.style.cssText = 'padding:13px 20px;border-bottom:1px solid #f1f5f9;display:grid;grid-template-columns:40px 2fr 80px 80px 80px 80px 100px;gap:12px;align-items:center;transition:background .15s';
+    row.onmouseenter = function(){ this.style.background='#f8faff'; };
+    row.onmouseleave = function(){ this.style.background=''; };
+    row.innerHTML =
+      '<div style="font-size:14px;font-weight:800;color:'+(i<3?'#f59e0b':'#94a3b8')+'">'+s.rank+'</div>'+
+      '<div style="font-size:13.5px;font-weight:700;color:var(--ac)">'+s.url+'</div>'+
+      '<div><span style="background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">'+s.da+'</span></div>'+
+      '<div><span style="background:#ccfbf1;color:#0d9488;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">'+s.dr+'</span></div>'+
+      '<div style="font-size:12px;color:var(--t2)">'+s.traffic+'</div>'+
+      '<div style="font-size:14px;font-weight:800;color:var(--tx)">$'+s.price+'</div>'+
+      '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">🔥</span><span style="font-size:13px;font-weight:700;color:var(--tx)">'+s.orders+'</span><span style="font-size:11px;color:var(--mu)"> this week</span></div>';
+    el.appendChild(row);
+  });
+}
+
+// Init trending on first load
+setTimeout(function(){ renderTrending('all'); }, 100);
+
+function loadReferralPage(){
+  // Generate unique ref link from task ID or random
+  try{
+    var ns = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var name = (ns['settName']||'').replace(/\s+/g,'-').toLowerCase()||'publisher';
+  }catch(e){ var name='publisher'; }
+  var refCode = 'REF'+Math.abs(name.charCodeAt(0)||65)*137%9000+1000;
+  var refUrl  = 'https://uplyncio.com/ref/'+refCode;
+  var el = document.getElementById('refLink');
+  if(el) el.textContent = refUrl;
+  // Store code
+  window._refCode = refCode;
+  window._refUrl  = refUrl;
+}
+
+function copyRefLink(){
+  var url = window._refUrl||'https://uplyncio.com/ref/';
+  navigator.clipboard.writeText(url).then(function(){
+    var btn = document.getElementById('copyRefBtn');
+    if(btn){ btn.textContent='✅ Copied!'; btn.style.background='#16a34a'; }
+    setTimeout(function(){
+      if(btn){ btn.textContent='📋 Copy Link'; btn.style.background='#4f7cff'; }
+    }, 2500);
+  }).catch(function(){
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('✅ Referral link copied!','#16a34a');
+  });
+}
+
+function shareRef(platform){
+  var url = window._refUrl||'https://uplyncio.com/ref/';
+  var msg = 'Join Uplyncio — the professional guest posting platform! List your sites and earn money from advertisers worldwide. Sign up using my referral link: '+url;
+  var shareUrl = '';
+  if(platform==='whatsapp'){
+    shareUrl = 'https://wa.me/?text='+encodeURIComponent(msg);
+  } else if(platform==='email'){
+    shareUrl = 'mailto:?subject=Join Uplyncio Publisher Network&body='+encodeURIComponent(msg);
+  } else if(platform==='linkedin'){
+    shareUrl = 'https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url);
+  }
+  if(shareUrl) window.open(shareUrl,'_blank');
+}
+
+
+// Initialization handled by DOMContentLoaded above
+
+function downloadTemplate(){
+  window.open('https://docs.google.com/spreadsheets/d/1XVWW_4o2MKhir3PZFVKnKyp0iSuXll48x-_TWHuB2eQ/edit?gid=1138458576#gid=1138458576','_blank');
+}
+
+// ── ORDERS SYSTEM ──
+var currentOTab='all';
+
+// ── ORDER MANAGER — Persistent Storage ──
+var OrderManager = {
+
+  // Generate unique Task ID: UPL-YYYYMMDD-XXXX
+  generateTaskId: function(){
+    // Check existing IDs to avoid duplicates
+    var existing = [];
+    try{
+      var data = localStorage.getItem('uplyncio_orders');
+      if(data) existing = JSON.parse(data).map(function(o){return o.taskId;});
+    }catch(e){}
+    var id;
+    do {
+      var rand = Math.floor(1000+Math.random()*9000);
+      id = 'OR'+rand;
+    } while(existing.indexOf(id)>-1);
+    return id;
+  },
+
+  // Save all orders to localStorage
+  save: function(orders){
+    try{
+      localStorage.setItem('uplyncio_orders', JSON.stringify(orders));
+      localStorage.setItem('uplyncio_orders_updated', new Date().toISOString());
+    }catch(e){ console.error('Save failed:',e); }
+  },
+
+  // Load orders from localStorage
+  load: function(){
+    try{
+      var data = localStorage.getItem('uplyncio_orders');
+      return data ? JSON.parse(data) : null;
+    }catch(e){ return null; }
+  },
+
+  // Add new order with auto task ID
+  create: function(orderData){
+    var order = Object.assign({}, orderData, {
+      id: 'order_'+Date.now(),
+      taskId: this.generateTaskId(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      statusHistory: [{
+        status: orderData.status||'acceptance',
+        timestamp: new Date().toISOString(),
+        note: 'Order received'
+      }]
+    });
+    return order;
+  },
+
+  // Update order status with history
+  updateStatus: function(orders, orderId, newStatus, note){
+    var order = orders.find(function(o){return o.id===orderId;});
+    if(!order) return orders;
+    order.status = newStatus;
+    order.updatedAt = new Date().toISOString();
+    if(!order.statusHistory) order.statusHistory=[];
+    order.statusHistory.push({
+      status: newStatus,
+      timestamp: new Date().toISOString(),
+      note: note||''
+    });
+    this.save(orders);
+    return orders;
+  },
+
+  // Save article content
+  saveContent: function(orders, orderId, content, publishedUrl){
+    var order = orders.find(function(o){return o.id===orderId;});
+    if(!order) return orders;
+    order.articleContent = content;
+    if(publishedUrl) order.publishedUrl = publishedUrl;
+    order.updatedAt = new Date().toISOString();
+    this.save(orders);
+    return orders;
+  }
+};
+
+// Load or init orders — clear old data if IDs have old format
+// Load orders from current user's personal storage (not global)
+var _uid = localStorage.getItem('uplyncio_currentUid')||'';
+var _rawData = null;
+if(_uid){
+  var _userData = JSON.parse(localStorage.getItem('uplyncio_data_'+_uid)||'null');
+  if(_userData && Array.isArray(_userData.orders) && _userData.orders.length>0){
+    _rawData = _userData.orders;
+  } else {
+    _rawData = []; // New user — empty orders
+  }
+  // Reload mySites for this user
+  if(_userData && Array.isArray(_userData.sites)){
+    mySites = _userData.sites;
+    console.log('[Uplyncio] Loaded', mySites.length, 'sites for uid:', _uid);
+  }
+}
+if(_rawData && _rawData[0] && _rawData[0].taskId && _rawData[0].taskId.indexOf('UPL-')===0){
+  localStorage.removeItem('uplyncio_orders');
+  _rawData = null;
+}
+// Always ensure sampleOrders is a valid array
+var sampleOrders = (Array.isArray(_rawData) && _rawData.length > 0) ? _rawData : null;
+if(_rawData !== null && Array.isArray(_rawData)){
+  sampleOrders = _rawData;
+} else {
+  sampleOrders = [];
+}
+if(false && !sampleOrders){
+  sampleOrders = [
+    OrderManager.create({
+      type:'Article Posting', service:'Content placement',
+      siteUrl:'techbullion.com', promotedUrl:'example.com/landing-page',
+      anchor:'best SEO tools 2026', price:120, status:'acceptance',
+      notes:'Please publish within 3 days. Article attached.',
+      contentSize:'500 words', specialTopic:'No',
+      requirements:'Content provided in a Google Doc. Anchor text and links must be exactly as specified and must be dofollow. Please let me know if there are any problems.',
+      articleLink:'https://docs.google.com/document/d/1-CPQeHKldpq-_-s5K8YDtyNb49twWzkgWprbpRJ-gl4/edit?usp=sharing',
+      articleContent:'', publishedUrl:''
+    }),
+    OrderManager.create({
+      type:'Article Posting', service:'Writing & placement',
+      siteUrl:'finextra.com', promotedUrl:'fintech-startup.com/home',
+      anchor:'fintech payment solutions', price:200, status:'progress',
+      notes:'', contentSize:'1000 words', specialTopic:'No',
+      requirements:'Please write a unique article about fintech payment solutions. Include the anchor text naturally. No promotional tone.',
+      articleLink:'', articleContent:'', publishedUrl:''
+    }),
+    OrderManager.create({
+      type:'Link Insertion', service:'Link insertion',
+      siteUrl:'hackernoon.com', promotedUrl:'saas-tool.com/features',
+      anchor:'productivity software', price:80, status:'completed',
+      notes:'', contentSize:'N/A', specialTopic:'No',
+      requirements:'Insert the link into an existing relevant article about productivity or software tools.',
+      articleLink:'', articleContent:'Link inserted successfully.',
+      publishedUrl:'https://hackernoon.com/top-productivity-tools'
+    }),
+    OrderManager.create({
+      type:'Article Posting', service:'Writing & placement',
+      siteUrl:'startupbonsai.com', promotedUrl:'crm-software.io',
+      anchor:'best CRM tools', price:90, status:'completed',
+      notes:'', contentSize:'800 words', specialTopic:'No',
+      requirements:'Write about CRM software benefits for small businesses.',
+      articleLink:'', articleContent:'Article published.',
+      publishedUrl:'https://startupbonsai.com/best-crm-tools-2026'
+    }),
+    OrderManager.create({
+      type:'Article Posting', service:'Content placement',
+      siteUrl:'techbullion.com', promotedUrl:'marketing-tool.com',
+      anchor:'email marketing platform', price:120, status:'rejected',
+      notes:'Content did not meet editorial guidelines.',
+      contentSize:'500 words', specialTopic:'No',
+      requirements:'Place the provided article on your site.',
+      articleLink:'', articleContent:'', publishedUrl:''
+    }),
+  ];
+  // Fix dates to look realistic
+  var daysAgo = [1,2,5,10,12];
+  if(Array.isArray(sampleOrders)){
+    sampleOrders.forEach(function(o,i){
+      var d = new Date();
+      d.setDate(d.getDate()-(daysAgo[i]||1));
+      o.createdAt = d.toISOString();
+      o.updatedAt = d.toISOString();
+      if(o.statusHistory && o.statusHistory[0]) o.statusHistory[0].timestamp = d.toISOString();
+    });
+  }
+  OrderManager.save(sampleOrders);
+}
+
+// Format date helper
+function fmtDate(iso){
+  if(!iso) return '';
+  var d = new Date(iso);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+
+    ' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtDateShort(iso){
+  if(!iso) return '';
+  try{
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  }catch(e){return '';}
+}
+
+var statusConfig={
+  acceptance:{label:'Your Acceptance',bg:'#fef3c7',color:'#d97706',icon:'⏳'},
+  review:    {label:'Task Review',    bg:'#e0e7ff',color:'#4f7cff',icon:'🔍'},
+  progress:  {label:'In Progress',    bg:'#dbeafe',color:'#2563eb',icon:'⚙️'},
+  approval:  {label:'Approval',       bg:'#f3e8ff',color:'#9333ea',icon:'✋'},
+  improvement:{label:'Improvement',   bg:'#fef3c7',color:'#d97706',icon:'📝'},
+  guarantee: {label:'Guarantee',      bg:'#e0f2fe',color:'#0369a1',icon:'🛡️'},
+  completed: {label:'Completed',      bg:'#dcfce7',color:'#16a34a',icon:'✅'},
+  rejected:  {label:'Rejected',       bg:'#fee2e2',color:'#ef4444',icon:'❌'},
+  archived:  {label:'Archived',       bg:'#f1f5f9',color:'#64748b',icon:'📦'},
+};
+
+function showOrders(){
+  saveState("orders");
+  hideAllPages();
+  var op=document.getElementById('ordersPage');
+  if(op){ op.style.display='block'; }
+  setActiveSidebar('Orders');
+  renderOrders();
+  if(Array.isArray(sampleOrders)){
+    var newOrders=sampleOrders.filter(function(o){return o.status==='acceptance';});
+    if(newOrders.length>0) sendOrderNotification(newOrders[0]);
+  }
+}
+
+function showMain(){
+  // Always reload sites from localStorage to prevent data loss
+  mySites = loadSites();
+  saveState("main",{step:1});
+  // Hide all special pages
+  ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.style.display='none';
+  });
+  go(1);
+  document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
+  document.querySelector('.si').classList.add('on');
+  // Always render sites so empty state shows correctly
+  renderSites();
+}
+
+function showTrending(){
+  saveState("trending");
+  hideAllPages();
+  var tp=document.getElementById('trendingPage');
+  if(tp) tp.style.display='block';
+  setActiveSidebar('Trending');
+  renderTrending('all');
+}
+
+function setOTab(el,tab){
+  saveState("orders",{oTab:tab});
+  document.querySelectorAll('.opill').forEach(function(t){
+    t.style.border='1px solid var(--br)';
+    t.style.background='var(--wh)';
+    t.style.color='var(--t2)';
+    t.classList.remove('on');
+  });
+  el.style.border='2px solid var(--ac)';
+  el.style.background='#f0f4ff';
+  el.style.color='var(--ac)';
+  el.classList.add('on');
+  currentOTab=tab;renderOrders();
+}
+
+function updateOrderCounts(){
+  if(!Array.isArray(sampleOrders)) return;
+  document.getElementById('oTabAll').textContent=sampleOrders.length;
+  document.getElementById('oTabAcc').textContent=sampleOrders.filter(function(o){return o.status==='acceptance';}).length;
+  document.getElementById('oTabDone').textContent=sampleOrders.filter(function(o){return o.status==='completed';}).length;
+  document.getElementById('oTabRej').textContent=sampleOrders.filter(function(o){return o.status==='rejected';}).length;
+}
+
+function renderOrders(){
+  if(!Array.isArray(sampleOrders)) sampleOrders=[];
+  updateOrderCounts();
+  var q1=(document.getElementById('oFilterUrl')||{value:''}).value.toLowerCase();
+  var q2=(document.getElementById('oFilterPromoted')||{value:''}).value.toLowerCase();
+  var q3=(document.getElementById('oFilterAnchor')||{value:''}).value.toLowerCase();
+  var filtered=sampleOrders.filter(function(o){
+    if(q1&&!o.siteUrl.toLowerCase().includes(q1))return false;
+    if(q2&&!o.promotedUrl.toLowerCase().includes(q2))return false;
+    if(q3&&!o.anchor.toLowerCase().includes(q3))return false;
+    if(currentOTab!=='all'&&o.status!==currentOTab)return false;
+    return true;
+  });
+  var el=document.getElementById('ordersList');
+  if(!el)return;
+  if(filtered.length===0){
+    el.innerHTML='<div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:56px;text-align:center"><div style="font-size:44px;margin-bottom:14px">📦</div><div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:6px">No orders found</div><div style="font-size:13px;color:var(--t2)">New orders from advertisers will appear here</div></div>';
+    return;
+  }
+  el.innerHTML=filtered.map(function(o){
+    var sc=statusConfig[o.status]||statusConfig.review;
+    var actionBtns='';
+    if(o.status==='acceptance'){
+      actionBtns='<button onclick="acceptOrder(\''+o.id+'\')" style="background:var(--ac);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">✓ Accept</button><button onclick="rejectOrder(\''+o.id+'\')" style="background:#fef2f2;border:1px solid #fecaca;color:#ef4444;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-left:6px">✕ Reject</button>';
+    } else if(o.status==='progress'){
+      actionBtns='<button onclick="markDone(\''+o.id+'\')" style="background:#16a34a;color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✓ Mark as Done</button>';
+    }
+    return '<div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);margin-bottom:12px;overflow:hidden;transition:box-shadow .2s" onmouseover="this.style.boxShadow=\'0 4px 16px rgba(0,0,0,.07)\'" onmouseout="this.style.boxShadow=\'none\'">' +
+
+    '<div style="padding:12px 20px;border-bottom:1px solid #f1f5f9;background:#fafbff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+        '<span style="font-size:12px;font-weight:700;color:var(--mu)">'+o.type+'</span>'+
+        '<span style="width:4px;height:4px;border-radius:50%;background:var(--mu);display:inline-block"></span>'+
+        '<span style="font-size:12px;color:var(--mu)">'+o.service+'</span>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        actionBtns+
+        '<span style="background:'+sc.bg+';color:'+sc.color+';font-size:12px;font-weight:700;padding:5px 14px;border-radius:100px">'+sc.icon+' '+sc.label+'</span>'+
+        '<button onclick="openChat(\''+o.id+'\')" title="Chat" style="background:#f0f4ff;border:1px solid #c7d7ff;color:var(--ac);border-radius:7px;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;position:relative">💬'+(o.unreadChat?'<span style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>':'')+'</button>'+
+        '<button onclick="openOrderDetail(\''+o.id+'\')" title="Details" style="background:#f1f5f9;border:1px solid var(--br);color:var(--t2);border-radius:7px;width:32px;height:32px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center">•••</button>'+
+      '</div>'+
+    '</div>'+
+
+    '<div style="padding:18px 20px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:20px;align-items:start">'+
+      '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Order ID</div>'+
+        '<div style="font-size:15px;font-weight:800;color:var(--ac)">#'+o.taskId+'</div>'+
+        '<div style="font-size:11px;color:var(--mu);margin-top:3px">'+o.date+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Your Site</div>'+
+        '<div style="font-size:14px;font-weight:700;color:var(--ac)">'+o.siteUrl+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Promoted URL</div>'+
+        '<div style="font-size:13px;font-weight:600;color:var(--tx);word-break:break-all;line-height:1.4">'+o.promotedUrl+'</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Anchor Text</div>'+
+        '<div style="font-size:13px;font-weight:600;color:var(--tx)">'+o.anchor+'</div>'+
+      '</div>'+
+      '<div style="text-align:right">'+
+        '<div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Price</div>'+
+        '<div style="font-family:Manrope,sans-serif;font-size:24px;font-weight:900;color:var(--tx)">$'+o.price+'</div>'+
+      '</div>'+
+    '</div>'+
+
+    (o.notes?'<div style="padding:0 20px 14px"><div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:9px 14px;font-size:12.5px;color:#92400e;display:flex;align-items:flex-start;gap:8px"><span>📌</span><span>'+o.notes+'</span></div></div>':'')+
+
+    '</div>';
+  }).join('');
+}
+
+function acceptOrder(id){
+  sampleOrders=OrderManager.updateStatus(sampleOrders,id,'progress','Order accepted by publisher');
+  renderOrders();updateBalance();
+  toast('✅ Order accepted! Now In Progress.','#16a34a');
+}
+function rejectOrder(id){
+  if(!confirm('Reject this order?'))return;
+  var o=sampleOrders.find(function(x){return x.id===id;});
+  if(!o)return;
+  o.status='rejected';renderOrders();
+}
+function markDone(id){
+  sampleOrders=OrderManager.updateStatus(sampleOrders,id,'approval','Sent for client approval');
+  renderOrders();updateBalance();
+  toast('✅ Sent for approval!','#4f7cff');
+  setTimeout(function(){openClientReview(id);},800);
+}
+var currentOrderId = null;
+
+function openOrderDetail(id){
+  var o = sampleOrders.find(function(x){return x.id===id;});
+  if(!o) return;
+  currentOrderId = id;
+  var sc = statusConfig[o.status]||statusConfig.review;
+
+  document.getElementById('odType').textContent = o.type;
+  document.getElementById('odService').textContent = o.service;
+  document.getElementById('odId').textContent = '#'+o.taskId;
+  document.getElementById('odDate').textContent = fmtDate(o.createdAt);
+  document.getElementById('odSite').textContent = o.siteUrl;
+  document.getElementById('odPromoted').textContent = o.promotedUrl;
+  document.getElementById('odAnchor').textContent = o.anchor;
+  document.getElementById('odPrice').textContent = '$'+o.price;
+  document.getElementById('odSize').textContent = o.contentSize||'500 words';
+  document.getElementById('odTopic').textContent = o.specialTopic||'No';
+  document.getElementById('odStatusLabel').innerHTML = '<span style="background:'+sc.bg+';color:'+sc.color+';font-size:12px;font-weight:700;padding:4px 12px;border-radius:100px">'+sc.icon+' '+sc.label+'</span>';
+  document.getElementById('odReqs').textContent = o.requirements||'No special requirements.';
+
+  // Article link
+  var lb = document.getElementById('odLinkBox');
+  var la = document.getElementById('odLink');
+  var laOpen = document.getElementById('odLinkOpen');
+  if(o.articleLink){
+    lb.style.display='flex';
+    la.href = o.articleLink;
+    la.textContent = o.articleLink;
+    if(laOpen){ laOpen.href=o.articleLink; }
+  } else {
+    lb.style.display='none';
+  }
+
+  // Published URL section
+  var pubSec = document.getElementById('odPublishedSection');
+  var pubInput = document.getElementById('odPublishedUrl');
+  if(o.status==='completed'||o.status==='approval'||o.status==='guarantee'||o.status==='progress'){
+    if(pubSec) pubSec.style.display='block';
+    if(pubInput) pubInput.value = o.publishedUrl||'';
+  } else {
+    if(pubSec) pubSec.style.display='none';
+  }
+
+  // Status history
+  var hist = document.getElementById('odHistory');
+  if(hist && o.statusHistory && o.statusHistory.length){
+    var hconf = {
+      acceptance:{label:'Your Acceptance',color:'#d97706',bg:'#fef3c7'},
+      review:{label:'Task Review',color:'#4f7cff',bg:'#e0e7ff'},
+      progress:{label:'In Progress',color:'#2563eb',bg:'#dbeafe'},
+      approval:{label:'Approval',color:'#9333ea',bg:'#f3e8ff'},
+      improvement:{label:'Improvement',color:'#d97706',bg:'#fef3c7'},
+      guarantee:{label:'Guarantee',color:'#0369a1',bg:'#e0f2fe'},
+      completed:{label:'Completed',color:'#16a34a',bg:'#dcfce7'},
+      rejected:{label:'Rejected',color:'#ef4444',bg:'#fee2e2'},
+    };
+    hist.innerHTML = o.statusHistory.slice().reverse().map(function(h){
+      var hc = hconf[h.status]||{label:h.status,color:'#64748b',bg:'#f1f5f9'};
+      return '<div style="display:flex;align-items:flex-start;gap:12px;padding:8px 12px;background:#f8faff;border-radius:8px;border:1px solid #e2e8f0">'+
+        '<span style="background:'+hc.bg+';color:'+hc.color+';font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap;flex-shrink:0">'+hc.label+'</span>'+
+        '<div style="flex:1">'+
+          (h.note?'<div style="font-size:12px;color:#475569">'+h.note+'</div>':'')+'</div>'+
+        '<div style="font-size:11px;color:#94a3b8;white-space:nowrap;flex-shrink:0">'+fmtDate(h.timestamp)+'</div>'+
+      '</div>';
+    }).join('');
+  } else if(hist){
+    hist.innerHTML='<div style="font-size:12px;color:#94a3b8">No history yet.</div>';
+  }
+
+  // Article content
+  var ab = document.getElementById('odArticleBox');
+  ab.innerHTML = o.articleContent||'';
+  updateWordCount();
+
+  // Show/hide action buttons based on status
+  var actions = document.getElementById('odActions');
+  var acceptBtn = document.getElementById('odAcceptBtn');
+  var rejectBtn = document.getElementById('odRejectBtn');
+  if(o.status==='acceptance'){
+    actions.style.display='flex';
+    acceptBtn.style.display='flex';
+    rejectBtn.style.display='flex';
+  } else if(o.status==='progress'||o.status==='improvement'){
+    actions.style.display='flex';
+    acceptBtn.textContent = o.status==='improvement'?'↻ Resubmit':'✓ Mark as Done';
+    acceptBtn.style.background = o.status==='improvement'?'#d97706':'#16a34a';
+    acceptBtn.onclick = o.status==='improvement'?function(){odResubmit();}:function(){odMarkDone();};
+    rejectBtn.style.display='none';
+  } else {
+    actions.style.display='none';
+  }
+
+  var scrollW=window.innerWidth-document.documentElement.clientWidth;
+  document.body.style.paddingRight=scrollW+'px';
+  document.body.style.overflow='hidden';
+  document.documentElement.style.overflow='hidden';
+  document.getElementById('orderDetailModal').style.display='flex';
+}
+
+function closeOrderDetail(){
+  var m=document.getElementById('orderDetailModal');
+  m.style.display='none';
+  document.documentElement.style.overflow='';
+  document.body.style.overflow='';
+  document.body.style.paddingRight='';
+  currentOrderId=null;
+}
+
+function saveArticleContent(){
+  if(!currentOrderId) return;
+  var content = document.getElementById('odArticleBox').innerHTML;
+  sampleOrders = OrderManager.saveContent(sampleOrders, currentOrderId, content);
+}
+
+function savePublishedUrl(){
+  if(!currentOrderId) return;
+  var url = document.getElementById('odPublishedUrl').value.trim();
+  sampleOrders = OrderManager.saveContent(sampleOrders, currentOrderId, null, url);
+  toast('🌐 Published URL saved!','#16a34a');
+}
+// sendForApproval defined in new JS block above
+
+function odAccept(){
+  if(!currentOrderId) return;
+  saveArticleContent();
+  sampleOrders = OrderManager.updateStatus(sampleOrders, currentOrderId, 'progress', 'Order accepted by publisher');
+  closeOrderDetail();
+  renderOrders();
+  toast('✅ Order accepted! Now In Progress.','#16a34a');
+}
+
+function odReject(){
+  if(!currentOrderId) return;
+  if(!confirm('Reject this order? This will be recorded in the order history.')) return;
+  sampleOrders = OrderManager.updateStatus(sampleOrders, currentOrderId, 'rejected', 'Order rejected by publisher');
+  closeOrderDetail();
+  renderOrders();
+  toast('Order rejected and recorded.','#ef4444');
+}
+
+function odMarkDone(){
+  if(!currentOrderId) return;
+  saveArticleContent();
+  var pubUrl = document.getElementById('odPublishedUrl').value.trim();
+  if(!pubUrl){ alert('Please enter the published URL first!'); return; }
+  sampleOrders = OrderManager.saveContent(sampleOrders, currentOrderId, null, pubUrl);
+  sampleOrders = OrderManager.updateStatus(sampleOrders, currentOrderId, 'approval', 'Content published at: '+pubUrl);
+  var oid = currentOrderId;
+  closeOrderDetail();
+  renderOrders();
+  updateBalance();
+  toast('✅ Sent for approval! Client can now review.','#4f7cff');
+  setTimeout(function(){ openClientReview(oid); }, 800);
+}
+
+function odResubmit(){
+  if(!currentOrderId) return;
+  saveArticleContent();
+  sampleOrders = OrderManager.updateStatus(sampleOrders, currentOrderId, 'approval', 'Improvement done, resubmitted for approval');
+  closeOrderDetail();
+  renderOrders();
+  toast('↻ Resubmitted for approval!','#d97706');
+}
+
+function odFormat(cmd){
+  document.getElementById('odArticleBox').focus();
+  document.execCommand(cmd,false,null);
+  updateWordCount();
+}
+
+function copyArticle(){
+  var box = document.getElementById('odArticleBox');
+  var text = box.innerText||box.textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    toast('📋 Article copied to clipboard!','#16a34a');
+  });
+}
+
+function updateWordCount(){
+  var box = document.getElementById('odArticleBox');
+  var text = (box.innerText||box.textContent||'').trim();
+  var words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+  var wc = document.getElementById('odWordCount');
+  if(wc) wc.textContent = words+' words';
+  // Auto-save content
+  if(currentOrderId && text){
+    clearTimeout(window._autoSaveTimer);
+    window._autoSaveTimer = setTimeout(function(){
+      saveArticleContent();
+    }, 1500);
+  }
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var ab=document.getElementById('odArticleBox');
+  if(ab) ab.addEventListener('input',updateWordCount);
+});
+
+function resubmit(id){
+  var o=sampleOrders.find(function(x){return x.id===id;});
+  if(!o)return;
+  o.status='approval';renderOrders();
+  toast('↻ Resubmitted for approval!','#d97706');
+}
+function toast(msg,bg){
+  var el=document.createElement('div');
+  el.setAttribute('style','position:fixed;bottom:24px;right:24px;background:'+bg+';color:#fff;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:320px;line-height:1.5');
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.remove();},3000);
+}
+</script>
+
+<!-- INBOX + CHAT SPLIT VIEW -->
+<div id="inboxModal" style="display:none;position:fixed;inset:0;background:#fff;z-index:10000;flex-direction:row;overflow:hidden">
+  
+  <!-- LEFT: Conversations List -->
+  <div style="width:340px;flex-shrink:0;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;height:100vh">
+    <!-- Header -->
+    <div style="padding:18px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff">
+      <div>
+        <div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#0f172a">Inbox <span id="inboxCount" style="font-size:13px;font-weight:600;color:#94a3b8"></span></div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px">All order conversations</div>
+      </div>
+      <button onclick="closeInbox()" style="width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center" title="Close">✕</button>
+    </div>
+    <!-- Search -->
+    <div style="padding:10px 14px;border-bottom:1px solid #f1f5f9;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px">
+        <span style="color:#94a3b8;font-size:14px">🔍</span>
+        <input id="inboxSearch" type="text" placeholder="Search conversations..." oninput="renderInboxList()" style="border:none;outline:none;font-size:13px;font-family:inherit;color:#0f172a;background:transparent;width:100%">
+      </div>
+    </div>
+    <!-- List -->
+    <div id="inboxList" style="flex:1;overflow-y:auto"></div>
+  </div>
+
+  <!-- RIGHT: Chat View -->
+  <div style="flex:1;display:flex;flex-direction:column;height:100vh;background:#f8faff">
+    <!-- Empty state -->
+    <div id="inboxChatEmpty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8">
+      <div style="font-size:56px;margin-bottom:16px">💬</div>
+      <div style="font-size:16px;font-weight:700;color:#475569;margin-bottom:6px">Select a conversation</div>
+      <div style="font-size:13px">Click on an order from the left to open the chat</div>
+    </div>
+    <!-- Chat Panel (hidden until selected) -->
+    <div id="inboxChatPanel" style="display:none;flex-direction:column;height:100vh">
+      <!-- Chat Header -->
+      <div style="padding:14px 24px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">C</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#0f172a" id="inboxChatTitle"></div>
+            <div style="font-size:11px;color:#94a3b8" id="inboxChatSubtitle"></div>
+          </div>
+        </div>
+        <div id="inboxChatStatus" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px"></div>
+      </div>
+      <!-- Messages -->
+      <div id="inboxChatMessages" style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:12px"></div>
+      <!-- Input -->
+      <div id="inboxChatInputArea" style="padding:14px 24px;border-top:1px solid #e2e8f0;background:#fff;flex-shrink:0">
+        <!-- File upload row -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <button onclick="document.getElementById('inboxFileInput').click()" style="display:flex;align-items:center;gap:5px;background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📎 Attach File</button>
+          <input type="file" id="inboxFileInput" style="display:none" onchange="attachFile(this)">
+          <span id="inboxFileName" style="font-size:12px;color:#64748b"></span>
+        </div>
+        <!-- Message input -->
+        <div style="display:flex;gap:8px">
+          <input id="inboxChatInput" type="text" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendInboxMsg()" style="flex:1;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#0f172a;transition:border-color .2s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+          <button onclick="sendInboxMsg()" style="background:#4f7cff;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send</button>
+        </div>
+      </div>
+      <!-- Locked state -->
+      <div id="inboxChatLocked" style="display:none;padding:14px 24px;border-top:1px solid #e2e8f0;background:#f8faff;text-align:center;color:#94a3b8;font-size:13px;font-weight:600">
+        🔒 Chat closed — this order has been completed
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CHAT MODAL (standalone from order card) -->
+<div id="chatModal" style="display:none;position:fixed;inset:0;background:#fff;z-index:9999;flex-direction:row;overflow:hidden">
+  
+  <!-- LEFT: Order info sidebar -->
+  <div style="width:280px;flex-shrink:0;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;height:100vh;background:#fafbff">
+    <div style="padding:18px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:Manrope,sans-serif;font-size:15px;font-weight:800;color:#0f172a">Order Chat</div>
+      <button onclick="closeChat()" style="width:28px;height:28px;border-radius:50%;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:15px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <!-- Order details in sidebar -->
+    <div style="padding:16px 20px;flex:1;overflow-y:auto">
+      <div id="chatSidebarContent" style="display:flex;flex-direction:column;gap:14px"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Chat -->
+  <div style="flex:1;display:flex;flex-direction:column;height:100vh">
+    <!-- Chat Header -->
+    <div style="padding:14px 24px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;flex-shrink:0">
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff">C</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#0f172a" id="chatOrderTitle"></div>
+        <div style="font-size:11px;color:#94a3b8" id="chatOrderId"></div>
+      </div>
+    </div>
+    <!-- Messages -->
+    <div id="chatMessages" style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:12px;background:#f8faff"></div>
+    <!-- Input -->
+    <div id="chatInputWrap" style="padding:14px 24px;border-top:1px solid #e2e8f0;background:#fff;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <button onclick="document.getElementById('chatFileInput').click()" style="display:flex;align-items:center;gap:5px;background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📎 Attach</button>
+        <input type="file" id="chatFileInput" style="display:none" onchange="chatAttachFile(this)">
+        <span id="chatFileName" style="font-size:12px;color:#64748b"></span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input id="chatInput" type="text" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendChatMsg()" style="flex:1;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#0f172a" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+        <button onclick="sendChatMsg()" style="background:#4f7cff;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send</button>
+      </div>
+    </div>
+    <div id="chatLockedBar" style="display:none;padding:12px 24px;border-top:1px solid #e2e8f0;background:#f8faff;text-align:center;color:#94a3b8;font-size:13px;font-weight:600;flex-shrink:0">
+      🔒 Chat closed — order completed
+    </div>
+  </div>
+</div>
+
+<!-- IMPROVEMENT MODAL -->
+<div id="improvementModal" onclick="if(event.target===this)closeImprovement()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;justify-content:center;align-items:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:520px;box-shadow:0 32px 80px rgba(0,0,0,.25);overflow:hidden">
+    <div style="padding:18px 24px;background:#fffbeb;border-bottom:1px solid #fde68a;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">📝</span>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#0f172a">Request Improvement</div>
+          <div style="font-size:11px;color:#92400e" id="impOrderId"></div>
+        </div>
+      </div>
+      <button onclick="closeImprovement()" style="width:30px;height:30px;border-radius:50%;border:1px solid #fde68a;background:#fff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">What needs to be improved?</label>
+      <textarea id="improvementNote" placeholder="e.g. Please fix the anchor text, the keyword used is wrong. Also the article needs to be longer..." style="width:100%;height:140px;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical;color:#0f172a;line-height:1.7" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="closeImprovement()" style="flex:1;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#64748b">Cancel</button>
+        <button onclick="submitImprovement()" style="flex:2;background:#f59e0b;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Improvement Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT REVIEW MODAL (simulated) -->
+<div id="clientReviewModal" onclick="if(event.target===this)closeClientReview()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:9999;justify-content:center;align-items:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:540px;box-shadow:0 32px 80px rgba(0,0,0,.25);overflow:hidden">
+    <div style="padding:18px 24px;background:#f0fdf4;border-bottom:1px solid #86efac;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">👁️</span>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#0f172a">Client Review</div>
+          <div style="font-size:11px;color:#15803d" id="crOrderId">Simulating client dashboard</div>
+        </div>
+      </div>
+      <button onclick="closeClientReview()" style="width:30px;height:30px;border-radius:50%;border:1px solid #86efac;background:#fff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="padding:24px">
+      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Published Article URL</div>
+        <a id="crPublishedUrl" href="#" target="_blank" style="font-size:14px;font-weight:600;color:#4f7cff;word-break:break-all"></a>
+      </div>
+      <div style="font-size:13px;color:#475569;margin-bottom:20px;line-height:1.6">The publisher has submitted the order for your review. Please check the published article and choose an action below.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <button onclick="clientComplete()" style="background:#16a34a;color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">✅ Mark Complete</button>
+        <button onclick="openImprovementFromClient()" style="background:#fff;border:1.5px solid #fde68a;color:#d97706;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">📝 Request Improvement</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TXN DETAIL PANEL (inline below row, like ss2) -->
+<div id="txnDetailModal" onclick="if(event.target===this)closeTxnDetail()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:9999;justify-content:center;align-items:center;backdrop-filter:blur(3px)">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:700px;box-shadow:0 24px 60px rgba(0,0,0,.2);overflow:hidden">
+
+    <!-- Header -->
+    <div style="padding:16px 24px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;background:#fafbff">
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#0f172a" id="tdTitle"></div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:2px" id="tdDate"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Amount</div>
+          <div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:900" id="tdAmount"></div>
+        </div>
+        <button onclick="closeTxnDetail()" style="width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+    </div>
+
+    <!-- Transaction Info -->
+    <div style="padding:16px 24px;border-bottom:1px solid #f1f5f9">
+      <div style="font-size:12px;color:#475569;line-height:1.7" id="tdDesc"></div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;font-weight:700;color:#94a3b8">Running Balance:</span>
+        <span style="font-size:13px;font-weight:800;color:#0f172a" id="tdBal"></span>
+      </div>
+    </div>
+
+    <!-- Billing Details -->
+    <div style="padding:16px 24px">
+      <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:16px">Billing Details</div>
+
+      <!-- Contact Person -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">The Contact Person</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Full Name</div>
+            <div id="bdName" style="font-size:14px;font-weight:700;color:#0f172a">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Email</div>
+            <div id="bdEmail" style="font-size:13px;font-weight:600;color:#0f172a">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Phone Number</div>
+            <div id="bdPhone" style="font-size:13px;font-weight:600;color:#0f172a">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:#f1f5f9;margin-bottom:16px"></div>
+
+      <!-- Address -->
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#94a3b8;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Address</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:14px">
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">State / Region</div>
+            <div id="bdState" style="font-size:13px;font-weight:700;color:#0f172a">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">City / Town</div>
+            <div id="bdCity" style="font-size:13px;font-weight:700;color:#0f172a">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Address</div>
+            <div id="bdAddr" style="font-size:13px;font-weight:700;color:#0f172a;line-height:1.5">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Apt / Suite</div>
+            <div id="bdApt" style="font-size:13px;font-weight:700;color:#94a3b8;font-style:italic">not provided</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Zip / Postal Code</div>
+            <div id="bdZip" style="font-size:13px;font-weight:700;color:#0f172a">—</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:3px">Country</div>
+            <div id="bdCountry" style="font-size:13px;font-weight:700;color:#0f172a">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit link -->
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;color:#94a3b8">Info from your Account Settings</span>
+        <button onclick="closeTxnDetail();showSettings()" style="font-size:12px;font-weight:700;color:var(--ac);background:none;border:none;cursor:pointer;font-family:inherit">✏️ Edit Info</button>
+      </div>
+    </div>
+
+  </div>
+</div><!-- OAUTH MODAL -->
+<div id="oauthModal" onclick="if(event.target===this)closeOAuthModal()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:99999;justify-content:center;align-items:center;backdrop-filter:blur(6px)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:420px;box-shadow:0 32px 80px rgba(0,0,0,.25);overflow:hidden;position:relative">
+
+    <button onclick="closeOAuthModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center;z-index:1">✕</button>
+
+    <!-- Provider icon + title -->
+    <div style="padding:28px 28px 0;display:flex;flex-direction:column;align-items:center;text-align:center">
+      <div id="oauthIcon" style="margin-bottom:12px"></div>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">connecting to</div>
+      <div style="display:flex;align-items:center;gap:7px;background:#f0f4ff;border:1px solid #c7d7ff;border-radius:100px;padding:6px 14px;margin-bottom:16px">
+        <span style="font-size:14px">🔗</span>
+        <span style="font-size:13px;font-weight:800;color:#4f7cff">Uplyncio Publisher Portal</span>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:4px" id="oauthTitle"></div>
+      <div style="font-size:13px;color:#64748b;margin-bottom:16px" id="oauthDesc"></div>
+    </div>
+
+    <!-- Permissions box -->
+    <div style="margin:0 28px 16px;background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:14px" id="oauthPerms"></div>
+
+    <!-- Divider -->
+    <div style="display:flex;align-items:center;gap:10px;padding:0 28px;margin-bottom:16px">
+      <div style="flex:1;height:1px;background:#e2e8f0"></div>
+      <span style="font-size:11px;color:#94a3b8;white-space:nowrap">A secure popup window will open</span>
+      <div style="flex:1;height:1px;background:#e2e8f0"></div>
+    </div>
+
+    <!-- Main continue button -->
+    <div style="padding:0 28px 12px">
+      <button id="oauthContinueBtn" style="width:100%;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s"></button>
+    </div>
+
+    <!-- Terms -->
+    <div style="text-align:center;padding:0 28px 24px;font-size:11px;color:#94a3b8;line-height:1.6">
+      By connecting, you agree to Uplyncio's <a href="#" style="color:#4f7cff;text-decoration:none">Terms of Service</a> and <a href="#" style="color:#4f7cff;text-decoration:none">Privacy Policy</a>
+    </div>
+  </div>
 </div>
 
 
-<!-- SITE FOOTER -->
-<div id="siteFooter" style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:52px 48px 0;font-family:'Plus Jakarta Sans',sans-serif;box-sizing:border-box;margin-left:210px"><div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)"><div><a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg><span style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span></a><p style="font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px">Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches.</p><div style="display:flex;gap:9px"><a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">in</a><a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">fb</a><a href="https://www.instagram.com/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">ig</a><a href="https://wa.me/923001234567" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">wa</a></div></div><div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Services</h4><ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:11px"><a href="guest-posting.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Guest Posting</a></li><li style="margin-bottom:11px"><a href="link-building.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Link Building</a></li><li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">Press Release</a></li><li style="margin-bottom:11px"><a href="content-writing.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Content Writing</a></li><li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">High DA Links</a></li><li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">White Label</a></li></ul></div><div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Company</h4><ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:11px"><a href="about.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">About Us</a></li><li style="margin-bottom:11px"><a href="blog.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Blog</a></li><li style="margin-bottom:11px"><a href="case-studies.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Case Studies</a></li><li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Contact Us</a></li><li style="margin-bottom:11px"><a href="publisher.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Become a Publisher</a></li><li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">Affiliate Program</a></li></ul></div><div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Support</h4><ul style="list-style:none;padding:0;margin:0"><li style="margin-bottom:11px"><a href="faq.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">FAQ</a></li><li style="margin-bottom:11px"><a href="refund.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Refund Policy</a></li><li style="margin-bottom:11px"><a href="privacy.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Privacy Policy</a></li><li style="margin-bottom:11px"><a href="terms.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Terms of Service</a></li><li style="margin-bottom:11px"><a href="https://wa.me/923001234567" style="color:#8892a4;text-decoration:none;font-size:13.5px">Live Chat</a></li><li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Contact Us</a></li></ul></div></div><div style="max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between"><p style="font-size:12.5px;color:#4a5568;margin:0">© 2026 Uplyncio. All rights reserved.</p><div style="display:flex;gap:8px"><div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">PayPal</div><div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Wise</div><div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">USDT</div><div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Bank Transfer</div></div></div></div>
+
+<!-- 2FA SETUP MODAL -->
+<div id="twoFaModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:99999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.2);animation:menuFade .22s ease">
+    
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1a202c,#2d3748);padding:22px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:38px;height:38px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🔐</div>
+        <div>
+          <div style="color:#fff;font-family:Manrope,sans-serif;font-size:16px;font-weight:800">Two-Factor Authentication</div>
+          <div style="color:rgba(255,255,255,.5);font-size:11.5px;margin-top:2px">Secure your account with an authenticator app</div>
+        </div>
+      </div>
+      <button onclick="close2FAModal()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:14px">✕</button>
+    </div>
+
+    <!-- Step 1: Scan QR -->
+    <div id="twoFaStep1" style="padding:24px">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:13.5px;font-weight:700;color:#1a202c;margin-bottom:6px">Step 1: Scan QR Code</div>
+        <div style="font-size:12.5px;color:#64748b;line-height:1.6">Open <strong>Google Authenticator</strong>, <strong>Authy</strong>, or any TOTP app and scan this QR code</div>
+      </div>
+      
+      <!-- QR Code -->
+      <div style="display:flex;justify-content:center;margin-bottom:16px;position:relative">
+        <div id="twoFaLoading" style="width:200px;height:200px;background:#f8faff;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed #e2e8f0">
+          <div style="text-align:center;color:#94a3b8;font-size:12px">⏳ Generating QR...</div>
+        </div>
+        <img id="twoFaQR" src="" alt="QR Code" style="display:none;width:200px;height:200px;border-radius:12px;border:3px solid #f1f5f9">
+      </div>
+      
+      <!-- Manual secret -->
+      <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:20px">
+        <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Can't scan? Enter this key manually:</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <code id="twoFaSecret" style="font-size:13px;font-weight:700;color:#1a202c;letter-spacing:2px;flex:1;word-break:break-all">Generating...</code>
+          <button onclick="copy2FASecret()" style="padding:5px 10px;background:#4f7cff;color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Copy</button>
+        </div>
+      </div>
+      
+      <button onclick="show2FAStep(2)" style="width:100%;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+        I've scanned the code → Next
+      </button>
+    </div>
+
+    <!-- Step 2: Verify Code -->
+    <div id="twoFaStep2" style="display:none;padding:24px">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:40px;margin-bottom:12px">📱</div>
+        <div style="font-size:14px;font-weight:700;color:#1a202c;margin-bottom:6px">Step 2: Enter Verification Code</div>
+        <div style="font-size:12.5px;color:#64748b;line-height:1.6">Enter the <strong>6-digit code</strong> shown in your authenticator app to confirm setup</div>
+      </div>
+      
+      <!-- Code input -->
+      <div style="margin-bottom:16px">
+        <input id="twoFaCode" type="text" maxlength="6" placeholder="000000" 
+          style="width:100%;padding:16px;text-align:center;font-size:28px;font-weight:800;letter-spacing:10px;border:2px solid #e2e8f0;border-radius:12px;outline:none;font-family:monospace;box-sizing:border-box;transition:border .18s"
+          onfocus="this.style.borderColor='#4f7cff'" 
+          onblur="this.style.borderColor='#e2e8f0'"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6);document.getElementById('twoFaErr').textContent=''"
+          onkeypress="if(event.key==='Enter') verify2FACode()">
+        <div id="twoFaErr" style="font-size:12px;color:#ef4444;margin-top:8px;text-align:center;min-height:18px"></div>
+      </div>
+      
+      <div style="display:flex;gap:10px">
+        <button onclick="show2FAStep(1)" style="flex:1;padding:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;color:#64748b;font-family:inherit">← Back</button>
+        <button id="twoFaVerifyBtn" onclick="verify2FACode()" style="flex:2;padding:12px;background:linear-gradient(135deg,#16a34a,#0d9488);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(22,163,74,.3)">
+          ✓ Verify & Enable
+        </button>
+      </div>
+      
+      <div style="text-align:center;margin-top:14px;font-size:11.5px;color:#94a3b8">
+        🔒 Your authenticator secret is stored securely on your device
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
