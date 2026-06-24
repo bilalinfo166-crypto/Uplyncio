@@ -177,20 +177,20 @@ html,body{overflow-x:hidden;max-width:100vw}
 })();
 
 
-
-// Admin publisher mode - auto login as team
+// Auto-login as Uplyncio Team for admin
 (function(){
-  var TEAM_UID = 'uplyncio_team_official';
-  var teamUser = {email:'team@uplyncio.com',name:'Uplyncio Team',role:'publisher',uid:TEAM_UID,verified:true};
-  localStorage.setItem('uplyncio_user', JSON.stringify(teamUser));
-  localStorage.setItem('uplyncio_currentUid', TEAM_UID);
+  var uid = 'uplyncio_team_official';
+  var user = {email:'team@uplyncio.com',name:'Uplyncio Team',role:'publisher',uid:uid,verified:true};
+  localStorage.setItem('uplyncio_user', JSON.stringify(user));
+  localStorage.setItem('uplyncio_currentUid', uid);
   localStorage.setItem('uplyncio_loggedIn','1');
-  // Ensure verified
-  try{
-    var d = JSON.parse(localStorage.getItem('uplyncio_data_'+TEAM_UID)||'{}');
-    if(!d.publisherVerified){ d.publisherVerified=true; d.publisherVerifiedDate=new Date().toISOString(); localStorage.setItem('uplyncio_data_'+TEAM_UID,JSON.stringify(d)); }
-  }catch(e){}
+  // Ensure publisher verified
+  var d = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+  d.publisherVerified = true;
+  if(!d.publisherVerifiedDate) d.publisherVerifiedDate = new Date().toISOString();
+  localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(d));
 })();
+
 </script>
 
 
@@ -382,7 +382,7 @@ window.addEventListener('DOMContentLoaded', function(){
 </script>
 <div class="sb">
   <div class="sb-lg">
-    <a href="admin.html" style="text-decoration:none;display:flex;align-items:center;gap:9px">
+    <a href="uplyncio-full.html" style="text-decoration:none;display:flex;align-items:center;gap:9px">
     <svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
       <rect width="64" height="64" rx="14" fill="#0f1628"/>
       <g style="animation:chainMove 2.5s ease-in-out infinite">
@@ -402,7 +402,7 @@ window.addEventListener('DOMContentLoaded', function(){
   <a class="si" href="#" onclick="showOrders();return false">&#128230;&nbsp; Orders</a>
   <a class="si" href="#" onclick="showReferral();return false">&#128279;&nbsp; Referral Program</a>
   <div class="sb-bot" id="sbBot">
-    <a class="si" href="admin.html" style="font-size:12px;color:var(--mu);border:none;padding:8px 12px">← Back to Admin</a>
+    <a class="si" href="admin.html" style="font-size:12px;color:#4f7cff;border:none;padding:8px 12px;font-weight:700">← Back to Admin</a>
 
   </div>
 </div>
@@ -463,7 +463,7 @@ window.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<!-- TICKER BANNER (hidden in admin) style="display:none" -->
+<!-- TICKER BANNER -->
 <div style="display:none;position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;font-family:'Plus Jakarta Sans',sans-serif;z-index:99">
   <div style="display:inline-block;animation:ticker 30s linear infinite">
     <span style="font-size:12px;color:#92400e;font-weight:700;padding:0 40px">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -1773,7 +1773,7 @@ window.addEventListener('DOMContentLoaded', function(){
     </div>
     <div style="font-size:11px;color:#64748b">© 2025 Uplyncio. All rights reserved.</div>
     <div style="display:flex;gap:14px">
-      <a href="admin.html" style="font-size:11px;color:#64748b;text-decoration:none">Home</a>
+      <a href="uplyncio-full.html" style="font-size:11px;color:#64748b;text-decoration:none">Home</a>
       <a href="#" style="font-size:11px;color:#64748b;text-decoration:none">Privacy Policy</a>
       <a href="#" style="font-size:11px;color:#64748b;text-decoration:none">Terms</a>
       <a href="mailto:info@uplyncio.com" style="font-size:11px;color:#64748b;text-decoration:none">Support</a>
@@ -2181,7 +2181,7 @@ window.addEventListener('DOMContentLoaded', function(){
 <div class="pf">
   <div style="display:flex;gap:8px"><span class="pl">VISA</span><span class="pl">Mastercard</span><span class="pl">Maestro</span><span class="pl">AMEX</span></div>
   <span style="font-size:12px;color:var(--mu)">info@uplyncio.com</span>
-  <div class="fla"><a href="#">Terms</a><a href="#">Privacy</a><a href="admin.html">Main Site</a></div>
+  <div class="fla"><a href="#">Terms</a><a href="#">Privacy</a><a href="uplyncio-full.html">Main Site</a></div>
 </div>
 
 </div>
@@ -5788,21 +5788,12 @@ function toast(msg,bg){
   </div>
 </div>
 
-// Admin failsafe - force show content
+<script>
 window.addEventListener('load', function(){
-  setTimeout(function(){
-    var mc = document.getElementById('mainContainer');
-    if(mc){ mc.style.opacity='1'; mc.style.display='block'; }
-    // Reload sites for team uid
-    var uid = localStorage.getItem('uplyncio_currentUid');
-    if(uid && typeof loadSites === 'function'){
-      mySites = loadSites();
-      if(typeof renderSites === 'function') renderSites();
-    }
-    // Show step 1 (sites dashboard)
-    if(typeof go === 'function') go(1);
-  }, 200);
+  var mc = document.getElementById('mainContainer');
+  if(mc){ mc.style.opacity='1'; }
+  if(typeof go==='function') go(1);
 });
-
+</script>
 </body>
 </html>
