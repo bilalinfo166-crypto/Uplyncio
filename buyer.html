@@ -71,10 +71,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .main-wrap{flex:1;display:flex;flex-direction:column}
 
 /* ── FILTER BAR ── */
-.filter-bar{background:#fff;border-bottom:2px solid #e2e8f0;padding:16px 22px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 14px rgba(0,0,0,.06);margin-top:0;border-top:3px solid #4f7cff}
+.filter-bar{background:#fff;border-bottom:2px solid #e2e8f0;padding:18px 24px 16px;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(0,0,0,.06);border-top:3px solid #4f7cff}
 .filter-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .fi-lbl{font-size:11px;font-weight:800;color:#4f7cff;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;flex-shrink:0}
-.fi{height:36px;min-width:90px;background:#fff;border:1.5px solid #c7d4e8;border-radius:9px;padding:0 12px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;font-weight:500;box-sizing:border-box}.fi:focus{border-color:#4f7cff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.12)}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.flbl{font-size:11px;font-weight:700;color:#4f7cff;text-transform:uppercase;letter-spacing:.6px}
+.fi{height:36px;width:100%;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;padding:0 12px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;font-weight:500;box-sizing:border-box}.fi:focus{border-color:#4f7cff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.12)}
 .fi:focus{border-color:#4f7cff}
 .fi::placeholder{color:#94a3b8}
 .fi-range{display:flex;align-items:center;gap:3px}
@@ -906,7 +908,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
   <!-- Global search bar -->
   <div class="nav-search">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off" oninput="applyFilters()">
+    <input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off">
   </div>
 
   <div class="nav-right">
@@ -1015,82 +1017,153 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 
     <!-- FILTER BAR -->
     <div class="filter-bar">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-        <div style="font-size:11px;font-weight:800;color:#4f7cff;text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px">
-          <span style="width:16px;height:16px;background:#4f7cff;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:9px">🔍</span>
-          Filter Sites
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">🔍</div>
+          <span style="font-size:13px;font-weight:800;color:#1a202c;letter-spacing:.3px">Filter Sites</span>
+          <span id="activeFilterCount" style="display:none;background:#4f7cff;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">0 active</span>
         </div>
+        <button onclick="clearAllFilters()" style="font-size:11.5px;color:#94a3b8;background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:4px">✕ Clear all</button>
       </div>
-      <div class="filter-row">
-        <span class="fi-lbl">Price ($)</span>
-        <div class="fi-range">
-          <input class="fi" type="number" id="fPriceMin" placeholder="Min" style="width:80px" style="width:60px" oninput="applyFilters()">
-          <span>–</span>
-          <input class="fi" type="number" id="fPriceMax" placeholder="Max" style="width:80px" style="width:60px" oninput="applyFilters()">
+
+      <!-- Filter grid -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px">
+
+        <!-- Price -->
+        <div class="fgroup">
+          <label class="flbl">Price ($)</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="fi" id="fPriceMin" type="number" placeholder="Min" style="width:100%">
+            <span style="color:#94a3b8;font-size:12px">—</span>
+            <input class="fi" id="fPriceMax" type="number" placeholder="Max" style="width:100%">
+          </div>
         </div>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">Ahrefs DR</span>
-        <div class="fi-range">
-          <input class="fi" type="number" id="fDRMin" placeholder="1" style="width:70px" style="width:52px" oninput="applyFilters()">
-          <span>–</span>
-          <input class="fi" type="number" id="fDRMax" placeholder="100" style="width:52px" oninput="applyFilters()">
+
+        <!-- Moz DA -->
+        <div class="fgroup">
+          <label class="flbl">Moz DA</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="fi" id="fDAMin" type="number" placeholder="1" style="width:100%">
+            <span style="color:#94a3b8;font-size:12px">—</span>
+            <input class="fi" id="fDAMax" type="number" placeholder="100" style="width:100%">
+          </div>
         </div>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">Ahrefs Traffic</span>
-        <div class="fi-range">
-          <input class="fi" type="number" id="fTrafficMin" placeholder="100" style="width:64px" oninput="applyFilters()">
-          <span>–</span>
-          <input class="fi" type="number" id="fTrafficMax" placeholder="Any" style="width:64px" oninput="applyFilters()">
+
+        <!-- Ahrefs DR -->
+        <div class="fgroup">
+          <label class="flbl">Ahrefs DR</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="fi" id="fDRMin" type="number" placeholder="1" style="width:100%">
+            <span style="color:#94a3b8;font-size:12px">—</span>
+            <input class="fi" id="fDRMax" type="number" placeholder="100" style="width:100%">
+          </div>
         </div>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">Country</span>
-        <select class="fi-sel" id="fCountry" style="min-width:120px" style="width:100px" onchange="applyFilters()">
-          <option value="">All</option>
-          <option>USA</option><option>UK</option><option>Canada</option>
-          <option>Australia</option><option>India</option><option>Germany</option><option>UAE</option>
-        </select>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">Language</span>
-        <select class="fi-sel" id="fLang" style="min-width:100px" style="width:95px" onchange="applyFilters()">
-          <option value="">All</option>
-          <option>English</option><option>German</option><option>Spanish</option><option>French</option>
-        </select>
-        <button class="clear-btn" onclick="clearFilters()">✕ Clear</button>
+
+        <!-- Ahrefs Traffic -->
+        <div class="fgroup">
+          <label class="flbl">Ahrefs Traffic</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="fi" id="fTrMin" type="number" placeholder="100" style="width:100%">
+            <span style="color:#94a3b8;font-size:12px">—</span>
+            <input class="fi" id="fTrMax" type="number" placeholder="Any" style="width:100%">
+          </div>
+        </div>
+
+        <!-- Country -->
+        <div class="fgroup">
+          <label class="flbl">Country</label>
+          <select class="fi-sel" id="fCountry" style="width:100%">
+            <option value="">All Countries</option>
+            <option>USA</option><option>UK</option><option>Canada</option>
+            <option>Australia</option><option>India</option><option>Germany</option>
+            <option>France</option><option>Global</option>
+          </select>
+        </div>
+
+        <!-- Language -->
+        <div class="fgroup">
+          <label class="flbl">Language</label>
+          <select class="fi-sel" id="fLang" style="width:100%">
+            <option value="">All Languages</option>
+            <option>English</option><option>Spanish</option><option>French</option>
+            <option>German</option><option>Arabic</option><option>Hindi</option>
+          </select>
+        </div>
+
+        <!-- Link Type -->
+        <div class="fgroup">
+          <label class="flbl">Link Type</label>
+          <select class="fi-sel" id="fLinkType" style="width:100%">
+            <option value="">All Types</option>
+            <option>Dofollow</option><option>Nofollow</option><option>Sponsored</option>
+          </select>
+        </div>
+
+        <!-- TAT -->
+        <div class="fgroup">
+          <label class="flbl">TAT (Days)</label>
+          <select class="fi-sel" id="fTAT" style="width:100%">
+            <option value="">Any</option>
+            <option value="3">Up to 3 days</option>
+            <option value="7">Up to 7 days</option>
+            <option value="14">Up to 14 days</option>
+            <option value="30">Up to 30 days</option>
+          </select>
+        </div>
+
+        <!-- Completion Rate -->
+        <div class="fgroup">
+          <label class="flbl">Completion Rate</label>
+          <select class="fi-sel" id="fCompletion" style="width:100%">
+            <option value="">All</option>
+            <option value="70">70%+</option>
+            <option value="80">80%+</option>
+            <option value="90">90%+</option>
+            <option value="95">95%+</option>
+          </select>
+        </div>
+
+        <!-- Verified Only -->
+        <div class="fgroup">
+          <label class="flbl">Publisher</label>
+          <select class="fi-sel" id="fVerified" style="width:100%">
+            <option value="">All Publishers</option>
+            <option value="verified">👑 Verified Only</option>
+          </select>
+        </div>
+
+        <!-- Sponsored -->
+        <div class="fgroup">
+          <label class="flbl">Sponsored Tag</label>
+          <select class="fi-sel" id="fSponsored" style="width:100%">
+            <option value="">Any</option>
+            <option value="no">No Sponsored Tag</option>
+            <option value="yes">Sponsored Tag OK</option>
+          </select>
+        </div>
+
+        <!-- Indexed -->
+        <div class="fgroup">
+          <label class="flbl">Google Indexed</label>
+          <select class="fi-sel" id="fIndexed" style="width:100%">
+            <option value="">Any</option>
+            <option value="yes">Indexed Only</option>
+          </select>
+        </div>
+
       </div>
-      <div class="filter-row">
-        <span class="fi-lbl">Moz DA</span>
-        <div class="fi-range">
-          <input class="fi" type="number" id="fDAMin" placeholder="1" style="width:70px" style="width:52px" oninput="applyFilters()">
-          <span>–</span>
-          <input class="fi" type="number" id="fDAMax" placeholder="100" style="width:70px" style="width:52px" oninput="applyFilters()">
-        </div>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">Link Type</span>
-        <select class="fi-sel" id="fLinkType" style="min-width:120px" style="width:110px" onchange="applyFilters()">
-          <option value="">All Types</option>
-          <option value="Dofollow">Dofollow</option>
-          <option value="Nofollow">Nofollow</option>
-          <option value="Sponsored">Sponsored</option>
-        </select>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">Completion</span>
-        <select class="fi-sel" id="fCompletion" style="min-width:100px" style="width:105px" onchange="applyFilters()">
-          <option value="">All</option>
-          <option value="95">95%+</option><option value="90">90%+</option>
-          <option value="80">80%+</option><option value="70">70%+</option>
-        </select>
-        <div class="fi-sep"></div>
-        <span class="fi-lbl">TAT</span>
-        <select class="fi-sel" id="fTAT" style="min-width:100px" style="width:110px" onchange="applyFilters()">
-          <option value="">Any</option>
-          <option value="3">Up to 3 days</option>
-          <option value="5">Up to 5 days</option>
-          <option value="10">Up to 10 days</option>
-        </select>
+
+      <!-- Apply button row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9">
+        <div style="font-size:12px;color:#94a3b8">Set your filters above then click Apply</div>
+        <button onclick="applyFilters();updateActiveFilterCount()" style="padding:10px 28px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,124,255,.3);display:flex;align-items:center;gap:8px;transition:all .2s">
+          🔍 Apply Filters
+        </button>
       </div>
     </div>
 
-    <!-- TABS -->
+<!-- TABS -->
     <div class="tabs-bar">
       <button class="svc-tab active" id="tab-article" onclick="switchTab('article')">
         Article Posting <span class="tab-cnt" id="tcnt-article">0</span>
@@ -1102,7 +1175,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         Press Release <span class="tab-cnt" id="tcnt-press">0</span>
       </button>
       <div class="tabs-right">
-        <select class="sort-sel" id="sortBy" onchange="applyFilters()">
+        <select class="sort-sel" id="sortBy">
           <option value="recommended">Top Recommended</option>
           <option value="price-asc">Price: Low → High</option>
           <option value="price-desc">Price: High → Low</option>
@@ -3641,6 +3714,30 @@ function closeBuyerSettings(){
   var sp=document.getElementById('settingsPage');
   if(sp) sp.style.display='none';
   document.body.style.overflow='';
+}
+
+
+function updateActiveFilterCount(){
+  var count = 0;
+  var fields = ['fPriceMin','fPriceMax','fDAMin','fDAMax','fDRMin','fDRMax','fTrMin','fTrMax','fCountry','fLang','fLinkType','fTAT','fCompletion','fVerified','fSponsored','fIndexed'];
+  fields.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.value && el.value !== '') count++;
+  });
+  var badge = document.getElementById('activeFilterCount');
+  if(badge){
+    badge.textContent = count + ' active';
+    badge.style.display = count > 0 ? 'inline' : 'none';
+  }
+}
+
+function clearAllFilters(){
+  ['fPriceMin','fPriceMax','fDAMin','fDAMax','fDRMin','fDRMax','fTrMin','fTrMax','fCountry','fLang','fLinkType','fTAT','fCompletion','fVerified','fSponsored','fIndexed'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  updateActiveFilterCount();
+  applyFilters();
 }
 
 function updateCartNav(){
