@@ -30,7 +30,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tb-dt{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rd);border:2px solid var(--wh)}
 .tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--tl));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
 /* MAIN */
-.main{margin-left:210px;margin-top:100px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
+.main{margin-left:210px;margin-top:58px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
 /* BREADCRUMB */
 .bc{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);margin-bottom:6px}
 .bc a{color:var(--mu);text-decoration:none;cursor:pointer}
@@ -5787,5 +5787,22 @@ function toast(msg,bg){
     </div>
   </div>
 </div>
+
+// Admin failsafe - force show content
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    var mc = document.getElementById('mainContainer');
+    if(mc){ mc.style.opacity='1'; mc.style.display='block'; }
+    // Reload sites for team uid
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    if(uid && typeof loadSites === 'function'){
+      mySites = loadSites();
+      if(typeof renderSites === 'function') renderSites();
+    }
+    // Show step 1 (sites dashboard)
+    if(typeof go === 'function') go(1);
+  }, 200);
+});
+
 </body>
 </html>
