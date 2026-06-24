@@ -152,9 +152,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#07090f;color:#e8eaf0
     </div>
   </div>
 
-  <!-- PUBLISHER IFRAME (Our Sites & Orders) -->
-  <div class="frame-wrap" id="frameWrap">
-    <iframe id="pubFrame" title="Publisher Panel" style="width:100%;height:100%;border:none"></iframe>
+  <!-- PUBLISHER PANEL (Our Sites & Orders) -->
+  <div class="frame-wrap" id="frameWrap" style="position:fixed;top:0;left:200px;right:0;bottom:0;z-index:9998;display:none">
+    <iframe id="pubFrame" title="Publisher Panel" style="width:100%;height:100%;border:none;background:#f0f2f7"></iframe>
   </div>
 
   <!-- ADMIN MAIN CONTENT -->
@@ -274,16 +274,17 @@ function showAdminPage(id, el){
   document.getElementById('adminMain').style.display='flex';
 
   if(id==='publisher'){
-    // Set team account then open publisher in new tab
-    var teamUser={email:TEAM_EMAIL,name:'Uplyncio Team',role:'publisher',uid:TEAM_UID,verified:true};
-    localStorage.setItem('uplyncio_user',JSON.stringify(teamUser));
-    localStorage.setItem('uplyncio_currentUid',TEAM_UID);
-    localStorage.setItem('uplyncio_loggedIn','1');
-    // Ensure team publisher data exists
-    ensureTeam();
-    window.open('publisher.html','_blank');
+    document.getElementById('frameWrap').style.display='block';
+    document.getElementById('adminMain').style.display='none';
+    if(!pubFrameLoaded){
+      ensureTeam();
+      document.getElementById('pubFrame').src='publisher-admin.html';
+      pubFrameLoaded=true;
+    }
     return;
   } else {
+    document.getElementById('frameWrap').style.display='none';
+    document.getElementById('adminMain').style.display='flex';
     document.querySelectorAll('.admin-page').forEach(function(p){p.classList.remove('active')});
     var pg=document.getElementById('pg-'+id);
     if(pg) pg.classList.add('active');
