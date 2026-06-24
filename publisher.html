@@ -170,6 +170,8 @@ html,body{overflow-x:hidden;max-width:100vw}
       if(pb) pb.style.display = 'inline';
       var pnb = document.getElementById('pubNavVerifiedBadge');
       if(pnb) pnb.style.display = 'inline';
+      var pcb = document.getElementById('pubCrownBadge');
+      if(pcb) pcb.style.display = 'inline';
     }
   }catch(e){}
 })();
@@ -421,7 +423,10 @@ window.addEventListener('DOMContentLoaded', function(){
       <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
     </div>
     <div style="position:relative">
-      <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span><div class="tb-av" onclick="toggleProfileMenu()" style="cursor:pointer;user-select:none" id="profileAvatar">?</div>
+      <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span><div style="position:relative;display:inline-flex">
+  <div class="tb-av" onclick="toggleProfileMenu()" style="cursor:pointer;user-select:none" id="profileAvatar">?</div>
+  <span id="pubCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
+</div>
       <!-- PROFILE DROPDOWN -->
       <div id="profileMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
         <!-- User Info -->
@@ -3170,6 +3175,8 @@ function checkAndGrantBadges(){
       if(pb) pb.style.display = 'inline';
       var pnb = document.getElementById('pubNavVerifiedBadge');
       if(pnb) pnb.style.display = 'inline';
+      var pcb = document.getElementById('pubCrownBadge');
+      if(pcb) pcb.style.display = 'inline';
       // Show celebration toast
       setTimeout(function(){
         toast('🎉 Congratulations! You earned the 👑 Verified Publisher badge! Your sites now show a verified badge to buyers.', '#16a34a');
@@ -5126,6 +5133,7 @@ function renderOrders(){
         '<span style="font-size:12px;font-weight:700;color:var(--mu)">'+o.type+'</span>'+
         '<span style="width:4px;height:4px;border-radius:50%;background:var(--mu);display:inline-block"></span>'+
         '<span style="font-size:12px;color:var(--mu)">'+o.service+'</span>'+
+        (o.buyerVerified ? '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;margin-left:6px">👑 Verified Client</span>' : '')+
       '</div>'+
       '<div style="display:flex;align-items:center;gap:8px">'+
         actionBtns+
@@ -5191,6 +5199,9 @@ function openOrderDetail(id){
   var sc = statusConfig[o.status]||statusConfig.review;
 
   document.getElementById('odType').textContent = o.type;
+  // Show verified client badge in order detail
+  var odVB = document.getElementById('odVerifiedBadge');
+  if(odVB) odVB.style.display = o.buyerVerified ? 'inline' : 'none';
   document.getElementById('odService').textContent = o.service;
   document.getElementById('odId').textContent = '#'+o.taskId;
   document.getElementById('odDate').textContent = fmtDate(o.createdAt);

@@ -927,7 +927,9 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
       <button class="nav-btn btn-accent" onclick="openAddFunds()">+ Add Funds</button>
       <!-- Profile Avatar + Dropdown -->
       <div style="position:relative">
-        <div class="nav-avatar" id="navAvatar" onclick="toggleBuyerMenu()" style="cursor:pointer;user-select:none">B</div>
+        <div class="nav-avatar" id="navAvatar" onclick="toggleBuyerMenu()" style="cursor:pointer;user-select:none;position:relative">B
+  <span id="navCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
+</div>
         <!-- Dropdown Menu -->
         <div id="buyerMenu" style="display:none;position:absolute;top:44px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12);width:230px;z-index:9999;overflow:hidden;animation:menuFade .18s ease">
           <!-- User info header -->
@@ -2304,6 +2306,8 @@ function onBuyerLogin(user){
   if(verBadge) verBadge.style.display = user.buyerVerified ? 'inline' : 'none';
   var menuBadge = document.getElementById('buyerVerifiedBadge');
   if(menuBadge) menuBadge.style.display = user.buyerVerified ? 'inline' : 'none';
+  var crownBadge = document.getElementById('navCrownBadge');
+  if(crownBadge) crownBadge.style.display = user.buyerVerified ? 'inline' : 'none';
   document.getElementById('guestNav').style.display='none';
   var un=document.getElementById('userNav'); un.style.display='flex';
   var av=document.getElementById('navAvatar');
@@ -4089,7 +4093,8 @@ function placeOrderSuccess(price, payMethod){
     id: orderId, site: site.url||site.n||'', domain: site.url||'',
     type: _placementType==='write'?'Write + Publish':'Publish Only',
     status: 'Pending', price: price, payMethod: payMethod,
-    date: new Date().toISOString(), uid: uid
+    date: new Date().toISOString(), uid: uid,
+    buyerVerified: !!(JSON.parse(localStorage.getItem('uplyncio_user')||'{}').buyerVerified)
   });
   localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
   
