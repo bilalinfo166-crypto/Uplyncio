@@ -158,6 +158,22 @@ html,body{overflow-x:hidden;max-width:100vw}
 </head>
 <body>
 <script>
+
+// Show publisher verified badge on load
+(function(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    if(!uid) return;
+    var data = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+    if(data.publisherVerified){
+      var pb = document.getElementById('pubVerifiedBadge');
+      if(pb) pb.style.display = 'inline';
+      var pnb = document.getElementById('pubNavVerifiedBadge');
+      if(pnb) pnb.style.display = 'inline';
+    }
+  }catch(e){}
+})();
+
 // ── ROLE GUARD: Publishers only ──
 (function(){
   try{
@@ -405,12 +421,12 @@ window.addEventListener('DOMContentLoaded', function(){
       <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
     </div>
     <div style="position:relative">
-      <div class="tb-av" onclick="toggleProfileMenu()" style="cursor:pointer;user-select:none" id="profileAvatar">?</div>
+      <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span><div class="tb-av" onclick="toggleProfileMenu()" style="cursor:pointer;user-select:none" id="profileAvatar">?</div>
       <!-- PROFILE DROPDOWN -->
       <div id="profileMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
         <!-- User Info -->
         <div style="padding:16px 18px;border-bottom:1px solid #f1f5f9">
-          <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Publisher</div>
+          <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:flex;align-items:center;gap:6px">Publisher <span id="pubVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700">👑 Verified</span></div>
           <div style="font-size:15px;font-weight:800;color:#0f172a" id="profileName">Publisher</div>
           <div style="font-size:12px;color:#94a3b8;margin-top:2px" id="profileEmail">Not set</div>
         </div>
@@ -3141,9 +3157,14 @@ function checkAndGrantBadges(){
       data.publisherVerifiedDate = new Date().toISOString();
       localStorage.setItem(key, JSON.stringify(data));
       
+      // Show badges
+      var pb = document.getElementById('pubVerifiedBadge');
+      if(pb) pb.style.display = 'inline';
+      var pnb = document.getElementById('pubNavVerifiedBadge');
+      if(pnb) pnb.style.display = 'inline';
       // Show celebration toast
       setTimeout(function(){
-        toast('🎉 Congratulations! You earned the ✅ Verified Publisher badge! Your sites now show a verified badge to buyers.', '#16a34a');
+        toast('🎉 Congratulations! You earned the 👑 Verified Publisher badge! Your sites now show a verified badge to buyers.', '#16a34a');
       }, 500);
     }
     

@@ -930,7 +930,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         <div id="buyerMenu" style="display:none;position:absolute;top:44px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12);width:230px;z-index:9999;overflow:hidden;animation:menuFade .18s ease">
           <!-- User info header -->
           <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9">
-            <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Buyer</div>
+            <div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;display:flex;align-items:center;gap:6px">Buyer <span id="buyerVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700">👑 Verified</span></div>
             <div style="font-size:13px;font-weight:600;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="buyerMenuEmail">—</div>
           </div>
           <!-- Menu items -->
@@ -2219,6 +2219,8 @@ function onBuyerLogin(user){
   // Show verified badge if earned
   var verBadge = document.getElementById('navVerifiedBadge');
   if(verBadge) verBadge.style.display = user.buyerVerified ? 'inline' : 'none';
+  var menuBadge = document.getElementById('buyerVerifiedBadge');
+  if(menuBadge) menuBadge.style.display = user.buyerVerified ? 'inline' : 'none';
   document.getElementById('guestNav').style.display='none';
   var un=document.getElementById('userNav'); un.style.display='flex';
   var av=document.getElementById('navAvatar');
