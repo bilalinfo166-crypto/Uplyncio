@@ -173,13 +173,124 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
         </div>
       </div>
 
-      <!-- OUR SITES -->
-      <div class="page" id="pg-sites">
-        <div class="section">
-          <div class="sh"><div class="sh-title">Uplyncio Team Sites</div><button class="btn btn-p" onclick="openAddSite()">+ Add Site</button></div>
-          <div id="sitesList"></div>
+
+<!-- OUR SITES PAGE - Full Publisher Setup -->
+<div class="page" id="pg-sites">
+  <div style="display:flex;gap:16px;height:calc(100vh - var(--topbar) - 56px)">
+    
+    <!-- LEFT: Add Site Panel -->
+    <div style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div class="sh">
+        <div class="sh-title">Add Team Sites</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="showAddTab('single')" id="tabSingle" class="btn btn-p" style="font-size:12px">+ One Site</button>
+          <button onclick="showAddTab('bulk')" id="tabBulk" class="btn" style="font-size:12px;background:rgba(255,255,255,.07);color:var(--muted2)">📊 Bulk Upload</button>
         </div>
       </div>
+
+      <!-- SINGLE SITE TAB -->
+      <div id="addSingle" style="flex:1;overflow-y:auto;padding:20px;scrollbar-width:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          
+          <div style="grid-column:1/-1">
+            <label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Site URL *</label>
+            <div style="display:flex;gap:8px">
+              <input id="tsUrl" class="inp" placeholder="example.com" style="flex:1">
+              <button onclick="autoDetectTeam()" class="btn btn-p" style="font-size:12px;white-space:nowrap">🔍 Auto Detect</button>
+            </div>
+            <div id="tsAutoStatus" style="font-size:11px;color:var(--teal);margin-top:4px"></div>
+          </div>
+
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Moz DA</label><input id="tsDA" class="inp" type="number" placeholder="0–100"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Ahrefs DR</label><input id="tsDR" class="inp" type="number" placeholder="0–100"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Monthly Traffic</label><input id="tsTr" class="inp" type="number" placeholder="e.g. 50000"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">SemRush Traffic</label><input id="tsSem" class="inp" type="number" placeholder="e.g. 200000"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Guest Post Price ($)</label><input id="tsGP" class="inp" type="number" placeholder="e.g. 120"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Write + Publish Price ($)</label><input id="tsWP" class="inp" type="number" placeholder="e.g. 180"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Link Insertion ($) — leave 0 if N/A</label><input id="tsLI" class="inp" type="number" placeholder="e.g. 80"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Link Type</label><select id="tsLT" class="inp"><option>Dofollow</option><option>Nofollow</option><option>Sponsored</option></select></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Niche / Categories (comma separated)</label><input id="tsCat" class="inp" placeholder="Finance, Tech, Business"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Country</label><input id="tsCtry" class="inp" placeholder="USA"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Language</label><input id="tsLang" class="inp" placeholder="English"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">TAT (days)</label><input id="tsTAT" class="inp" type="number" placeholder="7"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Completion Rate (%)</label><input id="tsComp" class="inp" type="number" placeholder="98"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Ref Domains</label><input id="tsRef" class="inp" type="number" placeholder="e.g. 5000"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Spam Score (0-17)</label><input id="tsSpam" class="inp" type="number" placeholder="1"></div>
+        </div>
+        <button onclick="saveTeamSiteAdmin()" class="btn btn-p" style="width:100%;padding:13px;margin-top:18px;font-size:14px">✓ Add to Marketplace</button>
+        <div id="tsStatus" style="margin-top:10px;font-size:12px;text-align:center"></div>
+      </div>
+
+      <!-- BULK UPLOAD TAB -->
+      <div id="addBulk" style="display:none;flex:1;overflow-y:auto;padding:20px;scrollbar-width:none">
+        
+        <!-- Download template -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(79,124,255,.08);border:1px solid rgba(79,124,255,.2);border-radius:12px;padding:14px 18px;margin-bottom:16px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--blue)">📊 Download Template Sheet</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Fill in your sites then upload CSV or Excel</div>
+          </div>
+          <button onclick="dlAdminTemplate()" class="btn btn-p" style="font-size:12px;white-space:nowrap">⬇ Download Template</button>
+        </div>
+
+        <!-- Drop zone -->
+        <div id="adminDropZone" style="border:2px dashed rgba(79,124,255,.3);border-radius:12px;padding:40px 24px;text-align:center;cursor:pointer;background:rgba(79,124,255,.03);transition:all .2s"
+          onclick="document.getElementById('adminFileInput').click()"
+          ondragover="event.preventDefault();this.style.background='rgba(79,124,255,.08)';this.style.borderColor='var(--blue)'"
+          ondragleave="this.style.background='rgba(79,124,255,.03)';this.style.borderColor='rgba(79,124,255,.3)'"
+          ondrop="adminHandleDrop(event)">
+          <input type="file" id="adminFileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="adminHandleFile(this.files[0])">
+          <div style="font-size:40px;margin-bottom:12px">📂</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">Drag & Drop your sheet here</div>
+          <div style="font-size:13px;color:var(--muted)">or click to browse</div>
+          <div style="display:flex;justify-content:center;gap:8px;margin-top:12px">
+            <span style="background:rgba(79,124,255,.15);color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">CSV</span>
+            <span style="background:rgba(34,197,94,.15);color:var(--green);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Excel .xlsx</span>
+          </div>
+        </div>
+
+        <div id="adminUploadStatus" style="display:none;margin-top:12px;font-size:13px;text-align:center;color:var(--muted)"></div>
+
+        <!-- Preview table -->
+        <div id="adminPreviewWrap" style="display:none;margin-top:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:14px;font-weight:700">Preview <span id="adminPreviewCount" style="color:var(--blue)"></span></div>
+            <button onclick="clearAdminUpload()" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit">✕ Clear</button>
+          </div>
+          <div style="overflow:auto;border:1px solid var(--border);border-radius:10px;max-height:240px">
+            <table style="width:100%;border-collapse:collapse;min-width:800px">
+              <thead><tr style="background:rgba(255,255,255,.03);position:sticky;top:0">
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap">URL</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">DA</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">DR</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">Traffic</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">Category</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">Link Type</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">GP Price</th>
+                <th style="padding:9px 12px;font-size:10px;font-weight:700;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)">LI Price</th>
+              </tr></thead>
+              <tbody id="adminPreviewTbody"></tbody>
+            </table>
+          </div>
+          <button onclick="importAdminSites()" class="btn btn-p" style="margin-top:14px;padding:11px 28px;font-size:14px">✅ Import All Sites to Marketplace</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Current Sites List -->
+    <div style="width:420px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column">
+      <div class="sh">
+        <div class="sh-title">Our Sites <span id="teamSiteCount" style="color:var(--muted);font-weight:400"></span></div>
+        <div style="display:flex;gap:6px">
+          <input id="siteSearchQ" placeholder="Search..." style="background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none;width:120px">
+          <button onclick="exportTeamSites()" class="btn" style="background:rgba(255,255,255,.07);color:var(--muted2);font-size:11px">⬇ Export</button>
+        </div>
+      </div>
+      <div id="teamSitesList" style="flex:1;overflow-y:auto;scrollbar-width:none"></div>
+    </div>
+  </div>
+</div>
+
 
       <!-- ORDERS -->
       <div class="page" id="pg-orders">
@@ -279,7 +390,7 @@ function nav(id, el){
   document.getElementById('pg-'+id).classList.add('active');
   if(el) el.classList.add('active');
   document.getElementById('tbTitle').textContent = pageTitles[id]||id;
-  var fns={publishers:renderPubs,buyers:renderBuys,sites:renderSites,orders:renderOrders,revenue:renderRevenue};
+  var fns={publishers:renderPubs,buyers:renderBuys,sites:function(){renderSites();},orders:renderOrders,revenue:renderRevenue};
   if(fns[id]) fns[id]();
 }
 
