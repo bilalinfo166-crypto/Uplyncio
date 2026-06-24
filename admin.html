@@ -1,686 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="shortcut icon" href="favicon.svg">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uplyncio Admin Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<title>Uplyncio — Admin Control Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#07090f;--bg2:#0b0f1c;--surface:#0f1628;--card:#111a2e;--card2:#141f35;
-  --border:#1c2a45;--border2:#243050;--accent:#4f7cff;--teal:#00d4aa;
-  --text:#eef2ff;--text2:#8fa3c8;--muted:#4a607f;
-  --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--r:12px
-}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#07090f;--bg2:#0d1120;--card:#13192a;--card2:#1a2235;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--text:#e8eaf0;--muted:#6b7a99;--muted2:#8892a4;--blue:#4f7cff;--teal:#00d4aa;--gold:#fbbf24;--red:#ef4444;--green:#22c55e;--purple:#a855f7;--sidebar:220px;--topbar:58px}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
-
-/* SIDEBAR */
-.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);min-height:100vh;position:fixed;left:0;top:0;bottom:0;display:flex;flex-direction:column;z-index:100}
-.sidebar-logo{padding:24px 20px;border-bottom:1px solid var(--border)}
-.sidebar-logo a{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:var(--text);text-decoration:none}
-.sidebar-logo a em{font-style:normal;color:var(--accent)}
-.sidebar-logo span{display:block;font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
-.nav-section{padding:16px 12px 8px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;margin:2px 8px;cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:500;transition:all .2s;text-decoration:none}
-.nav-item:hover{background:rgba(79,124,255,.08);color:var(--text)}
-.nav-item.active{background:rgba(79,124,255,.15);color:var(--accent);font-weight:600}
-.nav-item .ico{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
-.admin-badge{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-radius:10px;border:1px solid var(--border)}
-.admin-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
-.admin-name{font-size:13px;font-weight:700;color:var(--text)}
-.admin-role{font-size:11px;color:var(--muted)}
-
-/* MAIN */
-.main{margin-left:240px;flex:1;padding:32px;min-height:100vh}
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
-.page-title{font-family:'Manrope',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.5px}
-.page-sub{font-size:13px;color:var(--muted);margin-top:4px}
-
-/* STATS CARDS */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px}
-.stat-card-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
-.stat-card-val{font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;color:var(--text);line-height:1}
-.stat-card-val span{color:var(--accent)}
-.stat-card-sub{font-size:12px;color:var(--green);margin-top:6px}
-
-/* TOOLBAR */
-.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;flex:1;max-width:320px}
-.search-box input{background:transparent;border:none;outline:none;color:var(--text);font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;width:100%}
-.search-box input::placeholder{color:var(--muted)}
-.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text2);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;cursor:pointer}
-.filter-select:focus{border-color:var(--accent)}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#3d6aff}
-.btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.btn-danger:hover{background:rgba(239,68,68,.2)}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
-.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
-
-/* TABLE */
-.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.table-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
-.table-head-title{font-size:15px;font-weight:700;font-family:'Manrope',sans-serif}
-.table-count{font-size:12px;color:var(--muted)}
-table{width:100%;border-collapse:collapse}
-thead th{background:var(--surface);padding:11px 14px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
-thead th:first-child{padding-left:20px}
-tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
-tbody tr:last-child{border-bottom:none}
-tbody tr:hover{background:var(--card2)}
-td{padding:13px 14px;font-size:13px;vertical-align:middle}
-td:first-child{padding-left:20px}
-.cb{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
-.site-name{font-weight:700;color:var(--text);font-size:13.5px}
-.site-url{font-size:11px;color:var(--muted);margin-top:1px}
-.bdg{display:inline-flex;align-items:center;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700}
-.b-da{background:rgba(79,124,255,.15);color:#7aa8ff}
-.b-dr{background:rgba(0,212,170,.12);color:var(--teal)}
-.b-tr{background:rgba(34,197,94,.12);color:var(--green)}
-.b-do{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.b-no{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
-.b-cat{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
-.price-val{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:var(--text)}
-.status-live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--green)}
-.status-draft{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--yellow)}
-.ldot{width:6px;height:6px;border-radius:50%;background:currentColor}
-.act-btns{display:flex;gap:6px}
-
-/* PAGINATION */
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border)}
-.page-info{font-size:12px;color:var(--muted)}
-.page-btns{display:flex;gap:5px}
-.pg-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
-.pg-btn:hover,.pg-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
-.modal-overlay.open{display:flex}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;width:620px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative}
-.modal-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);z-index:1}
-.modal-header h2{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800}
-.modal-x{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.modal-x:hover{color:var(--text)}
-.modal-body{padding:24px 28px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-grid.full{grid-template-columns:1fr}
-.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:0}
-.fl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.fi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s;width:100%}
-.fi:focus{border-color:var(--accent)}
-.fi-select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7fa3' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
-.modal-footer{padding:18px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--card)}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.error{background:var(--red)}
-
-/* DELETE CONFIRM */
-.del-modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;width:400px;max-width:95vw;padding:28px;text-align:center}
-.del-modal h3{font-family:'Manrope',sans-serif;font-size:18px;font-weight:800;margin-bottom:10px}
-.del-modal p{font-size:13.5px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+.sb{width:var(--sidebar);position:fixed;top:0;left:0;bottom:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:18px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sb-logo-text{font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff}
+.sb-logo-text em{color:var(--blue);font-style:normal}
+.sb-badge{font-size:9px;font-weight:700;background:var(--red);color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:10px 20px 5px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted2);transition:all .15s;border-left:3px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sb-item.active{background:rgba(79,124,255,.1);color:var(--blue);border-left-color:var(--blue)}
+.sb-cnt{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:20px}
+.sb-bottom{padding:16px 20px;border-top:1px solid var(--border)}
+.av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.tb{position:fixed;top:0;left:var(--sidebar);right:0;height:var(--topbar);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:99}
+.tb-title{font-size:15px;font-weight:700}
+.live{display:flex;align-items:center;gap:6px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
+.content{margin-top:var(--topbar);padding:28px;flex:1}
+.page{display:none}.page.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.scard.blue::before{background:linear-gradient(90deg,var(--blue),#818cf8)}
+.scard.teal::before{background:linear-gradient(90deg,var(--teal),#06b6d4)}
+.scard.gold::before{background:linear-gradient(90deg,var(--gold),#f59e0b)}
+.scard.green::before{background:linear-gradient(90deg,var(--green),#16a34a)}
+.scard.red::before{background:linear-gradient(90deg,var(--red),#dc2626)}
+.scard.purple::before{background:linear-gradient(90deg,var(--purple),#7c3aed)}
+.scard-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.scard-val{font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:var(--text);line-height:1}
+.scard-sub{font-size:12px;color:var(--muted);margin-top:5px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border)}
+.sh-title{font-size:14px;font-weight:700}
+.sh-badge{background:rgba(79,124,255,.15);color:var(--blue);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:11px 18px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.tbl td{padding:13px 18px;font-size:13px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer}
+.fbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border)}
+.sinp{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:9px;padding:8px 14px;font-size:13px;color:var(--text);font-family:inherit;outline:none;width:260px}
+.sinp::placeholder{color:var(--muted)}.sinp:focus{border-color:var(--blue)}
+.ssel{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:9px;padding:8px 12px;font-size:12px;color:var(--text);font-family:inherit;outline:none;cursor:pointer}
+.b-v{background:#422006;color:var(--gold);border:1px solid #92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap}
+.b-u{background:rgba(255,255,255,.05);color:var(--muted);font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
+.b-role{background:rgba(79,124,255,.15);color:var(--blue);font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.mbox{background:var(--card);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;scrollbar-width:none}
+.mbox::-webkit-scrollbar{display:none}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1}
+.mhead-title{font-size:15px;font-weight:700}
+.mclose{background:rgba(255,255,255,.07);border:none;color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px}
+.mbody{padding:24px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.ditem{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.dlbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.dval{font-size:13px;font-weight:600;color:var(--text);word-break:break-all}
+.dsec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .15s}
+.btn-p{background:var(--blue);color:#fff}
+.btn-d{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-s{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.inp{width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--border2);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none}
+.inp:focus{border-color:var(--blue)}
+.inp-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:40px;width:380px}
+.login-err{color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="sidebar-logo">
-    <a href="uplyncio-full.html">Up<em>lyncio</em></a>
-    <span>Admin Panel</span>
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:24px">
+      <svg width="36" height="36" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
+      <span style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff">Uply<em style="color:#4f7cff;font-style:normal">ncio</em></span>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:22px;text-transform:uppercase;letter-spacing:.8px">🔐 Admin Control Room</div>
+    <input class="inp" id="aUser" type="text" placeholder="Admin username" autocomplete="off" style="margin-bottom:10px">
+    <input class="inp" id="aPass" type="password" placeholder="Admin password" style="margin-bottom:14px" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Enter Control Room →</button>
+    <div class="login-err" id="loginErr">❌ Invalid credentials</div>
   </div>
-  <div class="nav-section">Main</div>
-  <a class="nav-item active" onclick="showPage('sites')"><span class="ico">🌐</span> Publisher Sites</a>
-  <a class="nav-item" onclick="showPage('orders')"><span class="ico">📦</span> Orders</a>
-  <a class="nav-item" onclick="showPage('analytics')"><span class="ico">📊</span> Analytics</a>
-  <div class="nav-section">Management</div>
-  <a class="nav-item" onclick="showPage('categories')"><span class="ico">🏷️</span> Categories</a>
-  <a class="nav-item" onclick="showPage('settings')"><span class="ico">⚙️</span> Settings</a>
-  <a class="nav-item" href="uplyncio-full.html" style="margin-top:4px"><span class="ico">🔗</span> View Site</a>
-  <div class="sidebar-bottom">
-    <div class="admin-badge">
-      <div class="admin-av">A</div>
-      <div>
-        <div class="admin-name">Ahmad</div>
-        <div class="admin-role">Super Admin</div>
+</div>
+
+<div id="app" style="display:none;width:100%;flex:1">
+  <div class="sb">
+    <div class="sb-logo">
+      <svg width="28" height="28" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
+      <div><div class="sb-logo-text">Uply<em>ncio</em><span class="sb-badge">ADMIN</span></div><div style="font-size:10px;color:var(--muted)">Control Room</div></div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-lbl">Overview</div>
+      <div class="sb-item active" onclick="nav('dashboard',this)">📊 Dashboard</div>
+      <div class="sb-lbl">Users</div>
+      <div class="sb-item" onclick="nav('publishers',this)">📰 Publishers <span id="sbP" class="sb-cnt" style="background:rgba(79,124,255,.2);color:var(--blue)"></span></div>
+      <div class="sb-item" onclick="nav('buyers',this)">🛒 Buyers <span id="sbB" class="sb-cnt" style="background:rgba(0,212,170,.2);color:var(--teal)"></span></div>
+      <div class="sb-lbl">Platform</div>
+      <div class="sb-item" onclick="nav('sites',this)">🌐 Our Sites</div>
+      <div class="sb-item" onclick="nav('orders',this)">📦 All Orders</div>
+      <div class="sb-item" onclick="nav('revenue',this)">💰 Revenue</div>
+      <div class="sb-lbl">Admin</div>
+      <div class="sb-item" onclick="nav('settings',this)">⚙️ Settings</div>
+    </div>
+    <div class="sb-bottom">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="av">A</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700">Uplyncio Admin</div><div style="font-size:10px;color:var(--muted)">Super Admin</div></div>
+        <button onclick="logout()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px" title="Logout">🚪</button>
       </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tb">
+      <div class="tb-title" id="tbTitle">📊 Dashboard</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="live"><div class="live-dot"></div><span style="font-size:12px;color:var(--green);font-weight:600">Live</span></div>
+        <span id="clock" style="font-size:12px;color:var(--muted);font-family:Manrope,sans-serif"></span>
+        <button onclick="refresh()" style="background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:var(--blue);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="pg-dashboard">
+        <div class="stats-grid" id="dashStats"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="section"><div class="sh"><div class="sh-title">Recent Publishers</div></div><table class="tbl"><tbody id="rPubs"></tbody></table></div>
+          <div class="section"><div class="sh"><div class="sh-title">Recent Buyers</div></div><table class="tbl"><tbody id="rBuys"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PUBLISHERS -->
+      <div class="page" id="pg-publishers">
+        <div class="section">
+          <div class="sh"><div class="sh-title">All Publishers</div><span class="sh-badge" id="pCnt"></span></div>
+          <div class="fbar">
+            <input class="sinp" id="pQ" placeholder="🔍 Name or email..." oninput="renderPubs()">
+            <select class="ssel" id="pF" onchange="renderPubs()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
+          </div>
+          <table class="tbl"><thead><tr><th>Publisher</th><th>Email</th><th>Sites</th><th>Orders</th><th>Earnings</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="pBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- BUYERS -->
+      <div class="page" id="pg-buyers">
+        <div class="section">
+          <div class="sh"><div class="sh-title">All Buyers</div><span class="sh-badge" id="bCnt"></span></div>
+          <div class="fbar">
+            <input class="sinp" id="bQ" placeholder="🔍 Name or email..." oninput="renderBuys()">
+            <select class="ssel" id="bF" onchange="renderBuys()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
+          </div>
+          <table class="tbl"><thead><tr><th>Buyer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Balance</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="bBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- OUR SITES -->
+      <div class="page" id="pg-sites">
+        <div class="section">
+          <div class="sh"><div class="sh-title">Uplyncio Team Sites</div><button class="btn btn-p" onclick="openAddSite()">+ Add Site</button></div>
+          <div id="sitesList"></div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="page" id="pg-orders">
+        <div class="section">
+          <div class="sh"><div class="sh-title">All Platform Orders</div><span class="sh-badge" id="oCnt"></span></div>
+          <table class="tbl"><thead><tr><th>Order ID</th><th>Buyer UID</th><th>Site</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="oBody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- REVENUE -->
+      <div class="page" id="pg-revenue">
+        <div class="stats-grid" id="revStats"></div>
+        <div class="section"><div class="sh"><div class="sh-title">Revenue Breakdown</div></div><div id="revDetail" style="padding:20px"></div></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="pg-settings">
+        <div class="section"><div class="sh"><div class="sh-title">Admin Settings</div></div>
+          <div style="padding:24px;display:flex;flex-direction:column;gap:20px">
+            <div><label class="inp-lbl">Change Admin Password</label><div style="display:flex;gap:10px;margin-top:6px"><input id="newPw" type="password" class="inp" placeholder="New password" style="max-width:280px"><button class="btn btn-p" onclick="changePw()">Update</button></div></div>
+            <div style="padding-top:16px;border-top:1px solid var(--border)">
+              <label class="inp-lbl">Team Accounts</label>
+              <div style="font-size:13px;color:var(--muted2);margin:6px 0 10px">Our platform accounts are auto-created with Verified status from day one.</div>
+              <button class="btn btn-s" onclick="ensureTeam()">✓ Sync Team Accounts</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="main">
+<!-- PUB MODAL -->
+<div class="overlay" id="pModal"><div class="mbox"><div class="mhead"><div class="mhead-title" id="pMTitle"></div><button class="mclose" onclick="closeModal('pModal')">✕</button></div><div class="mbody" id="pMBody"></div></div></div>
 
-  <!-- PAGE: SITES -->
-  <div id="page-sites">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Publisher Sites</div>
-        <div class="page-sub">Manage all your outreach sites listed on Uplyncio</div>
-      </div>
-      <button class="btn btn-primary" onclick="openAddModal()">+ Add New Site</button>
-    </div>
+<!-- BUYER MODAL -->
+<div class="overlay" id="bModal"><div class="mbox"><div class="mhead"><div class="mhead-title" id="bMTitle"></div><button class="mclose" onclick="closeModal('bModal')">✕</button></div><div class="mbody" id="bMBody"></div></div></div>
 
-    <!-- STATS -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-card-label">Total Sites</div>
-        <div class="stat-card-val" id="totalSites">0</div>
-        <div class="stat-card-sub" id="liveSitesSub">0 live</div>
+<!-- ADD SITE MODAL -->
+<div class="overlay" id="asModal">
+  <div class="mbox">
+    <div class="mhead"><div class="mhead-title">Add Uplyncio Team Site</div><button class="mclose" onclick="closeModal('asModal')">✕</button></div>
+    <div class="mbody">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="grid-column:1/-1"><label class="inp-lbl">Site URL *</label><input id="asUrl" class="inp" placeholder="example.com"></div>
+        <div><label class="inp-lbl">Moz DA</label><input id="asDA" class="inp" type="number" placeholder="0–100"></div>
+        <div><label class="inp-lbl">Ahrefs DR</label><input id="asDR" class="inp" type="number" placeholder="0–100"></div>
+        <div><label class="inp-lbl">Monthly Traffic</label><input id="asTr" class="inp" type="number" placeholder="e.g. 50000"></div>
+        <div><label class="inp-lbl">Guest Post Price ($)</label><input id="asGP" class="inp" type="number" placeholder="e.g. 120"></div>
+        <div><label class="inp-lbl">Link Insertion ($)</label><input id="asLI" class="inp" type="number" placeholder="e.g. 80"></div>
+        <div><label class="inp-lbl">Niche / Category</label><input id="asCat" class="inp" placeholder="Finance, Tech"></div>
+        <div><label class="inp-lbl">Country</label><input id="asCtry" class="inp" placeholder="USA"></div>
+        <div><label class="inp-lbl">Link Type</label><select id="asLT" class="inp"><option>Dofollow</option><option>Nofollow</option><option>Sponsored</option></select></div>
+        <div><label class="inp-lbl">TAT (days)</label><input id="asTAT" class="inp" type="number" placeholder="7"></div>
       </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Avg DA</div>
-        <div class="stat-card-val" id="avgDA">0</div>
-        <div class="stat-card-sub">Domain Authority avg</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Dofollow Sites</div>
-        <div class="stat-card-val" id="dofollowCount">0</div>
-        <div class="stat-card-sub">vs nofollow</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-label">Avg Price</div>
-        <div class="stat-card-val" id="avgPrice">$0</div>
-        <div class="stat-card-sub">per guest post</div>
-      </div>
-    </div>
-
-    <!-- TOOLBAR -->
-    <div class="toolbar">
-      <div class="search-box">
-        <span>🔍</span>
-        <input type="text" id="searchInput" placeholder="Search by site name or URL..." oninput="renderTable()">
-      </div>
-      <select class="filter-select" id="filterCat" onchange="renderTable()">
-        <option value="">All Categories</option>
-        <option>SaaS</option><option>Tech</option><option>Business</option>
-        <option>Finance</option><option>Health</option><option>Marketing</option>
-        <option>Crypto</option><option>Travel</option><option>Law</option><option>Education</option>
-      </select>
-      <select class="filter-select" id="filterLink" onchange="renderTable()">
-        <option value="">All Link Types</option>
-        <option>Dofollow</option><option>Nofollow</option>
-      </select>
-      <select class="filter-select" id="filterStatus" onchange="renderTable()">
-        <option value="">All Status</option>
-        <option>Live</option><option>Draft</option>
-      </select>
-      <button class="btn btn-ghost" onclick="clearFilters()">Clear</button>
-      <button class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none" onclick="bulkDelete()">🗑 Delete Selected</button>
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-wrap">
-      <div class="table-head">
-        <div class="table-head-title">All Sites</div>
-        <div class="table-count"><span id="shownCount">0</span> sites shown</div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th><input type="checkbox" class="cb" id="selectAll" onchange="toggleSelectAll()"></th>
-            <th>Website</th>
-            <th>DA</th>
-            <th>DR</th>
-            <th>Traffic/mo</th>
-            <th>Category</th>
-            <th>Links</th>
-            <th>Link Type</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="sitesTable"></tbody>
-      </table>
-      <div class="pagination">
-        <div class="page-info" id="pageInfo"></div>
-        <div class="page-btns" id="pageBtns"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGE: ORDERS (placeholder) -->
-  <div id="page-orders" style="display:none">
-    <div class="page-header"><div><div class="page-title">Orders</div><div class="page-sub">Manage incoming guest post orders</div></div></div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:60px;text-align:center">
-      <div style="font-size:48px;margin-bottom:16px">📦</div>
-      <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px">Orders Dashboard</div>
-      <div style="color:var(--muted);font-size:14px">Coming soon — connect your order management system here.</div>
-    </div>
-  </div>
-
-  <!-- PAGE: ANALYTICS (placeholder) -->
-  <div id="page-analytics" style="display:none">
-    <div class="page-header"><div><div class="page-title">Analytics</div><div class="page-sub">Traffic, revenue, and performance insights</div></div></div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:60px;text-align:center">
-      <div style="font-size:48px;margin-bottom:16px">📊</div>
-      <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px">Analytics Dashboard</div>
-      <div style="color:var(--muted);font-size:14px">Coming soon — your traffic and revenue charts will appear here.</div>
-    </div>
-  </div>
-
-  <!-- PAGE: CATEGORIES -->
-  <div id="page-categories" style="display:none">
-    <div class="page-header"><div><div class="page-title">Categories</div><div class="page-sub">Manage site categories</div></div></div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px" id="catGrid"></div>
-    </div>
-  </div>
-
-  <!-- PAGE: SETTINGS -->
-  <div id="page-settings" style="display:none">
-    <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Admin configuration</div></div></div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;max-width:520px">
-      <div class="fg" style="margin-bottom:16px"><label class="fl">Admin Name</label><input class="fi" value="Ahmad" id="settingName"></div>
-      <div class="fg" style="margin-bottom:16px"><label class="fl">Email</label><input class="fi" value="hello@uplyncio.com" id="settingEmail"></div>
-      <div class="fg" style="margin-bottom:16px"><label class="fl">WhatsApp Number</label><input class="fi" value="+923001234567" id="settingWA"></div>
-      <div class="fg" style="margin-bottom:24px"><label class="fl">Site Name</label><input class="fi" value="Uplyncio"></div>
-      <button class="btn btn-primary" onclick="showToast('Settings saved!')">Save Settings</button>
-    </div>
-  </div>
-
-</div>
-
-<!-- ADD/EDIT MODAL -->
-<div class="modal-overlay" id="siteModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 id="modalTitle">Add New Site</h2>
-      <button class="modal-x" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Site Name *</label>
-          <input class="fi" id="fName" placeholder="e.g. TechBullion">
-        </div>
-        <div class="fg">
-          <label class="fl">Site URL *</label>
-          <input class="fi" id="fUrl" placeholder="https://techbullion.com">
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Domain Authority (DA)</label>
-          <input class="fi" id="fDA" type="number" placeholder="0-100" min="0" max="100">
-        </div>
-        <div class="fg">
-          <label class="fl">Domain Rating (DR)</label>
-          <input class="fi" id="fDR" type="number" placeholder="0-100" min="0" max="100">
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Monthly Traffic</label>
-          <input class="fi" id="fTraffic" placeholder="e.g. 48K or 1.2M">
-        </div>
-        <div class="fg">
-          <label class="fl">Ahrefs Traffic (number)</label>
-          <input class="fi" id="fAhrefs" type="number" placeholder="e.g. 48000">
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Category *</label>
-          <select class="fi fi-select" id="fCat">
-            <option value="">Select category</option>
-            <option>SaaS</option><option>Tech</option><option>Business</option>
-            <option>Finance</option><option>Health</option><option>Marketing</option>
-            <option>Crypto</option><option>Travel</option><option>Law</option><option>Education</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label class="fl">Link Type *</label>
-          <select class="fi fi-select" id="fLinkType">
-            <option value="">Select type</option>
-            <option>Dofollow</option>
-            <option>Nofollow</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Number of Links Allowed</label>
-          <input class="fi" id="fLinks" type="number" placeholder="e.g. 2" min="1">
-        </div>
-        <div class="fg">
-          <label class="fl">Price per Post ($) *</label>
-          <input class="fi" id="fPrice" type="number" placeholder="e.g. 120" min="0">
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Language</label>
-          <select class="fi fi-select" id="fLang">
-            <option>English</option><option>Spanish</option><option>German</option><option>French</option><option>Arabic</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label class="fl">Country</label>
-          <select class="fi fi-select" id="fCountry">
-            <option>USA</option><option>UK</option><option>Canada</option><option>Australia</option><option>Pakistan</option><option>India</option><option>Germany</option><option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-bottom:16px">
-        <div class="fg">
-          <label class="fl">Semrush Score</label>
-          <input class="fi" id="fSemrush" type="number" placeholder="0-100">
-        </div>
-        <div class="fg">
-          <label class="fl">Status</label>
-          <select class="fi fi-select" id="fStatus">
-            <option>Live</option>
-            <option>Draft</option>
-          </select>
-        </div>
-      </div>
-      <div class="fg" style="margin-bottom:0">
-        <label class="fl">Notes (optional)</label>
-        <input class="fi" id="fNotes" placeholder="Any special notes about this site...">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveSite()">Save Site</button>
+      <button class="btn btn-p" onclick="saveTeamSite()" style="width:100%;padding:12px;margin-top:18px;font-size:14px">✓ Save Site to Marketplace</button>
     </div>
   </div>
 </div>
-
-<!-- DELETE CONFIRM MODAL -->
-<div class="modal-overlay" id="delModal" onclick="if(event.target===this)closeDelModal()">
-  <div class="del-modal">
-    <div style="font-size:40px;margin-bottom:12px">🗑️</div>
-    <h3>Delete Site?</h3>
-    <p>Are you sure you want to delete <strong id="delSiteName"></strong>? This action cannot be undone.</p>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button class="btn btn-ghost" onclick="closeDelModal()">Cancel</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-// ── DATA ──
-let sites = JSON.parse(localStorage.getItem('uplyncio_sites') || '[]');
-if(sites.length === 0){
-  sites = [
-    {id:1,name:"TechBullion",url:"techbullion.com",da:72,dr:68,traffic:"48K",ahrefs:48000,cat:"Tech",links:2,linkType:"Dofollow",price:120,lang:"English",country:"USA",semrush:41,status:"Live",notes:""},
-    {id:2,name:"Business2Community",url:"business2community.com",da:84,dr:79,traffic:"210K",ahrefs:210000,cat:"Business",links:2,linkType:"Dofollow",price:250,lang:"English",country:"USA",semrush:58,status:"Live",notes:""},
-    {id:3,name:"Startup Bonsai",url:"startupbonsai.com",da:61,dr:58,traffic:"32K",ahrefs:32000,cat:"SaaS",links:1,linkType:"Dofollow",price:90,lang:"English",country:"USA",semrush:38,status:"Live",notes:""},
-    {id:4,name:"Finextra",url:"finextra.com",da:78,dr:74,traffic:"95K",ahrefs:95000,cat:"Finance",links:2,linkType:"Dofollow",price:200,lang:"English",country:"UK",semrush:52,status:"Live",notes:""},
-    {id:5,name:"Hackernoon",url:"hackernoon.com",da:88,dr:85,traffic:"320K",ahrefs:320000,cat:"Tech",links:1,linkType:"Dofollow",price:300,lang:"English",country:"USA",semrush:67,status:"Live",notes:""},
-    {id:6,name:"SaaS Mag",url:"saasmag.com",da:55,dr:52,traffic:"18K",ahrefs:18000,cat:"SaaS",links:2,linkType:"Dofollow",price:80,lang:"English",country:"USA",semrush:32,status:"Draft",notes:"New site - pending review"},
-  ];
-  saveToDB();
-}
+var TEAM_UID = 'uplyncio_team_official';
+var TEAM_EMAIL = 'team@uplyncio.com';
+var ADMIN_ID = 'uplyncio_admin';
 
-let editId = null;
-let deleteId = null;
-let currentPage = 1;
-const perPage = 10;
-let selected = new Set();
+function getAdminPass(){ return localStorage.getItem('uplyncio_admin_pass')||'Uplyncio@2026!'; }
 
-function saveToDB(){
-  localStorage.setItem('uplyncio_sites', JSON.stringify(sites));
-}
-
-function getFiltered(){
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const cat = document.getElementById('filterCat').value;
-  const lnk = document.getElementById('filterLink').value;
-  const sts = document.getElementById('filterStatus').value;
-  return sites.filter(s =>
-    (!q || s.name.toLowerCase().includes(q) || s.url.toLowerCase().includes(q)) &&
-    (!cat || s.cat === cat) &&
-    (!lnk || s.linkType === lnk) &&
-    (!sts || s.status === sts)
-  );
-}
-
-function renderTable(){
-  const filtered = getFiltered();
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / perPage));
-  if(currentPage > totalPages) currentPage = 1;
-  const slice = filtered.slice((currentPage-1)*perPage, currentPage*perPage);
-
-  document.getElementById('shownCount').textContent = total;
-  document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages} · ${total} results`;
-
-  const tbody = document.getElementById('sitesTable');
-  if(slice.length === 0){
-    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--muted)">No sites found. Add your first site!</td></tr>`;
+// AUTH
+function doLogin(){
+  var u = document.getElementById('aUser').value.trim();
+  var p = document.getElementById('aPass').value;
+  if(u===ADMIN_ID && p===getAdminPass()){
+    localStorage.setItem('uplyncio_admin_sess','1');
+    showApp();
   } else {
-    tbody.innerHTML = slice.map(s => `
-    <tr>
-      <td><input type="checkbox" class="cb" ${selected.has(s.id)?'checked':''} onchange="toggleSelect(${s.id},this)"></td>
-      <td><div class="site-name">${s.name}</div><div class="site-url">${s.url}</div></td>
-      <td><span class="bdg b-da">DA ${s.da}</span></td>
-      <td><span class="bdg b-dr">DR ${s.dr}</span></td>
-      <td><span class="bdg b-tr">${s.traffic}</span></td>
-      <td><span class="bdg b-cat">${s.cat}</span></td>
-      <td style="color:var(--text2);font-size:12px">${s.links} link${s.links>1?'s':''}</td>
-      <td><span class="bdg ${s.linkType==='Dofollow'?'b-do':'b-no'}">${s.linkType}</span></td>
-      <td><span class="price-val">$${s.price}</span></td>
-      <td><span class="status-${s.status.toLowerCase()}"><span class="ldot"></span>${s.status}</span></td>
-      <td>
-        <div class="act-btns">
-          <button class="btn btn-ghost btn-sm" onclick="editSite(${s.id})">✏️ Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${s.id})">🗑</button>
-        </div>
-      </td>
-    </tr>`).join('');
+    document.getElementById('loginErr').style.display='block';
   }
+}
+function logout(){ localStorage.removeItem('uplyncio_admin_sess'); location.reload(); }
+function changePw(){ var p=document.getElementById('newPw').value; if(!p){alert('Enter password');return;} localStorage.setItem('uplyncio_admin_pass',p); document.getElementById('newPw').value=''; alert('✅ Password updated!'); }
 
-  // Pagination
-  const pb = document.getElementById('pageBtns');
-  pb.innerHTML = '';
-  for(let i=1;i<=totalPages;i++){
-    const b = document.createElement('button');
-    b.className = 'pg-btn' + (i===currentPage?' active':'');
-    b.textContent = i;
-    b.onclick = ()=>{currentPage=i;renderTable()};
-    pb.appendChild(b);
-  }
-
-  updateStats();
-  updateBulkBtn();
+function showApp(){
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('app').style.display='flex';
+  init();
 }
 
-function updateStats(){
-  const all = sites;
-  document.getElementById('totalSites').textContent = all.length;
-  document.getElementById('liveSitesSub').textContent = all.filter(s=>s.status==='Live').length + ' live';
-  const avgDA = all.length ? Math.round(all.reduce((a,s)=>a+s.da,0)/all.length) : 0;
-  document.getElementById('avgDA').textContent = avgDA;
-  document.getElementById('dofollowCount').textContent = all.filter(s=>s.linkType==='Dofollow').length;
-  const avgP = all.length ? Math.round(all.reduce((a,s)=>a+s.price,0)/all.length) : 0;
-  document.getElementById('avgPrice').textContent = '$'+avgP;
+// CLOCK
+setInterval(function(){ document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' · '+new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); },1000);
+
+// NAV
+var pageTitles = {dashboard:'📊 Dashboard',publishers:'📰 Publishers',buyers:'🛒 Buyers',sites:'🌐 Our Sites',orders:'📦 All Orders',revenue:'💰 Revenue',settings:'⚙️ Settings'};
+function nav(id, el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active')});
+  document.getElementById('pg-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('tbTitle').textContent = pageTitles[id]||id;
+  var fns={publishers:renderPubs,buyers:renderBuys,sites:renderSites,orders:renderOrders,revenue:renderRevenue};
+  if(fns[id]) fns[id]();
 }
 
-function toggleSelect(id, cb){
-  if(cb.checked) selected.add(id); else selected.delete(id);
-  updateBulkBtn();
+// HELPERS
+function getUsers(){ try{return JSON.parse(localStorage.getItem('uplyncio_users')||'{}')}catch(e){return{}} }
+function getPubData(uid){ try{return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}')}catch(e){return{}} }
+function getAllOrders(){ try{return JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]')}catch(e){return[]} }
+function getTeamSites(){ try{return JSON.parse(localStorage.getItem('uplyncio_team_sites')||'[]')}catch(e){return[]} }
+function fmt$(n){ return '$'+(parseFloat(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function fmtD(d){ try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return'—'} }
+function pubs(){ var u=getUsers(); return Object.values(u).filter(function(x){return x.role==='publisher'&&x.email!==TEAM_EMAIL}) }
+function buys(){ var u=getUsers(); return Object.values(u).filter(function(x){return (x.role==='buyer'||!x.role)&&x.email!=='buyer@uplyncio.com'}) }
+function closeModal(id){ document.getElementById(id).classList.remove('open') }
+
+// INIT
+function init(){
+  ensureTeam();
+  renderDash();
+  updateSbCounts();
+}
+function refresh(){ renderDash(); updateSbCounts(); var a=document.querySelector('.sb-item.active'); if(a){var id=a.textContent.trim().toLowerCase().replace(/[^a-z]/g,''); var fns={dashboard:renderDash,publishers:renderPubs,buyers:renderBuys,sites:renderSites,orders:renderOrders,revenue:renderRevenue}; } }
+function updateSbCounts(){ document.getElementById('sbP').textContent=pubs().length; document.getElementById('sbB').textContent=buys().length; }
+
+// STAT CARD
+function sc(color,label,val,sub){ return '<div class="scard '+color+'"><div class="scard-lbl">'+label+'</div><div class="scard-val">'+val+'</div><div class="scard-sub">'+sub+'</div></div>'; }
+
+// DASHBOARD
+function renderDash(){
+  var ps=pubs(), bs=buys(), ords=getAllOrders();
+  var rev=ords.reduce(function(s,o){return s+(o.price||0)},0);
+  var vp=ps.filter(function(u){return getPubData(u.uid||u.email).publisherVerified}).length;
+  var vb=bs.filter(function(u){return u.buyerVerified}).length;
+  document.getElementById('dashStats').innerHTML=
+    sc('blue','📰 Publishers',ps.length,vp+' verified')+
+    sc('teal','🛒 Buyers',bs.length,vb+' verified')+
+    sc('gold','📦 Total Orders',ords.length,'all time')+
+    sc('green','💰 Total Revenue',fmt$(rev),'platform-wide')+
+    sc('purple','👑 Verified Publishers',vp,'of '+ps.length)+
+    sc('blue','👑 Verified Buyers',vb,'of '+bs.length);
+
+  function rowPub(u){ var d=getPubData(u.uid||u.email); return '<tr onclick="openPub(\''+encodeURIComponent(JSON.stringify(u))+'\')"><td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:30px;height:30px;font-size:12px">'+((u.name||'?')[0])+'</div><div style="font-size:13px;font-weight:600">'+u.name+'</div></div></td><td style="font-size:12px;color:var(--muted)">'+u.email+'</td><td>'+(d.publisherVerified?'<span class="b-v">👑 Verified</span>':'<span class="b-u">—</span>')+'</td></tr>'; }
+  function rowBuy(u){ return '<tr onclick="openBuy(\''+encodeURIComponent(JSON.stringify(u))+'\')"><td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="width:30px;height:30px;font-size:12px;background:linear-gradient(135deg,#16a34a,#0d9488)">'+((u.name||'?')[0])+'</div><div style="font-size:13px;font-weight:600">'+u.name+'</div></div></td><td style="font-size:12px;color:var(--muted)">'+u.email+'</td><td>'+(u.buyerVerified?'<span class="b-v">👑 Verified</span>':'<span class="b-u">—</span>')+'</td></tr>'; }
+  document.getElementById('rPubs').innerHTML = ps.slice(-5).reverse().map(rowPub).join('')||'<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--muted)">No publishers yet</td></tr>';
+  document.getElementById('rBuys').innerHTML = bs.slice(-5).reverse().map(rowBuy).join('')||'<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--muted)">No buyers yet</td></tr>';
 }
 
-function toggleSelectAll(){
-  const all = document.getElementById('selectAll').checked;
-  document.querySelectorAll('tbody .cb').forEach(cb=>{
-    cb.checked = all;
-    const id = parseInt(cb.closest('tr').querySelector('.act-btns button').getAttribute('onclick').match(/\d+/)[0]);
-    if(all) selected.add(id); else selected.delete(id);
+// PUBLISHERS PAGE
+function renderPubs(){
+  var ps=pubs(), q=(document.getElementById('pQ')||{value:''}).value.toLowerCase(), f=(document.getElementById('pF')||{value:''}).value;
+  document.getElementById('pCnt').textContent=ps.length+' total';
+  var fil=ps.filter(function(u){
+    var d=getPubData(u.uid||u.email);
+    if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.email||'').toLowerCase().includes(q))return false;
+    if(f==='v'&&!d.publisherVerified)return false;
+    if(f==='u'&&d.publisherVerified)return false;
+    return true;
   });
-  updateBulkBtn();
+  document.getElementById('pBody').innerHTML=fil.map(function(u){
+    var d=getPubData(u.uid||u.email), sites=(d.sites||[]).length, ords=(d.orders||[]).length;
+    var earn=(d.orders||[]).reduce(function(s,o){return s+(o.price||0)},0);
+    return '<tr onclick="openPub(\''+encodeURIComponent(JSON.stringify(u))+'\')">'+
+      '<td><div style="display:flex;align-items:center;gap:9px"><div class="av">'+((u.name||'?')[0])+'</div><b>'+u.name+'</b></div></td>'+
+      '<td style="color:var(--muted)">'+u.email+'</td>'+
+      '<td><span style="background:rgba(79,124,255,.1);color:var(--blue);padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700">'+sites+'</span></td>'+
+      '<td>'+ords+'</td>'+
+      '<td style="font-family:Manrope,sans-serif;font-weight:700">'+fmt$(earn)+'</td>'+
+      '<td>'+(d.publisherVerified?'<span class="b-v">👑 Verified</span>':'<span class="b-u">Unverified</span>')+'</td>'+
+      '<td style="color:var(--muted)">'+fmtD(u.createdAt)+'</td>'+
+    '</tr>';
+  }).join('')||'<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted)">No publishers found</td></tr>';
 }
 
-function updateBulkBtn(){
-  document.getElementById('bulkDeleteBtn').style.display = selected.size > 0 ? 'flex' : 'none';
+function openPub(enc){
+  var u=JSON.parse(decodeURIComponent(enc)), uid=u.uid||u.email, d=getPubData(uid);
+  var sites=d.sites||[], ords=d.orders||[];
+  var earn=ords.reduce(function(s,o){return s+(o.price||0)},0);
+  document.getElementById('pMTitle').innerHTML=(d.publisherVerified?'👑 ':'')+u.name;
+  document.getElementById('pMBody').innerHTML=
+    '<div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--border)">'+
+      '<div class="av" style="width:52px;height:52px;font-size:22px">'+((u.name||'?')[0])+'</div>'+
+      '<div><div style="font-size:18px;font-weight:800">'+u.name+'</div>'+
+      '<div style="color:var(--muted);margin-top:3px">'+u.email+'</div>'+
+      '<div style="margin-top:6px">'+(d.publisherVerified?'<span class="b-v">👑 Verified Publisher</span> ':'')+'<span class="b-role">Publisher</span></div></div></div>'+
+    '<div class="dgrid">'+di('Name',u.name)+di('Email',u.email)+di('UID',uid)+di('Joined',fmtD(u.createdAt))+di('Sites Added',sites.length)+di('Orders Completed',ords.length)+di('Total Earnings',fmt$(earn))+di('Verified',d.publisherVerified?'✅ Yes — '+fmtD(d.publisherVerifiedDate):'❌ Not yet')+'</div>'+
+    '<div class="dsec">Sites ('+sites.length+')</div>'+
+    (sites.length?'<div style="max-height:160px;overflow-y:auto">'+sites.map(function(s){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">'+
+        '<div><div style="font-weight:700;color:#4f7cff">'+s.url+'</div>'+
+        '<div style="font-size:11px;color:var(--muted);margin-top:2px">DA '+(s.da||'?')+' · DR '+(s.dr||'?')+' · GP $'+(s.gP||'?')+' · LI $'+(s.liP||'?')+'</div></div>'+
+        '<span style="background:rgba(34,197,94,.1);color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">Active</span></div>';
+    }).join('')+'</div>':'<div style="color:var(--muted);font-size:13px;padding:10px 0">No sites yet</div>')+
+    '<div style="margin-top:16px;display:flex;gap:8px">'+
+      (!d.publisherVerified?'<button class="btn btn-s" onclick="grantPub(\''+uid+'\')">👑 Grant Verified Badge</button>':'')+
+      '<button class="btn btn-d" onclick="delPub(\''+uid+'\',\''+u.email+'\')">🗑 Delete Account</button>'+
+    '</div>';
+  document.getElementById('pModal').classList.add('open');
 }
 
-function bulkDelete(){
-  if(!confirm(`Delete ${selected.size} selected sites?`)) return;
-  sites = sites.filter(s=>!selected.has(s.id));
-  selected.clear();
-  saveToDB();
-  renderTable();
-  showToast(`Sites deleted!`);
+function di(l,v){ return '<div class="ditem"><div class="dlbl">'+l+'</div><div class="dval">'+(v||'—')+'</div></div>'; }
+function grantPub(uid){ var d=getPubData(uid); d.publisherVerified=true; d.publisherVerifiedDate=new Date().toISOString(); localStorage.setItem('uplyncio_data_'+uid,JSON.stringify(d)); closeModal('pModal'); renderPubs(); alert('✅ Verified Publisher badge granted!'); }
+function delPub(uid,email){ if(!confirm('Delete this publisher account?'))return; var u=getUsers(); delete u[email]; localStorage.setItem('uplyncio_users',JSON.stringify(u)); localStorage.removeItem('uplyncio_data_'+uid); closeModal('pModal'); renderPubs(); updateSbCounts(); }
+
+// BUYERS PAGE
+function renderBuys(){
+  var bs=buys(), q=(document.getElementById('bQ')||{value:''}).value.toLowerCase(), f=(document.getElementById('bF')||{value:''}).value;
+  var ords=getAllOrders();
+  document.getElementById('bCnt').textContent=bs.length+' total';
+  var fil=bs.filter(function(u){
+    if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.email||'').toLowerCase().includes(q))return false;
+    if(f==='v'&&!u.buyerVerified)return false;
+    if(f==='u'&&u.buyerVerified)return false;
+    return true;
+  });
+  document.getElementById('bBody').innerHTML=fil.map(function(u){
+    var uOrds=ords.filter(function(o){return o.uid===u.uid||o.email===u.email});
+    var spent=uOrds.reduce(function(s,o){return s+(o.price||0)},0);
+    return '<tr onclick="openBuy(\''+encodeURIComponent(JSON.stringify(u))+'\')">'+
+      '<td><div style="display:flex;align-items:center;gap:9px"><div class="av" style="background:linear-gradient(135deg,#16a34a,#0d9488)">'+((u.name||'?')[0])+'</div><b>'+u.name+'</b></div></td>'+
+      '<td style="color:var(--muted)">'+u.email+'</td>'+
+      '<td>'+uOrds.length+'</td>'+
+      '<td style="font-family:Manrope,sans-serif;font-weight:700">'+fmt$(spent)+'</td>'+
+      '<td style="color:var(--teal);font-weight:700">'+fmt$(localStorage.getItem('uplyncio_balance')||0)+'</td>'+
+      '<td>'+(u.buyerVerified?'<span class="b-v">👑 Verified</span>':'<span class="b-u">Unverified</span>')+'</td>'+
+      '<td style="color:var(--muted)">'+fmtD(u.createdAt)+'</td>'+
+    '</tr>';
+  }).join('')||'<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted)">No buyers found</td></tr>';
 }
 
-function clearFilters(){
-  document.getElementById('searchInput').value='';
-  document.getElementById('filterCat').value='';
-  document.getElementById('filterLink').value='';
-  document.getElementById('filterStatus').value='';
-  renderTable();
+function openBuy(enc){
+  var u=JSON.parse(decodeURIComponent(enc));
+  var ords=getAllOrders().filter(function(o){return o.uid===u.uid||o.email===u.email});
+  var spent=ords.reduce(function(s,o){return s+(o.price||0)},0);
+  document.getElementById('bMTitle').innerHTML=(u.buyerVerified?'👑 ':'')+u.name;
+  document.getElementById('bMBody').innerHTML=
+    '<div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--border)">'+
+      '<div class="av" style="width:52px;height:52px;font-size:22px;background:linear-gradient(135deg,#16a34a,#0d9488)">'+((u.name||'?')[0])+'</div>'+
+      '<div><div style="font-size:18px;font-weight:800">'+u.name+'</div>'+
+      '<div style="color:var(--muted);margin-top:3px">'+u.email+'</div>'+
+      '<div style="margin-top:6px">'+(u.buyerVerified?'<span class="b-v">👑 Verified Buyer</span> ':'')+'<span class="b-role">Buyer</span></div></div></div>'+
+    '<div class="dgrid">'+di('Name',u.name)+di('Email',u.email)+di('Joined',fmtD(u.createdAt))+di('Verified',u.buyerVerified?'✅ Yes':'❌ Not yet')+di('Total Orders',ords.length)+di('Total Spent',fmt$(spent))+'</div>'+
+    '<div class="dsec">Orders ('+ords.length+')</div>'+
+    (ords.length?'<div style="max-height:200px;overflow-y:auto">'+ords.map(function(o){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">'+
+        '<div><div style="font-weight:700">'+o.id+'</div>'+
+        '<div style="font-size:11px;color:var(--muted);margin-top:2px">'+(o.site||o.domain||'?')+' · '+(o.type||'?')+' · '+fmtD(o.date)+'</div></div>'+
+        '<div style="text-align:right"><div style="font-weight:700;color:var(--teal);font-family:Manrope,sans-serif">'+fmt$(o.price)+'</div>'+
+        '<div style="font-size:11px;color:var(--muted)">'+(o.status||'Pending')+'</div></div></div>';
+    }).join('')+'</div>':'<div style="color:var(--muted);font-size:13px;padding:10px 0">No orders yet</div>')+
+    (!u.buyerVerified?'<div style="margin-top:16px"><button class="btn btn-s" onclick="grantBuy(\''+u.email+'\')">👑 Grant Verified Badge</button></div>':'');
+  document.getElementById('bModal').classList.add('open');
 }
 
-function openAddModal(){
-  editId = null;
-  document.getElementById('modalTitle').textContent = 'Add New Site';
-  ['fName','fUrl','fDA','fDR','fTraffic','fAhrefs','fLinks','fPrice','fSemrush','fNotes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fCat').value='';
-  document.getElementById('fLinkType').value='';
-  document.getElementById('fLang').value='English';
-  document.getElementById('fCountry').value='USA';
-  document.getElementById('fStatus').value='Live';
-  document.getElementById('siteModal').classList.add('open');
+function grantBuy(email){ var u=getUsers(); if(u[email]){u[email].buyerVerified=true;u[email].buyerVerifiedDate=new Date().toISOString();} localStorage.setItem('uplyncio_users',JSON.stringify(u)); closeModal('bModal'); renderBuys(); alert('✅ Verified Buyer badge granted!'); }
+
+// OUR SITES
+function renderSites(){
+  var sites=getTeamSites();
+  document.getElementById('sitesList').innerHTML=sites.length?sites.map(function(s,i){
+    return '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border)">'+
+      '<div><div style="font-weight:700;color:#4f7cff">'+s.url+'</div>'+
+      '<div style="font-size:12px;color:var(--muted);margin-top:4px">DA '+(s.da||'?')+' · DR '+(s.dr||'?')+' · Traffic '+(s.traffic||0).toLocaleString()+' · GP $'+(s.gP||'?')+' · LI $'+(s.liP||'?')+' · '+s.linkType+' · TAT '+(s.tat||'?')+'d</div>'+
+      '<div style="font-size:11px;color:var(--muted2);margin-top:2px">'+((s.cats||[]).join(', '))+' · '+(s.country||'—')+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<span class="b-v">Uplyncio Team</span>'+
+        '<button class="btn btn-d" onclick="rmSite('+i+')">✕</button>'+
+      '</div></div>';
+  }).join(''):'<div style="padding:48px;text-align:center;color:var(--muted);font-size:14px">No sites yet. Click "+ Add Site" to add your first team site.</div>';
 }
 
-function editSite(id){
-  editId = id;
-  const s = sites.find(x=>x.id===id);
-  if(!s) return;
-  document.getElementById('modalTitle').textContent = 'Edit Site';
-  document.getElementById('fName').value = s.name;
-  document.getElementById('fUrl').value = s.url;
-  document.getElementById('fDA').value = s.da;
-  document.getElementById('fDR').value = s.dr;
-  document.getElementById('fTraffic').value = s.traffic;
-  document.getElementById('fAhrefs').value = s.ahrefs||'';
-  document.getElementById('fCat').value = s.cat;
-  document.getElementById('fLinkType').value = s.linkType;
-  document.getElementById('fLinks').value = s.links;
-  document.getElementById('fPrice').value = s.price;
-  document.getElementById('fLang').value = s.lang||'English';
-  document.getElementById('fCountry').value = s.country||'USA';
-  document.getElementById('fSemrush').value = s.semrush||'';
-  document.getElementById('fStatus').value = s.status;
-  document.getElementById('fNotes').value = s.notes||'';
-  document.getElementById('siteModal').classList.add('open');
-}
-
-function saveSite(){
-  const name = document.getElementById('fName').value.trim();
-  const url = document.getElementById('fUrl').value.trim();
-  const cat = document.getElementById('fCat').value;
-  const linkType = document.getElementById('fLinkType').value;
-  const price = document.getElementById('fPrice').value;
-  if(!name||!url||!cat||!linkType||!price){
-    showToast('Please fill required fields!','error');
-    return;
-  }
-  const data = {
-    name, url,
-    da: parseInt(document.getElementById('fDA').value)||0,
-    dr: parseInt(document.getElementById('fDR').value)||0,
-    traffic: document.getElementById('fTraffic').value||'0',
-    ahrefs: parseInt(document.getElementById('fAhrefs').value)||0,
-    cat, linkType,
-    links: parseInt(document.getElementById('fLinks').value)||1,
-    price: parseInt(price),
-    lang: document.getElementById('fLang').value,
-    country: document.getElementById('fCountry').value,
-    semrush: parseInt(document.getElementById('fSemrush').value)||0,
-    status: document.getElementById('fStatus').value,
-    notes: document.getElementById('fNotes').value
+function openAddSite(){ document.getElementById('asModal').classList.add('open'); }
+function saveTeamSite(){
+  var url=document.getElementById('asUrl').value.trim();
+  if(!url){alert('Site URL required');return;}
+  var cats=document.getElementById('asCat').value.split(',').map(function(c){return c.trim()}).filter(Boolean);
+  var sites=getTeamSites();
+  var site={
+    url:url.replace(/https?:\/\//,'').replace(/\/$/,''),
+    da:parseInt(document.getElementById('asDA').value)||0,
+    dr:parseInt(document.getElementById('asDR').value)||0,
+    traffic:parseInt(document.getElementById('asTr').value)||0,
+    gP:parseInt(document.getElementById('asGP').value)||0,
+    wP:Math.round((parseInt(document.getElementById('asGP').value)||0)*1.35),
+    liOk:!!(parseInt(document.getElementById('asLI').value)),
+    liP:parseInt(document.getElementById('asLI').value)||0,
+    cats:cats, country:document.getElementById('asCtry').value||'Global',
+    linkType:document.getElementById('asLT').value,
+    tat:parseInt(document.getElementById('asTAT').value)||7,
+    pub:'Team', publisherUid:TEAM_UID, isTeamSite:true, comp:98, lang:'English'
   };
-  if(editId){
-    const idx = sites.findIndex(s=>s.id===editId);
-    sites[idx] = {...sites[idx],...data};
-    showToast('Site updated!');
-  } else {
-    data.id = Date.now();
-    sites.push(data);
-    showToast('Site added!');
-  }
-  saveToDB();
-  closeModal();
-  renderTable();
+  sites.push(site);
+  localStorage.setItem('uplyncio_team_sites',JSON.stringify(sites));
+  var d=getPubData(TEAM_UID); d.sites=sites;
+  localStorage.setItem('uplyncio_data_'+TEAM_UID,JSON.stringify(d));
+  closeModal('asModal');
+  ['asUrl','asDA','asDR','asTr','asGP','asLI','asCat','asCtry','asTAT'].forEach(function(id){document.getElementById(id).value='';});
+  renderSites();
+  alert('✅ Site saved! It will now appear in the buyer marketplace as an Uplyncio Team site.');
+}
+function rmSite(i){ if(!confirm('Remove this site?'))return; var s=getTeamSites(); s.splice(i,1); localStorage.setItem('uplyncio_team_sites',JSON.stringify(s)); var d=getPubData(TEAM_UID); d.sites=s; localStorage.setItem('uplyncio_data_'+TEAM_UID,JSON.stringify(d)); renderSites(); }
+
+// ORDERS
+function renderOrders(){
+  var ords=getAllOrders();
+  document.getElementById('oCnt').textContent=ords.length+' total';
+  document.getElementById('oBody').innerHTML=ords.map(function(o){
+    return '<tr>'+
+      '<td style="font-family:Manrope,sans-serif;font-weight:700;color:var(--blue)">'+o.id+'</td>'+
+      '<td style="color:var(--muted);font-size:12px">'+o.uid+'</td>'+
+      '<td style="color:#4f7cff">'+o.site+'</td>'+
+      '<td style="color:var(--muted)">'+o.type+'</td>'+
+      '<td style="font-family:Manrope,sans-serif;font-weight:700;color:var(--teal)">'+fmt$(o.price)+'</td>'+
+      '<td><span style="background:rgba(79,124,255,.15);color:var(--blue);padding:2px 9px;border-radius:6px;font-size:11px;font-weight:700">'+(o.status||'Pending')+'</span></td>'+
+      '<td style="color:var(--muted)">'+fmtD(o.date)+'</td>'+
+    '</tr>';
+  }).join('')||'<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--muted)">No orders yet</td></tr>';
 }
 
-function openDeleteModal(id){
-  deleteId = id;
-  const s = sites.find(x=>x.id===id);
-  document.getElementById('delSiteName').textContent = s ? s.name : 'this site';
-  document.getElementById('delModal').classList.add('open');
+// REVENUE
+function renderRevenue(){
+  var ords=getAllOrders();
+  var total=ords.reduce(function(s,o){return s+(o.price||0)},0);
+  var now=new Date(), thisMonth=ords.filter(function(o){var d=new Date(o.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  var mRev=thisMonth.reduce(function(s,o){return s+(o.price||0)},0);
+  document.getElementById('revStats').innerHTML=
+    sc('green','💰 Total Revenue',fmt$(total),'all time')+
+    sc('teal','📅 This Month',fmt$(mRev),thisMonth.length+' orders')+
+    sc('blue','📦 Orders',ords.length,'total')+
+    sc('gold','💵 Avg Order',fmt$(ords.length?total/ords.length:0),'per order');
+  document.getElementById('revDetail').innerHTML='<div style="color:var(--muted);font-size:13px">'+ords.length+' orders totalling '+fmt$(total)+' in platform revenue.</div>';
 }
 
-function closeDelModal(){
-  document.getElementById('delModal').classList.remove('open');
-  deleteId = null;
+// TEAM ACCOUNTS
+function ensureTeam(){
+  var u=getUsers();
+  if(!u[TEAM_EMAIL]){ u[TEAM_EMAIL]={email:TEAM_EMAIL,name:'Uplyncio Team',role:'publisher',uid:TEAM_UID,createdAt:new Date().toISOString(),verified:true}; }
+  var bEmail='buyer@uplyncio.com';
+  if(!u[bEmail]){ u[bEmail]={email:bEmail,name:'Uplyncio Team',role:'buyer',uid:TEAM_UID+'_buyer',buyerVerified:true,createdAt:new Date().toISOString(),verified:true}; }
+  localStorage.setItem('uplyncio_users',JSON.stringify(u));
+  var d=getPubData(TEAM_UID);
+  if(!d.publisherVerified){ d.publisherVerified=true; d.publisherVerifiedDate=new Date().toISOString(); d.sites=getTeamSites(); localStorage.setItem('uplyncio_data_'+TEAM_UID,JSON.stringify(d)); }
+  updateSbCounts();
 }
 
-function confirmDelete(){
-  sites = sites.filter(s=>s.id!==deleteId);
-  saveToDB();
-  renderTable();
-  closeDelModal();
-  showToast('Site deleted!');
-}
-
-function closeModal(){
-  document.getElementById('siteModal').classList.remove('open');
-  editId = null;
-}
-
-function showToast(msg, type=''){
-  const t = document.getElementById('toast');
-  t.textContent = (type==='error'?'❌ ':'✅ ') + msg;
-  t.className = 'toast' + (type?' '+type:'');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3500);
-}
-
-function showPage(name){
-  ['sites','orders','analytics','categories','settings'].forEach(p=>{
-    document.getElementById('page-'+p).style.display = p===name?'block':'none';
-  });
-  document.querySelectorAll('.nav-item').forEach(el=>{
-    el.classList.toggle('active', el.getAttribute('onclick')===`showPage('${name}')`);
-  });
-  if(name==='categories') renderCategories();
-}
-
-function renderCategories(){
-  const cats = ['SaaS','Tech','Business','Finance','Health','Marketing','Crypto','Travel','Law','Education'];
-  document.getElementById('catGrid').innerHTML = cats.map(c=>{
-    const count = sites.filter(s=>s.cat===c).length;
-    return `<div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center">
-      <div style="font-size:24px;margin-bottom:8px">${{SaaS:'💻',Tech:'🖥️',Business:'🏢',Finance:'💰',Health:'🏥',Marketing:'📈',Crypto:'🪙',Travel:'✈️',Law:'⚖️',Education:'🎓'}[c]||'🌐'}</div>
-      <div style="font-weight:700;font-size:14px;font-family:'Manrope',sans-serif">${c}</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">${count} sites</div>
-    </div>`;
-  }).join('');
-}
-
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModal();closeDelModal();}
-});
-
-// Init
-renderTable();
+// AUTO LOAD
+if(localStorage.getItem('uplyncio_admin_sess')==='1'){ showApp(); }
 </script>
 </body>
 </html>
