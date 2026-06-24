@@ -154,7 +154,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#07090f;color:#e8eaf0
 
   <!-- PUBLISHER IFRAME (Our Sites & Orders) -->
   <div class="frame-wrap" id="frameWrap">
-    <iframe id="pubFrame" src="publisher.html" title="Publisher Panel"></iframe>
+    <iframe id="pubFrame" title="Publisher Panel" style="width:100%;height:100%;border:none"></iframe>
   </div>
 
   <!-- ADMIN MAIN CONTENT -->
@@ -274,18 +274,15 @@ function showAdminPage(id, el){
   document.getElementById('adminMain').style.display='flex';
 
   if(id==='publisher'){
-    // Show publisher iframe
-    document.getElementById('frameWrap').classList.add('visible');
-    document.getElementById('adminMain').style.display='none';
-    if(!pubFrameLoaded){
-      // Set team account as current user for publisher iframe
-      var teamUser={email:TEAM_EMAIL,name:'Uplyncio Team',role:'publisher',uid:TEAM_UID,verified:true};
-      localStorage.setItem('uplyncio_user',JSON.stringify(teamUser));
-      localStorage.setItem('uplyncio_currentUid',TEAM_UID);
-      localStorage.setItem('uplyncio_loggedIn','1');
-      document.getElementById('pubFrame').src='publisher.html';
-      pubFrameLoaded=true;
-    }
+    // Set team account then open publisher in new tab
+    var teamUser={email:TEAM_EMAIL,name:'Uplyncio Team',role:'publisher',uid:TEAM_UID,verified:true};
+    localStorage.setItem('uplyncio_user',JSON.stringify(teamUser));
+    localStorage.setItem('uplyncio_currentUid',TEAM_UID);
+    localStorage.setItem('uplyncio_loggedIn','1');
+    // Ensure team publisher data exists
+    ensureTeam();
+    window.open('publisher.html','_blank');
+    return;
   } else {
     document.querySelectorAll('.admin-page').forEach(function(p){p.classList.remove('active')});
     var pg=document.getElementById('pg-'+id);
