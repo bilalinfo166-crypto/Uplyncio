@@ -1713,6 +1713,14 @@ function renderCard(s, idx){
             s.linkType==='Sponsored'?'<span class="badge b-sp">● Sponsored</span>':
             '<span class="badge b-nf">● Nofollow</span>';
   var pubB = s.pub==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>';
+  // Check if publisher is verified
+  var verifiedB = '';
+  if(s.publisherUid){
+    try{
+      var pData = JSON.parse(localStorage.getItem('uplyncio_data_'+s.publisherUid)||'{}');
+      if(pData.publisherVerified) verifiedB = '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">✅ Verified</span>';
+    }catch(e){}
+  }
   var catB = (s.cats||[]).slice(0,3).map(function(c){ return '<span class="badge b-cat">'+c+'</span>'; }).join('');
 
   var flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'};
@@ -2208,6 +2216,9 @@ function closeRoleModal(){
   if(m){ m.style.display='none'; document.body.style.overflow=''; }
 }
 function onBuyerLogin(user){
+  // Show verified badge if earned
+  var verBadge = document.getElementById('navVerifiedBadge');
+  if(verBadge) verBadge.style.display = user.buyerVerified ? 'inline' : 'none';
   document.getElementById('guestNav').style.display='none';
   var un=document.getElementById('userNav'); un.style.display='flex';
   var av=document.getElementById('navAvatar');
@@ -3959,6 +3970,7 @@ function formatExpiry(el){
   el.value = v;
 }
 function placeOrderSuccess(price, payMethod){
+  setTimeout(checkBuyerBadge, 500);
   var site = selectedSite;
   var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
   var orderId = '#ORD-' + Date.now().toString().slice(-6);
@@ -3982,6 +3994,31 @@ function placeOrderSuccess(price, payMethod){
 
 
 
+
+
+// ── BUYER VERIFIED BADGE ──
+function checkBuyerBadge(){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    if(!uid) return;
+    var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+    var completed = orders.filter(function(o){ return o.status==='Completed'; }).length;
+    
+    var users = JSON.parse(localStorage.getItem('uplyncio_users')||'{}');
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    
+    if(completed >= 10 && !user.buyerVerified){
+      user.buyerVerified = true;
+      user.buyerVerifiedDate = new Date().toISOString();
+      localStorage.setItem('uplyncio_user', JSON.stringify(user));
+      if(users[user.email]){
+        users[user.email].buyerVerified = true;
+        localStorage.setItem('uplyncio_users', JSON.stringify(users));
+      }
+      showToast('🎉 You earned the ✅ Verified Buyer badge! It now shows on your profile.');
+    }
+  }catch(e){}
+}
 
 // ── INIT ──
 applyFilters();

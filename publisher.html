@@ -3105,6 +3105,7 @@ function closeClientReview(){
 function clientComplete(){
   var orderId = improvementOrderId;
   sampleOrders = OrderManager.updateStatus(sampleOrders, orderId, 'completed', 'Client approved and marked as complete');
+  checkAndGrantBadges();
   // Add chat message
   var o = sampleOrders.find(function(x){return x.id===orderId;});
   if(o){
@@ -3120,6 +3121,41 @@ function clientComplete(){
   updateInboxDot();
   if(compOrder) sendNotification('order_completed', compOrder);
   toast('🎉 Order completed! Payment added to your balance.','#16a34a');
+}
+
+
+// ── VERIFIED BADGE SYSTEM ──
+function checkAndGrantBadges(){
+  try {
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    if(!uid) return;
+    var key = 'uplyncio_data_' + uid;
+    var data = JSON.parse(localStorage.getItem(key)||'{}');
+    
+    // Count completed orders for publisher
+    var completedOrders = (sampleOrders||[]).filter(function(o){ return o.status==='completed'; }).length;
+    
+    // Grant verified badge at 10 completed orders
+    if(completedOrders >= 10 && !data.publisherVerified){
+      data.publisherVerified = true;
+      data.publisherVerifiedDate = new Date().toISOString();
+      localStorage.setItem(key, JSON.stringify(data));
+      
+      // Show celebration toast
+      setTimeout(function(){
+        toast('🎉 Congratulations! You earned the ✅ Verified Publisher badge! Your sites now show a verified badge to buyers.', '#16a34a');
+      }, 500);
+    }
+    
+    return completedOrders;
+  } catch(e) {}
+}
+
+function isPublisherVerified(uid){
+  try {
+    var data = JSON.parse(localStorage.getItem('uplyncio_data_' + uid)||'{}');
+    return !!data.publisherVerified;
+  } catch(e){ return false; }
 }
 
 // Update renderOrders to call updateBalance
