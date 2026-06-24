@@ -1718,7 +1718,7 @@ function renderCard(s, idx){
   if(s.publisherUid){
     try{
       var pData = JSON.parse(localStorage.getItem('uplyncio_data_'+s.publisherUid)||'{}');
-      if(pData.publisherVerified) verifiedB = '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">✅ Verified</span>';
+      if(pData.publisherVerified) verifiedB = '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap">👑 Verified</span>';
     }catch(e){}
   }
   var catB = (s.cats||[]).slice(0,3).map(function(c){ return '<span class="badge b-cat">'+c+'</span>'; }).join('');
