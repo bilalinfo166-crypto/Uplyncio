@@ -1715,11 +1715,11 @@ function applyFilters(){
   var pMin = parseFloat(document.getElementById('fPriceMin').value)||0;
   var pMax = parseFloat(document.getElementById('fPriceMax').value)||999999;
   var daMin = parseInt(document.getElementById('fDAMin').value)||0;
-  var daMax = parseInt(document.getElementById('fDAMax').value)||100;
+  var daMax = parseInt(document.getElementById('fDAMax').value)||999;
   var drMin = parseInt(document.getElementById('fDRMin').value)||0;
-  var drMax = parseInt(document.getElementById('fDRMax').value)||100;
-  var tMin = parseInt(document.getElementById('fTrafficMin').value)||0;
-  var tMax = parseInt(document.getElementById('fTrafficMax').value)||999999999;
+  var drMax = parseInt(document.getElementById('fDRMax').value)||999;
+  var tMin = parseInt((document.getElementById('fTrMin')||document.getElementById('fTrafficMin')||{}).value)||0;
+  var tMax = parseInt((document.getElementById('fTrMax')||document.getElementById('fTrafficMax')||{}).value)||999999999;
   var lt = document.getElementById('fLinkType').value;
   var country = document.getElementById('fCountry').value;
   var lang = document.getElementById('fLang').value;
@@ -1757,8 +1757,8 @@ function applyFilters(){
     if(lt && s.linkType!==lt) return false;
     if(country && s.country!==country) return false;
     if(lang && s.lang!==lang) return false;
-    if(s.comp<comp) return false;
-    if(s.tat>tat) return false;
+    if(comp && (s.comp||0)<comp) return false;
+    if(tat<999 && (s.tat||999)>tat) return false;
     return true;
   });
 
