@@ -1806,7 +1806,7 @@ function renderCard(s, idx){
   var ltB = s.linkType==='Dofollow'?'<span class="badge b-df">● Dofollow</span>':
             s.linkType==='Sponsored'?'<span class="badge b-sp">● Sponsored</span>':
             '<span class="badge b-nf">● Nofollow</span>';
-  var pubB = s.isTeamSite ? '<span class="badge" style="background:#0f1628;color:#4f7cff;border:1px solid #4f7cff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">🔗 Uplyncio Team</span>' : (s.pub==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
+  var pubB = (s.isTeamSite||s.role==='Uplyncio Team') ? '<span class="badge" style="background:#0f1628;color:#4f7cff;border:1px solid #4f7cff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">🔗 Uplyncio Team</span>' : (s.pub==='Owner'||s.role==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
   // Check if publisher is verified
   var verifiedB = '';
   if(s.publisherUid){

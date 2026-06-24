@@ -213,6 +213,28 @@ html,body{overflow-x:hidden;max-width:100vw}
   var uid    = localStorage.getItem('uplyncio_currentUid')||'';
   var loggedIn = localStorage.getItem('uplyncio_loggedIn');
   var user   = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+  
+  // Auto-setup for Uplyncio Team account
+  var TEAM_EMAIL = 'info@uplyncio.com';
+  var TEAM_UID   = 'uplyncio_team_official';
+  if(user && user.email === TEAM_EMAIL){
+    // Set special team UID
+    if(uid !== TEAM_UID){
+      localStorage.setItem('uplyncio_currentUid', TEAM_UID);
+      uid = TEAM_UID;
+    }
+    // Auto-verify
+    var td = JSON.parse(localStorage.getItem('uplyncio_data_'+TEAM_UID)||'{}');
+    if(!td.publisherVerified){
+      td.publisherVerified = true;
+      td.publisherVerifiedDate = new Date().toISOString();
+      localStorage.setItem('uplyncio_data_'+TEAM_UID, JSON.stringify(td));
+    }
+    // Update user object
+    user.uid = TEAM_UID;
+    user.verified = true;
+    localStorage.setItem('uplyncio_user', JSON.stringify(user));
+  }
 
   // Load this user's orders/sites from their personal storage
   if(uid){
@@ -2388,6 +2410,9 @@ function submit(){
   // Get Owner/Contributor role
   var roleInp = document.querySelector('input[name="siteRole"]:checked');
   var siteRole = roleInp ? roleInp.value : 'Owner';
+  // Uplyncio Team account override
+  var _currentUser = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  if(_currentUser.email === 'info@uplyncio.com'){ siteRole = 'Uplyncio Team'; }
 
   // Get special requirements from textarea
   var reqTextarea = document.querySelector('textarea.ta');
@@ -2401,6 +2426,8 @@ function submit(){
     lang: langTxt, country: countryTxt,
     maxLinks: maxLinks,
     role: siteRole,
+    isTeamSite: (siteRole === 'Uplyncio Team'),
+    publisherUid: localStorage.getItem('uplyncio_currentUid')||'',
     wordCount: wordCount,
     requirements: reqVal,
     req: reqVal,
@@ -2929,6 +2956,16 @@ function showPreview(){
 
 function importSites(){
   if(!parsedSites.length) return;
+  // Mark team sites if team account
+  var _cu = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  if(_cu.email === 'info@uplyncio.com'){
+    parsedSites = parsedSites.map(function(s){
+      s.role = 'Uplyncio Team';
+      s.isTeamSite = true;
+      s.publisherUid = localStorage.getItem('uplyncio_currentUid')||'';
+      return s;
+    });
+  }
   mySites=mySites.concat(parsedSites);
   parsedSites=[];
   clearUpload();
