@@ -30,7 +30,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tb-dt{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rd);border:2px solid var(--wh)}
 .tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--tl));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
 /* MAIN */
-.main{margin-left:210px;margin-top:94px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
+.main{margin-left:210px;margin-top:100px;flex:1;padding:28px 32px 70px;overflow-x:hidden;max-width:calc(100vw - 210px);box-sizing:border-box}
 /* BREADCRUMB */
 .bc{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);margin-bottom:6px}
 .bc a{color:var(--mu);text-decoration:none;cursor:pointer}
@@ -457,12 +457,14 @@ window.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<!-- VERIFIED BADGE BANNER -->
-<div style="position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 24px;display:flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans',sans-serif;z-index:99">
-  <span style="font-size:16px">👑</span>
-  <span style="font-size:12px;color:#92400e;font-weight:700">Earn your Gold Verified Badge!</span>
-  <span style="font-size:12px;color:#78350f">Successfully complete 10 orders on Uplyncio and earn a permanent <strong style="color:#92400e">👑 Verified Publisher</strong> badge — your sites will show a verified badge to all buyers, boosting trust and orders.</span>
+<!-- TICKER BANNER -->
+<div style="position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;font-family:'Plus Jakarta Sans',sans-serif;z-index:99">
+  <div style="display:inline-block;animation:ticker 30s linear infinite">
+    <span style="font-size:12px;color:#92400e;font-weight:700;padding:0 40px">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <span style="font-size:12px;color:#92400e;font-weight:700;padding:0 40px">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
 </div>
+<style>@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
 <div class="main" id="mainContainer" style="opacity:0;transition:opacity 0.1s">
 
 <!-- STEP 1 -->
