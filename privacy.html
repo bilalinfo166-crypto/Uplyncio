@@ -3,180 +3,234 @@
 <head>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="shortcut icon" href="favicon.svg">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Privacy Policy — Uplyncio</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-a{text-decoration:none;color:inherit}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh;display:flex;flex-direction:column}
-nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.nav-logo{font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c}.nav-logo em{font-style:normal;color:#4f7cff}
-.nav-links{display:flex;gap:24px;align-items:center}
-.nav-links a{font-size:13.5px;font-weight:600;color:#64748b;transition:color .15s}.nav-links a:hover{color:#4f7cff}
-.btn-primary{padding:9px 20px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700}
-.hero{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:64px 40px;text-align:center}
-.hero h1{font-family:Manrope,sans-serif;font-size:40px;font-weight:800;color:#fff;margin-bottom:14px}
-.hero p{font-size:16px;color:#8892a4;max-width:600px;margin:0 auto;line-height:1.7}
-.content{max-width:860px;margin:0 auto;padding:52px 24px;flex:1}
-.section{background:#fff;border-radius:16px;padding:32px 36px;margin-bottom:24px;border:1px solid #e2e8f0}
-.section h2{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c;margin-bottom:16px}
-.section h3{font-size:16px;font-weight:700;color:#1a202c;margin:20px 0 10px}
-.section p{font-size:14.5px;color:#475569;line-height:1.8;margin-bottom:12px}
-.section ul{padding-left:20px;margin-bottom:12px}.section ul li{font-size:14.5px;color:#475569;line-height:1.8;margin-bottom:6px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Uplyncio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#07090f;--surface:#0d1117;--text:#e6edf3;--text2:#c9d1d9;--muted:#8892a4;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#4f7cff;--green:#00c27a;--teal:#00d4aa}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh;display:flex;flex-direction:column}
+    a{text-decoration:none;color:inherit}
+    @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+    /* NAV */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
+    .nav-logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-.8px;display:flex;align-items:center;gap:10px}
+    .nav-logo em{font-style:normal;color:#4f7cff}
+    .nav-links{display:flex;gap:28px;list-style:none;align-items:center}
+    .nav-links a{font-size:13.5px;font-weight:600;color:#8892a4;transition:color .15s}
+    .nav-links a:hover{color:#fff}
+    .nav-right{display:flex;gap:10px;align-items:center}
+    .btn-ghost{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;font-family:inherit;background:transparent;cursor:pointer;transition:all .2s}
+    .btn-ghost:hover{background:rgba(255,255,255,.08)}
+    .btn-accent{padding:9px 20px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
+    /* HERO */
+    .page-hero{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:110px 48px 64px;text-align:center}
+    .page-hero h1{font-family:Manrope,sans-serif;font-size:42px;font-weight:800;color:#fff;margin-bottom:14px}
+    .page-hero p{font-size:16px;color:#8892a4;max-width:600px;margin:0 auto;line-height:1.7}
+    .page-hero .badge{display:inline-block;background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:#7ba7ff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:100px;margin-bottom:20px;letter-spacing:.5px}
+    /* CONTENT */
+    .page-content{max-width:900px;margin:0 auto;padding:56px 24px;flex:1}
+    .section{background:#fff;border-radius:16px;padding:32px 36px;margin-bottom:24px;border:1px solid #e2e8f0}
+    .section h2{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #f0f4ff}
+    .section h3{font-size:15px;font-weight:700;color:#1a202c;margin:20px 0 8px}
+    .section p{font-size:14.5px;color:#475569;line-height:1.85;margin-bottom:12px}
+    .section ul{padding-left:20px;margin-bottom:12px}
+    .section ul li{font-size:14.5px;color:#475569;line-height:1.85;margin-bottom:7px}
+    .section a{color:#4f7cff;text-decoration:none}
+    .section a:hover{text-decoration:underline}
+    .highlight-box{background:#f0f4ff;border:1px solid #c7d7ff;border-radius:10px;padding:16px 20px;margin-top:16px}
+    .highlight-box p{color:#4f7cff;font-weight:600;margin:0}
+    /* FOOTER */
+    footer{background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:64px 48px 0;font-family:'Plus Jakarta Sans',sans-serif}
+    .footer-g{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .f-brand p{font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px}
+    .f-socials{display:flex;gap:9px}
+    .soc-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;transition:all .2s;font-weight:700}
+    .soc-btn:hover{border-color:#4f7cff;color:#4f7cff}
+    .f-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;font-family:Manrope,sans-serif}
+    .f-col ul{list-style:none}
+    .f-col ul li{margin-bottom:11px}
+    .f-col ul li a{color:#8892a4;text-decoration:none;font-size:13.5px;transition:color .2s;font-weight:500}
+    .f-col ul li a:hover{color:#fff}
+    .footer-bot{max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+    .footer-bot p{font-size:12.5px;color:#8892a4}
+    .pay-badges{display:flex;gap:8px}
+    .pay-b{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;color:#8892a4}
+  </style>
 </head>
 <body>
-<nav>
-  <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>
-      @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
-    </style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
-</a>
-  <div class="nav-links">
-    <a href="uplyncio-full.html">Home</a>
-    <a href="buyer.html">Browse Sites</a>
-    <a href="publisher.html">Become Publisher</a>
-    <a href="contact.html">Contact</a>
-    <a href="buyer.html" class="btn-primary">Get Started</a>
+<nav class="nav">
+  <a href="uplyncio-full.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="14" fill="#0f1628"/>
+      <g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g>
+      <g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
+      <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+    </svg>
+    Up<em>lyncio</em>
+  </a>
+  <ul class="nav-links">
+    <li><a href="uplyncio-full.html">Home</a></li>
+    <li><a href="buyer.html">Browse Sites</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="publisher.html" class="btn-ghost">Publisher Login</a>
+    <a href="buyer.html" class="btn-accent">Get Started</a>
   </div>
 </nav>
-<div class="hero">
+<div class="page-hero">
+  <div class="badge">Privacy</div>
   <h1>Privacy Policy</h1>
-  <p>How we collect, use, and protect your information.</p>
+  <p>We take your privacy seriously. Learn how Uplyncio collects, uses, and protects your personal data.</p>
 </div>
-<div class="content">
+<div class="page-content">
 <div class="section">
-  <p style="color:#94a3b8;font-size:13px">Last updated: June 2025</p>
+  <p style="color:#94a3b8;font-size:13px;margin-bottom:8px">Last updated: June 25, 2026</p>
+  <h2>Introduction</h2>
+  <p>This Privacy Policy describes how Uplyncio ("we", "us", or "our") collects, uses, and shares information about you when you use our platform at <strong>uplyncio.com</strong>. By using Uplyncio, you agree to the collection and use of information as described in this policy.</p>
+</div>
+<div class="section">
   <h2>1. Information We Collect</h2>
-  <p>We collect information you provide when creating an account, placing orders, or contacting us. This includes name, email address, website URLs, and payment information.</p>
-  <h3>Automatically Collected Information</h3>
+  <h3>1.1 Account Information</h3>
   <ul>
-    <li>IP address and browser information</li>
-    <li>Pages visited and time spent on our platform</li>
-    <li>Device and operating system information</li>
+    <li><strong>Registration data:</strong> Name, email address, password (encrypted), and account role (Buyer or Publisher)</li>
+    <li><strong>Profile data:</strong> Profile picture, phone number, billing address, website URL, payment method details</li>
+    <li><strong>Verification data:</strong> Email verification codes, two-factor authentication settings</li>
   </ul>
+  <h3>1.2 Transaction Data</h3>
+  <ul>
+    <li>Order details including target URLs, anchor texts, keywords, and special instructions</li>
+    <li>Payment history, wallet balances, withdrawal requests, and invoice records</li>
+    <li>Publisher site listings including DA, DR, traffic, pricing, and categories</li>
+  </ul>
+  <h3>1.3 Usage Data</h3>
+  <ul>
+    <li>Browser type, IP address, device type, and operating system</li>
+    <li>Pages visited, time spent on platform, and click behavior</li>
+    <li>Search queries and filter preferences on the marketplace</li>
+  </ul>
+  <h3>1.4 Communications</h3>
+  <p>Messages sent through the Uplyncio chat system, support emails, and notification preferences are stored to facilitate orders and resolve disputes.</p>
 </div>
 <div class="section">
   <h2>2. How We Use Your Information</h2>
   <ul>
-    <li>To process orders and payments</li>
-    <li>To communicate about your account and orders</li>
-    <li>To improve our platform and services</li>
-    <li>To send relevant marketing emails (you can opt out anytime)</li>
-    <li>To prevent fraud and ensure platform security</li>
+    <li><strong>Service delivery:</strong> Matching Buyers with Publishers, processing orders, and facilitating payments</li>
+    <li><strong>Account management:</strong> Verifying your identity, managing your account settings, and maintaining security</li>
+    <li><strong>Communication:</strong> Sending order notifications, account alerts, and platform updates</li>
+    <li><strong>Platform improvement:</strong> Analyzing usage patterns to improve features and user experience</li>
+    <li><strong>Fraud prevention:</strong> Detecting and preventing fraudulent activity, abuse, and Terms violations</li>
+    <li><strong>Legal compliance:</strong> Complying with applicable laws, regulations, and legal obligations</li>
   </ul>
 </div>
 <div class="section">
   <h2>3. Data Sharing</h2>
-  <p>We do not sell your personal data. We share information only with:</p>
+  <h3>3.1 Between Users</h3>
+  <p>When a Buyer places an order, limited information (target URL, anchor text, article content, and order instructions) is shared with the assigned Publisher to complete the order. Publisher site information is publicly visible on the marketplace to all Buyers.</p>
+  <h3>3.2 Service Providers</h3>
+  <p>We share data with trusted third-party service providers who assist in operating our platform, including payment processors, email delivery services, and analytics tools. These providers are contractually obligated to protect your data.</p>
+  <h3>3.3 Legal Requirements</h3>
+  <p>We may disclose your information if required by law, court order, or government authority. We will notify you of such requests to the extent permitted by law.</p>
+  <h3>3.4 We Never Sell Your Data</h3>
+  <p>Uplyncio does not sell, rent, or trade your personal information to any third party for marketing purposes.</p>
+</div>
+<div class="section">
+  <h2>4. Data Storage & Security</h2>
+  <p>Your data is stored securely using industry-standard encryption. Passwords are hashed and never stored in plain text. We implement access controls, regular security audits, and secure communication protocols (HTTPS) to protect your information.</p>
+  <p>While we take every reasonable measure to protect your data, no system is completely immune to security breaches. In the event of a data breach affecting your personal information, we will notify you promptly.</p>
+</div>
+<div class="section">
+  <h2>5. Cookies & Local Storage</h2>
+  <p>Uplyncio uses browser local storage to maintain your session, save preferences, and store your marketplace data locally for performance. We use cookies for authentication and analytics purposes. You may disable cookies in your browser settings, though this may affect platform functionality.</p>
+</div>
+<div class="section">
+  <h2>6. Your Rights</h2>
   <ul>
-    <li>Payment processors (PayPal, etc.) to complete transactions</li>
-    <li>Publishers/buyers as needed to fulfill your orders</li>
-    <li>Legal authorities when required by law</li>
+    <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+    <li><strong>Correction:</strong> Update or correct inaccurate information via your account settings</li>
+    <li><strong>Deletion:</strong> Request deletion of your account and associated data (subject to legal retention requirements)</li>
+    <li><strong>Portability:</strong> Request an export of your data in a machine-readable format</li>
+    <li><strong>Objection:</strong> Object to specific uses of your data, including marketing communications</li>
   </ul>
+  <p>To exercise any of these rights, contact us at <a href="mailto:info@uplyncio.com">info@uplyncio.com</a>.</p>
 </div>
 <div class="section">
-  <h2>4. Data Security</h2>
-  <p>We implement industry-standard security measures including SSL encryption, secure password hashing, and regular security audits to protect your data.</p>
+  <h2>7. Data Retention</h2>
+  <p>We retain your account data for as long as your account is active. Transaction records are retained for 7 years for legal and financial compliance. After account deletion, we may retain anonymized, aggregated data for analytical purposes.</p>
 </div>
 <div class="section">
-  <h2>5. Your Rights</h2>
+  <h2>8. Children's Privacy</h2>
+  <p>Uplyncio is not intended for users under the age of 18. We do not knowingly collect personal information from minors. If we become aware that a minor has registered, we will promptly delete their account and associated data.</p>
+</div>
+<div class="section">
+  <h2>9. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy periodically. Changes will be posted on this page with an updated date. Continued use of the platform after changes constitutes acceptance of the revised policy.</p>
+</div>
+<div class="section">
+  <h2>10. Contact Us</h2>
   <ul>
-    <li>Access your personal data at any time</li>
-    <li>Request correction of inaccurate data</li>
-    <li>Request deletion of your account and data</li>
-    <li>Opt out of marketing communications</li>
+    <li><strong>Email:</strong> <a href="mailto:info@uplyncio.com">info@uplyncio.com</a></li>
+    <li><strong>Response time:</strong> Within 2 business days</li>
   </ul>
-  <p>To exercise your rights, email us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:600">info@uplyncio.com</a></p>
+  <div class="highlight-box"><p>Your privacy matters to us. We are committed to being transparent about how we handle your data.</p></div>
 </div>
-<div class="section">
-  <h2>6. Contact</h2>
-  <p>For privacy-related questions, contact our Data Protection Officer at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:600">info@uplyncio.com</a></p>
-</div></div>
-
-<div style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:52px 48px 0;font-family:'Plus Jakarta Sans',sans-serif;width:100%;box-sizing:border-box">
-  <div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)">
-    <div>
-      <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>
-      @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
-    </style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Up<em style="font-style:normal;color:#4f7cff">lyncio</em></span>
-</a>
-      <p style="font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px">Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches.</p>
-      <div style="display:flex;gap:9px">
-        <a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">in</a>
-        <a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">fb</a>
-        <a href="https://www.instagram.com/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">ig</a>
-        <a href="https://wa.me/923001234567" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">wa</a>
+</div><footer>
+  <div class="footer-g">
+    <div class="f-brand">
+      <a href="uplyncio-full.html" class="nav-logo" style="font-size:24px;color:#fff">
+        <svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="#0f1628"/>
+          <g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g>
+          <g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
+          <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+        </svg>
+        Up<em>lyncio</em>
+      </a>
+      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches. Trusted by agencies and brands worldwide.</p>
+      <div class="f-socials">
+        <a class="soc-btn" href="https://www.linkedin.com/company/uplyncio" target="_blank">in</a>
+        <a class="soc-btn" href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank">fb</a>
+        <a class="soc-btn" href="https://www.instagram.com/uplyncio" target="_blank">ig</a>
+        <a class="soc-btn" href="https://wa.me/923001234567" target="_blank">wa</a>
       </div>
     </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Services</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="guest-posting.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Guest Posting</a></li>
-        <li style="margin-bottom:11px"><a href="link-building.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Link Building</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">Press Release</a></li>
-        <li style="margin-bottom:11px"><a href="content-writing.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Content Writing</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">High DA Links</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">White Label</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Company</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="about.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">About Us</a></li>
-        <li style="margin-bottom:11px"><a href="blog.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Blog</a></li>
-        <li style="margin-bottom:11px"><a href="case-studies.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Case Studies</a></li>
-        <li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Contact Us</a></li>
-        <li style="margin-bottom:11px"><a href="publisher.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Become a Publisher</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">Affiliate Program</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Support</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="faq.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">FAQ</a></li>
-        <li style="margin-bottom:11px"><a href="refund.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Refund Policy</a></li>
-        <li style="margin-bottom:11px"><a href="privacy.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Privacy Policy</a></li>
-        <li style="margin-bottom:11px"><a href="terms.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Terms of Service</a></li>
-        <li style="margin-bottom:11px"><a href="https://wa.me/923001234567" style="color:#8892a4;text-decoration:none;font-size:13.5px">Live Chat</a></li>
-        <li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Contact Us</a></li>
-      </ul>
+    <div class="f-col"><h4>Services</h4><ul>
+      <li><a href="guest-posting.html">Guest Posting</a></li>
+      <li><a href="link-building.html">Link Building</a></li>
+      <li><a href="#">Press Release</a></li>
+      <li><a href="content-writing.html">Content Writing</a></li>
+      <li><a href="#">High DA Links</a></li>
+      <li><a href="#">White Label</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Company</h4><ul>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Case Studies</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="publisher.html">Become a Publisher</a></li>
+      <li><a href="#">Affiliate Program</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Support</h4><ul>
+      <li><a href="faq.html">FAQ</a></li>
+      <li><a href="refund.html">Refund Policy</a></li>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms & Conditions</a></li>
+      <li><a href="https://wa.me/923001234567">Live Chat</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bot">
+    <p>© 2026 Uplyncio. All rights reserved.</p>
+    <div class="pay-badges">
+      <div class="pay-b">PayPal</div>
+      <div class="pay-b">Wise</div>
+      <div class="pay-b">USDT</div>
+      <div class="pay-b">Bank Transfer</div>
     </div>
   </div>
-  <div style="max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between">
-    <p style="font-size:12.5px;color:#4a5568;margin:0">© 2026 Uplyncio. All rights reserved.</p>
-    <div style="display:flex;gap:8px">
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">PayPal</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Wise</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">USDT</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Bank Transfer</div>
-    </div>
-  </div>
-</div>
+</footer>
 </body>
 </html>

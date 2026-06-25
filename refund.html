@@ -3,163 +3,235 @@
 <head>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="shortcut icon" href="favicon.svg">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refund Policy — Uplyncio</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-a{text-decoration:none;color:inherit}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh;display:flex;flex-direction:column}
-nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.nav-logo{font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c}.nav-logo em{font-style:normal;color:#4f7cff}
-.nav-links{display:flex;gap:24px;align-items:center}
-.nav-links a{font-size:13.5px;font-weight:600;color:#64748b;transition:color .15s}.nav-links a:hover{color:#4f7cff}
-.btn-primary{padding:9px 20px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700}
-.hero{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:64px 40px;text-align:center}
-.hero h1{font-family:Manrope,sans-serif;font-size:40px;font-weight:800;color:#fff;margin-bottom:14px}
-.hero p{font-size:16px;color:#8892a4;max-width:600px;margin:0 auto;line-height:1.7}
-.content{max-width:860px;margin:0 auto;padding:52px 24px;flex:1}
-.section{background:#fff;border-radius:16px;padding:32px 36px;margin-bottom:24px;border:1px solid #e2e8f0}
-.section h2{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c;margin-bottom:16px}
-.section h3{font-size:16px;font-weight:700;color:#1a202c;margin:20px 0 10px}
-.section p{font-size:14.5px;color:#475569;line-height:1.8;margin-bottom:12px}
-.section ul{padding-left:20px;margin-bottom:12px}.section ul li{font-size:14.5px;color:#475569;line-height:1.8;margin-bottom:6px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund Policy — Uplyncio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#07090f;--surface:#0d1117;--text:#e6edf3;--text2:#c9d1d9;--muted:#8892a4;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#4f7cff;--green:#00c27a;--teal:#00d4aa}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh;display:flex;flex-direction:column}
+    a{text-decoration:none;color:inherit}
+    @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+    /* NAV */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
+    .nav-logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-.8px;display:flex;align-items:center;gap:10px}
+    .nav-logo em{font-style:normal;color:#4f7cff}
+    .nav-links{display:flex;gap:28px;list-style:none;align-items:center}
+    .nav-links a{font-size:13.5px;font-weight:600;color:#8892a4;transition:color .15s}
+    .nav-links a:hover{color:#fff}
+    .nav-right{display:flex;gap:10px;align-items:center}
+    .btn-ghost{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;font-family:inherit;background:transparent;cursor:pointer;transition:all .2s}
+    .btn-ghost:hover{background:rgba(255,255,255,.08)}
+    .btn-accent{padding:9px 20px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
+    /* HERO */
+    .page-hero{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:110px 48px 64px;text-align:center}
+    .page-hero h1{font-family:Manrope,sans-serif;font-size:42px;font-weight:800;color:#fff;margin-bottom:14px}
+    .page-hero p{font-size:16px;color:#8892a4;max-width:600px;margin:0 auto;line-height:1.7}
+    .page-hero .badge{display:inline-block;background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:#7ba7ff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:100px;margin-bottom:20px;letter-spacing:.5px}
+    /* CONTENT */
+    .page-content{max-width:900px;margin:0 auto;padding:56px 24px;flex:1}
+    .section{background:#fff;border-radius:16px;padding:32px 36px;margin-bottom:24px;border:1px solid #e2e8f0}
+    .section h2{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #f0f4ff}
+    .section h3{font-size:15px;font-weight:700;color:#1a202c;margin:20px 0 8px}
+    .section p{font-size:14.5px;color:#475569;line-height:1.85;margin-bottom:12px}
+    .section ul{padding-left:20px;margin-bottom:12px}
+    .section ul li{font-size:14.5px;color:#475569;line-height:1.85;margin-bottom:7px}
+    .section a{color:#4f7cff;text-decoration:none}
+    .section a:hover{text-decoration:underline}
+    .highlight-box{background:#f0f4ff;border:1px solid #c7d7ff;border-radius:10px;padding:16px 20px;margin-top:16px}
+    .highlight-box p{color:#4f7cff;font-weight:600;margin:0}
+    /* FOOTER */
+    footer{background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:64px 48px 0;font-family:'Plus Jakarta Sans',sans-serif}
+    .footer-g{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .f-brand p{font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px}
+    .f-socials{display:flex;gap:9px}
+    .soc-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;transition:all .2s;font-weight:700}
+    .soc-btn:hover{border-color:#4f7cff;color:#4f7cff}
+    .f-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;font-family:Manrope,sans-serif}
+    .f-col ul{list-style:none}
+    .f-col ul li{margin-bottom:11px}
+    .f-col ul li a{color:#8892a4;text-decoration:none;font-size:13.5px;transition:color .2s;font-weight:500}
+    .f-col ul li a:hover{color:#fff}
+    .footer-bot{max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+    .footer-bot p{font-size:12.5px;color:#8892a4}
+    .pay-badges{display:flex;gap:8px}
+    .pay-b{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;color:#8892a4}
+  </style>
 </head>
 <body>
-<nav>
-  <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>
-      @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
-    </style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
-</a>
-  <div class="nav-links">
-    <a href="uplyncio-full.html">Home</a>
-    <a href="buyer.html">Browse Sites</a>
-    <a href="publisher.html">Become Publisher</a>
-    <a href="contact.html">Contact</a>
-    <a href="buyer.html" class="btn-primary">Get Started</a>
+<nav class="nav">
+  <a href="uplyncio-full.html" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="14" fill="#0f1628"/>
+      <g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g>
+      <g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
+      <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+    </svg>
+    Up<em>lyncio</em>
+  </a>
+  <ul class="nav-links">
+    <li><a href="uplyncio-full.html">Home</a></li>
+    <li><a href="buyer.html">Browse Sites</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="publisher.html" class="btn-ghost">Publisher Login</a>
+    <a href="buyer.html" class="btn-accent">Get Started</a>
   </div>
 </nav>
-<div class="hero">
+<div class="page-hero">
+  <div class="badge">Policy</div>
   <h1>Refund Policy</h1>
-  <p>Our commitment to fair and transparent refunds.</p>
+  <p>Understand our refund process, eligibility criteria, and how we resolve disputes fairly for both Buyers and Publishers.</p>
 </div>
-<div class="content">
+<div class="page-content">
 <div class="section">
-  <p style="color:#94a3b8;font-size:13px">Last updated: June 2025</p>
-  <h2>Refund Eligibility</h2>
-  <p>We are committed to buyer satisfaction. You are eligible for a full refund in the following cases:</p>
+  <p style="color:#94a3b8;font-size:13px;margin-bottom:8px">Last updated: June 25, 2026</p>
+  <h2>Overview</h2>
+  <p>Uplyncio is committed to ensuring fair outcomes for all parties on our platform. This Refund Policy outlines the circumstances under which refunds are issued, the process for requesting them, and how disputes are resolved. We encourage all users to review this policy before placing or accepting orders.</p>
+</div>
+<div class="section">
+  <h2>1. Refund Eligibility — Buyers</h2>
+  <p>As a Buyer, you may be eligible for a full or partial refund in the following circumstances:</p>
+  <h3>1.1 Full Refund</h3>
   <ul>
-    <li>✅ Publisher rejects your order</li>
-    <li>✅ Publisher fails to deliver within the agreed TAT (10 business days)</li>
-    <li>✅ Published content significantly differs from your requirements</li>
-    <li>✅ Link is removed within 12 months of publication</li>
-    <li>✅ Site metrics were significantly misrepresented</li>
+    <li>The Publisher fails to deliver the order within the agreed timeframe (10 business days) and does not communicate a valid reason</li>
+    <li>The Publisher rejects your order after accepting it and no alternative is arranged</li>
+    <li>The published content significantly deviates from your agreed requirements and the Publisher fails to provide adequate revisions within 5 business days</li>
+    <li>The published link is removed within the guaranteed 12-month period</li>
+  </ul>
+  <h3>1.2 Partial Refund</h3>
+  <ul>
+    <li>The order is delivered late but the Buyer still wishes to accept it</li>
+    <li>Minor deviations from requirements that are acknowledged by the Publisher</li>
+    <li>The Publisher's site metrics have significantly degraded after order placement</li>
   </ul>
 </div>
 <div class="section">
-  <h2>Non-Refundable Cases</h2>
+  <h2>2. Non-Refundable Situations</h2>
+  <p>Refunds will <strong>not</strong> be issued in the following cases:</p>
   <ul>
-    <li>❌ Order already published and approved by you</li>
-    <li>❌ Change of mind after order is accepted by publisher</li>
-    <li>❌ Content provided by buyer contained errors</li>
-    <li>❌ Funds added to your Uplyncio balance (only usable for orders)</li>
+    <li>The Buyer changes their mind after the Publisher has accepted the order</li>
+    <li>The Buyer provides incorrect, incomplete, or misleading target URLs or content requirements</li>
+    <li>The Buyer fails to submit article content within 7 days for Content Placement orders</li>
+    <li>Minor differences in writing style, tone, or formatting that do not violate the agreed requirements</li>
+    <li>Changes in a Publisher's DA, DR, or traffic metrics after order placement (these fluctuate naturally)</li>
+    <li>The order was completed and approved (manually or automatically) by the Buyer</li>
+    <li>The Buyer submits a dispute more than 30 days after order delivery</li>
   </ul>
 </div>
 <div class="section">
-  <h2>Refund Process</h2>
-  <p>To request a refund, contact us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:600">info@uplyncio.com</a> with your order ID and reason.</p>
-  <p>Refunds are processed within <strong>3–5 business days</strong> back to your Uplyncio balance or original payment method.</p>
+  <h2>3. How to Request a Refund</h2>
+  <p>To request a refund, follow these steps:</p>
+  <ul>
+    <li><strong>Step 1:</strong> Contact the Publisher through the Uplyncio chat system and clearly describe the issue. Allow the Publisher 48 hours to respond.</li>
+    <li><strong>Step 2:</strong> If the issue is not resolved, submit a dispute request to <a href="mailto:info@uplyncio.com">info@uplyncio.com</a> with your Order ID and a detailed description of the issue.</li>
+    <li><strong>Step 3:</strong> Uplyncio will review the case and all supporting evidence within <strong>7 business days</strong> and issue a final decision.</li>
+    <li><strong>Step 4:</strong> If approved, the refund will be credited to your Uplyncio account balance within 3 business days of the decision.</li>
+  </ul>
 </div>
 <div class="section">
-  <h2>Dispute Resolution</h2>
-  <p>If you have a dispute with a publisher, contact our support team. We will review the case and make a fair decision within 5 business days.</p>
-  <p>Email: <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:600">info@uplyncio.com</a></p>
-</div></div>
-
-<div style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:52px 48px 0;font-family:'Plus Jakarta Sans',sans-serif;width:100%;box-sizing:border-box">
-  <div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)">
-    <div>
-      <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>
-      @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
-    </style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Up<em style="font-style:normal;color:#4f7cff">lyncio</em></span>
-</a>
-      <p style="font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px">Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches.</p>
-      <div style="display:flex;gap:9px">
-        <a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">in</a>
-        <a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">fb</a>
-        <a href="https://www.instagram.com/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">ig</a>
-        <a href="https://wa.me/923001234567" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">wa</a>
+  <h2>4. Link Removal Guarantee</h2>
+  <p>All guest posts placed through Uplyncio come with a <strong>12-month link lifetime guarantee</strong>. If a Publisher removes a published link within this period:</p>
+  <ul>
+    <li>The Buyer must report the removal within 30 days of discovering it</li>
+    <li>Uplyncio will contact the Publisher to restore the link within 7 days</li>
+    <li>If the link cannot be restored, a full refund or replacement order will be offered</li>
+    <li>Repeated link removals by a Publisher will result in account suspension</li>
+  </ul>
+</div>
+<div class="section">
+  <h2>5. Dispute Resolution</h2>
+  <p>In cases where a Buyer and Publisher cannot agree, Uplyncio acts as a neutral mediator:</p>
+  <ul>
+    <li>Both parties must submit their evidence (screenshots, order details, communications) within 5 business days of the dispute being opened</li>
+    <li>Uplyncio will review all submitted evidence and issue a binding decision within 7 business days</li>
+    <li>The decision may result in a full refund, partial refund, order revision, or order closure with no refund</li>
+    <li>Uplyncio's decision is final and not subject to appeal</li>
+  </ul>
+</div>
+<div class="section">
+  <h2>6. Refund Processing</h2>
+  <ul>
+    <li>Approved refunds are credited to your Uplyncio <strong>account balance</strong>, not directly to your payment method</li>
+    <li>Account balance can be used for future orders or withdrawn (subject to withdrawal fees)</li>
+    <li>Withdrawal of refunded amounts follows standard withdrawal processing times (3–7 business days)</li>
+  </ul>
+</div>
+<div class="section">
+  <h2>7. Publisher Dispute Rights</h2>
+  <p>Publishers also have the right to dispute refund claims. If a Publisher believes a refund request is unjustified:</p>
+  <ul>
+    <li>The Publisher may submit evidence (published URL, screenshots, communication logs) to support their case</li>
+    <li>Uplyncio will consider evidence from both sides before making a decision</li>
+    <li>Repeated fraudulent dispute claims by Publishers may result in account suspension</li>
+  </ul>
+</div>
+<div class="section">
+  <h2>8. Contact for Refunds & Disputes</h2>
+  <ul>
+    <li><strong>Email:</strong> <a href="mailto:info@uplyncio.com">info@uplyncio.com</a></li>
+    <li><strong>Include in your email:</strong> Order ID, issue description, screenshots, and your preferred resolution</li>
+    <li><strong>Response time:</strong> Within 2 business days</li>
+  </ul>
+  <div class="highlight-box"><p>We are committed to fair resolution. Our goal is to protect both Buyers and Publishers and ensure every transaction is handled with transparency.</p></div>
+</div>
+</div><footer>
+  <div class="footer-g">
+    <div class="f-brand">
+      <a href="uplyncio-full.html" class="nav-logo" style="font-size:24px;color:#fff">
+        <svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="14" fill="#0f1628"/>
+          <g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g>
+          <g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
+          <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+        </svg>
+        Up<em>lyncio</em>
+      </a>
+      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches. Trusted by agencies and brands worldwide.</p>
+      <div class="f-socials">
+        <a class="soc-btn" href="https://www.linkedin.com/company/uplyncio" target="_blank">in</a>
+        <a class="soc-btn" href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank">fb</a>
+        <a class="soc-btn" href="https://www.instagram.com/uplyncio" target="_blank">ig</a>
+        <a class="soc-btn" href="https://wa.me/923001234567" target="_blank">wa</a>
       </div>
     </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Services</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="guest-posting.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Guest Posting</a></li>
-        <li style="margin-bottom:11px"><a href="link-building.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Link Building</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">Press Release</a></li>
-        <li style="margin-bottom:11px"><a href="content-writing.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Content Writing</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">High DA Links</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">White Label</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Company</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="about.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">About Us</a></li>
-        <li style="margin-bottom:11px"><a href="blog.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Blog</a></li>
-        <li style="margin-bottom:11px"><a href="case-studies.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Case Studies</a></li>
-        <li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Contact Us</a></li>
-        <li style="margin-bottom:11px"><a href="publisher.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Become a Publisher</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;text-decoration:none;font-size:13.5px">Affiliate Program</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Support</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="faq.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">FAQ</a></li>
-        <li style="margin-bottom:11px"><a href="refund.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Refund Policy</a></li>
-        <li style="margin-bottom:11px"><a href="privacy.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Privacy Policy</a></li>
-        <li style="margin-bottom:11px"><a href="terms.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Terms of Service</a></li>
-        <li style="margin-bottom:11px"><a href="https://wa.me/923001234567" style="color:#8892a4;text-decoration:none;font-size:13.5px">Live Chat</a></li>
-        <li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;text-decoration:none;font-size:13.5px">Contact Us</a></li>
-      </ul>
+    <div class="f-col"><h4>Services</h4><ul>
+      <li><a href="guest-posting.html">Guest Posting</a></li>
+      <li><a href="link-building.html">Link Building</a></li>
+      <li><a href="#">Press Release</a></li>
+      <li><a href="content-writing.html">Content Writing</a></li>
+      <li><a href="#">High DA Links</a></li>
+      <li><a href="#">White Label</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Company</h4><ul>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Case Studies</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="publisher.html">Become a Publisher</a></li>
+      <li><a href="#">Affiliate Program</a></li>
+    </ul></div>
+    <div class="f-col"><h4>Support</h4><ul>
+      <li><a href="faq.html">FAQ</a></li>
+      <li><a href="refund.html">Refund Policy</a></li>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms & Conditions</a></li>
+      <li><a href="https://wa.me/923001234567">Live Chat</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bot">
+    <p>© 2026 Uplyncio. All rights reserved.</p>
+    <div class="pay-badges">
+      <div class="pay-b">PayPal</div>
+      <div class="pay-b">Wise</div>
+      <div class="pay-b">USDT</div>
+      <div class="pay-b">Bank Transfer</div>
     </div>
   </div>
-  <div style="max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between">
-    <p style="font-size:12.5px;color:#4a5568;margin:0">© 2026 Uplyncio. All rights reserved.</p>
-    <div style="display:flex;gap:8px">
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">PayPal</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Wise</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">USDT</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Bank Transfer</div>
-    </div>
-  </div>
-</div>
+</footer>
 </body>
 </html>
