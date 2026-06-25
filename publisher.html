@@ -413,6 +413,27 @@ window.addEventListener('DOMContentLoaded', function(){
 
   updateBalance();
   updateInboxDot();
+
+  // Set profile name/email from login data
+  (function(){
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    // Try settingsData first (if user saved settings)
+    var settKey = 'uplyncio_sett_' + uid;
+    var sett = JSON.parse(localStorage.getItem(settKey)||'{}');
+    var nameVal = sett['settName'] || user.name || user.email || 'Publisher';
+    var emailVal = sett['settEmail'] || user.email || 'Not set';
+    var pn = document.getElementById('profileName');
+    var pe = document.getElementById('profileEmail');
+    var av = document.getElementById('profileAvatar');
+    if(pn) pn.textContent = nameVal;
+    if(pe) pe.textContent = emailVal;
+    if(av && nameVal){
+      var parts = nameVal.trim().split(' ');
+      var initials = parts.length>=2 ? parts[0][0]+parts[parts.length-1][0] : nameVal.slice(0,2);
+      av.textContent = initials.toUpperCase();
+    }
+  })();
 });
 </script>
 <div class="sb">
