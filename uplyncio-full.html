@@ -2494,6 +2494,9 @@ window.addEventListener('load', function(){
     if(params.get('openBuyer')==='1'){
       setTimeout(function(){ openBuyerSignup(); }, 400);
     }
+    if(params.get('openPublisher')==='1'){
+      setTimeout(function(){ openPublisherSignup(); }, 400);
+    }
   }catch(e){}
 
   // Smart nav — show dashboard button if logged in
