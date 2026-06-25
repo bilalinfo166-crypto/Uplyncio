@@ -413,7 +413,7 @@
     var el = document.getElementById('cwNavRight');
     if(u && u.verified && el){
       if(u.role==='publisher'){
-        el.innerHTML = '<a href="publisher.html" class="btn-nav">🌐 Publisher Dashboard →</a>';
+        el.innerHTML = '<a href="publisher.html" class="btn-nav">🌐 Publisher Dashboard →</a><a href="#" onclick="handleOrderContent(event)" class="btn-nav" style="background:linear-gradient(135deg,#00c27a,#00d4aa)">✍️ Order Content</a>';
       } else if(u.role==='buyer'){
         el.innerHTML = '<a href="buyer.html" class="btn-ghost">🛒 Buyer Account</a><a href="#" onclick="handleOrderContent(event)" class="btn-nav">✍️ Order Content</a>';
       }
@@ -428,7 +428,7 @@ var _cpPrices = {'500 words':20,'750 words':28,'1,000 words':35,'1,500 words':48
 
 function handleOrderContent(e){
   if(e) e.preventDefault();
-  // Show warning/intro popup directly — no login required
+  // Always show CP popup directly - no login/account needed
   document.getElementById('cpWarningModal').style.display='flex';
   document.body.style.overflow='hidden';
 }
@@ -518,24 +518,7 @@ document.addEventListener('change', function(e){
 });
 </script>
 
-<div id="cwSwitchModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:20px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)">
-    <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:24px 28px;display:flex;align-items:center;gap:14px">
-      <div style="width:44px;height:44px;background:rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px">🔒</div>
-      <div><div style="color:#fff;font-family:Manrope,sans-serif;font-size:16px;font-weight:800">Buyer Account Required</div><div style="color:rgba(255,255,255,.5);font-size:12px;margin-top:2px">Uplyncio · Content Writing</div></div>
-      <button onclick="document.getElementById('cwSwitchModal').style.display='none'" style="margin-left:auto;background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
-    </div>
-    <div style="padding:24px 28px">
-      <p style="font-size:14px;color:#1a202c;font-weight:600;margin:0 0 10px">You are logged in as a <span style="color:#4f7cff">Publisher</span></p>
-      <p style="font-size:13px;color:#64748b;line-height:1.7;margin:0 0 16px">To order content writing services, you need a separate Buyer account on Uplyncio.</p>
-      <div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:10px;padding:14px 16px;margin-bottom:20px"><div style="font-size:12px;font-weight:700;color:#4f7cff;margin-bottom:6px">📌 To order content:</div><div style="font-size:12.5px;color:#475569;line-height:1.7">Open a <strong>new tab</strong> and sign up with a <strong>different email</strong> as a Buyer.</div></div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <button onclick="window.open('uplyncio-full.html?openBuyer=1','_blank')" style="width:100%;padding:12px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🛒 Create Buyer Account in New Tab</button>
-        <button onclick="document.getElementById('cwSwitchModal').style.display='none'" style="width:100%;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">← Back</button>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 
 <style>
