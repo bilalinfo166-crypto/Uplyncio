@@ -4,259 +4,218 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Expert on-page SEO optimization — title tags, meta descriptions, schema markup, internal linking, and content optimization to rank higher on Google.">
   <title>On-Page SEO Services — Uplyncio</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    :root{--accent:#4f7cff;--teal:#00d4aa;--green:#00c27a;--dark:#07090f;--text:#1a202c;--text2:#475569;--muted:#94a3b8;--border:#e2e8f0}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:var(--text);line-height:1.6}
+    body{font-family:'Plus Jakarta Sans',sans-serif;color:#1a202c;line-height:1.6;background:#fff}
     a{text-decoration:none;color:inherit}
     @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    /* NAV */
-    .nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
-    .nav-logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px}
-    .nav-logo em{font-style:normal;color:#4f7cff}
-    .nav-links{display:flex;gap:28px;list-style:none;align-items:center}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
+    .logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px}
+    .logo em{font-style:normal;color:#4f7cff}
+    .nav-links{display:flex;gap:28px;list-style:none}
     .nav-links a{font-size:13.5px;font-weight:600;color:#8892a4;transition:color .15s}
     .nav-links a:hover{color:#fff}
-    .nav-right{display:flex;gap:10px;align-items:center}
-    .btn-ghost{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;background:transparent;cursor:pointer;text-decoration:none;transition:all .2s}
-    .btn-ghost:hover{background:rgba(255,255,255,.08)}
-    .btn-nav{padding:9px 20px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block}
-    /* HERO */
-    .hero{background:linear-gradient(135deg,#0a0f1e,#0d1628 50%,#0a1a35);padding:130px 48px 90px;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 50%,rgba(79,124,255,.1) 0%,transparent 70%)}
-    .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:1}
-    .hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.25);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#7ba7ff;margin-bottom:22px;text-transform:uppercase;letter-spacing:1px}
-    .hero h1{font-family:Manrope,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:800;line-height:1.1;letter-spacing:-1.5px;color:#fff;margin-bottom:18px}
-    .hero h1 span{background:linear-gradient(135deg,#4f7cff,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .hero p{font-size:15px;color:#8892a4;line-height:1.8;margin-bottom:28px;max-width:480px}
-    .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
-    .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,124,255,.4)}
-    .btn-outline{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:#fff;border-radius:11px;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:all .2s}
-    .btn-outline:hover{background:rgba(255,255,255,.06)}
-    .hero-stats{display:flex;gap:28px;margin-top:36px;padding-top:28px;border-top:1px solid rgba(255,255,255,.08)}
-    .stat-num{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff}
-    .stat-lbl{font-size:12px;color:#8892a4}
-    /* VISUAL BOX */
-    .hero-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;backdrop-filter:blur(10px)}
-    /* SECTIONS */
-    .sec{padding:72px 48px;max-width:1100px;margin:0 auto}
-    .sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#4f7cff;margin-bottom:10px}
-    .sec-title{font-family:Manrope,sans-serif;font-size:clamp(24px,3.5vw,38px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#1a202c;margin-bottom:14px}
-    .sec-sub{font-size:15px;color:#64748b;line-height:1.8;max-width:560px}
-    .grad{background:linear-gradient(135deg,#4f7cff,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    /* CARDS GRID */
-    .bg-light{background:#f8faff;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0}
-    .cards-g{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
-    .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px;transition:all .25s}
-    .card:hover{border-color:#4f7cff;box-shadow:0 8px 30px rgba(79,124,255,.1);transform:translateY(-3px)}
-    .card-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
-    .card h3{font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px}
-    .card p{font-size:13.5px;color:#64748b;line-height:1.7}
-    /* STEPS */
-    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:48px;position:relative}
-    .steps::before{content:'';position:absolute;top:26px;left:12.5%;right:12.5%;height:2px;background:linear-gradient(90deg,#4f7cff,#00d4aa);z-index:0}
-    .step{text-align:center;padding:0 14px;position:relative;z-index:1}
-    .step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 16px rgba(79,124,255,.35)}
-    .step h4{font-size:14px;font-weight:700;color:#1a202c;margin-bottom:7px}
-    .step p{font-size:13px;color:#64748b;line-height:1.6}
-    /* SPLIT */
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto;padding:72px 48px}
-    .split img{width:100%;height:360px;object-fit:cover;border-radius:18px;box-shadow:0 16px 50px rgba(0,0,0,.1)}
-    .split ul{list-style:none;margin:18px 0 24px}
-    .split ul li{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:14px;color:#475569;border-bottom:1px solid #f1f5f9}
-    .split ul li::before{content:'✓';width:20px;height:20px;border-radius:50%;background:#f0fdf4;color:#16a34a;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-    /* CTA */
-    .cta-band{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:72px 48px;text-align:center}
-    .cta-band h2{font-family:Manrope,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-1px}
-    .cta-band p{font-size:15px;color:#8892a4;margin-bottom:32px;line-height:1.7;max-width:560px;margin-left:auto;margin-right:auto}
-    .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-    /* INTERNAL LINKS */
-    .related{background:#f8faff;border-top:1px solid #e2e8f0;padding:48px}
-    .related-inner{max-width:1100px;margin:0 auto}
-    .related h3{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin-bottom:20px}
-    .related-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .rel-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;text-decoration:none;transition:all .2s;display:block}
-    .rel-card:hover{border-color:#4f7cff;box-shadow:0 4px 16px rgba(79,124,255,.1);transform:translateY(-2px)}
-    .rel-card .r-icon{font-size:22px;margin-bottom:8px}
-    .rel-card .r-title{font-size:13.5px;font-weight:700;color:#1a202c;margin-bottom:3px}
-    .rel-card .r-desc{font-size:12px;color:#94a3b8}
-    /* FOOTER */
-    footer{background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:60px 48px 0}
-    .footer-g{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)}
-    .f-brand p{font-size:13px;color:#8892a4;line-height:1.8;max-width:260px;margin:12px 0 20px}
-    .f-socials{display:flex;gap:8px}
-    .soc-btn{width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:12px;font-weight:700;transition:all .2s}
-    .soc-btn:hover{border-color:#4f7cff;color:#4f7cff}
-    .f-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif}
-    .f-col ul{list-style:none}
-    .f-col ul li{margin-bottom:10px}
-    .f-col ul li a{color:#8892a4;font-size:13px;font-weight:500;transition:color .2s}
-    .f-col ul li a:hover{color:#fff}
-    .footer-bot{max-width:1100px;margin:0 auto;padding:20px 0;display:flex;align-items:center;justify-content:space-between}
-    .footer-bot p{font-size:12px;color:#8892a4}
-    .pay-badges{display:flex;gap:7px}
-    .pay-b{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4}
-    @media(max-width:900px){.hero-inner,.split,.cards-g,.steps,.related-grid,.footer-g{grid-template-columns:1fr}.steps::before{display:none}.nav-links{display:none}.nav,.hero,.sec,.split,.cta-band,.related,.footer-g{padding-left:20px;padding-right:20px}}
+    .nav-right{display:flex;gap:10px}
+    .btn-g{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;background:transparent;cursor:pointer;text-decoration:none}
+    .btn-a{padding:9px 20px;background:#7c3aed;color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block}
+    @media(max-width:900px){nav .nav-links{display:none}nav,section{padding-left:20px!important;padding-right:20px!important}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr!important}.tl{grid-template-columns:1fr 1fr!important}}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+    .tl{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+    .tl::before{content:'';position:absolute;top:26px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,#7c3aed,#6366f1);z-index:0}
   </style>
 </head>
 <body>
-<nav class="nav">
-  <a href="uplyncio-full.html" class="nav-logo"><svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
-  <ul class="nav-links">
-    <li><a href="uplyncio-full.html">Home</a></li>
-    <li><a href="buyer.html">Browse Sites</a></li>
-    <li><a href="about.html">About</a></li>
-    <li><a href="contact.html">Contact</a></li>
-  </ul>
-  <div class="nav-right" id="svcNavRight">
-    <a href="publisher.html" class="btn-ghost">Become a Publisher</a>
-    <a href="buyer.html" class="btn-nav">Get Started →</a>
+
+<nav>
+  <a href="uplyncio-full.html" class="logo"><svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
+  <ul class="nav-links"><li><a href="uplyncio-full.html">Home</a></li><li><a href="buyer.html">Marketplace</a></li><li><a href="link-building.html">Link Building</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <div class="nav-right" id="pgNav">
+    <a href="publisher.html" class="btn-g">Become Publisher</a>
+    <button onclick="openForm()" class="btn-a">🎯 Free Audit</button>
   </div>
 </nav>
-<script>
-(function(){
-  try{
-    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
-    var el=document.getElementById('svcNavRight');
-    if(!el||(!u&&!li)) return;
-    if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=Array.isArray(us)?us.find(function(x){return x.uid===uid;}):null;if(f)u={name:f.name||'',email:f.email||'',role:f.role||'publisher',verified:true};}
-    if(!u) return;
-    var isP=u.role==='publisher';
-    el.innerHTML=isP
-      ?'<a href="publisher.html" class="btn-nav">🌐 Publisher Dashboard →</a>'
-      :'<a href="buyer.html" class="btn-ghost">🛒 Buyer Account</a><a href="buyer.html" class="btn-nav">Browse Sites →</a>';
-  }catch(e){}
-})();
-</script>
-<section class="hero">
-  <div class="hero-inner">
+<script>(function(){try{var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');var li=localStorage.getItem('uplyncio_loggedIn')==='1';var el=document.getElementById('pgNav');if(!el||(!u&&!li))return;if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=Array.isArray(us)?us.find(function(x){return x.uid===uid;});if(f)u={name:f.name||'',role:f.role||'publisher',verified:true};}if(!u)return;el.innerHTML=u.role==='publisher'?'<a href="publisher.html" class="btn-a">🌐 Dashboard</a>':'<a href="buyer.html" class="btn-a">🛒 Buyer</a>';}catch(e){}})();</script>
+
+<section style="background:linear-gradient(135deg,#0f0a1e,#1a0f35 50%,#0a0f2e);padding:130px 48px 80px;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 20% 50%,rgba(124,58,237,.1) 0%,transparent 60%)"></div>
+  <div class="grid-2" style="max-width:1100px;margin:0 auto;position:relative;z-index:1">
     <div style="animation:fadeUp .6s ease both">
-      <div class="hero-badge">🎯 On-Page SEO</div>
-      <h1>On-Page SEO That <span>Ranks & Converts</span></h1>
-      <p>Optimize every element of your website for search engines and users. From title tags to schema markup, our on-page SEO experts ensure Google fully understands and rewards your content.</p>
-      <div class="hero-cta">
-        <a href="buyer.html" class="btn-primary">Get Started → </a>
-        <a href="uplyncio-full.html#pricing" class="btn-outline">View Pricing</a>
+      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px">🎯 On-Page SEO Experts</div>
+      <h1 style="font-family:Manrope,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:800;line-height:1.08;letter-spacing:-1.5px;color:#fff;margin-bottom:18px">On-Page SEO That Makes Google <span style="background:linear-gradient(135deg,#7c3aed,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Love Your Pages</span></h1>
+      <p style="font-size:15.5px;color:#8892a4;line-height:1.8;margin-bottom:28px;max-width:500px">Most websites are leaving ranking potential on the table because of poor on-page optimization. Our SEO specialists audit and optimize every on-page element — from title tags to schema markup — so Google fully understands and rewards your content with top rankings.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s">🎯 Get Free On-Page SEO Audit</button>
+        <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:#fff;border-radius:11px;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.2);cursor:pointer">Browse Link Building →</a>
       </div>
-      <div class="hero-stats"><div><div class="stat-num">10K+</div><div class="stat-lbl">Pages Optimized</div></div><div><div class="stat-num">Top 5</div><div class="stat-lbl">Avg Ranking</div></div><div><div class="stat-num">60 Days</div><div class="stat-lbl">Avg Results</div></div><div><div class="stat-num">4.9★</div><div class="stat-lbl">Client Rating</div></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px"><div style="text-align:center"><div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff">10,000+</div><div style="font-size:11px;color:#8892a4;margin-top:3px">Pages Optimized</div></div><div style="text-align:center"><div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff">Page 1</div><div style="font-size:11px;color:#8892a4;margin-top:3px">Avg Result</div></div><div style="text-align:center"><div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff">48hr</div><div style="font-size:11px;color:#8892a4;margin-top:3px">Audit Delivery</div></div><div style="text-align:center"><div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff">4.9★</div><div style="font-size:11px;color:#8892a4;margin-top:3px">Client Rating</div></div></div>
     </div>
-    <div style="animation:fadeUp .6s .15s ease both">
-      <div class="hero-box"><div style="display:flex;flex-direction:column;gap:10px">
-      <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#fff">Title Tag Optimization</span><span style="background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">✓ Done</span>
-      </div>
-      <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#fff">Meta Description</span><span style="background:#22c55e;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">✓ Done</span>
-      </div>
-      <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#fff">Schema Markup</span><span style="background:#f59e0b;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">In Progress</span>
-      </div>
-      <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#fff">Internal Linking</span><span style="background:#4f7cff;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px">Queued</span>
-      </div>
-    </div></div>
+    <div style="animation:fadeUp .6s .2s ease both">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:24px;backdrop-filter:blur(10px)"><div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:14px;padding:20px">
+          <div style="font-size:11px;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">On-Page Optimization Checklist</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:8px"><span style="color:#22c55e">✓</span><span style="font-size:13px;color:#fff">Title Tag Optimized (58 chars)</span><span style="margin-left:auto;font-size:10px;color:#22c55e;font-weight:700">DONE</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:8px"><span style="color:#22c55e">✓</span><span style="font-size:13px;color:#fff">Meta Description (155 chars)</span><span style="margin-left:auto;font-size:10px;color:#22c55e;font-weight:700">DONE</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px"><span style="color:#f59e0b">⚡</span><span style="font-size:13px;color:#fff">Schema Markup (FAQ + Article)</span><span style="margin-left:auto;font-size:10px;color:#f59e0b;font-weight:700">IN PROGRESS</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px"><span style="color:#a78bfa">→</span><span style="font-size:13px;color:#fff">Internal Linking Structure</span><span style="margin-left:auto;font-size:10px;color:#a78bfa;font-weight:700">QUEUED</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.2);border-radius:8px"><span style="color:#a78bfa">→</span><span style="font-size:13px;color:#fff">Image Alt Text Optimization</span><span style="margin-left:auto;font-size:10px;color:#a78bfa;font-weight:700">QUEUED</span></div>
+          </div>
+        </div></div>
     </div>
   </div>
 </section>
 
-<div class="bg-light">
-  <div class="sec">
-    <div style="text-align:center;max-width:600px;margin:0 auto">
-      <div class="sec-label">On-Page Elements</div>
-      <h2 class="sec-title">Every Element <span class="grad">Perfectly Optimized</span></h2>
-    </div>
-    <div class="cards-g"><div class="card"><div class="card-icon" style="background:#f0f4ff">🏷️</div><h3>Title Tags & Meta</h3><p>Craft compelling, keyword-rich title tags and meta descriptions that improve CTR and tell Google exactly what each page is about.</p></div><div class="card"><div class="card-icon" style="background:#f0fdf4">📋</div><h3>Header Structure</h3><p>Optimize H1, H2, H3 hierarchy for proper content structure, featured snippet eligibility, and keyword semantic relevance.</p></div><div class="card"><div class="card-icon" style="background:#fff7ed">🔑</div><h3>Keyword Optimization</h3><p>Strategic keyword placement throughout body content, image alt texts, URLs, and internal anchor texts without over-optimization.</p></div><div class="card"><div class="card-icon" style="background:#fdf4ff">🔗</div><h3>Internal Linking</h3><p>Build a powerful internal link architecture that distributes page authority, improves crawlability, and keeps users engaged longer.</p></div><div class="card"><div class="card-icon" style="background:#f0fdfa">📊</div><h3>Schema Markup</h3><p>Implement structured data (Article, FAQ, Product, LocalBusiness) to earn rich snippets and stand out in search results.</p></div><div class="card"><div class="card-icon" style="background:#fef2f2">🖼️</div><h3>Image Optimization</h3><p>Compress images, add descriptive alt texts, implement lazy loading, and use next-gen formats for Core Web Vitals improvement.</p></div></div>
-  </div>
-</div>
-
-<div style="background:#fff;padding:72px 48px">
+<section style="background:linear-gradient(180deg,#fff 0%,#faf5ff 100%);padding:80px 48px">
   <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;max-width:560px;margin:0 auto 0">
-      <div class="sec-label">Simple Process</div>
-      <h2 class="sec-title">How It <span class="grad">Works</span></h2>
+    <div style="text-align:center;max-width:600px;margin:0 auto">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#7c3aed;margin-bottom:10px">What We Do</div>
+      <h2 style="font-family:Manrope,sans-serif;font-size:clamp(24px,3.5vw,36px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#1a202c;margin-bottom:14px">Every Element, <span style="background:linear-gradient(135deg,#7c3aed,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Perfectly Optimized</span></h2>
     </div>
-    <div class="steps"><div class="step"><div class="step-num">1</div><h4>SEO Audit</h4><p>Complete technical and on-page audit identifying all issues hurting your search rankings.</p></div><div class="step"><div class="step-num">2</div><h4>Keyword Mapping</h4><p>Map the right keywords to each page based on search intent, volume, and competition.</p></div><div class="step"><div class="step-num">3</div><h4>Implement Changes</h4><p>Optimize titles, metas, headers, content, schema, and internal links across all target pages.</p></div><div class="step"><div class="step-num">4</div><h4>Monitor & Refine</h4><p>Track ranking improvements, monitor click-through rates, and continuously refine for maximum performance.</p></div></div>
+    <div class="grid-3" style="margin-top:44px"><div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;border-radius:0 12px 12px 0;padding:24px;transition:all .2s"><div style="font-size:28px;margin-bottom:12px">🏷️</div><h3 style="font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px">Title Tags & Meta Descriptions</h3><p style="font-size:13.5px;color:#64748b;line-height:1.7">We write compelling, keyword-rich title tags under 60 characters and meta descriptions under 155 characters that improve click-through rates and clearly signal your page topic to Google's crawlers.</p></div><div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;border-radius:0 12px 12px 0;padding:24px;transition:all .2s"><div style="font-size:28px;margin-bottom:12px">📋</div><h3 style="font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px">Header Tag Hierarchy (H1-H4)</h3><p style="font-size:13.5px;color:#64748b;line-height:1.7">Proper heading structure is both an SEO signal and a usability factor. We organize your H1, H2, H3, and H4 tags to establish clear content hierarchy and target long-tail keyword variations naturally.</p></div><div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;border-radius:0 12px 12px 0;padding:24px;transition:all .2s"><div style="font-size:28px;margin-bottom:12px">🔑</div><h3 style="font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px">Keyword Optimization & Density</h3><p style="font-size:13.5px;color:#64748b;line-height:1.7">Strategic placement of primary and secondary keywords in body content, first paragraph, image alt texts, and URL slugs — all without crossing into over-optimization territory that Google penalizes.</p></div><div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;border-radius:0 12px 12px 0;padding:24px;transition:all .2s"><div style="font-size:28px;margin-bottom:12px">🔗</div><h3 style="font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px">Internal Linking Strategy</h3><p style="font-size:13.5px;color:#64748b;line-height:1.7">A well-designed internal link structure distributes page authority across your site and helps Google discover all your content. We map and implement internal links that keep users engaged and boost rankings site-wide.</p></div><div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;border-radius:0 12px 12px 0;padding:24px;transition:all .2s"><div style="font-size:28px;margin-bottom:12px">📊</div><h3 style="font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px">Schema Markup & Rich Snippets</h3><p style="font-size:13.5px;color:#64748b;line-height:1.7">We implement JSON-LD structured data for Articles, FAQs, Products, LocalBusiness, Reviews, and more — dramatically increasing your chances of appearing in Google's rich results and featured snippets.</p></div><div style="background:#fff;border:1px solid #e2e8f0;border-left:4px solid #7c3aed;border-radius:0 12px 12px 0;padding:24px;transition:all .2s"><div style="font-size:28px;margin-bottom:12px">🖼️</div><h3 style="font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px">Image SEO & Alt Optimization</h3><p style="font-size:13.5px;color:#64748b;line-height:1.7">Every image is renamed with descriptive filenames, given keyword-rich alt attributes, compressed for speed, and converted to WebP format for better Core Web Vitals scores and image search visibility.</p></div></div>
   </div>
-</div>
+</section>
 
-<div class="bg-light">
-  <div class="split">
-    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=80&auto=format&fit=crop" alt="On-Page SEO Services" loading="lazy">
+<section style="background:#1a202c;padding:80px 48px">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#a78bfa;margin-bottom:10px">Our Process</div>
+      <h2 style="font-family:Manrope,sans-serif;font-size:clamp(24px,3.5vw,36px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#fff;margin-bottom:14px">How It <span style="background:linear-gradient(135deg,#7c3aed,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Works</span></h2>
+    </div>
+    <div class="tl" style="margin-top:48px"><div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 16px rgba(0,0,0,.3)">1</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">SEO Audit</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">We crawl every page, analyze meta data, check heading structure, review internal links, and identify all on-page weaknesses.</p></div><div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 16px rgba(0,0,0,.3)">2</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Keyword Mapping</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Each page gets mapped to the most valuable keywords based on search volume, intent, and your site's current authority.</p></div><div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 16px rgba(0,0,0,.3)">3</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Implement & Optimize</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">We make all changes directly or provide a developer-ready specification — title tags, metas, schema, content, images, and links.</p></div><div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 16px rgba(0,0,0,.3)">4</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Monitor Rankings</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Track position changes in Google Search Console weekly and refine optimizations based on performance data.</p></div></div>
+  </div>
+</section>
+
+<section style="padding:80px 48px;background:#fff">
+  <div class="grid-2" style="max-width:1100px;margin:0 auto">
+    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=80&auto=format&fit=crop" alt="On-Page SEO Services" style="width:100%;height:380px;object-fit:cover;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.1)" loading="lazy">
     <div>
-      <div class="sec-label">Why Uplyncio</div>
-      <h2 class="sec-title">On-Page SEO That <span class="grad">Moves the Needle</span></h2>
-      <p style="font-size:15px;color:#64748b;line-height:1.8;margin-bottom:4px">Our on-page SEO service goes beyond basic optimization. We analyze your competitors, understand search intent, and optimize every on-page element to give your content the best possible chance of ranking on page one.</p>
-      <ul><li>Complete on-page audit with prioritized action items</li><li>Title tag and meta description optimization for all target pages</li><li>H1–H4 header optimization and content structure improvement</li><li>Schema markup implementation for rich snippet eligibility</li><li>Strategic internal linking to boost page authority distribution</li><li>Image optimization including alt texts, compression, and formats</li></ul>
-      <a href="buyer.html" class="btn-primary" style="font-size:14px;padding:12px 24px">Start Now →</a>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#7c3aed;margin-bottom:10px">Why Uplyncio</div>
+      <h2 style="font-family:Manrope,sans-serif;font-size:clamp(24px,3.5vw,36px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#1a202c;margin-bottom:14px">On-Page SEO That <span style="background:linear-gradient(135deg,#7c3aed,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Delivers Measurable Results</span></h2>
+      <p style="font-size:15px;color:#64748b;line-height:1.8;margin-bottom:4px">Our on-page SEO process is built on data, not guesswork. We analyze your competitors' top-ranking pages, reverse-engineer their on-page strategies, and implement them — better. Every optimization is tracked and tied directly to ranking improvements you can see in Google Search Console.</p>
+      <ul style="list-style:none;margin:16px 0 24px"><li style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;font-size:14.5px;color:#475569;border-bottom:1px solid #f1f5f9"><span style="width:22px;height:22px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</span>Complete audit of all title tags, meta descriptions, and heading structure</li><li style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;font-size:14.5px;color:#475569;border-bottom:1px solid #f1f5f9"><span style="width:22px;height:22px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</span>Schema markup implementation for FAQ, Article, Product, and LocalBusiness types</li><li style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;font-size:14.5px;color:#475569;border-bottom:1px solid #f1f5f9"><span style="width:22px;height:22px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</span>Strategic keyword placement without over-optimization penalties</li><li style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;font-size:14.5px;color:#475569;border-bottom:1px solid #f1f5f9"><span style="width:22px;height:22px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</span>Internal link mapping to distribute authority across all target pages</li><li style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;font-size:14.5px;color:#475569;border-bottom:1px solid #f1f5f9"><span style="width:22px;height:22px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</span>Image optimization including alt texts, compression, and WebP conversion</li><li style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;font-size:14.5px;color:#475569;border-bottom:1px solid #f1f5f9"><span style="width:22px;height:22px;border-radius:50%;background:#f5f3ff;color:#7c3aed;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">✓</span>Monthly ranking reports showing exact position changes for all target keywords</li></ul>
+      <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit">Start Now →</button>
     </div>
   </div>
-</div>
+</section>
 
-<div class="cta-band">
-  <h2>Get Your Pages Ranking <span class="grad">Today</span></h2>
-  <p>Properly optimized pages rank higher, get more clicks, and convert better. Start your on-page SEO today.</p>
-  <div class="cta-btns">
-    <a href="buyer.html" class="btn-primary" style="font-size:15px;padding:14px 30px">Get Started →</a>
-    <a href="publisher.html" class="btn-outline" style="font-size:15px;padding:14px 28px;color:#fff">Become a Publisher</a>
+<section style="linear-gradient(135deg,#0f0a1e,#1a0f35);padding:80px 48px;text-align:center;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(124,58,237,.12) 0%,transparent 70%)"></div>
+  <div style="max-width:640px;margin:0 auto;position:relative;z-index:1">
+    <h2 style="font-family:Manrope,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-1px">Start Optimizing Your Pages <span style="background:linear-gradient(135deg,#7c3aed,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Today</span></h2>
+    <p style="font-size:15px;color:rgba(255,255,255,.6);margin-bottom:32px;line-height:1.7">Poorly optimized pages are leaving rankings and traffic on the table. Get a full on-page SEO audit and fix every issue holding you back.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border-radius:11px;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:inherit">🎯 Get Free On-Page SEO Audit</button>
+      <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:transparent;color:#fff;border-radius:11px;font-size:15px;font-weight:600;border:1px solid rgba(255,255,255,.2)">Browse Link Building →</a>
+    </div>
   </div>
-</div>
+</section>
 
-<div class="related">
-  <div class="related-inner">
-    <h3>Explore More Services</h3>
-    <div class="related-grid">
-      <a href="buyer.html" class="rel-card"><div class="r-icon">🔍</div><div class="r-title">Browse Marketplace</div><div class="r-desc">8,500+ verified publisher sites</div></a>
-      <a href="publisher.html" class="rel-card"><div class="r-icon">💼</div><div class="r-title">Become a Publisher</div><div class="r-desc">Monetize your website traffic</div></a>
-      <a href="content-writing.html" class="rel-card"><div class="r-icon">✍️</div><div class="r-title">Content Writing</div><div class="r-desc">SEO-optimized content service</div></a>
-      <a href="local-seo.html" class="rel-card"><div class="r-icon">📍</div><div class="r-title">Local SEO</div><div class="r-desc">Dominate local search results</div></a>
-      <a href="uplyncio-full.html" class="rel-card"><div class="r-icon">🏠</div><div class="r-title">Back to Home</div><div class="r-desc">Uplyncio main platform</div></a></div>
+<section style="background:#f8faff;border-top:1px solid #e2e8f0;padding:52px 48px">
+  <div style="max-width:1100px;margin:0 auto">
+    <h3 style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:20px">Explore More Services</h3>
+    <div class="grid-4" style="gap:14px"><a href="link-building.html" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:block;text-decoration:none;transition:all .2s"><div style="font-size:22px;margin-bottom:8px">🔗</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Link Building</div><div style="font-size:12px;color:#94a3b8">Build high-authority backlinks</div></a><a href="local-seo.html" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:block;text-decoration:none;transition:all .2s"><div style="font-size:22px;margin-bottom:8px">📍</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Local SEO</div><div style="font-size:12px;color:#94a3b8">Dominate local search results</div></a><a href="technical-seo.html" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:block;text-decoration:none;transition:all .2s"><div style="font-size:22px;margin-bottom:8px">⚙️</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Technical SEO</div><div style="font-size:12px;color:#94a3b8">Fix technical ranking barriers</div></a><a href="buyer.html" style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;display:block;text-decoration:none;transition:all .2s"><div style="font-size:22px;margin-bottom:8px">🔍</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Browse Marketplace</div><div style="font-size:12px;color:#94a3b8">8,500+ publisher sites</div></a></div>
   </div>
-</div>
+</section>
 
-<footer>
-  <div class="footer-g">
-    <div class="f-brand">
-      <a href="uplyncio-full.html" class="nav-logo" style="font-size:22px;color:#fff"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
-      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches.</p>
-      <div class="f-socials">
-        <a class="soc-btn" href="https://www.linkedin.com/company/uplyncio" target="_blank">in</a>
-        <a class="soc-btn" href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank">fb</a>
-        <a class="soc-btn" href="https://www.instagram.com/uplyncio" target="_blank">ig</a>
-        <a class="soc-btn" href="https://wa.me/923001234567" target="_blank">wa</a>
+<footer style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:60px 48px 0">
+  <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)">
+    <div>
+      <a href="uplyncio-full.html" style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px;text-decoration:none"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span></a>
+      <p style="font-size:13px;color:#8892a4;line-height:1.8;max-width:260px;margin:12px 0 18px">Premium guest posting and link building marketplace. 8,500+ verified publisher sites.</p>
+      <div style="display:flex;gap:8px">
+        <a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">in</a>
+        <a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">fb</a>
+        <a href="https://www.instagram.com/uplyncio" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">ig</a>
+        <a href="https://wa.me/923001234567" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">wa</a>
       </div>
     </div>
-    <div class="f-col"><h4>Services</h4><ul>
-      <li><a href="local-seo.html">Local SEO</a></li>
-      <li><a href="on-page-seo.html">On-Page SEO</a></li>
-      <li><a href="link-building.html">Link Building</a></li>
-      <li><a href="content-writing.html">Content Writing</a></li>
-      <li><a href="ai-agents.html">AI Agents</a></li>
-      <li><a href="web-development.html">Web Development</a></li>
-    </ul></div>
-    <div class="f-col"><h4>Platform</h4><ul>
-      <li><a href="uplyncio-full.html">Home</a></li>
-      <li><a href="buyer.html">Browse Sites</a></li>
-      <li><a href="publisher.html">Become a Publisher</a></li>
-      <li><a href="about.html">About Us</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul></div>
-    <div class="f-col"><h4>Support</h4><ul>
-      <li><a href="faq.html">FAQ</a></li>
-      <li><a href="refund.html">Refund Policy</a></li>
-      <li><a href="privacy.html">Privacy Policy</a></li>
-      <li><a href="terms.html">Terms & Conditions</a></li>
-      <li><a href="mailto:info@uplyncio.com">info@uplyncio.com</a></li>
-    </ul></div>
+    <div>
+      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">SEO Services</h4>
+      <ul style="list-style:none"><li style="margin-bottom:9px"><a href="local-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Local SEO</a></li><li style="margin-bottom:9px"><a href="on-page-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">On-Page SEO</a></li><li style="margin-bottom:9px"><a href="off-page-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Off-Page SEO</a></li><li style="margin-bottom:9px"><a href="technical-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Technical SEO</a></li><li style="margin-bottom:9px"><a href="link-building.html" style="color:#8892a4;font-size:13px;text-decoration:none">Link Building</a></li></ul>
+    </div>
+    <div>
+      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">Platform</h4>
+      <ul style="list-style:none"><li style="margin-bottom:9px"><a href="uplyncio-full.html" style="color:#8892a4;font-size:13px;text-decoration:none">Home</a></li><li style="margin-bottom:9px"><a href="buyer.html" style="color:#8892a4;font-size:13px;text-decoration:none">Browse Sites</a></li><li style="margin-bottom:9px"><a href="publisher.html" style="color:#8892a4;font-size:13px;text-decoration:none">Become Publisher</a></li><li style="margin-bottom:9px"><a href="content-writing.html" style="color:#8892a4;font-size:13px;text-decoration:none">Content Writing</a></li><li style="margin-bottom:9px"><a href="ai-agents.html" style="color:#8892a4;font-size:13px;text-decoration:none">AI Agents</a></li></ul>
+    </div>
+    <div>
+      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">Company</h4>
+      <ul style="list-style:none"><li style="margin-bottom:9px"><a href="about.html" style="color:#8892a4;font-size:13px;text-decoration:none">About Us</a></li><li style="margin-bottom:9px"><a href="contact.html" style="color:#8892a4;font-size:13px;text-decoration:none">Contact</a></li><li style="margin-bottom:9px"><a href="terms.html" style="color:#8892a4;font-size:13px;text-decoration:none">Terms & Conditions</a></li><li style="margin-bottom:9px"><a href="privacy.html" style="color:#8892a4;font-size:13px;text-decoration:none">Privacy Policy</a></li><li style="margin-bottom:9px"><a href="refund.html" style="color:#8892a4;font-size:13px;text-decoration:none">Refund Policy</a></li></ul>
+    </div>
   </div>
-  <div class="footer-bot">
-    <p>© 2026 Uplyncio. All rights reserved.</p>
-    <div class="pay-badges"><div class="pay-b">PayPal</div><div class="pay-b">Wise</div><div class="pay-b">USDT</div><div class="pay-b">Bank Transfer</div></div>
+  <div style="max-width:1100px;margin:0 auto;padding:20px 0;display:flex;align-items:center;justify-content:space-between">
+    <p style="font-size:12px;color:#8892a4">© 2026 Uplyncio. All rights reserved.</p>
+    <div style="display:flex;gap:6px">
+      <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">PayPal</span>
+      <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">Wise</span>
+      <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">USDT</span>
+      <span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">Bank</span>
+    </div>
   </div>
 </footer>
+<div id="inquiryModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeForm()">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.2)">
+    <div style="background:linear-gradient(135deg,#7c3aed,#6366f1);padding:22px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff">🎯 Get Free On-Page SEO Audit</div><div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px">We will respond within 24 hours</div></div>
+      <button onclick="closeForm()" style="width:30px;height:30px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Name <span style="color:#ef4444">*</span></label><input id="f_name" type="text" placeholder="Your name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Email <span style="color:#ef4444">*</span></label><input id="f_email" type="email" placeholder="you@company.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Phone</label><input id="f_phone" type="tel" placeholder="+1 234 567 8900" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Website</label><input id="f_website" type="url" placeholder="https://yoursite.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+      </div>
+      <div style="margin-bottom:14px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Pages to Optimize</label>
+          <select data-field="Pages Count" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;box-sizing:border-box">
+            <option value="">Select range...</option><option>1-10 pages</option><option>11-50 pages</option><option>51-200 pages</option><option>200+ pages</option>
+          </select>
+        </div>
+      <div style="margin-bottom:14px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Budget</label>
+        <select id="f_budget" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;box-sizing:border-box">
+          <option value="">Select budget range...</option>
+          <option>Under $500/month</option><option>$500 - $1,500/month</option><option>$1,500 - $5,000/month</option><option>$5,000+/month</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Tell us about your goals</label><textarea id="f_message" placeholder="Which keywords are you targeting? What is your current ranking? What CMS do you use (WordPress, Webflow, etc.)?" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical;min-height:80px;box-sizing:border-box"></textarea></div>
+      <div id="f_status" style="display:none;padding:11px 14px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:12px"></div>
+      <button onclick="submitForm()" style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">🎯 Get My Free On-Page Audit →</button>
+    </div>
+  </div>
+</div>
+<div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:10001;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:40px 32px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.2)">
+    <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px">✅</div>
+    <h3 style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin-bottom:10px">Inquiry Sent!</h3>
+    <p style="font-size:13.5px;color:#64748b;line-height:1.7;margin-bottom:24px">Our team will get back to you at <strong>info@uplyncio.com</strong> within 24 hours.</p>
+    <button onclick="document.getElementById('successModal').style.display='none'" style="width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Done</button>
+  </div>
+</div>
+
+<script>
+function openForm(){ document.getElementById('inquiryModal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeForm(){ document.getElementById('inquiryModal').style.display='none'; document.body.style.overflow=''; }
+async function submitForm(){
+  var name=document.getElementById('f_name').value.trim();
+  var email=document.getElementById('f_email').value.trim();
+  var website=document.getElementById('f_website').value.trim();
+  var st=document.getElementById('f_status');
+  if(!name||!email){st.style.display='block';st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='⚠ Please fill Name and Email.';return;}
+  st.style.display='block';st.style.background='#f0f4ff';st.style.color='#4f7cff';st.textContent='Sending...';
+  var extra={};
+  document.querySelectorAll('[data-field]').forEach(function(el){if(el.value) extra[el.getAttribute('data-field')]=el.value;});
+  try{
+    var r=await fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:'On-Page SEO Services',name,email,website,phone:document.getElementById('f_phone')?.value||'',budget:document.getElementById('f_budget')?.value||'',message:document.getElementById('f_message')?.value||'',details:extra})});
+    if(r.ok){closeForm();document.getElementById('successModal').style.display='flex';}
+    else{st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Error. Email info@uplyncio.com directly.';}
+  }catch(e){st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Error. Email info@uplyncio.com directly.';}
+}
+</script>
 </body>
 </html>

@@ -2,224 +2,219 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Full-service social media management — content, posting, ads, and analytics for all platforms.">
   <title>Social Media Marketing — Uplyncio</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    :root{--accent:#4f7cff;--teal:#00d4aa;--green:#00c27a;--dark:#07090f;--text:#1a202c;--text2:#475569;--muted:#94a3b8;--border:#e2e8f0}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:var(--text);line-height:1.6}
-    a{text-decoration:none;color:inherit}
-    @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    /* NAV */
-    .nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
-    .nav-logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px}
-    .nav-logo em{font-style:normal;color:#4f7cff}
-    .nav-links{display:flex;gap:28px;list-style:none;align-items:center}
-    .nav-links a{font-size:13.5px;font-weight:600;color:#8892a4;transition:color .15s}
-    .nav-links a:hover{color:#fff}
-    .nav-right{display:flex;gap:10px;align-items:center}
-    .btn-ghost{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;background:transparent;cursor:pointer;text-decoration:none;transition:all .2s}
-    .btn-ghost:hover{background:rgba(255,255,255,.08)}
-    .btn-nav{padding:9px 20px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block}
-    /* HERO */
-    .hero{background:linear-gradient(135deg,#0a0f1e,#0d1628 50%,#0a1a35);padding:130px 48px 90px;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 50%,rgba(79,124,255,.1) 0%,transparent 70%)}
-    .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:1}
-    .hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.25);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#7ba7ff;margin-bottom:22px;text-transform:uppercase;letter-spacing:1px}
-    .hero h1{font-family:Manrope,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:800;line-height:1.1;letter-spacing:-1.5px;color:#fff;margin-bottom:18px}
-    .hero h1 span{background:linear-gradient(135deg,#4f7cff,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .hero p{font-size:15px;color:#8892a4;line-height:1.8;margin-bottom:28px;max-width:480px}
-    .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
-    .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit;transition:all .2s}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(79,124,255,.4)}
-    .btn-outline{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:#fff;border-radius:11px;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:all .2s}
-    .btn-outline:hover{background:rgba(255,255,255,.06)}
-    .hero-stats{display:flex;gap:28px;margin-top:36px;padding-top:28px;border-top:1px solid rgba(255,255,255,.08)}
-    .stat-num{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff}
-    .stat-lbl{font-size:12px;color:#8892a4}
-    /* VISUAL BOX */
-    .hero-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;backdrop-filter:blur(10px)}
-    /* SECTIONS */
-    .sec{padding:72px 48px;max-width:1100px;margin:0 auto}
-    .sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#4f7cff;margin-bottom:10px}
-    .sec-title{font-family:Manrope,sans-serif;font-size:clamp(24px,3.5vw,38px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#1a202c;margin-bottom:14px}
-    .sec-sub{font-size:15px;color:#64748b;line-height:1.8;max-width:560px}
-    .grad{background:linear-gradient(135deg,#4f7cff,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    /* CARDS GRID */
-    .bg-light{background:#f8faff;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0}
-    .cards-g{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
-    .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px;transition:all .25s}
-    .card:hover{border-color:#4f7cff;box-shadow:0 8px 30px rgba(79,124,255,.1);transform:translateY(-3px)}
-    .card-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
-    .card h3{font-size:16px;font-weight:800;color:#1a202c;margin-bottom:8px}
-    .card p{font-size:13.5px;color:#64748b;line-height:1.7}
-    /* STEPS */
-    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:48px;position:relative}
-    .steps::before{content:'';position:absolute;top:26px;left:12.5%;right:12.5%;height:2px;background:linear-gradient(90deg,#4f7cff,#00d4aa);z-index:0}
-    .step{text-align:center;padding:0 14px;position:relative;z-index:1}
-    .step-num{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 16px rgba(79,124,255,.35)}
-    .step h4{font-size:14px;font-weight:700;color:#1a202c;margin-bottom:7px}
-    .step p{font-size:13px;color:#64748b;line-height:1.6}
-    /* SPLIT */
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;max-width:1100px;margin:0 auto;padding:72px 48px}
-    .split img{width:100%;height:360px;object-fit:cover;border-radius:18px;box-shadow:0 16px 50px rgba(0,0,0,.1)}
-    .split ul{list-style:none;margin:18px 0 24px}
-    .split ul li{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:14px;color:#475569;border-bottom:1px solid #f1f5f9}
-    .split ul li::before{content:'✓';width:20px;height:20px;border-radius:50%;background:#f0fdf4;color:#16a34a;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-    /* CTA */
-    .cta-band{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:72px 48px;text-align:center}
-    .cta-band h2{font-family:Manrope,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-1px}
-    .cta-band p{font-size:15px;color:#8892a4;margin-bottom:32px;line-height:1.7;max-width:560px;margin-left:auto;margin-right:auto}
-    .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-    /* INTERNAL LINKS */
-    .related{background:#f8faff;border-top:1px solid #e2e8f0;padding:48px}
-    .related-inner{max-width:1100px;margin:0 auto}
-    .related h3{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin-bottom:20px}
-    .related-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .rel-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;text-decoration:none;transition:all .2s;display:block}
-    .rel-card:hover{border-color:#4f7cff;box-shadow:0 4px 16px rgba(79,124,255,.1);transform:translateY(-2px)}
-    .rel-card .r-icon{font-size:22px;margin-bottom:8px}
-    .rel-card .r-title{font-size:13.5px;font-weight:700;color:#1a202c;margin-bottom:3px}
-    .rel-card .r-desc{font-size:12px;color:#94a3b8}
-    /* FOOTER */
-    footer{background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:60px 48px 0}
-    .footer-g{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)}
-    .f-brand p{font-size:13px;color:#8892a4;line-height:1.8;max-width:260px;margin:12px 0 20px}
-    .f-socials{display:flex;gap:8px}
-    .soc-btn{width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:12px;font-weight:700;transition:all .2s}
-    .soc-btn:hover{border-color:#4f7cff;color:#4f7cff}
-    .f-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif}
-    .f-col ul{list-style:none}
-    .f-col ul li{margin-bottom:10px}
-    .f-col ul li a{color:#8892a4;font-size:13px;font-weight:500;transition:color .2s}
-    .f-col ul li a:hover{color:#fff}
-    .footer-bot{max-width:1100px;margin:0 auto;padding:20px 0;display:flex;align-items:center;justify-content:space-between}
-    .footer-bot p{font-size:12px;color:#8892a4}
-    .pay-badges{display:flex;gap:7px}
-    .pay-b{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4}
-    @media(max-width:900px){.hero-inner,.split,.cards-g,.steps,.related-grid,.footer-g{grid-template-columns:1fr}.steps::before{display:none}.nav-links{display:none}.nav,.hero,.sec,.split,.cta-band,.related,.footer-g{padding-left:20px;padding-right:20px}}
+    *{box-sizing:border-box;margin:0;padding:0} body{font-family:'Plus Jakarta Sans',sans-serif;color:#1a202c;line-height:1.6} a{text-decoration:none;color:inherit}
+    @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}} @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
+    .logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px} .logo em{font-style:normal;color:#4f7cff}
+    .nl{display:flex;gap:28px;list-style:none} .nl a{font-size:13.5px;font-weight:600;color:#8892a4} .nl a:hover{color:#fff}
+    .nr{display:flex;gap:10px} .bg{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;background:transparent;text-decoration:none}
+    .ba{padding:9px 20px;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center} .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px} .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .card{background:#fff;border:1px solid #e2e8f0;border-left:4px solid #e11d48;border-radius:0 14px 14px 0;padding:24px;transition:all .2s} .card:hover{box-shadow:0 6px 24px rgba(0,0,0,.08);transform:translateX(3px)}
+    .card h3{font-size:15px;font-weight:800;color:#1a202c;margin:12px 0 8px} .card p{font-size:13.5px;color:#64748b;line-height:1.7} .ic{font-size:26px}
+    .rc{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:block;transition:all .2s} .rc:hover{border-color:#e11d48;transform:translateY(-2px)}
+    @media(max-width:900px){nav .nl{display:none}.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}nav,section,footer{padding-left:20px!important;padding-right:20px!important}}
   </style>
 </head>
 <body>
-<nav class="nav">
-  <a href="uplyncio-full.html" class="nav-logo"><svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
-  <ul class="nav-links">
-    <li><a href="uplyncio-full.html">Home</a></li>
-    <li><a href="buyer.html">Browse Sites</a></li>
-    <li><a href="about.html">About</a></li>
-    <li><a href="contact.html">Contact</a></li>
-  </ul>
-  <div class="nav-right" id="svcNavRight">
-    <a href="publisher.html" class="btn-ghost">Become a Publisher</a>
-    <a href="buyer.html" class="btn-nav">Get Started →</a>
-  </div>
+<nav>
+  <a href="uplyncio-full.html" class="logo"><svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
+  <ul class="nl"><li><a href="uplyncio-full.html">Home</a></li><li><a href="buyer.html">Marketplace</a></li><li><a href="link-building.html">Link Building</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <div class="nr" id="pgNav"><a href="publisher.html" class="bg">Become Publisher</a><button onclick="openForm()" class="ba">📱 Get Social Media Audit</button></div>
 </nav>
-<script>
-(function(){
-  try{
-    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
-    var el=document.getElementById('svcNavRight');
-    if(!el||(!u&&!li)) return;
-    if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=Array.isArray(us)?us.find(function(x){return x.uid===uid;}):null;if(f)u={name:f.name||'',email:f.email||'',role:f.role||'publisher',verified:true};}
-    if(!u) return;
-    var isP=u.role==='publisher';
-    el.innerHTML=isP
-      ?'<a href="publisher.html" class="btn-nav">🌐 Publisher Dashboard →</a>'
-      :'<a href="buyer.html" class="btn-ghost">🛒 Buyer Account</a><a href="buyer.html" class="btn-nav">Browse Sites →</a>';
-  }catch(e){}
-})();
-</script>
-<section class="hero"><div class="hero-inner">
-  <div style="animation:fadeUp .6s ease both">
-    <div class="hero-badge">📱 Social Media</div>
-    <h1>Social Media That <span>Builds Real Brands</span></h1>
-    <p>Grow your brand, engage your audience, and drive real business results with strategic social media marketing. From content creation to paid campaigns — we manage it all.</p>
-    <div class="hero-cta"><a href="buyer.html" class="btn-primary">Get Started →</a><a href="contact.html" class="btn-outline">Talk to Us</a></div>
-    <div class="hero-stats"><div><div class="stat-num">50M+</div><div class="stat-lbl">Reach Generated</div></div><div><div class="stat-num">10x</div><div class="stat-lbl">Avg Engagement</div></div><div><div class="stat-num">30 Days</div><div class="stat-lbl">First Results</div></div><div><div class="stat-num">All Platforms</div><div class="stat-lbl">Covered</div></div></div>
-  </div>
-  <div style="animation:fadeUp .6s .15s ease both"><div class="hero-box"><div style="display:flex;flex-direction:column;gap:8px">
-      <div style="font-size:11px;color:#7ba7ff;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">This Month Performance</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px">📘</div><div style="font-size:16px;font-weight:800;color:#7ba7ff;font-family:Manrope,sans-serif">+2.4K</div><div style="font-size:10px;color:#8892a4">Facebook Followers</div></div>
-        <div style="background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px">📸</div><div style="font-size:16px;font-weight:800;color:#ec4899;font-family:Manrope,sans-serif">+5.1K</div><div style="font-size:10px;color:#8892a4">Instagram Followers</div></div>
-        <div style="background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px">🐦</div><div style="font-size:16px;font-weight:800;color:#00d4aa;font-family:Manrope,sans-serif">+890</div><div style="font-size:10px;color:#8892a4">Twitter Followers</div></div>
-        <div style="background:rgba(10,102,194,.1);border:1px solid rgba(10,102,194,.2);border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px">💼</div><div style="font-size:16px;font-weight:800;color:#0a66c2;font-family:Manrope,sans-serif">+1.2K</div><div style="font-size:10px;color:#8892a4">LinkedIn Connections</div></div>
-      </div>
-    </div></div></div>
-</div></section>
-<div class="bg-light"><div class="sec">
-  <div style="text-align:center;max-width:600px;margin:0 auto"><div class="sec-label">What We Offer</div><h2 class="sec-title">Full-Service Social Media <span class="grad">Management</span></h2></div>
-  <div class="cards-g"><div class="card"><div class="card-icon" style="background:#f0f4ff">📝</div><h3>Content Creation</h3><p>Scroll-stopping posts, stories, reels, and graphics crafted specifically for each platform's unique format and audience expectations.</p></div><div class="card"><div class="card-icon" style="background:#f0fdf4">📅</div><h3>Content Strategy</h3><p>Data-driven content calendars built around your audience's behavior, trending topics, and business goals.</p></div><div class="card"><div class="card-icon" style="background:#fff7ed">💰</div><h3>Paid Social Ads</h3><p>ROI-focused Facebook, Instagram, LinkedIn, and TikTok ad campaigns with laser-targeted audience segmentation.</p></div><div class="card"><div class="card-icon" style="background:#fdf4ff">💬</div><h3>Community Management</h3><p>Daily engagement, comment responses, DM management, and community building to grow loyal brand advocates.</p></div><div class="card"><div class="card-icon" style="background:#f0fdfa">📊</div><h3>Analytics & Reporting</h3><p>Monthly performance reports with actionable insights — reach, engagement, conversions, and ROI clearly explained.</p></div><div class="card"><div class="card-icon" style="background:#fef2f2">🤝</div><h3>Influencer Campaigns</h3><p>Identify and manage nano, micro, and macro influencer partnerships that drive authentic reach in your target market.</p></div></div>
-</div></div>
-<div style="background:#fff;padding:72px 48px"><div style="max-width:1100px;margin:0 auto">
-  <div style="text-align:center;max-width:560px;margin:0 auto 0"><div class="sec-label">Our Process</div><h2 class="sec-title">How It <span class="grad">Works</span></h2></div>
-  <div class="steps"><div class="step"><div class="step-num">1</div><h4>Strategy & Audit</h4><p>Audit your current social presence and build a platform-specific strategy aligned with your business goals.</p></div><div class="step"><div class="step-num">2</div><h4>Content Creation</h4><p>Our creative team produces platform-native content — posts, stories, reels, and graphics — on a consistent schedule.</p></div><div class="step"><div class="step-num">3</div><h4>Publish & Engage</h4><p>We post at optimal times and actively manage your community with daily engagement and responses.</p></div><div class="step"><div class="step-num">4</div><h4>Optimize & Report</h4><p>Monthly reporting with data-driven optimizations to continuously improve reach, engagement, and conversions.</p></div></div>
-</div></div>
-<div class="bg-light"><div class="split">
-  <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=700&q=80&auto=format&fit=crop" alt="Social Media Marketing" loading="lazy">
-  <div>
-    <div class="sec-label">Why Choose Us</div>
-    <h2 class="sec-title">Social Media That <span class="grad">Actually Converts</span></h2>
-    <p style="font-size:15px;color:#64748b;line-height:1.8;margin-bottom:4px">We don't just post pretty pictures. Every piece of content we create serves a strategic purpose — build awareness, drive engagement, generate leads, or convert customers. Your social media becomes a real revenue channel.</p>
-    <ul><li>Platform-native content for Instagram, Facebook, LinkedIn, Twitter, and TikTok</li><li>Consistent posting schedule — 5 to 7 posts per week per platform</li><li>Professional graphic design and video editing included</li><li>Monthly analytics reports with clear ROI tracking</li><li>Paid social ad management with full budget transparency</li><li>Dedicated social media manager as your single point of contact</li></ul>
-    <a href="buyer.html" class="btn-primary" style="font-size:14px;padding:12px 24px">Start Now →</a>
-  </div>
-</div></div>
-<div class="cta-band">
-  <h2>Grow Your Social Presence <span class="grad">Today</span></h2>
-  <p>Build a brand that people follow, share, and buy from. Start your social media growth today.</p>
-  <div class="cta-btns">
-    <a href="buyer.html" class="btn-primary" style="padding:14px 30px;font-size:15px">Get Started →</a>
-    <a href="publisher.html" class="btn-outline" style="padding:14px 28px;font-size:15px;color:#fff">Become a Publisher</a>
-  </div>
-</div>
-<div class="related"><div class="related-inner">
-  <h3>Explore More Services</h3>
-  <div class="related-grid"><a href="buyer.html" class="rel-card"><div class="r-icon">🔍</div><div class="r-title">Browse Marketplace</div><div class="r-desc">8,500+ publisher sites</div></a><a href="publisher.html" class="rel-card"><div class="r-icon">💼</div><div class="r-title">Become Publisher</div><div class="r-desc">Monetize your website</div></a><a href="content-writing.html" class="rel-card"><div class="r-icon">✍️</div><div class="r-title">Content Writing</div><div class="r-desc">SEO content service</div></a><a href="content-writing.html" class="rel-card"><div class="r-icon">✍️</div><div class="r-title">Content Writing</div><div class="r-desc">Content for all platforms</div></a><a href="uplyncio-full.html" class="rel-card"><div class="r-icon">🏠</div><div class="r-title">Back to Home</div><div class="r-desc">Uplyncio platform</div></a></div>
-</div></div>
-<footer>
-  <div class="footer-g">
-    <div class="f-brand">
-      <a href="uplyncio-full.html" class="nav-logo" style="font-size:22px;color:#fff"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
-      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches.</p>
-      <div class="f-socials">
-        <a class="soc-btn" href="https://www.linkedin.com/company/uplyncio" target="_blank">in</a>
-        <a class="soc-btn" href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank">fb</a>
-        <a class="soc-btn" href="https://www.instagram.com/uplyncio" target="_blank">ig</a>
-        <a class="soc-btn" href="https://wa.me/923001234567" target="_blank">wa</a>
+<script>(function(){try{var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');var li=localStorage.getItem('uplyncio_loggedIn')==='1';var el=document.getElementById('pgNav');if(!el||(!u&&!li))return;if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=Array.isArray(us)?us.find(function(x){return x.uid===uid;});if(f)u={name:f.name||'',role:f.role||'publisher',verified:true};}if(!u)return;el.innerHTML=u.role==='publisher'?'<a href="publisher.html" class="ba">🌐 Dashboard</a>':'<a href="buyer.html" class="ba">🛒 Buyer</a>';}catch(e){}})();</script>
+
+<section style="linear-gradient(135deg,#1a000a,#250010);padding:130px 48px 80px;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 25% 50%,rgba(225,29,72,.12) 0%,transparent 60%)"></div>
+  <div class="g2" style="max-width:1100px;margin:0 auto;position:relative;z-index:1">
+    <div style="animation:fadeUp .6s ease both">
+      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.25);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#fb7185;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px">Social Media Marketing</div>
+      <h1 style="font-family:Manrope,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:800;line-height:1.08;letter-spacing:-1.5px;color:#fff;margin-bottom:18px">Social Media That Builds <span style="background:linear-gradient(135deg,#e11d48,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Real Brands & Real Revenue</span></h1>
+      <p style="font-size:15.5px;color:#8892a4;line-height:1.8;margin-bottom:28px;max-width:500px">Most businesses post on social media and wonder why nothing happens. Random content without strategy is just noise. Our social media team creates platform-native content with clear strategy — to grow your audience, build brand authority, and convert followers into paying customers.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit">📱 Get Social Media Audit</button>
+        <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:#fff;border-radius:11px;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.2)">Browse Marketplace →</a>
       </div>
     </div>
-    <div class="f-col"><h4>Services</h4><ul>
-      <li><a href="local-seo.html">Local SEO</a></li>
-      <li><a href="on-page-seo.html">On-Page SEO</a></li>
-      <li><a href="link-building.html">Link Building</a></li>
-      <li><a href="content-writing.html">Content Writing</a></li>
-      <li><a href="ai-agents.html">AI Agents</a></li>
-      <li><a href="web-development.html">Web Development</a></li>
-    </ul></div>
-    <div class="f-col"><h4>Platform</h4><ul>
-      <li><a href="uplyncio-full.html">Home</a></li>
-      <li><a href="buyer.html">Browse Sites</a></li>
-      <li><a href="publisher.html">Become a Publisher</a></li>
-      <li><a href="about.html">About Us</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul></div>
-    <div class="f-col"><h4>Support</h4><ul>
-      <li><a href="faq.html">FAQ</a></li>
-      <li><a href="refund.html">Refund Policy</a></li>
-      <li><a href="privacy.html">Privacy Policy</a></li>
-      <li><a href="terms.html">Terms & Conditions</a></li>
-      <li><a href="mailto:info@uplyncio.com">info@uplyncio.com</a></li>
-    </ul></div>
+    <div style="animation:fadeUp .6s .2s ease both">
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px">
+        <div style="font-size:12px;color:#fb7185;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Why Choose Uplyncio</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">✅</span><span style="font-size:13px;color:#fff;font-weight:600">500+ clients — proven track record</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">📊</span><span style="font-size:13px;color:#fff;font-weight:600">Transparent monthly reporting</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">🔒</span><span style="font-size:13px;color:#fff;font-weight:600">100% white-hat, safe strategies</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">⚡</span><span style="font-size:13px;color:#fff;font-weight:600">Dedicated specialist for your account</span></div>
+          <button onclick="openForm()" style="width:100%;padding:12px;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">📱 Get Social Media Audit →</button>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="footer-bot">
-    <p>© 2026 Uplyncio. All rights reserved.</p>
-    <div class="pay-badges"><div class="pay-b">PayPal</div><div class="pay-b">Wise</div><div class="pay-b">USDT</div><div class="pay-b">Bank Transfer</div></div>
+</section>
+
+<section style="background:#fff;padding:72px 48px">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:3fr 2fr;gap:52px">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#e11d48;margin-bottom:10px">Service Overview</div>
+        <h2 style="font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:#1a202c;margin-bottom:20px;letter-spacing:-1px">What Is Social Media Marketing and Why Does It Matter for Your Business?</h2>
+        <div style="font-size:15px;color:#475569;line-height:1.9;display:flex;flex-direction:column;gap:16px">
+          <p>Most businesses post on social media and wonder why nothing happens. Random content without strategy is just noise. Our social media team creates platform-native content with clear strategy — to grow your audience, build brand authority, and convert followers into paying customers.</p>
+          <p>At Uplyncio, we combine deep industry expertise with data-driven strategies to deliver measurable results. Unlike generic agencies that apply cookie-cutter tactics, we build custom strategies tailored to your specific industry, competitive landscape, and growth goals.</p>
+          <p>Our team has worked with businesses across dozens of industries — from SaaS startups and e-commerce brands to law firms, local service businesses, and enterprise companies. Every engagement starts with a thorough audit to pinpoint the highest-impact opportunities and build a roadmap that delivers real, sustainable results.</p>
+          <p>When you work with Uplyncio, you get a dedicated specialist who learns your business deeply, a clear strategy with measurable milestones, and monthly reports that show exactly what was done and what results were achieved. No black boxes. No vague promises. Just clear, measurable progress.</p>
+        </div>
+        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+          <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit">📱 Get Social Media Audit</button>
+          <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border:1.5px solid #e11d48;color:#e11d48;border-radius:11px;font-size:14px;font-weight:600">Browse Marketplace →</a>
+        </div>
+      </div>
+      <div>
+        <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;color:#1a202c;margin-bottom:16px">Service Stats</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px;color:#64748b">Clients Served</span><span style="font-size:13px;font-weight:700;color:#e11d48">500+</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px;color:#64748b">Avg Results Timeline</span><span style="font-size:13px;font-weight:700;color:#e11d48">30–90 Days</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px;color:#64748b">Client Retention</span><span style="font-size:13px;font-weight:700;color:#e11d48">94%</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:13px;color:#64748b">Rating</span><span style="font-size:13px;font-weight:700;color:#e11d48">4.9/5 ⭐</span></div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#e11d48,#f97316);border-radius:16px;padding:24px;color:#fff;text-align:center">
+          <div style="font-size:32px;margin-bottom:10px">🚀</div>
+          <div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;margin-bottom:8px">Free Audit — No Commitment</div>
+          <div style="font-size:13px;opacity:.8;margin-bottom:16px">Get a personalized strategy and free audit today.</div>
+          <button onclick="openForm()" style="width:100%;padding:11px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">📱 Get Social Media Audit</button>
+        </div>
+      </div>
+    </div>
   </div>
+</section>
+
+<section style="background:#f8faff;border-top:1px solid #e2e8f0;padding:72px 48px">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;max-width:600px;margin:0 auto">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#e11d48;margin-bottom:10px">What's Included</div>
+      <h2 style="font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:#1a202c;margin-bottom:14px">Everything in Our <span style="background:linear-gradient(135deg,#e11d48,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Social Media Package</span></h2>
+    </div>
+    <div class="g3" style="margin-top:40px">
+      <div class="card"><div class="ic">🎯</div><h3>Custom Strategy</h3><p>A personalized strategy built around your specific business goals, competitive landscape, and budget — not a generic template copied from another client.</p></div>
+      <div class="card"><div class="ic">⚡</div><h3>Expert Execution</h3><p>A dedicated specialist with deep expertise in social media handles all implementation — you get results, not just a report of recommendations.</p></div>
+      <div class="card"><div class="ic">📊</div><h3>Monthly Reports</h3><p>Clear, jargon-free monthly reports showing exactly what was done, what results were achieved, and what is planned for next month.</p></div>
+      <div class="card"><div class="ic">💬</div><h3>Dedicated Support</h3><p>Your personal account manager is available via email and WhatsApp for any questions or updates throughout your engagement.</p></div>
+      <div class="card"><div class="ic">🔄</div><h3>Continuous Optimization</h3><p>We analyze results monthly and refine the strategy to maximize performance — never a set-and-forget approach to your account.</p></div>
+      <div class="card"><div class="ic">🔒</div><h3>White-Hat Guarantee</h3><p>We only use safe, algorithm-compliant tactics. No shortcuts or black-hat techniques that could put your business at risk.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#1a202c;padding:72px 48px">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#fb7185;margin-bottom:10px">Our Process</div>
+      <h2 style="font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:#fff;margin-bottom:14px">How We <span style="background:linear-gradient(135deg,#e11d48,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Deliver Results</span></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:44px;position:relative">
+      <div style="position:absolute;top:26px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,#e11d48,#f97316);z-index:0"></div>
+      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">1</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Free Audit</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Analyze your current position, identify opportunities, and benchmark against competitors.</p></div>
+      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">2</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Strategy</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Build a detailed roadmap with clear milestones, deliverables, timelines, and expected outcomes.</p></div>
+      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">3</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Execute</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Implement everything with full transparency — you see exactly what is being done and why.</p></div>
+      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">4</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Report & Improve</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Monthly reporting with data-driven optimizations to improve results every single month.</p></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:linear-gradient(135deg,#e11d48,#f97316);padding:80px 48px;text-align:center">
+  <div style="max-width:600px;margin:0 auto">
+    <h2 style="font-family:Manrope,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-1px">Start Your Social Media Journey Today</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,.8);margin-bottom:32px;line-height:1.7">Join 500+ businesses that trust Uplyncio for real, measurable results. Get your free audit — no commitment required.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);color:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">📱 Get Social Media Audit</button>
+      <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:11px;font-size:15px;font-weight:600">Browse Publisher Sites →</a>
+    </div>
+  </div>
+</section>
+
+<section style="background:#f8faff;border-top:1px solid #e2e8f0;padding:52px 48px">
+  <div style="max-width:1100px;margin:0 auto">
+    <h3 style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:20px">Explore More Services</h3>
+    <div class="g4">
+      <a href="buyer.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🔍</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Browse Marketplace</div><div style="font-size:12px;color:#94a3b8">8,500+ publisher sites</div></a>
+      <a href="publisher.html" class="rc"><div style="font-size:22px;margin-bottom:8px">💼</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Become a Publisher</div><div style="font-size:12px;color:#94a3b8">Monetize your website</div></a>
+      <a href="content-writing.html" class="rc"><div style="font-size:22px;margin-bottom:8px">✍️</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Content Writing</div><div style="font-size:12px;color:#94a3b8">SEO-optimized content</div></a>
+      <a href="uplyncio-full.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🏠</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Back to Home</div><div style="font-size:12px;color:#94a3b8">Uplyncio platform</div></a>
+    </div>
+  </div>
+</section>
+
+<footer style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:60px 48px 0">
+  <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)">
+    <div><a href="uplyncio-full.html" style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px;text-decoration:none"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span></a>
+    <p style="font-size:13px;color:#8892a4;line-height:1.8;max-width:260px;margin:12px 0 18px">Premium guest posting and link building marketplace. 8,500+ verified publisher sites.</p>
+    <div style="display:flex;gap:8px"><a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">in</a><a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">fb</a><a href="https://www.instagram.com/uplyncio" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">ig</a><a href="https://wa.me/923001234567" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">wa</a></div></div>
+    <div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">SEO Services</h4><ul style="list-style:none"><li style="margin-bottom:9px"><a href="local-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Local SEO</a></li><li style="margin-bottom:9px"><a href="on-page-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">On-Page SEO</a></li><li style="margin-bottom:9px"><a href="off-page-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Off-Page SEO</a></li><li style="margin-bottom:9px"><a href="technical-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Technical SEO</a></li><li style="margin-bottom:9px"><a href="link-building.html" style="color:#8892a4;font-size:13px;text-decoration:none">Link Building</a></li></ul></div>
+    <div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">Platform</h4><ul style="list-style:none"><li style="margin-bottom:9px"><a href="uplyncio-full.html" style="color:#8892a4;font-size:13px;text-decoration:none">Home</a></li><li style="margin-bottom:9px"><a href="buyer.html" style="color:#8892a4;font-size:13px;text-decoration:none">Browse Sites</a></li><li style="margin-bottom:9px"><a href="publisher.html" style="color:#8892a4;font-size:13px;text-decoration:none">Become Publisher</a></li><li style="margin-bottom:9px"><a href="ai-agents.html" style="color:#8892a4;font-size:13px;text-decoration:none">AI Agents</a></li><li style="margin-bottom:9px"><a href="web-development.html" style="color:#8892a4;font-size:13px;text-decoration:none">Web Development</a></li></ul></div>
+    <div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">Company</h4><ul style="list-style:none"><li style="margin-bottom:9px"><a href="about.html" style="color:#8892a4;font-size:13px;text-decoration:none">About Us</a></li><li style="margin-bottom:9px"><a href="contact.html" style="color:#8892a4;font-size:13px;text-decoration:none">Contact</a></li><li style="margin-bottom:9px"><a href="terms.html" style="color:#8892a4;font-size:13px;text-decoration:none">Terms & Conditions</a></li><li style="margin-bottom:9px"><a href="privacy.html" style="color:#8892a4;font-size:13px;text-decoration:none">Privacy Policy</a></li></ul></div>
+  </div>
+  <div style="max-width:1100px;margin:0 auto;padding:20px 0;display:flex;align-items:center;justify-content:space-between"><p style="font-size:12px;color:#8892a4">© 2026 Uplyncio. All rights reserved.</p><div style="display:flex;gap:6px"><span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">PayPal</span><span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">Wise</span><span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">USDT</span></div></div>
 </footer>
+
+<div id="inquiryModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeForm()">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.2)">
+    <div style="background:linear-gradient(135deg,#e11d48,#f97316);padding:22px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div><div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff">📱 Get Social Media Audit</div><div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px">We respond within 24 hours</div></div>
+      <button onclick="closeForm()" style="width:30px;height:30px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Name *</label><input id="f_name" type="text" placeholder="Your name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Email *</label><input id="f_email" type="email" placeholder="you@company.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Phone</label><input id="f_phone" type="tel" placeholder="+1 234 567 8900" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Website</label><input id="f_website" type="url" placeholder="https://yoursite.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+      </div>
+      <div style="margin-bottom:14px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Monthly Budget</label>
+        <select id="f_budget" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;box-sizing:border-box">
+          <option value="">Select budget range...</option><option>Under $500/month</option><option>$500–$1,500/month</option><option>$1,500–$5,000/month</option><option>$5,000+/month</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Goals & Requirements</label>
+        <textarea id="f_message" placeholder="What are your main goals? Current challenges? Any specific requirements?" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical;min-height:90px;box-sizing:border-box"></textarea>
+      </div>
+      <div id="f_status" style="display:none;padding:11px 14px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:12px"></div>
+      <button onclick="submitInquiry()" style="width:100%;padding:14px;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">📱 Get Social Media Audit →</button>
+    </div>
+  </div>
+</div>
+
+<div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:10001;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:40px 32px;text-align:center">
+    <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px">✅</div>
+    <h3 style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin-bottom:10px">Inquiry Sent!</h3>
+    <p style="font-size:13.5px;color:#64748b;line-height:1.7;margin-bottom:24px">Our team will respond at <strong>info@uplyncio.com</strong> within 24 hours.</p>
+    <button onclick="document.getElementById('successModal').style.display='none'" style="width:100%;padding:12px;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Done</button>
+  </div>
+</div>
+
+<script>
+function openForm(){ document.getElementById('inquiryModal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeForm(){ document.getElementById('inquiryModal').style.display='none'; document.body.style.overflow=''; }
+async function submitInquiry(){
+  var name=(document.getElementById('f_name').value||'').trim();
+  var email=(document.getElementById('f_email').value||'').trim();
+  var st=document.getElementById('f_status');
+  if(!name||!email){st.style.display='block';st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Please fill in your Name and Email.';return;}
+  st.style.display='block';st.style.background='#f0f4ff';st.style.color='#4f7cff';st.textContent='Sending your inquiry...';
+  try{
+    var r=await fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:'Social Media',name,email,phone:(document.getElementById('f_phone').value||''),website:(document.getElementById('f_website').value||''),budget:(document.getElementById('f_budget').value||''),message:(document.getElementById('f_message').value||'')})}));
+    if(r.ok){closeForm();document.getElementById('successModal').style.display='flex';}
+    else{st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Error. Please email info@uplyncio.com directly.';}
+  }catch(e){st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Network error. Email info@uplyncio.com directly.';}
+}
+</script>
 </body>
 </html>
