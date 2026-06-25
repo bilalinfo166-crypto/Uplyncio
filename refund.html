@@ -68,7 +68,7 @@
       <g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
       <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
     </svg>
-    Up<em>lyncio</em>
+    Uply<em>ncio</em>
   </a>
   <ul class="nav-links">
     <li><a href="uplyncio-full.html">Home</a></li>
@@ -76,10 +76,25 @@
     <li><a href="about.html">About</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
-  <div class="nav-right">
+  <div class="nav-right" id="pageNavRight">
     <a href="publisher.html" class="btn-ghost">Publisher Login</a>
     <a href="buyer.html" class="btn-accent">Get Started</a>
   </div>
+  <script>
+  (function(){
+    try{
+      var u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+      var el = document.getElementById('pageNavRight');
+      if(u && u.verified && el){
+        if(u.role==='publisher'){
+          el.innerHTML = '<a href="publisher.html" class="btn-accent" style="display:flex;align-items:center;gap:7px">🌐 Go to Publisher Dashboard →</a>';
+        } else if(u.role==='buyer'){
+          el.innerHTML = '<a href="buyer.html" class="btn-accent" style="display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#00c27a,#00d4aa);border:none">🛒 Go to Buyer Account →</a>';
+        }
+      }
+    }catch(e){}
+  })();
+  </script>
 </nav>
 <div class="page-hero">
   <div class="badge">Policy</div>
@@ -188,7 +203,7 @@
           <g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
           <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
         </svg>
-        Up<em>lyncio</em>
+        Uply<em>ncio</em>
       </a>
       <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites across 30+ niches. Trusted by agencies and brands worldwide.</p>
       <div class="f-socials">
