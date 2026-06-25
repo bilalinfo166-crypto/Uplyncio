@@ -913,7 +913,9 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
   try{
     var _u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
     var _nr = document.getElementById('navRight');
-    if(!_u || !_u.verified || !_nr) return;
+    var _loggedIn = localStorage.getItem('uplyncio_loggedIn')==='1';
+    if(!_u || !_nr) return;
+    if(!_u.verified && !_loggedIn) return;
     var _isP = _u.role === 'publisher';
     var _url = _isP ? 'publisher.html' : 'buyer.html';
     var _label = _isP ? '🌐 Publisher Dashboard →' : '🛒 Buyer Account →';
@@ -3020,7 +3022,7 @@ function completeAuth(role, email, name){
   }
   localStorage.setItem('uplyncio_loggedIn','1');
   localStorage.setItem('uplyncio_currentUid', uid);
-  localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,name:name,email:email,role:role}));
+  localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,name:name,email:email,role:role,verified:true}));
   
   // Close modals
   document.getElementById('publisherModal').style.display='none';
