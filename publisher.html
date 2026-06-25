@@ -509,12 +509,27 @@ window.addEventListener('DOMContentLoaded', function(){
       <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff;font-size:9px;font-weight:800;min-width:8px;text-align:center" id="notifBadge"></span>
     </div>
     <!-- NOTIFICATION PANEL -->
-    <div id="notifPanel" style="display:none;position:fixed;top:62px;right:70px;width:340px;max-height:480px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:99999;overflow:hidden;flex-direction:column">
-      <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:14px;font-weight:800;color:#0f172a">🔔 Notifications</span>
-        <button onclick="markAllNotifsRead()" style="font-size:11px;color:#4f7cff;font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit">Mark all read</button>
+    <div id="notifPanel" style="display:none;position:fixed;top:62px;right:70px;width:360px;max-height:520px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:99999;overflow:hidden;flex-direction:column">
+      <!-- Header -->
+      <div style="padding:13px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;background:#fff">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:14px;font-weight:800;color:#0f172a">🔔 Notifications</span>
+          <span id="notifUnreadCount" style="display:none;background:#4f7cff;color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:100px"></span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="markAllNotifsRead()" style="font-size:11px;color:#4f7cff;font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit;white-space:nowrap">Mark all read</button>
+          <button onclick="clearAllNotifs()" style="font-size:11px;color:#ef4444;font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit">Clear all</button>
+        </div>
       </div>
-      <div id="notifList" style="overflow-y:auto;max-height:380px"></div>
+      <!-- Filter tabs -->
+      <div style="display:flex;border-bottom:1px solid #f1f5f9;background:#fafbff">
+        <button onclick="setNotifFilter('all',this)" id="nfAll" style="flex:1;padding:8px;font-size:11.5px;font-weight:700;color:#4f7cff;border:none;border-bottom:2px solid #4f7cff;background:transparent;cursor:pointer;font-family:inherit">All</button>
+        <button onclick="setNotifFilter('unread',this)" id="nfUnread" style="flex:1;padding:8px;font-size:11.5px;font-weight:600;color:#94a3b8;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;font-family:inherit">Unread</button>
+        <button onclick="setNotifFilter('order',this)" id="nfOrder" style="flex:1;padding:8px;font-size:11.5px;font-weight:600;color:#94a3b8;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;font-family:inherit">Orders</button>
+        <button onclick="setNotifFilter('system',this)" id="nfSystem" style="flex:1;padding:8px;font-size:11.5px;font-weight:600;color:#94a3b8;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;font-family:inherit">System</button>
+      </div>
+      <!-- List -->
+      <div id="notifList" style="overflow-y:auto;max-height:400px"></div>
     </div>
     <div style="position:relative">
       <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span>
@@ -3672,11 +3687,24 @@ function renderNotifList(){
   var el = document.getElementById('notifList');
   if(!el) return;
   var notifs = getNotifs();
-  if(notifs.length === 0){
-    el.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#94a3b8"><div style="font-size:32px;margin-bottom:10px">🔔</div><div style="font-size:13px;font-weight:600">No notifications yet</div><div style="font-size:12px;margin-top:4px">You will be notified about orders, approvals and messages here.</div></div>';
+
+  // Update unread count badge
+  var unread = notifs.filter(function(n){ return !n.read; }).length;
+  var uc = document.getElementById('notifUnreadCount');
+  if(uc){ uc.textContent = unread; uc.style.display = unread>0?'inline':'none'; }
+
+  // Apply filter
+  var filtered = notifs;
+  if(_notifFilter === 'unread') filtered = notifs.filter(function(n){ return !n.read; });
+  else if(_notifFilter === 'order') filtered = notifs.filter(function(n){ return n.type==='order'||n.type==='approve'; });
+  else if(_notifFilter === 'system') filtered = notifs.filter(function(n){ return n.type==='system'||n.type==='report'; });
+
+  if(filtered.length === 0){
+    var msg = _notifFilter==='unread' ? 'No unread notifications' : _notifFilter==='order' ? 'No order notifications' : _notifFilter==='system' ? 'No system notifications' : 'No notifications yet';
+    el.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#94a3b8"><div style="font-size:32px;margin-bottom:10px">🔔</div><div style="font-size:13px;font-weight:600">'+msg+'</div><div style="font-size:12px;margin-top:4px">You will be notified about orders, approvals and messages here.</div></div>';
     return;
   }
-  el.innerHTML = notifs.map(function(n){
+  el.innerHTML = filtered.map(function(n){
     var timeStr = formatNotifTime(n.time);
     var bg = n.read ? 'fff' : 'f0f7ff';
     var dot = n.read ? '' : '<span style="width:7px;height:7px;border-radius:50%;background:#4f7cff;display:inline-block;flex-shrink:0;margin-top:5px"></span>';
@@ -3697,6 +3725,26 @@ function readNotif(id){
   var notifs = getNotifs();
   notifs.forEach(function(n){ if(n.id===id) n.read=true; });
   saveNotifs(notifs);
+  updateNotifDot();
+  renderNotifList();
+}
+
+var _notifFilter = 'all';
+
+function setNotifFilter(f, btn){
+  _notifFilter = f;
+  // Update tab styles
+  ['nfAll','nfUnread','nfOrder','nfSystem'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.style.color='#94a3b8'; el.style.borderBottomColor='transparent'; }
+  });
+  if(btn){ btn.style.color='#4f7cff'; btn.style.borderBottomColor='#4f7cff'; }
+  renderNotifList();
+}
+
+function clearAllNotifs(){
+  if(!confirm('Clear all notifications?')) return;
+  saveNotifs([]);
   updateNotifDot();
   renderNotifList();
 }
