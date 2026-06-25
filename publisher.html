@@ -413,6 +413,7 @@ window.addEventListener('DOMContentLoaded', function(){
 
   updateBalance();
   updateInboxDot();
+  resumeApprovals();
 
   // Set profile name/email from login data
   (function(){
@@ -3276,14 +3277,15 @@ function startHoldMonitor(siteId){
 }
 
 // On page load — clean bad domains + resume pending approvals
-(function resumeApprovals(){
-  var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
-  var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
+function resumeApprovals(){
+  // Only reject domains with obvious junk text (spaces + promo words)
+  // Do NOT reject valid domains
+  var badPattern = /\s+(price|increased|updated|discount|promo|-\s*\d)/i;
   var changed = false;
   mySites.forEach(function(s){
-    var cleanUrl = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase().trim();
+    var rawUrl = (s.url||'');
     if(s.status !== 'rejected'){
-      if(invalidPattern.test(cleanUrl) || !domainPattern.test(cleanUrl)){
+      if(badPattern.test(rawUrl)){
         s.status = 'rejected';
         s.rejectReason = 'Invalid domain format';
         changed = true;
@@ -3294,14 +3296,13 @@ function startHoldMonitor(siteId){
 
   mySites.forEach(function(s){
     if(s.status === 'pending'){
-      // Already pending — approve in 1-2 min (resumed)
       var delay = (60 + Math.floor(Math.random()*60)) * 1000;
       scheduleApproval(s.id, delay);
     } else if(s.status === 'hold'){
       startHoldMonitor(s.id);
     }
   });
-})();
+}
 
 // ── BALANCE SYSTEM ──
 function updateBalance(){
