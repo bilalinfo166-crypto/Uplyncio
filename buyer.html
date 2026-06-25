@@ -1405,73 +1405,72 @@ function _mkup(price){
 
 // Read ALL publisher sites from localStorage (any browser tab/session)
 function loadAllSites(){
-  var pubSites = []; // url -> array of publisher entries (for multi-publisher same URL)
-  var urlMap = {};   // url -> lowest price entry
+  var pubSites = [];
+  var urlMap = {};
+
+  // Helper to process a site entry
+  function processSite(s, uid){
+    if(!s.url) return;
+    var st = (s.status||'').toLowerCase();
+    if(st==='rejected'||st==='hold'||st==='pending') return;
+    if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
+    if(st && st!=='live' && st!=='active' && st!=='approved') return;
+
+    var entry = {
+      url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
+      da: parseInt(s.da)||0,
+      dr: parseInt(s.dr)||0,
+      traffic: (function(t){
+        if(!t) return 0;
+        t = t.toString().toLowerCase().trim();
+        if(t.indexOf('m')>=0) return parseFloat(t)*1000000;
+        if(t.indexOf('k')>=0) return parseFloat(t)*1000;
+        return parseInt(t.replace(/[^0-9.]/g,''))||0;
+      })(s.traffic),
+      semT:0, refD:0,
+      cats: s.category?[s.category]:(s.cat?[s.cat]:['General']),
+      linkType: s.linkType||s.lt||'Dofollow',
+      gP: _mkup(parseFloat((s.guestPostPrice||s.p1||s.price||'50').toString().replace('$',''))||50),
+      wP: _mkup(parseFloat((s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0),
+      liOk: s.liAccepted==='Yes'||s.liAccepted===true,
+      liP: _mkup(parseFloat((s.liPrice||s.p5||'0').toString().replace('$',''))||0),
+      extraWordPrice: _mkup(parseFloat((s.p3||'0').toString().replace('$',''))||0),
+      specialTopicPrice: _mkup(parseFloat((s.p4||'0').toString().replace('$',''))||0),
+      country: s.country||'USA',
+      lang: s.language||s.lang||'English',
+      tat: parseInt(s.tat)||7,
+      comp:100, pub:s.role||'Owner',
+      maxL: s.maxLinks||2,
+      req: s.requirements||s.req||'',
+      spam: parseInt(s.spam)||3,
+      minWords: Math.max(500,parseInt(s.minWords)||500),
+      indexed:true, domainAge:s.domainAge||'N/A',
+      _uid:uid, _status:s.status||'Live',
+      publisherUid:uid, publisherName:s.publisherName||'',
+      role:s.role||'Owner',
+      isTeamSite:(s.role==='Uplyncio Team'||uid==='uplyncio_team_official')
+    };
+    var key = entry.url;
+    if(!urlMap[key]){ urlMap[key]=entry; }
+    else if(entry.gP < urlMap[key].gP){ urlMap[key]=entry; }
+  }
 
   try{
+    // Method 1: Read from shared registry (written by publisher on save)
+    var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
+    Object.keys(registry).forEach(function(uid){
+      var sites = registry[uid];
+      if(Array.isArray(sites)) sites.forEach(function(s){ processSite(s,uid); });
+    });
+
+    // Method 2: Read from all uplyncio_data_ keys (same browser)
     Object.keys(localStorage)
       .filter(function(k){ return k.startsWith('uplyncio_data_'); })
       .forEach(function(key){
         var uid = key.replace('uplyncio_data_','');
         var d = JSON.parse(localStorage.getItem(key)||'{}');
         if(!d.sites || !Array.isArray(d.sites)) return;
-
-        d.sites.forEach(function(s){
-          if(!s.url) return;
-          // Only show Live/approved sites — skip everything else
-          if(s.status==='rejected' || s.status==='hold' || s.status==='pending') return;
-          if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
-          // Must be Live or no status set (old entries default to live)
-          if(s.status && s.status!=='Live' && s.status!=='live' && s.status!=='Active') return;
-
-          var entry = {
-            url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
-            da: parseInt(s.da)||0,
-            dr: parseInt(s.dr)||0,
-            traffic: (function(t){
-              if(!t) return 0;
-              t = t.toString().toLowerCase().trim();
-              if(t.indexOf('m')>=0) return parseFloat(t)*1000000;
-              if(t.indexOf('k')>=0) return parseFloat(t)*1000;
-              return parseInt(t.replace(/[^0-9.]/g,''))||0;
-            })(s.traffic),
-            semT: 0, refD: 0,
-            cats: s.category ? [s.category] : (s.cat ? [s.cat] : ['General']),
-            linkType: s.linkType||'Dofollow',
-            gP: _mkup(parseFloat((s.guestPostPrice||s.p1||s.price||'50').toString().replace('$',''))||50),
-            wP: _mkup(parseFloat((s.writePublishPrice||s.p2||s.writePrice||'0').toString().replace('$',''))||0),
-            liOk: s.liAccepted==='Yes'||s.liAccepted===true,
-            liP: _mkup(parseFloat((s.liPrice||s.p5||s.p3||'0').toString().replace('$',''))||0),
-            extraWordPrice: _mkup(parseFloat((s.p3||'0').toString().replace('$',''))||0),
-            specialTopicPrice: _mkup(parseFloat((s.p4||'0').toString().replace('$',''))||0),
-            liReq: s.liRequirements||'',
-            country: s.country||'USA',
-            lang: s.language||s.lang||'English',
-            tat: parseInt(s.tat)||7,
-            comp: 100,
-            pub: s.role||'Owner',
-            maxL: s.maxLinks||2,
-            req: s.requirements||s.req||s.specialReq||'',
-            spam: parseInt(s.spam)||3,
-            minWords: Math.max(500, parseInt(s.minWords)||500),
-            indexed: true,
-            domainAge: s.domainAge||'N/A',
-            _uid: uid,
-            _status: s.status||'Live',
-            publisherUid: uid,
-            publisherName: s.publisherName || '',
-            role: s.role || 'Owner',
-            isTeamSite: (s.role==='Uplyncio Team' || uid==='uplyncio_team_official')
-          };
-
-          // Group by URL — multiple publishers can have same URL
-          if(!urlMap[entry.url]){
-            urlMap[entry.url] = entry;
-          } else {
-            // Keep lowest price
-            if(entry.gP < urlMap[entry.url].gP) urlMap[entry.url] = entry;
-          }
-        });
+        d.sites.forEach(function(s){ processSite(s, uid); });
     });
   }catch(e){ console.warn('loadAllSites error:', e); }
 

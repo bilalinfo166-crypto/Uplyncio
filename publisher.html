@@ -2487,11 +2487,23 @@ function loadSites(){
 function saveSites(){
   try{
     var uid = localStorage.getItem('uplyncio_currentUid')||'';
-    if(!uid) return; // Don't save if not logged in
+    if(!uid) return;
     var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
     userData.sites = mySites;
     localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
     localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
+
+    // Also save Live sites to shared key so buyer page can read them
+    var liveSites = mySites.filter(function(s){
+      var st = (s.status||'').toLowerCase();
+      return !st || st==='live' || st==='active' || st==='approved';
+    });
+    // Store as uid-keyed object in shared registry
+    try{
+      var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
+      registry[uid] = liveSites;
+      localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
+    }catch(e){}
   }catch(e){ console.warn('saveSites error:', e); }
 }
 
