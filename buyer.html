@@ -1412,9 +1412,11 @@ function loadAllSites(){
   function processSite(s, uid){
     if(!s.url) return;
     var st = (s.status||'').toLowerCase();
-    if(st==='rejected'||st==='hold'||st==='pending') return;
+    // Skip only explicitly bad statuses
+    if(st==='rejected') return;
     if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
-    if(st && st!=='live' && st!=='active' && st!=='approved') return;
+    // Allow: Live, live, Active, approved, pending→skip, hold→skip, empty→allow
+    if(st==='pending'||st==='hold') return;
 
     var entry = {
       url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
@@ -4438,6 +4440,33 @@ window.addEventListener('load', function(){
   try{
     var scroll = sessionStorage.getItem('uplyncio_home_scroll');
     if(scroll) window.scrollTo(0, parseInt(scroll));
+  }catch(e){}
+
+  // Migrate existing publisher data into registry so buyer can see it
+  try{
+    var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
+    var changed = false;
+    Object.keys(localStorage).forEach(function(k){
+      if(!k.startsWith('uplyncio_data_')) return;
+      var uid = k.replace('uplyncio_data_','');
+      // Skip buyer accounts
+      try{
+        var d = JSON.parse(localStorage.getItem(k)||'{}');
+        if(!d.sites || !Array.isArray(d.sites) || d.sites.length===0) return;
+        // Check if this is a publisher (has sites)
+        var liveSites = d.sites.filter(function(s){
+          var st=(s.status||'').toLowerCase();
+          return st!=='rejected' && st!=='hold' && s.active!==false;
+        });
+        if(liveSites.length > 0){
+          registry[uid] = liveSites;
+          changed = true;
+        }
+      }catch(e){}
+    });
+    if(changed){
+      localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
+    }
   }catch(e){}
 });
 </script>
