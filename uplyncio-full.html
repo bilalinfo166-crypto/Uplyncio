@@ -902,7 +902,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
     <li><a href="#how">How It Works</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
-  <div class="nav-right">
+  <div class="nav-right" id="navRight">
     <a href="#" class="btn btn-ghost" onclick="openLogin();return false">Sign In</a>
     <a href="#" class="btn btn-accent" onclick="openSignup();return false">Get Started</a>
   </div>
@@ -2444,6 +2444,19 @@ window.addEventListener('load', function(){
     var params = new URLSearchParams(window.location.search);
     if(params.get('openBuyer')==='1'){
       setTimeout(function(){ openBuyerSignup(); }, 400);
+    }
+  }catch(e){}
+
+  // Smart nav — show dashboard button if logged in
+  try{
+    var _u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var _navRight = document.getElementById('navRight');
+    if(_u && _u.verified && _navRight){
+      if(_u.role === 'publisher'){
+        _navRight.innerHTML = '<a href="publisher.html" class="btn btn-accent" style="display:flex;align-items:center;gap:7px">🌐 Go to Publisher Dashboard →</a>';
+      } else if(_u.role === 'buyer'){
+        _navRight.innerHTML = '<a href="buyer.html" class="btn btn-accent" style="display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#00c27a,#00d4aa);border:none">🛒 Go to Buyer Account →</a>';
+      }
     }
   }catch(e){}
 });
