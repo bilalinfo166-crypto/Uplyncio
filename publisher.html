@@ -2468,6 +2468,16 @@ function submit(){
     return;
   }
 
+  // ── DUPLICATE CHECK ──
+  var isDuplicate = mySites.some(function(s){
+    var existUrl = (s.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+    return existUrl === cleanUrl && (!window._editingId || s.id !== window._editingId);
+  });
+  if(isDuplicate){
+    toast('⚠️ "' + cleanUrl + '" is already in your dashboard. You cannot add the same site twice.', '#d97706');
+    return;
+  }
+
   // Collect form data
   var da = document.querySelector('.ic2 input[type=number]') ? document.querySelector('.ic2 .two input:nth-child(1)') : null;
   var allInputs = document.querySelectorAll('.ic2 .fi');
@@ -3161,10 +3171,20 @@ function importSites(){
 
     if(isTeam){ s.role='Uplyncio Team'; s.isTeamSite=true; s.publisherUid=uid; }
 
+    // Check duplicate against existing sites
+    var alreadyExists = mySites.some(function(ex){
+      var exUrl = (ex.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+      return exUrl === cleanUrl;
+    });
+
     // Reject bad domain format
     if(invalidPattern.test(cleanUrl) || !domainPattern.test(cleanUrl)){
       s.status = 'rejected';
       s.rejectReason = 'Invalid domain format';
+      rejected++;
+    } else if(alreadyExists){
+      s.status = 'rejected';
+      s.rejectReason = 'Duplicate — already in your dashboard';
       rejected++;
     } else if(daNum < 10 || drNum < 10){
       // Low metrics — hold
