@@ -534,6 +534,41 @@ window.addEventListener('DOMContentLoaded', function(){
 <div id="s1">
   <div class="bc"><a onclick="go(1)">Home</a><span>&rsaquo;</span><span class="cu">My Platforms</span></div>
   <div class="pg" style="width:0%"></div>
+
+  <!-- HOW TO WORK ACCORDION -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:16px;overflow:hidden">
+    <div onclick="toggleS1Help()" style="padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8faff" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='#f8faff'">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:24px;height:24px;border-radius:50%;background:#4f7cff;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">?</span>
+        <span style="font-size:13.5px;font-weight:600;color:#1a202c">How to work with this page</span>
+      </div>
+      <span id="s1HelpIcon" style="font-size:18px;color:#4f7cff;font-weight:300;transition:transform .2s">+</span>
+    </div>
+    <div id="s1HelpBody" style="display:none;padding:18px 20px;border-top:1px solid #e2e8f0;background:#fff">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:8px;background:#e0e7ff;color:#4f7cff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+          <div><div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:3px">Add Your Website</div><div style="font-size:12.5px;color:#64748b;line-height:1.6">Click "Add or update websites" to list your site. Fill in URL, DA, DR, traffic and pricing details.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:8px;background:#ccfbf1;color:#0d9488;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+          <div><div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:3px">Get Approved</div><div style="font-size:12.5px;color:#64748b;line-height:1.6">Our team reviews your site for quality. Approved sites go live in the buyer marketplace automatically.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:8px;background:#fef3c7;color:#d97706;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+          <div><div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:3px">Receive Orders</div><div style="font-size:12.5px;color:#64748b;line-height:1.6">Buyers place guest post orders on your site. You get notified and have 3 days to accept or reject.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:8px;background:#fce7f3;color:#db2777;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+          <div><div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:3px">Publish &amp; Earn</div><div style="font-size:12.5px;color:#64748b;line-height:1.6">Publish the content, submit the live URL, and get paid. Complete 10 orders to earn your 👑 Verified badge.</div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:12.5px;color:#15803d;line-height:1.6">
+        💡 <strong>Tip:</strong> Sites with complete details (DA, DR, traffic, categories, pricing) get 3x more orders than incomplete listings.
+      </div>
+    </div>
+  </div>
+
   <div class="gh">
     <p>Want to monetize your site while placing or creating unique and relevant content?</p>
     <button class="gh-btn" onclick="go(2)">Add or update websites</button>
@@ -3667,6 +3702,19 @@ function sendChatMsg(){
 
 // ── PROFILE MENU ──
 var activityOn = true;
+
+function toggleS1Help(){
+  var body = document.getElementById('s1HelpBody');
+  var icon = document.getElementById('s1HelpIcon');
+  if(!body) return;
+  if(body.style.display==='none'){
+    body.style.display='block';
+    if(icon){ icon.textContent='−'; icon.style.transform='rotate(0deg)'; }
+  } else {
+    body.style.display='none';
+    if(icon){ icon.textContent='+'; }
+  }
+}
 
 function toggleProfileMenu(){
   var m = document.getElementById('profileMenu');
