@@ -420,12 +420,17 @@ window.addEventListener('DOMContentLoaded', function(){
     try{
       var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
       var uid = localStorage.getItem('uplyncio_currentUid')||'';
-      var isTeam = user.email === 'info@uplyncio.com';
-      // Always verify team account
+      var isTeam = user.email === 'info@uplyncio.com' || user.email === 'team@uplyncio.com';
+      // Always verify team account and fix email to info@uplyncio.com
       if(isTeam){
         var td = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
         td.publisherVerified = true;
         localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(td));
+        // Force correct email
+        if(user.email !== 'info@uplyncio.com'){
+          user.email = 'info@uplyncio.com';
+          localStorage.setItem('uplyncio_user', JSON.stringify(user));
+        }
       }
       var data = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
       if(data.publisherVerified){
