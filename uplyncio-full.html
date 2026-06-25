@@ -2438,6 +2438,14 @@ window.addEventListener('load', function(){
     var scroll = sessionStorage.getItem('uplyncio_home_scroll');
     if(scroll) window.scrollTo(0, parseInt(scroll));
   }catch(e){}
+
+  // Auto-open buyer signup if ?openBuyer=1
+  try{
+    var params = new URLSearchParams(window.location.search);
+    if(params.get('openBuyer')==='1'){
+      setTimeout(function(){ openBuyerSignup(); }, 400);
+    }
+  }catch(e){}
 });
 </script>
 
