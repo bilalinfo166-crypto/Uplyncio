@@ -2512,16 +2512,25 @@ window.addEventListener('load', function(){
     }
   }catch(e){}
 
-  // Smart nav — show dashboard button if logged in
+  // Smart nav — show dashboard button + profile icon if logged in
   try{
     var _u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
     var _navRight = document.getElementById('navRight');
     if(_u && _u.verified && _navRight){
-      if(_u.role === 'publisher'){
-        _navRight.innerHTML = '<a href="publisher.html" class="btn btn-accent" style="display:flex;align-items:center;gap:7px">🌐 Go to Publisher Dashboard →</a>';
-      } else if(_u.role === 'buyer'){
-        _navRight.innerHTML = '<a href="buyer.html" class="btn btn-accent" style="display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,#00c27a,#00d4aa);border:none">🛒 Go to Buyer Account →</a>';
-      }
+      var _initials = (_u.name||_u.email||'U').charAt(0).toUpperCase();
+      var _isPublisher = _u.role === 'publisher';
+      var _dashUrl = _isPublisher ? 'publisher.html' : 'buyer.html';
+      var _dashLabel = _isPublisher ? '🌐 Publisher Dashboard →' : '🛒 Buyer Account →';
+      var _dashBg = _isPublisher
+        ? 'background:linear-gradient(135deg,#4f7cff,#6366f1)'
+        : 'background:linear-gradient(135deg,#00c27a,#00d4aa)';
+      var _avatarBg = _isPublisher
+        ? 'background:linear-gradient(135deg,#4f7cff,#6366f1)'
+        : 'background:linear-gradient(135deg,#00c27a,#00d4aa)';
+
+      _navRight.innerHTML =
+        '<a href="'+_dashUrl+'" class="btn btn-accent" style="display:flex;align-items:center;gap:7px;'+_dashBg+';border:none">'+_dashLabel+'</a>' +
+        '<div onclick="window.location.href=''+_dashUrl+''" title="'+ (_u.name||_u.email) +'" style="'+_avatarBg+';width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;cursor:pointer;flex-shrink:0;border:2px solid rgba(255,255,255,.25);font-family:Manrope,sans-serif;transition:transform .15s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">' + _initials + '</div>';
     }
   }catch(e){}
 });
