@@ -649,39 +649,56 @@ window.addEventListener('DOMContentLoaded', function(){
         </div>
 
         <!-- SEARCH & FILTERS -->
-        <div style="padding:16px 20px;border-bottom:1px solid var(--br);background:#fafbff">
-          <!-- Row 1: Search + toggles -->
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-            <div style="display:flex;align-items:center;gap:8px;background:var(--wh);border:1px solid var(--br);border-radius:8px;padding:8px 14px;flex:1;min-width:200px;max-width:320px;transition:border-color .2s" onfocusin="this.style.borderColor='var(--ac)'" onfocusout="this.style.borderColor='var(--br)'">
-              <span style="color:var(--mu);font-size:15px">🔍</span>
-              <input id="siteSearch" type="text" placeholder="Search by URL..." oninput="applyFilters()" style="border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent;width:100%">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--br);background:#fafbff;border-top:3px solid var(--ac)">
+          <!-- Header row -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:28px;height:28px;background:var(--ac);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">🔍</div>
+              <span style="font-size:13px;font-weight:800;color:#1a202c">Filter Sites</span>
+              <span id="pubActiveFilterCount" style="display:none;background:var(--ac);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">0 active</span>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t2)">
-              <input type="checkbox" id="crowdPost" onchange="applyFilters()" style="accent-color:var(--ac);width:14px;height:14px">
+            <button onclick="clearFilters()" style="font-size:12px;font-weight:600;color:#ef4444;background:none;border:none;cursor:pointer;font-family:inherit">✕ Clear all</button>
+          </div>
+          <!-- Row 1: Search + toggles -->
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;margin-bottom:12px;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px;background:var(--wh);border:1.5px solid var(--br);border-radius:9px;padding:8px 14px;transition:border-color .2s" onfocusin="this.style.borderColor='var(--ac)'" onfocusout="this.style.borderColor='var(--br)'">
+              <span style="color:var(--mu);font-size:15px">🔍</span>
+              <input id="siteSearch" type="text" placeholder="Search by URL..." style="border:none;outline:none;font-size:13px;font-family:inherit;color:var(--tx);background:transparent;width:100%">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t2);white-space:nowrap">
+              <input type="checkbox" id="crowdPost" style="accent-color:var(--ac);width:14px;height:14px">
               <label for="crowdPost" style="cursor:pointer">Crowd Post only</label>
             </div>
             <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:13px;color:var(--t2)">Site activity:</span>
-              <select id="actFilter" onchange="applyFilters()" style="background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:6px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer">
+              <span style="font-size:12px;color:var(--t2);white-space:nowrap">Site activity:</span>
+              <select id="actFilter" style="background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:12.5px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer">
                 <option value="">Show all</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
-          <!-- Row 2: Price + Link type + Service type -->
-          <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+          <!-- Row 2: Filters grid -->
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px">
             <div>
-              <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">Price ($)</div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <input id="priceMin" type="number" placeholder="0" oninput="applyFilters()" style="width:72px;background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx)">
-                <span style="color:var(--mu);font-size:13px">—</span>
-                <input id="priceMax" type="number" placeholder="Any" oninput="applyFilters()" style="width:80px;background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx)">
+              <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Price ($)</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input id="priceMin" type="number" placeholder="Min" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+                <span style="color:var(--mu);font-size:12px;flex-shrink:0">—</span>
+                <input id="priceMax" type="number" placeholder="Max" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
               </div>
             </div>
             <div>
-              <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">Link Type</div>
-              <select id="ltFilter" onchange="applyFilters()" style="background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:7px 14px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;min-width:130px">
+              <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">DA Range</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input id="daMin" type="number" placeholder="0" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+                <span style="color:var(--mu);font-size:12px;flex-shrink:0">—</span>
+                <input id="daMax" type="number" placeholder="100" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+              </div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Link Type</div>
+              <select id="ltFilter" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
                 <option value="">All types</option>
                 <option value="Dofollow">Dofollow</option>
                 <option value="Nofollow">Nofollow</option>
@@ -689,23 +706,20 @@ window.addEventListener('DOMContentLoaded', function(){
               </select>
             </div>
             <div>
-              <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">Category</div>
-              <select id="catFilter" onchange="applyFilters()" style="background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:7px 14px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;min-width:130px">
+              <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Category</div>
+              <select id="catFilter" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
                 <option value="">All categories</option>
                 <option>Tech</option><option>Business</option><option>Finance</option>
                 <option>Health</option><option>Marketing</option><option>SaaS</option>
                 <option>Crypto</option><option>Travel</option><option>Law</option><option>Education</option>
               </select>
             </div>
-            <div>
-              <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">DA Range</div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <input id="daMin" type="number" placeholder="0" oninput="applyFilters()" style="width:60px;background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:7px 8px;font-size:13px;font-family:inherit;outline:none;color:var(--tx)">
-                <span style="color:var(--mu)">—</span>
-                <input id="daMax" type="number" placeholder="100" oninput="applyFilters()" style="width:60px;background:var(--wh);border:1px solid var(--br);border-radius:7px;padding:7px 8px;font-size:13px;font-family:inherit;outline:none;color:var(--tx)">
-              </div>
-            </div>
-            <button onclick="clearFilters()" style="background:transparent;border:1px solid var(--br);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;color:var(--ac);cursor:pointer;font-family:inherit;transition:all .2s" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='transparent'">Clear filters</button>
+          </div>
+          <!-- Apply button -->
+          <div style="display:flex;justify-content:flex-end">
+            <button onclick="pubApplyFilters()" style="display:flex;align-items:center;gap:8px;padding:10px 28px;background:linear-gradient(135deg,var(--ac),#6366f1);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,124,255,.3);transition:all .2s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+              🔍 Apply Filters
+            </button>
           </div>
         </div>
         <div style="padding:10px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between">
@@ -2602,6 +2616,26 @@ function filterTab(el, tab){
   el.style.borderBottomColor='var(--ac)';
   currentTab = tab;
   applyFilters();
+}
+
+function pubApplyFilters(){
+  // Update active filter count badge
+  var count = 0;
+  if(document.getElementById('siteSearch') && document.getElementById('siteSearch').value.trim()) count++;
+  if(document.getElementById('priceMin') && document.getElementById('priceMin').value) count++;
+  if(document.getElementById('priceMax') && document.getElementById('priceMax').value) count++;
+  if(document.getElementById('daMin') && document.getElementById('daMin').value) count++;
+  if(document.getElementById('daMax') && document.getElementById('daMax').value) count++;
+  if(document.getElementById('ltFilter') && document.getElementById('ltFilter').value) count++;
+  if(document.getElementById('catFilter') && document.getElementById('catFilter').value) count++;
+  if(document.getElementById('actFilter') && document.getElementById('actFilter').value) count++;
+  if(document.getElementById('crowdPost') && document.getElementById('crowdPost').checked) count++;
+  var badge = document.getElementById('pubActiveFilterCount');
+  if(badge){ badge.textContent = count + ' active'; badge.style.display = count>0 ? 'inline' : 'none'; }
+  applyFilters();
+  // Scroll to table
+  var el = document.getElementById('sitesList');
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function applyFilters(){
