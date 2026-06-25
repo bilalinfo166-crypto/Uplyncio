@@ -2453,6 +2453,21 @@ function submit(){
   // Validate sample links match site domain
   if(!validateAllSampleLinks()){ return; }
 
+  // ── DOMAIN VALIDATION ──
+  var cleanUrl = url.replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+  // Reject if domain has extra text like "Price Increased", "- 1 Jun" etc
+  var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+  if(invalidPattern.test(cleanUrl)){
+    toast('❌ Invalid domain format. Please enter only the domain name (e.g. example.com)', '#ef4444');
+    return;
+  }
+  // Must look like a real domain
+  var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
+  if(!domainPattern.test(cleanUrl)){
+    toast('❌ Invalid domain. Enter a valid domain like example.com or blog.example.com', '#ef4444');
+    return;
+  }
+
   // Collect form data
   var da = document.querySelector('.ic2 input[type=number]') ? document.querySelector('.ic2 .two input:nth-child(1)') : null;
   var allInputs = document.querySelectorAll('.ic2 .fi');
@@ -2519,15 +2534,39 @@ function submit(){
     wordCount: wordCount,
     requirements: reqVal,
     req: reqVal,
-    status: 'Live', id: Date.now()
+    id: Date.now()
   };
 
+  // ── AUTO STATUS LOGIC ──
+  var daNum = parseFloat(site.da) || 0;
+  var drNum = parseFloat(site.dr) || 0;
   if(window._editingId){
+    // Editing existing site — keep approved if already approved
     var idx=mySites.findIndex(function(x){return x.id===window._editingId;});
-    if(idx>-1){ site.id=window._editingId; mySites[idx]=site; }
+    if(idx>-1){
+      site.id=window._editingId;
+      site.status = mySites[idx].status || 'pending';
+      mySites[idx]=site;
+    }
     window._editingId=null;
+    toast('✅ Site updated successfully!', '#16a34a');
   } else {
-    mySites.push(site);
+    if(daNum < 5 || drNum < 5){
+      // Very low metrics — put on hold, check later
+      site.status = 'hold';
+      mySites.push(site);
+      toast('⏸ Site added on Hold — DA/DR too low. We'll auto-approve once metrics improve.', '#d97706');
+      // Start monitoring
+      startHoldMonitor(site.id);
+    } else {
+      // Normal site — pending approval (auto-approve in 2-3 min)
+      site.status = 'pending';
+      mySites.push(site);
+      toast('⏳ Site submitted! Pending review — will be approved in 2-3 minutes if everything looks good.', '#4f7cff');
+      // Auto-approve after 2-3 minutes
+      var delay = (120 + Math.floor(Math.random()*60)) * 1000; // 2-3 min
+      scheduleApproval(site.id, delay);
+    }
   }
   saveSites();
   applyFilters();
@@ -2661,10 +2700,18 @@ function renderSites(list){
   renderPagination(totalPages, list.length);
 
   tbody.innerHTML = pageList.map(function(s){
-    var isActive = s.active !== false;
-    var statusColor = isActive ? '#16a34a' : '#94a3b8';
-    var statusBg = isActive ? '#16a34a' : '#94a3b8';
-    var statusText = isActive ? 'Active' : 'Inactive';
+    var statusColor, statusBg, statusText;
+    if(s.status==='pending'){
+      statusColor='#d97706'; statusBg='#d97706'; statusText='Pending Review';
+    } else if(s.status==='hold'){
+      statusColor='#7c3aed'; statusBg='#7c3aed'; statusText='On Hold';
+    } else if(s.status==='rejected'){
+      statusColor='#ef4444'; statusBg='#ef4444'; statusText='Rejected';
+    } else if(s.active===false){
+      statusColor='#94a3b8'; statusBg='#94a3b8'; statusText='Inactive';
+    } else {
+      statusColor='#16a34a'; statusBg='#16a34a'; statusText='Active';
+    }
     return "<tr style='border-bottom:1px solid #e2e8f0' onmouseover=\"this.style.background='#f8faff'\" onmouseout=\"this.style.background='#fff'\">" +
       "<td style='padding:12px 16px;white-space:nowrap'><div style='font-weight:700;font-size:13px'>" + s.url + "</div></td>" +
       "<td style='padding:12px 16px;white-space:nowrap'><span style='background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap'>DA " + s.da + "</span></td>" +
@@ -3098,27 +3145,58 @@ function showPreview(){
 
 function importSites(){
   if(!parsedSites.length) return;
-  // Mark team sites if team account
   var _cu = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
-  if(_cu.email === 'info@uplyncio.com'){
-    parsedSites = parsedSites.map(function(s){
-      s.role = 'Uplyncio Team';
-      s.isTeamSite = true;
-      s.publisherUid = localStorage.getItem('uplyncio_currentUid')||'';
-      return s;
-    });
-  }
-  mySites=mySites.concat(parsedSites);
+  var isTeam = _cu.email === 'info@uplyncio.com';
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+
+  var approved=0, pending=0, held=0, rejected=0;
+  var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+  var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
+
+  var validSites = [];
+  parsedSites.forEach(function(s){
+    var cleanUrl = (s.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+    var daNum = parseFloat(s.da)||0;
+    var drNum = parseFloat(s.dr)||0;
+
+    if(isTeam){ s.role='Uplyncio Team'; s.isTeamSite=true; s.publisherUid=uid; }
+
+    // Reject bad domain format
+    if(invalidPattern.test(cleanUrl) || !domainPattern.test(cleanUrl)){
+      s.status = 'rejected';
+      s.rejectReason = 'Invalid domain format';
+      rejected++;
+    } else if(daNum < 10 || drNum < 10){
+      // Low metrics — hold
+      s.status = 'hold';
+      held++;
+      startHoldMonitor(s.id);
+    } else {
+      // Pending approval
+      s.status = isTeam ? 'Live' : 'pending';
+      if(!isTeam){
+        pending++;
+        var delay = (120 + Math.floor(Math.random()*60)) * 1000;
+        scheduleApproval(s.id, delay);
+      } else { approved++; }
+    }
+    validSites.push(s);
+  });
+
+  mySites = mySites.concat(validSites);
   parsedSites=[];
+  saveSites();
   clearUpload();
   applyFilters();
   go(1);
+
   setTimeout(function(){
-    var msg=document.createElement('div');
-    msg.style.cssText='position:fixed;bottom:24px;right:24px;background:#16a34a;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2)';
-    msg.innerHTML='✅ Sites imported to your dashboard!';
-    document.body.appendChild(msg);
-    setTimeout(function(){msg.remove();},3500);
+    var parts = [];
+    if(approved) parts.push('✅ '+approved+' approved');
+    if(pending) parts.push('⏳ '+pending+' pending review');
+    if(held) parts.push('⏸ '+held+' on hold (low DA/DR)');
+    if(rejected) parts.push('❌ '+rejected+' rejected (invalid domain)');
+    toast(parts.join(' · '), '#4f7cff');
   },300);
 }
 
@@ -3143,6 +3221,67 @@ function showStatus(type,msg){
   el.setAttribute('style','display:block;'+(styles[type]||styles.processing)+';border-radius:8px;padding:11px 14px;font-size:13px;font-weight:600');
   el.textContent=msg;
 }
+
+// ── APPROVAL SYSTEM ──
+function scheduleApproval(siteId, delay){
+  setTimeout(function(){
+    var idx = mySites.findIndex(function(x){ return x.id===siteId; });
+    if(idx>-1 && mySites[idx].status==='pending'){
+      mySites[idx].status = 'Live';
+      saveSites();
+      applyFilters();
+      toast('✅ Your site "'+mySites[idx].url+'" has been approved and is now live on the marketplace!', '#16a34a');
+    }
+  }, delay);
+}
+
+function startHoldMonitor(siteId){
+  // Check every 60 seconds if DA/DR improved
+  var interval = setInterval(function(){
+    var idx = mySites.findIndex(function(x){ return x.id===siteId; });
+    if(idx === -1){ clearInterval(interval); return; }
+    var s = mySites[idx];
+    if(s.status !== 'hold'){ clearInterval(interval); return; }
+    var daNum = parseFloat(s.da)||0;
+    var drNum = parseFloat(s.dr)||0;
+    if(daNum >= 10 && drNum >= 10){
+      mySites[idx].status = 'pending';
+      saveSites();
+      applyFilters();
+      clearInterval(interval);
+      toast('🎉 Site "'+s.url+'" metrics improved! Now pending final approval...', '#d97706');
+      scheduleApproval(siteId, (120 + Math.floor(Math.random()*60))*1000);
+    }
+  }, 60000);
+}
+
+// On page load — clean bad domains + resume pending approvals
+(function resumeApprovals(){
+  var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+  var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
+  var changed = false;
+  mySites.forEach(function(s){
+    var cleanUrl = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase().trim();
+    if(s.status !== 'rejected'){
+      if(invalidPattern.test(cleanUrl) || !domainPattern.test(cleanUrl)){
+        s.status = 'rejected';
+        s.rejectReason = 'Invalid domain format';
+        changed = true;
+      }
+    }
+  });
+  if(changed){ saveSites(); applyFilters(); }
+
+  mySites.forEach(function(s){
+    if(s.status === 'pending'){
+      // Already pending — approve in 1-2 min (resumed)
+      var delay = (60 + Math.floor(Math.random()*60)) * 1000;
+      scheduleApproval(s.id, delay);
+    } else if(s.status === 'hold'){
+      startHoldMonitor(s.id);
+    }
+  });
+})();
 
 // ── BALANCE SYSTEM ──
 function updateBalance(){
