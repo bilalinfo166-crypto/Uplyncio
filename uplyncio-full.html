@@ -2028,14 +2028,58 @@ function formatTraffic(n){
 
 function handleOrderNow(url, name, price){
   var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-  if(user && user.role==='buyer'){
+
+  // Case 1: Logged in as buyer → go to buyer page
+  if(user && user.verified && user.role==='buyer'){
     window.location.href = 'buyer.html';
-  } else if(user && user.role==='publisher'){
-    alert('Please log in as a Buyer to place orders or browse sites.');
-  } else {
-    _pendingOrder = url ? {url:url, name:name, price:price} : null;
-    openBuyerSignup();
+    return;
   }
+
+  // Case 2: Logged in as publisher → show switch notice modal
+  if(user && user.verified && user.role==='publisher'){
+    showPublisherSwitchModal();
+    return;
+  }
+
+  // Case 3: Not logged in → show buyer login/signup popup
+  _pendingOrder = url ? {url:url, name:name, price:price} : null;
+  openBuyerSignup();
+}
+
+function showPublisherSwitchModal(){
+  // Create modal if not exists
+  var existing = document.getElementById('pubSwitchModal');
+  if(existing){ existing.style.display='flex'; return; }
+
+  var m = document.createElement('div');
+  m.id = 'pubSwitchModal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.innerHTML =
+    '<div style="background:#fff;border-radius:20px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.25)">' +
+      '<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:24px 28px;display:flex;align-items:center;gap:14px">' +
+        '<div style="width:44px;height:44px;background:rgba(255,255,255,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🔒</div>' +
+        '<div>' +
+          '<div style="color:#fff;font-family:Manrope,sans-serif;font-size:16px;font-weight:800">Buyer Account Required</div>' +
+          '<div style="color:rgba(255,255,255,.5);font-size:12px;margin-top:2px">Uplyncio · Account Notice</div>' +
+        '</div>' +
+        '<button onclick="document.getElementById('pubSwitchModal').style.display='none'" style="margin-left:auto;background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;flex-shrink:0">✕</button>' +
+      '</div>' +
+      '<div style="padding:24px 28px">' +
+        '<p style="font-size:14px;color:#1a202c;font-weight:600;margin:0 0 10px">You are logged in as a <span style="color:#4f7cff">Publisher</span></p>' +
+        '<p style="font-size:13px;color:#64748b;line-height:1.7;margin:0 0 16px">To place orders or browse sites as a client, you need a separate Buyer account on Uplyncio.</p>' +
+        '<div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:10px;padding:14px 16px;margin-bottom:20px">' +
+          '<div style="font-size:12px;font-weight:700;color:#4f7cff;margin-bottom:6px">📌 How to use Buyer page:</div>' +
+          '<div style="font-size:12.5px;color:#475569;line-height:1.7">Open a <strong>new tab</strong> and sign up with a <strong>different email</strong> to create a Buyer account.</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:10px">' +
+          '<button onclick="window.open('uplyncio-full.html?openBuyer=1','_blank')" style="width:100%;padding:12px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🛒 Create Buyer Account in New Tab</button>' +
+          '<button onclick="document.getElementById('pubSwitchModal').style.display='none'" style="width:100%;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">← Back to Main Site</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(m);
+  // Close on backdrop click
+  m.addEventListener('click', function(e){ if(e.target===m) m.style.display='none'; });
 }
 
 var _pendingOrder = null;
