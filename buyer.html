@@ -1809,7 +1809,10 @@ function renderCard(s, idx){
   var pubB = (s.isTeamSite||s.role==='Uplyncio Team') ? '<span class="badge" style="background:#0f1628;color:#4f7cff;border:1px solid #4f7cff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">🔗 Uplyncio Team</span>' : (s.pub==='Owner'||s.role==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
   // Check if publisher is verified
   var verifiedB = '';
-  if(s.publisherUid){
+  // Uplyncio Team is always verified
+  if(s.isTeamSite || s.role==='Uplyncio Team' || s.publisherUid==='uplyncio_team_official'){
+    verifiedB = '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap">👑 Verified</span>';
+  } else if(s.publisherUid){
     try{
       var pData = JSON.parse(localStorage.getItem('uplyncio_data_'+s.publisherUid)||'{}');
       if(pData.publisherVerified) verifiedB = '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap">👑 Verified</span>';

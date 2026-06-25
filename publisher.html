@@ -415,6 +415,28 @@ window.addEventListener('DOMContentLoaded', function(){
   updateInboxDot();
   resumeApprovals();
 
+  // Force show verified badge for info@uplyncio.com
+  (function(){
+    try{
+      var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+      var uid = localStorage.getItem('uplyncio_currentUid')||'';
+      var isTeam = user.email === 'info@uplyncio.com';
+      // Always verify team account
+      if(isTeam){
+        var td = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+        td.publisherVerified = true;
+        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(td));
+      }
+      var data = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      if(data.publisherVerified){
+        ['pubVerifiedBadge','pubNavVerifiedBadge','pubCrownBadge'].forEach(function(id){
+          var el = document.getElementById(id);
+          if(el) el.style.display = 'inline';
+        });
+      }
+    }catch(e){}
+  })();
+
   // Set profile name/email from login data
   (function(){
     var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
