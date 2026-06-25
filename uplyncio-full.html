@@ -2049,7 +2049,7 @@ function getMergedSites(){
       var data = JSON.parse(localStorage.getItem(key)||'{}');
       if(data.sites && Array.isArray(data.sites)){
         data.sites.forEach(function(s){
-          if(s.status !== 'Inactive' && s.url){
+          if(s.status === 'Live' && s.url){
             allSites.push({
               n: s.url.replace(/https?:\/\/(www\.)?/,'').split('/')[0],
               u: s.url,
@@ -2058,10 +2058,10 @@ function getMergedSites(){
               dr: parseInt(s.dr)||0,
               tr: parseInt(s.traffic)||0,
               trD: formatTraffic(parseInt(s.traffic)||0),
-              niche: (s.cats||[]).join(', ')||'General',
-              cats: (s.cats||[]).join(', '),
-              price: parseFloat(s.gP)||0,
-              gP: parseFloat(s.gP)||0
+              niche: s.cat||'General',
+              cats: s.cat||'General',
+              price: parseFloat(s.p1||s.gP||s.price||'0')||0,
+              gP: parseFloat(s.p1||s.gP||s.price||'0')||0
             });
           }
         });
@@ -2118,7 +2118,12 @@ const td=[
 const t=document.getElementById('ticker');
 t.innerHTML=[...td,...td].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <em>${x.da}</em> · ${x.p}</div>`).join('');
 
-render(getMergedSites());
+(function(){
+  var all = getMergedSites();
+  // Sort by DA desc, then DR desc — show top 50 high authority sites only
+  var top50 = all.sort(function(a,b){ return (b.da+b.dr) - (a.da+a.dr); }).slice(0, 50);
+  render(top50);
+})();
 
 // SLIDER
 const track=document.getElementById('sliderTrack');
