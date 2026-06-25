@@ -2491,6 +2491,7 @@ function saveSites(){
     var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
     userData.sites = mySites;
     localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
+    // Trigger storage event so buyer page auto-refreshes
     localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
 
     // Also save Live sites to shared key so buyer page can read them
@@ -2503,6 +2504,8 @@ function saveSites(){
       var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
       registry[uid] = liveSites;
       localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
+      // Extra trigger for buyer page storage listener
+      localStorage.setItem('uplyncio_pub_lastchange', Date.now().toString());
     }catch(e){}
   }catch(e){ console.warn('saveSites error:', e); }
 }

@@ -4162,12 +4162,19 @@ function checkBuyerBadge(){
   }catch(e){}
 }
 
+// ── REAL-TIME SYNC: Listen for publisher changes ──
+window.addEventListener('storage', function(e){
+  // Any publisher data change → re-render buyer sites
+  if(e.key && (e.key.startsWith('uplyncio_data_') || e.key === 'uplyncio_pub_registry' || e.key === 'uplyncio_sites_lastUpdate' || e.key === 'uplyncio_pub_lastchange')){
+    applyFilters();
+  }
+});
+
 // ── INIT ──
 // Force sync publisher data from all localStorage keys before loading
 (function syncPublisherData(){
   try{
     var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
-    var changed = false;
     Object.keys(localStorage).forEach(function(k){
       if(!k.startsWith('uplyncio_data_')) return;
       var uid = k.replace('uplyncio_data_','');
@@ -4175,10 +4182,9 @@ function checkBuyerBadge(){
         var d = JSON.parse(localStorage.getItem(k)||'{}');
         if(!d.sites || !Array.isArray(d.sites) || d.sites.length===0) return;
         registry[uid] = d.sites;
-        changed = true;
       }catch(e){}
     });
-    if(changed) localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
+    localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
   }catch(e){}
 })();
 
