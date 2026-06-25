@@ -421,20 +421,101 @@
   }catch(e){}
 })();
 
+// CP vars
+var _cpType = 'Blog Post';
+var _cpDeadline = '5 days';
+var _cpPrices = {'500 words':20,'750 words':28,'1,000 words':35,'1,500 words':48,'2,000 words':60,'2,500 words':72,'3,000+ words':90};
+
 function handleOrderContent(e){
   if(e) e.preventDefault();
-  try{
-    var u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(u && u.verified && u.role==='buyer'){
-      localStorage.setItem('uplyncio_buyer_state', JSON.stringify({page:'contentOrder', ts: Date.now()}));
-      window.location.href = 'buyer.html';
-    } else if(u && u.verified && u.role==='publisher'){
-      document.getElementById('cwSwitchModal').style.display='flex';
-    } else {
-      window.location.href = 'uplyncio-full.html?openBuyer=1';
-    }
-  }catch(err){ window.location.href = 'uplyncio-full.html?openBuyer=1'; }
+  // Show warning/intro popup directly — no login required
+  document.getElementById('cpWarningModal').style.display='flex';
+  document.body.style.overflow='hidden';
 }
+
+function openContentForm(){
+  document.getElementById('cpWarningModal').style.display='none';
+  document.getElementById('cpFormModal').style.display='flex';
+  updateCPPrice();
+}
+
+function closeCPForm(){
+  document.getElementById('cpFormModal').style.display='none';
+  document.getElementById('cpWarningModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function selectCPType(el, type){
+  _cpType = type;
+  document.querySelectorAll('#cpTypeGrid .cp-type-btn').forEach(function(b){ b.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+function selectCPDeadline(el, days){
+  _cpDeadline = days;
+  document.querySelectorAll('#cpDeadlineGrid .cp-type-btn').forEach(function(b){ b.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+function updateCPPrice(){
+  var wc = (document.getElementById('cpWordCount')||{value:'1,000 words'}).value;
+  var price = _cpPrices[wc]||35;
+  var el = document.getElementById('cpPriceEst');
+  if(el) el.textContent='$'+price.toFixed(2);
+}
+
+function submitCPOrder(){
+  var errors = [];
+  var kw = (document.getElementById('cpKeywords').value||'').trim();
+  var brief = (document.getElementById('cpInstructions').value||'').trim();
+  var goal = document.getElementById('cpGoal').value;
+  var audience = (document.getElementById('cpAudience').value||'').trim();
+  var productUrl = (document.getElementById('cpProductUrl').value||'').trim();
+  var anchor = (document.getElementById('cpAnchor').value||'').trim();
+
+  if(!kw) errors.push('cpKeywords');
+  if(!brief) errors.push('cpInstructions');
+  if(!goal) errors.push('cpGoal');
+  if(!audience) errors.push('cpAudience');
+  if(!productUrl) errors.push('cpProductUrl');
+  if(!anchor) errors.push('cpAnchor');
+
+  if(errors.length){
+    errors.forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.style.borderColor='#ef4444';
+    });
+    alert('⚠️ Please fill all required fields marked with *');
+    var first=document.getElementById(errors[0]);
+    if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  var wc = document.getElementById('cpWordCount').value;
+  var lang = document.getElementById('cpLang').value;
+  var topic = (document.getElementById('cpTopic').value||'').trim();
+  var sample = (document.getElementById('cpSample').value||'').trim();
+  var price = _cpPrices[wc]||35;
+  var orderId = '#CP'+Math.floor(1000+Math.random()*9000);
+
+  var orders = JSON.parse(localStorage.getItem('uplyncio_content_orders')||'[]');
+  orders.push({
+    id:orderId, category:_cpType, topic:topic, keywords:kw,
+    brief:brief, goal:goal, audience:audience, wordCount:wc,
+    language:lang, sample:sample, productUrl:productUrl,
+    anchor:anchor, deadline:_cpDeadline, price:price,
+    status:'Pending Review', date:new Date().toISOString()
+  });
+  localStorage.setItem('uplyncio_content_orders', JSON.stringify(orders));
+  closeCPForm();
+  // Show success
+  var s = document.getElementById('cwSuccessMsg');
+  if(s){ s.style.display='flex'; s.querySelector('.order-id').textContent=orderId; }
+}
+
+document.addEventListener('change', function(e){
+  if(e.target && e.target.id==='cpWordCount') updateCPPrice();
+});
 </script>
 
 <div id="cwSwitchModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
@@ -453,6 +534,165 @@ function handleOrderContent(e){
         <button onclick="document.getElementById('cwSwitchModal').style.display='none'" style="width:100%;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">← Back</button>
       </div>
     </div>
+  </div>
+</div>
+
+
+<style>
+@keyframes menuFade{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.cp-type-btn{padding:8px 6px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-size:11.5px;font-weight:600;color:#374151;text-align:center;transition:all .18s;background:#fff;user-select:none}
+.cp-type-btn:hover{border-color:#4f7cff;color:#4f7cff;background:#f0f4ff}
+.cp-type-btn.sel{border-color:#4f7cff;background:#4f7cff;color:#fff}
+.cp-label{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.cp-req{color:#ef4444;font-size:12px}
+.cp-input{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s}
+.cp-input:focus{border-color:#4f7cff}
+.cp-select{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:#fff;cursor:pointer;box-sizing:border-box}
+.cp-select:focus{border-color:#4f7cff}
+.cp-textarea{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;line-height:1.5}
+.cp-textarea:focus{border-color:#4f7cff}
+</style>
+
+<!-- CP WARNING MODAL -->
+<div id="cpWarningModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:10000;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeCPForm()">
+  <div style="background:#f8faff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,.2);animation:menuFade .22s ease">
+    <div style="padding:28px 28px 20px;text-align:center">
+      <div style="font-size:40px;margin-bottom:14px">✍️</div>
+      <div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:14px">Order Content Writing</div>
+      <div style="font-size:13.5px;color:#374151;line-height:1.7;text-align:left;background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1px solid #e2e8f0">
+        This service is for <strong>content creation only</strong> — our professional writers will craft content based on your requirements.<br><br>
+        The content <strong style="color:#ef4444">will not be placed on any website</strong>. If you want content + site placement, browse our site listings instead.
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;align-items:center;gap:8px">
+          <span>🔒</span>
+          <span style="font-size:12px;color:#15803d;font-weight:600">Exclusively handled by the <strong>Uplyncio team</strong> — no third-party publishers.</span>
+        </div>
+      </div>
+    </div>
+    <div style="padding:0 28px 24px;display:flex;flex-direction:column;gap:8px">
+      <button onclick="openContentForm()" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3)">Continue to Order Content →</button>
+      <button onclick="closeCPForm()" style="background:none;border:none;font-size:13px;color:#64748b;cursor:pointer;font-family:inherit;padding:4px;text-decoration:underline">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CP FORM MODAL -->
+<div id="cpFormModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:10001;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px" onclick="if(event.target===this)closeCPForm()">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:640px;margin:20px auto;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.2);animation:menuFade .22s ease">
+    <div style="background:linear-gradient(135deg,#4f7cff,#6366f1);padding:22px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:Manrope,sans-serif;font-size:19px;font-weight:800;color:#fff">✍️ Order Content</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:3px">Fill in your requirements — we will handle the rest</div>
+      </div>
+      <button onclick="closeCPForm()" style="width:32px;height:32px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+    <div style="padding:22px 28px">
+      <div style="margin-bottom:16px">
+        <label class="cp-label">Category <span class="cp-req">*</span></label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px" id="cpTypeGrid">
+          <div onclick="selectCPType(this,'Blog Post')" class="cp-type-btn sel">📝 Blog Post</div>
+          <div onclick="selectCPType(this,'Article')" class="cp-type-btn">📰 Article</div>
+          <div onclick="selectCPType(this,'Product Description')" class="cp-type-btn">🛍️ Product Desc.</div>
+          <div onclick="selectCPType(this,'Press Release')" class="cp-type-btn">📡 Press Release</div>
+          <div onclick="selectCPType(this,'Social Media')" class="cp-type-btn">📱 Social Media</div>
+          <div onclick="selectCPType(this,'Other')" class="cp-type-btn">✏️ Other</div>
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Title Suggestion <span style="font-size:10px;color:#94a3b8;font-weight:400">(optional)</span></label>
+        <input id="cpTopic" type="text" placeholder="e.g. 10 Best SEO Strategies for 2026" class="cp-input">
+      </div>
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Target Keywords <span class="cp-req">*</span></label>
+        <input id="cpKeywords" type="text" placeholder="e.g. SEO tips, link building (comma separated)" class="cp-input">
+      </div>
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Brief Requirements <span class="cp-req">*</span></label>
+        <textarea id="cpInstructions" placeholder="Describe what you want — topic coverage, key points, tone, style, things to avoid..." class="cp-textarea" style="min-height:90px"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label class="cp-label">Content Goal <span class="cp-req">*</span></label>
+          <select id="cpGoal" class="cp-select">
+            <option value="">Select goal...</option>
+            <option>Brand Awareness</option>
+            <option>SEO / Organic Traffic</option>
+            <option>Lead Generation</option>
+            <option>Product Promotion</option>
+            <option>Education / Informative</option>
+            <option>Social Engagement</option>
+          </select>
+        </div>
+        <div>
+          <label class="cp-label">Target Audience <span class="cp-req">*</span></label>
+          <input id="cpAudience" type="text" placeholder="e.g. Small business owners" class="cp-input">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label class="cp-label">Word Count <span class="cp-req">*</span></label>
+          <select id="cpWordCount" class="cp-select" onchange="updateCPPrice()">
+            <option>500 words</option>
+            <option>750 words</option>
+            <option selected>1,000 words</option>
+            <option>1,500 words</option>
+            <option>2,000 words</option>
+            <option>2,500 words</option>
+            <option>3,000+ words</option>
+          </select>
+        </div>
+        <div>
+          <label class="cp-label">Language <span class="cp-req">*</span></label>
+          <select id="cpLang" class="cp-select">
+            <option>English</option>
+            <option>Urdu</option>
+            <option>Arabic</option>
+            <option>Spanish</option>
+            <option>French</option>
+            <option>German</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label class="cp-label">Promoted Product URL <span class="cp-req">*</span></label>
+          <input id="cpProductUrl" type="url" placeholder="https://yoursite.com/product" class="cp-input">
+        </div>
+        <div>
+          <label class="cp-label">Anchor Text <span class="cp-req">*</span></label>
+          <input id="cpAnchor" type="text" placeholder="e.g. best SEO tool" class="cp-input">
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <label class="cp-label">Sample Content <span style="font-size:10px;color:#94a3b8;font-weight:400">(optional)</span></label>
+        <textarea id="cpSample" placeholder="Paste a sample article or link to reference content you like..." class="cp-textarea" style="min-height:70px"></textarea>
+      </div>
+      <div style="margin-bottom:20px">
+        <label class="cp-label">Deadline <span class="cp-req">*</span></label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px" id="cpDeadlineGrid">
+          <div onclick="selectCPDeadline(this,'3 days')" class="cp-type-btn">3 Days</div>
+          <div onclick="selectCPDeadline(this,'5 days')" class="cp-type-btn sel">5 Days</div>
+          <div onclick="selectCPDeadline(this,'7 days')" class="cp-type-btn">7 Days</div>
+          <div onclick="selectCPDeadline(this,'14 days')" class="cp-type-btn">14 Days</div>
+        </div>
+      </div>
+      <div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="font-size:13px;color:#4f7cff;font-weight:600">💰 Estimated Price</div>
+        <div style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:#1a202c" id="cpPriceEst">$35.00</div>
+      </div>
+      <button onclick="submitCPOrder()" style="width:100%;padding:15px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3)">✍️ Submit Order</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS MESSAGE -->
+<div id="cwSuccessMsg" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:10002;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;max-width:400px;width:100%;padding:40px 32px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.2)">
+    <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px">✅</div>
+    <h3 style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin-bottom:10px">Order Submitted!</h3>
+    <p style="font-size:13.5px;color:#64748b;line-height:1.7;margin-bottom:6px">Your order <strong class="order-id" style="color:#4f7cff">#CP1234</strong> has been submitted successfully.</p>
+    <p style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:24px">Our team will review your requirements and contact you at <strong>info@uplyncio.com</strong> within 24 hours.</p>
+    <button onclick="document.getElementById('cwSuccessMsg').style.display='none'" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Done</button>
   </div>
 </div>
 
