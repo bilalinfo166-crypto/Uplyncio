@@ -2744,7 +2744,12 @@ function renderSites(list){
 
             /* TOP STATS ROW */
             "<div style='display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)'>" +
-              "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Status</div><div style='display:flex;align-items:center;gap:6px'><span style='width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block'></span><span style='font-size:14px;font-weight:800;color:#15803d'>Approved</span></div><div style='font-size:11px;color:#94a3b8;margin-top:2px'>Contributor</div></div>" +
+              (function(){
+              var sc = s.status==='Live'?'#22c55e':s.status==='pending'?'#f59e0b':s.status==='hold'?'#7c3aed':'#ef4444';
+              var st = s.status==='Live'?'Live':s.status==='pending'?'Pending Review':s.status==='hold'?'On Hold':'Rejected';
+              var stc = s.status==='Live'?'#15803d':s.status==='pending'?'#92400e':s.status==='hold'?'#5b21b6':'#b91c1c';
+              return "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Status</div><div style='display:flex;align-items:center;gap:6px'><span style='width:8px;height:8px;border-radius:50%;background:"+sc+";display:inline-block'></span><span style='font-size:14px;font-weight:800;color:"+stc+"'>"+st+"</span></div><div style='font-size:11px;color:#94a3b8;margin-top:2px'>"+(s.role||'Owner')+"</div></div>";
+            })() +
               "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Completion Rate</div><div style='font-size:14px;font-weight:800;color:#0f172a'>N/A</div></div>" +
               "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Avg Lifetime of Links</div><div style='font-size:14px;font-weight:800;color:#0f172a'>Permanent ♾️</div></div>" +
               "<div style='padding:16px 20px'><div style='font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px'>Turnaround Time</div><div style='font-size:14px;font-weight:800;color:#0f172a'>3–7 days</div></div>" +
@@ -2767,7 +2772,7 @@ function renderSites(list){
                   "</div>" +
                   "<div style='display:flex;align-items:center;justify-content:space-between;padding:8px 0'>" +
                     "<span style='font-size:13px;color:#64748b'>Special topic</span>" +
-                    "<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p3-" + s.id + "'>" + (s.p3?'$'+s.p3:'N/A') + "</span><button onclick='editPrice(" + s.id + ",3)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
+                    "<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p4-" + s.id + "'>" + (s.p4?'$'+s.p4:(s.p3?'$'+s.p3:'N/A')) + "</span><button onclick='editPrice(" + s.id + ",4)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
                   "</div>" +
                 "</div>" +
               "</div>" +
@@ -2790,7 +2795,7 @@ function renderSites(list){
                   "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Link type</span><span style='background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px'>" + s.lt + "</span></div>" +
                   "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Sponsored label</span><span style='font-size:13px;font-weight:700;color:#0f172a'>No</span></div>" +
                   "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Free articles</span><span style='font-size:13px;font-weight:700;color:#0f172a'>No</span></div>" +
-                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>DA / DR</span><span style='font-size:13px;font-weight:700;color:#0f172a'>DA " + s.da + " / DR " + s.dr + "</span></div>" +
+                  "<div style='display:flex;justify-content:space-between;align-items:center'><span style='font-size:12px;color:#64748b'>Min. Words</span><span style='font-size:13px;font-weight:700;color:#0f172a'>"+(s.wordCount||'500')+"+ words</span></div>" +
                 "</div>" +
               "</div>" +
 
