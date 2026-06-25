@@ -46,7 +46,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
 
 /* ── LAYOUT ── */
-.layout{display:flex;position:fixed;top:92px;left:0;right:0;bottom:0;overflow:hidden}
+.layout{display:flex;position:fixed;top:92px;left:0;right:0;bottom:44px;overflow:hidden}
 
 /* ── LEFT SIDEBAR ── */
 .sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0;padding-bottom:44px}.sidebar::-webkit-scrollbar{display:none}
@@ -68,7 +68,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .sb-cat-item.active .cat-cnt{background:#dbeafe;color:#2563eb}
 
 /* ── MAIN ── */
-.main-wrap{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0;padding-bottom:44px}
+.main-wrap{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0}
 
 /* ── FILTER BAR ── */
 .filter-bar{background:#fff;border-bottom:2px solid #e2e8f0;padding:18px 24px 16px;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(0,0,0,.06);border-top:3px solid #4f7cff}
@@ -100,10 +100,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .res-info strong{color:#1a202c;font-weight:700}
 
 /* ── CONTENT ── */
-.content{flex:1;padding:14px 18px 20px}
+.content{flex:1;padding:14px 18px 20px;min-width:0;width:100%;box-sizing:border-box}
 
 /* ── SITE CARD ── */
-.sites-list{background:#f0f2f7;padding:20px 16px;display:flex;flex-direction:column;gap:10px}
+.sites-list{background:#f0f2f7;padding:20px 16px;display:flex;flex-direction:column;gap:10px;width:100%;box-sizing:border-box}
 .site-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;transition:all .18s;cursor:default}
 .site-card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(79,124,255,.08)}
 .card-top{padding:13px 42px 10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
