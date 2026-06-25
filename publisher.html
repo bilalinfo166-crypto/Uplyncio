@@ -23,7 +23,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .si.on{background:#f0f4ff;color:var(--ac);border-left-color:var(--ac);font-weight:600}
 .sb-bot{margin-top:auto;padding:14px 16px;border-top:1px solid var(--br)}
 /* TOPBAR */
-.tb{position:fixed;top:0;left:210px;right:0;height:58px;background:var(--wh);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:99}
+.tb{position:fixed;top:0;left:210px;right:0;height:58px;background:var(--wh);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:200}
 .tb-b{font-size:13px;color:var(--t2)}
 .tb-b strong{color:var(--tx);font-weight:700}
 .tb-ic{width:34px;height:34px;border-radius:50%;border:1px solid var(--br);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;position:relative}
@@ -465,7 +465,7 @@ window.addEventListener('DOMContentLoaded', function(){
         <span id="pubCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
       </div>
       <!-- PROFILE DROPDOWN -->
-      <div id="profileMenu" style="display:none;position:absolute;bottom:calc(100% + 10px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
+      <div id="profileMenu" style="display:none;position:fixed;bottom:auto;top:58px;right:20px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
         <!-- User Info -->
         <div style="padding:16px 18px;border-bottom:1px solid #f1f5f9">
           <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:flex;align-items:center;gap:6px">Publisher <span id="pubVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700">👑 Verified</span></div>
