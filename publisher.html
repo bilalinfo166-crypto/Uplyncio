@@ -213,6 +213,14 @@ html,body{overflow-x:hidden;max-width:100vw}
   var uid    = localStorage.getItem('uplyncio_currentUid')||'';
   var loggedIn = localStorage.getItem('uplyncio_loggedIn');
   var user   = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+  // Always ensure verified:true and role:publisher are saved
+  if(user){
+    var _changed = false;
+    if(!user.verified){ user.verified = true; _changed = true; }
+    if(!user.role){ user.role = 'publisher'; _changed = true; }
+    if(_changed) localStorage.setItem('uplyncio_user', JSON.stringify(user));
+  }
+  localStorage.setItem('uplyncio_loggedIn','1');
   
   // Auto-setup for Uplyncio Team account
   var TEAM_EMAIL = 'info@uplyncio.com';

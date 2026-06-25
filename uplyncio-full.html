@@ -914,7 +914,17 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
     var _u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
     var _nr = document.getElementById('navRight');
     var _loggedIn = localStorage.getItem('uplyncio_loggedIn')==='1';
-    if(!_u || !_nr) return;
+    if(!_nr) return;
+    // If no user object but loggedIn flag set, reconstruct from available data
+    if(!_u && _loggedIn){
+      var _uid2 = localStorage.getItem('uplyncio_currentUid')||'';
+      var _users = JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+      var _found = Array.isArray(_users) ? _users.find(function(u){ return u.uid===_uid2||u.id===_uid2; }) : null;
+      if(_found){ _u = {uid:_uid2, name:_found.name||'', email:_found.email||'', role:_found.role||'publisher', verified:true}; }
+    }
+    if(!_u) return;
+    // Ensure role is set
+    if(!_u.role) _u.role = 'publisher';
     if(!_u.verified && !_loggedIn) return;
     var _isP = _u.role === 'publisher';
     var _url = _isP ? 'publisher.html' : 'buyer.html';
