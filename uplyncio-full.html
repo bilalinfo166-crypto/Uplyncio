@@ -2006,7 +2006,9 @@ const sites=[
 ];
 
 function render(data){
-  document.getElementById('mpTable').innerHTML=data.map(s=>`
+  var mpEl = document.getElementById('mpTable');
+  if(!mpEl) return;
+  mpEl.innerHTML=data.map(s=>`
     <tr>
       <td><div class="s-name">${s.n}</div><div class="s-url">${s.u||s.url||''}</div></td>
       <td><span class="bdg b-da">DA ${s.da}</span></td>
@@ -2017,7 +2019,7 @@ function render(data){
       <td><span class="ptag">$${s.price||s.gP||0}</span></td>
       <td><button class="btn-ord" onclick="handleOrderNow('${s.u||s.url||''}','${s.n||s.url||''}',${s.price||s.gP||0})">Order Now</button></td>
     </tr>`).join('');
-  document.getElementById('mpCount').textContent=data.length;
+  var mc=document.getElementById('mpCount'); if(mc) mc.textContent=data.length;
 }
 
 function formatTraffic(n){
@@ -2160,13 +2162,15 @@ const td=[
   {n:'SaaS Mag',da:'DA 55',p:'$80'},{n:'CoinTelegraph',da:'DA 91',p:'$500'},
 ];
 const t=document.getElementById('ticker');
-t.innerHTML=[...td,...td].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <em>${x.da}</em> · ${x.p}</div>`).join('');
+if(t) t.innerHTML=[...td,...td].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <em>${x.da}</em> · ${x.p}</div>`).join('');
 
 (function(){
-  var all = getMergedSites();
-  // Sort by DA desc, then DR desc — show top 50 high authority sites only
-  var top50 = all.sort(function(a,b){ return (b.da+b.dr) - (a.da+a.dr); }).slice(0, 50);
-  render(top50);
+  try{
+    var all = getMergedSites();
+    // Sort by DA+DR desc — show top 50 high authority sites only
+    var top50 = all.sort(function(a,b){ return (b.da+b.dr) - (a.da+a.dr); }).slice(0, 50);
+    render(top50);
+  }catch(e){ console.warn('render error:',e); }
 })();
 
 // SLIDER
