@@ -23,7 +23,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .si.on{background:#f0f4ff;color:var(--ac);border-left-color:var(--ac);font-weight:600}
 .sb-bot{margin-top:auto;padding:14px 16px;border-top:1px solid var(--br)}
 /* TOPBAR */
-.tb{position:fixed;top:0;left:210px;right:0;height:58px;background:var(--wh);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:99}
+.tb{position:fixed;top:0;left:210px;right:0;height:58px;background:var(--wh);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:200}
 .tb-b{font-size:13px;color:var(--t2)}
 .tb-b strong{color:var(--tx);font-weight:700}
 .tb-ic{width:34px;height:34px;border-radius:50%;border:1px solid var(--br);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;position:relative}
@@ -413,6 +413,28 @@ window.addEventListener('DOMContentLoaded', function(){
 
   updateBalance();
   updateInboxDot();
+  resumeApprovals();
+
+  // Set profile name/email from login data
+  (function(){
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    // Try settingsData first (if user saved settings)
+    var settKey = 'uplyncio_sett_' + uid;
+    var sett = JSON.parse(localStorage.getItem(settKey)||'{}');
+    var nameVal = sett['settName'] || user.name || user.email || 'Publisher';
+    var emailVal = sett['settEmail'] || user.email || 'Not set';
+    var pn = document.getElementById('profileName');
+    var pe = document.getElementById('profileEmail');
+    var av = document.getElementById('profileAvatar');
+    if(pn) pn.textContent = nameVal;
+    if(pe) pe.textContent = emailVal;
+    if(av && nameVal){
+      var parts = nameVal.trim().split(' ');
+      var initials = parts.length>=2 ? parts[0][0]+parts[parts.length-1][0] : nameVal.slice(0,2);
+      av.textContent = initials.toUpperCase();
+    }
+  })();
 });
 </script>
 <div class="sb">
@@ -459,12 +481,13 @@ window.addEventListener('DOMContentLoaded', function(){
       <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
     </div>
     <div style="position:relative">
-      <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span><div style="position:relative;display:inline-flex">
-  <div class="tb-av" onclick="toggleProfileMenu()" style="cursor:pointer;user-select:none" id="profileAvatar">?</div>
-  <span id="pubCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
-</div>
+      <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span>
+      <div style="position:relative;display:inline-block">
+        <div class="tb-av" id="profileAvatar" style="cursor:pointer;user-select:none">?</div>
+        <span id="pubCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
+      </div>
       <!-- PROFILE DROPDOWN -->
-      <div id="profileMenu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
+      <div id="profileMenu" style="display:none;position:fixed;bottom:auto;top:58px;right:20px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);width:240px;z-index:99999;overflow:hidden">
         <!-- User Info -->
         <div style="padding:16px 18px;border-bottom:1px solid #f1f5f9">
           <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:flex;align-items:center;gap:6px">Publisher <span id="pubVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700">👑 Verified</span></div>
@@ -499,19 +522,98 @@ window.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- TICKER BANNER -->
-<div style="position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;font-family:'Plus Jakarta Sans',sans-serif;z-index:99">
-  <div style="display:inline-block;animation:ticker 30s linear infinite">
-    <span style="font-size:12px;color:#92400e;font-weight:700;padding:0 40px">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-    <span style="font-size:12px;color:#92400e;font-weight:700;padding:0 40px">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+<div style="position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;z-index:98">
+  <div class="ticker-inner">
+    <span class="ticker-txt">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <span class="ticker-txt">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
   </div>
 </div>
-<style>@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
+<style>
+.ticker-inner{display:flex;width:max-content;animation:tickerMove 30s linear infinite}
+.ticker-txt{font-size:12px;color:#92400e;font-weight:700;padding:0 40px;white-space:nowrap;flex-shrink:0}
+@keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+</style>
 <div class="main" id="mainContainer" style="opacity:0;transition:opacity 0.1s">
 
 <!-- STEP 1 -->
 <div id="s1">
   <div class="bc"><a onclick="go(1)">Home</a><span>&rsaquo;</span><span class="cu">My Platforms</span></div>
   <div class="pg" style="width:0%"></div>
+
+  <!-- HOW TO WORK ACCORDION -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:16px;overflow:hidden">
+    <div onclick="toggleS1Help()" style="padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8faff" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='#f8faff'">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:24px;height:24px;border-radius:50%;background:#4f7cff;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">?</span>
+        <span style="font-size:13.5px;font-weight:600;color:#1a202c">How to work with this page</span>
+      </div>
+      <span id="s1HelpIcon" style="font-size:18px;color:#4f7cff;font-weight:300;transition:transform .2s">+</span>
+    </div>
+    <div id="s1HelpBody" style="display:none;padding:20px 24px;border-top:1px solid #e2e8f0;background:#fff">
+
+      <!-- On this page you can -->
+      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">On this page you can:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 40px;margin-bottom:22px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#4f7cff;font-weight:500;padding:4px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Add a new website to Uplyncio marketplace
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>View and update your listed website details
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>See a quick overview of all your sites and their status
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Activate or deactivate any website at any time
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#4f7cff;font-weight:500;padding:4px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Read Uplyncio's publisher requirements before listing
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Upload sites in bulk using our CSV sheet template
+        </div>
+      </div>
+
+      <div style="height:1px;background:#e2e8f0;margin-bottom:20px"></div>
+
+      <!-- 3 column section -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px">
+
+        <!-- Add a website -->
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">Add a Website</div>
+          <p style="font-size:12.5px;color:#475569;line-height:1.7;margin:0 0 10px">Want to monetize your site by publishing sponsored content? Add your website to Uplyncio's inventory, start receiving guest post orders, and earn on your own schedule.</p>
+          <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0"><strong style="color:#0f172a">Note:</strong> Keep your site metrics updated regularly — DA, DR, and traffic figures directly affect how often buyers choose your site over others.</p>
+        </div>
+
+        <!-- Service type -->
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">Service Type</div>
+          <p style="font-size:12.5px;color:#475569;line-height:1.7;margin:0 0 10px">When listing your site, you choose what services you offer:</p>
+          <ul style="padding-left:16px;margin:0;font-size:12.5px;color:#475569;line-height:2">
+            <li><span style="color:#4f7cff;font-weight:600">Content Placement</span> — The buyer provides the article. You publish it and set your placement price.</li>
+            <li><span style="color:#4f7cff;font-weight:600">Write &amp; Publish</span> — Uplyncio's team writes the article for the buyer. You publish it. Set a higher price for this service.</li>
+            <li><span style="color:#4f7cff;font-weight:600">Link Insertion</span> — Insert a link into an existing article on your site. Set a separate price for this option.</li>
+          </ul>
+        </div>
+
+        <!-- Results -->
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">What You Get</div>
+          <ul style="padding-left:0;margin:0;list-style:none;font-size:12.5px;color:#475569;line-height:1">
+            <li style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Earn money from your website traffic</li>
+            <li style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Get paid after every completed order</li>
+            <li style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Improve your site's SEO with quality inbound links</li>
+            <li style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Full control over what content goes on your site</li>
+            <li style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Accept or reject any order within 3 days — no pressure</li>
+            <li style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>Earn your 👑 Verified badge after 10 completed orders</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <div class="gh">
     <p>Want to monetize your site while placing or creating unique and relevant content?</p>
     <button class="gh-btn" onclick="go(2)">Add or update websites</button>
@@ -1765,7 +1867,7 @@ window.addEventListener('DOMContentLoaded', function(){
     <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:20px;display:flex;align-items:center;justify-content:space-between">
       <div>
         <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">🔐 Two-Factor Authentication</div>
-        <div style="font-size:12px;color:var(--t2);line-height:1.6;max-width:320px">Enhanced security — you'll need to verify your identity each time you log in. Google Authenticator is supported.</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6;max-width:320px">Enhanced security — you will need to verify your identity each time you log in. Google Authenticator is supported.</div>
       </div>
       <div id="twoFaToggle" data-on="0" onclick="toggleTwoFa()" style="width:46px;height:26px;border-radius:100px;background:#e2e8f0;cursor:pointer;position:relative;flex-shrink:0;margin-left:16px;transition:background .2s">
         <div id="twoFaThumb" style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:23px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div>
@@ -1804,20 +1906,7 @@ window.addEventListener('DOMContentLoaded', function(){
     <button onclick="saveSettings()" style="background:var(--ac);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s">Save Changes</button>
   </div>
 </div>
-  <!-- Settings Footer -->
-  <div style="background:#1a202c;color:#94a3b8;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:24px;border-radius:12px">
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="width:22px;height:22px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff">U</div>
-      <span style="font-family:Manrope,sans-serif;font-size:13px;font-weight:800;color:#fff">Uply<span style="color:#4f7cff">ncio</span></span>
-    </div>
-    <div style="font-size:11px;color:#64748b">© 2025 Uplyncio. All rights reserved.</div>
-    <div style="display:flex;gap:14px">
-      <a href="uplyncio-full.html" style="font-size:11px;color:#64748b;text-decoration:none">Home</a>
-      <a href="#" style="font-size:11px;color:#64748b;text-decoration:none">Privacy Policy</a>
-      <a href="#" style="font-size:11px;color:#64748b;text-decoration:none">Terms</a>
-      <a href="mailto:info@uplyncio.com" style="font-size:11px;color:#64748b;text-decoration:none">Support</a>
-    </div>
-  </div>
+
 
 <!-- BALANCE PAGE -->
 <div id="balancePage" style="display:none">
@@ -2217,11 +2306,7 @@ window.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<div class="pf">
-  <div style="display:flex;gap:8px"><span class="pl">VISA</span><span class="pl">Mastercard</span><span class="pl">Maestro</span><span class="pl">AMEX</span></div>
-  <span style="font-size:12px;color:var(--mu)">info@uplyncio.com</span>
-  <div class="fla"><a href="#">Terms</a><a href="#">Privacy</a><a href="uplyncio-full.html">Main Site</a></div>
-</div>
+
 
 </div>
 
@@ -2233,7 +2318,7 @@ document.addEventListener('visibilitychange', function(){
 window.addEventListener('beforeunload', function(){ saveSites(); });
 
 function go(n){
-  // Only save step if it's a real navigation (not init)
+  // Only save step if it is a real navigation (not init)
   if(n>1) saveState("main",{step:n});
   else saveState("main",{step:1});
   for(var i=1;i<=5;i++){
@@ -2369,6 +2454,31 @@ function submit(){
   // Validate sample links match site domain
   if(!validateAllSampleLinks()){ return; }
 
+  // ── DOMAIN VALIDATION ──
+  var cleanUrl = url.replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+  // Reject if domain has extra text like "Price Increased", "- 1 Jun" etc
+  var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+  if(invalidPattern.test(cleanUrl)){
+    toast('❌ Invalid domain format. Please enter only the domain name (e.g. example.com)', '#ef4444');
+    return;
+  }
+  // Must look like a real domain
+  var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
+  if(!domainPattern.test(cleanUrl)){
+    toast('❌ Invalid domain. Enter a valid domain like example.com or blog.example.com', '#ef4444');
+    return;
+  }
+
+  // ── DUPLICATE CHECK ──
+  var isDuplicate = mySites.some(function(s){
+    var existUrl = (s.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+    return existUrl === cleanUrl && (!window._editingId || s.id !== window._editingId);
+  });
+  if(isDuplicate){
+    toast('⚠️ "' + cleanUrl + '" is already in your dashboard. You cannot add the same site twice.', '#d97706');
+    return;
+  }
+
   // Collect form data
   var da = document.querySelector('.ic2 input[type=number]') ? document.querySelector('.ic2 .two input:nth-child(1)') : null;
   var allInputs = document.querySelectorAll('.ic2 .fi');
@@ -2435,15 +2545,39 @@ function submit(){
     wordCount: wordCount,
     requirements: reqVal,
     req: reqVal,
-    status: 'Live', id: Date.now()
+    id: Date.now()
   };
 
+  // ── AUTO STATUS LOGIC ──
+  var daNum = parseFloat(site.da) || 0;
+  var drNum = parseFloat(site.dr) || 0;
   if(window._editingId){
+    // Editing existing site — keep approved if already approved
     var idx=mySites.findIndex(function(x){return x.id===window._editingId;});
-    if(idx>-1){ site.id=window._editingId; mySites[idx]=site; }
+    if(idx>-1){
+      site.id=window._editingId;
+      site.status = mySites[idx].status || 'pending';
+      mySites[idx]=site;
+    }
     window._editingId=null;
+    toast('✅ Site updated successfully!', '#16a34a');
   } else {
-    mySites.push(site);
+    if(daNum < 5 || drNum < 5){
+      // Very low metrics — put on hold, check later
+      site.status = 'hold';
+      mySites.push(site);
+      toast('⏸ Site added on Hold — DA/DR too low. We will auto-approve once metrics improve.', '#d97706');
+      // Start monitoring
+      startHoldMonitor(site.id);
+    } else {
+      // Normal site — pending approval (auto-approve in 2-3 min)
+      site.status = 'pending';
+      mySites.push(site);
+      toast('⏳ Site submitted! Pending review — will be approved in 2-3 minutes if everything looks good.', '#4f7cff');
+      // Auto-approve after 2-3 minutes
+      var delay = (120 + Math.floor(Math.random()*60)) * 1000; // 2-3 min
+      scheduleApproval(site.id, delay);
+    }
   }
   saveSites();
   applyFilters();
@@ -2577,10 +2711,18 @@ function renderSites(list){
   renderPagination(totalPages, list.length);
 
   tbody.innerHTML = pageList.map(function(s){
-    var isActive = s.active !== false;
-    var statusColor = isActive ? '#16a34a' : '#94a3b8';
-    var statusBg = isActive ? '#16a34a' : '#94a3b8';
-    var statusText = isActive ? 'Active' : 'Inactive';
+    var statusColor, statusBg, statusText;
+    if(s.status==='pending'){
+      statusColor='#d97706'; statusBg='#d97706'; statusText='Pending Review';
+    } else if(s.status==='hold'){
+      statusColor='#7c3aed'; statusBg='#7c3aed'; statusText='On Hold';
+    } else if(s.status==='rejected'){
+      statusColor='#ef4444'; statusBg='#ef4444'; statusText='Rejected';
+    } else if(s.active===false){
+      statusColor='#94a3b8'; statusBg='#94a3b8'; statusText='Inactive';
+    } else {
+      statusColor='#16a34a'; statusBg='#16a34a'; statusText='Active';
+    }
     return "<tr style='border-bottom:1px solid #e2e8f0' onmouseover=\"this.style.background='#f8faff'\" onmouseout=\"this.style.background='#fff'\">" +
       "<td style='padding:12px 16px;white-space:nowrap'><div style='font-weight:700;font-size:13px'>" + s.url + "</div></td>" +
       "<td style='padding:12px 16px;white-space:nowrap'><span style='background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap'>DA " + s.da + "</span></td>" +
@@ -3014,27 +3156,68 @@ function showPreview(){
 
 function importSites(){
   if(!parsedSites.length) return;
-  // Mark team sites if team account
   var _cu = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
-  if(_cu.email === 'info@uplyncio.com'){
-    parsedSites = parsedSites.map(function(s){
-      s.role = 'Uplyncio Team';
-      s.isTeamSite = true;
-      s.publisherUid = localStorage.getItem('uplyncio_currentUid')||'';
-      return s;
+  var isTeam = _cu.email === 'info@uplyncio.com';
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+
+  var approved=0, pending=0, held=0, rejected=0;
+  var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
+  var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
+
+  var validSites = [];
+  parsedSites.forEach(function(s){
+    var cleanUrl = (s.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+    var daNum = parseFloat(s.da)||0;
+    var drNum = parseFloat(s.dr)||0;
+
+    if(isTeam){ s.role='Uplyncio Team'; s.isTeamSite=true; s.publisherUid=uid; }
+
+    // Check duplicate against existing sites
+    var alreadyExists = mySites.some(function(ex){
+      var exUrl = (ex.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
+      return exUrl === cleanUrl;
     });
-  }
-  mySites=mySites.concat(parsedSites);
+
+    // Reject bad domain format
+    if(invalidPattern.test(cleanUrl) || !domainPattern.test(cleanUrl)){
+      s.status = 'rejected';
+      s.rejectReason = 'Invalid domain format';
+      rejected++;
+    } else if(alreadyExists){
+      s.status = 'rejected';
+      s.rejectReason = 'Duplicate — already in your dashboard';
+      rejected++;
+    } else if(daNum < 10 || drNum < 10){
+      // Low metrics — hold
+      s.status = 'hold';
+      held++;
+      startHoldMonitor(s.id);
+    } else {
+      // Pending approval
+      s.status = isTeam ? 'Live' : 'pending';
+      if(!isTeam){
+        pending++;
+        var delay = (120 + Math.floor(Math.random()*60)) * 1000;
+        scheduleApproval(s.id, delay);
+      } else { approved++; }
+    }
+    validSites.push(s);
+  });
+
+  mySites = mySites.concat(validSites);
   parsedSites=[];
+  saveSites();
   clearUpload();
   applyFilters();
   go(1);
+
   setTimeout(function(){
-    var msg=document.createElement('div');
-    msg.style.cssText='position:fixed;bottom:24px;right:24px;background:#16a34a;color:#fff;padding:14px 22px;border-radius:10px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.2)';
-    msg.innerHTML='✅ Sites imported to your dashboard!';
-    document.body.appendChild(msg);
-    setTimeout(function(){msg.remove();},3500);
+    var parts = [];
+    if(approved) parts.push('✅ '+approved+' approved');
+    if(pending) parts.push('⏳ '+pending+' pending review');
+    if(held) parts.push('⏸ '+held+' on hold (low DA/DR)');
+    if(rejected) parts.push('❌ '+rejected+' rejected (invalid domain)');
+    toast(parts.join(' · '), '#4f7cff');
   },300);
 }
 
@@ -3058,6 +3241,67 @@ function showStatus(type,msg){
   };
   el.setAttribute('style','display:block;'+(styles[type]||styles.processing)+';border-radius:8px;padding:11px 14px;font-size:13px;font-weight:600');
   el.textContent=msg;
+}
+
+// ── APPROVAL SYSTEM ──
+function scheduleApproval(siteId, delay){
+  setTimeout(function(){
+    var idx = mySites.findIndex(function(x){ return x.id===siteId; });
+    if(idx>-1 && mySites[idx].status==='pending'){
+      mySites[idx].status = 'Live';
+      saveSites();
+      applyFilters();
+      toast('✅ Your site "'+mySites[idx].url+'" has been approved and is now live on the marketplace!', '#16a34a');
+    }
+  }, delay);
+}
+
+function startHoldMonitor(siteId){
+  // Check every 60 seconds if DA/DR improved
+  var interval = setInterval(function(){
+    var idx = mySites.findIndex(function(x){ return x.id===siteId; });
+    if(idx === -1){ clearInterval(interval); return; }
+    var s = mySites[idx];
+    if(s.status !== 'hold'){ clearInterval(interval); return; }
+    var daNum = parseFloat(s.da)||0;
+    var drNum = parseFloat(s.dr)||0;
+    if(daNum >= 10 && drNum >= 10){
+      mySites[idx].status = 'pending';
+      saveSites();
+      applyFilters();
+      clearInterval(interval);
+      toast('🎉 Site "'+s.url+'" metrics improved! Now pending final approval...', '#d97706');
+      scheduleApproval(siteId, (120 + Math.floor(Math.random()*60))*1000);
+    }
+  }, 60000);
+}
+
+// On page load — clean bad domains + resume pending approvals
+function resumeApprovals(){
+  // Only reject domains with obvious junk text (spaces + promo words)
+  // Do NOT reject valid domains
+  var badPattern = /\s+(price|increased|updated|discount|promo|-\s*\d)/i;
+  var changed = false;
+  mySites.forEach(function(s){
+    var rawUrl = (s.url||'');
+    if(s.status !== 'rejected'){
+      if(badPattern.test(rawUrl)){
+        s.status = 'rejected';
+        s.rejectReason = 'Invalid domain format';
+        changed = true;
+      }
+    }
+  });
+  if(changed){ saveSites(); applyFilters(); }
+
+  mySites.forEach(function(s){
+    if(s.status === 'pending'){
+      var delay = (60 + Math.floor(Math.random()*60)) * 1000;
+      scheduleApproval(s.id, delay);
+    } else if(s.status === 'hold'){
+      startHoldMonitor(s.id);
+    }
+  });
 }
 
 // ── BALANCE SYSTEM ──
@@ -3663,9 +3907,27 @@ function sendChatMsg(){
 // ── PROFILE MENU ──
 var activityOn = true;
 
+function toggleS1Help(){
+  var body = document.getElementById('s1HelpBody');
+  var icon = document.getElementById('s1HelpIcon');
+  if(!body) return;
+  if(body.style.display==='none'){
+    body.style.display='block';
+    if(icon){ icon.textContent='−'; icon.style.transform='rotate(0deg)'; }
+  } else {
+    body.style.display='none';
+    if(icon){ icon.textContent='+'; }
+  }
+}
+
 function toggleProfileMenu(){
   var m = document.getElementById('profileMenu');
-  m.style.display = m.style.display==='none' ? 'block' : 'none';
+  if(!m) return;
+  if(m.style.display==='none' || m.style.display===''){
+    m.style.display='block';
+  } else {
+    m.style.display='none';
+  }
 }
 
 function closeProfileMenu(){
@@ -5499,6 +5761,23 @@ function updateWordCount(){
 document.addEventListener('DOMContentLoaded',function(){
   var ab=document.getElementById('odArticleBox');
   if(ab) ab.addEventListener('input',updateWordCount);
+
+  // Bind profile avatar click
+  var av = document.getElementById('profileAvatar');
+  if(av){
+    av.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleProfileMenu();
+    });
+  }
+  // Close menu on outside click
+  document.addEventListener('click', function(e){
+    var menu = document.getElementById('profileMenu');
+    var av2 = document.getElementById('profileAvatar');
+    if(menu && av2 && !av2.contains(e.target) && !menu.contains(e.target)){
+      menu.style.display='none';
+    }
+  });
 });
 
 function resubmit(id){
@@ -5895,5 +6174,11 @@ function toast(msg,bg){
     </div>
   </div>
 </div>
+<div class="pf">
+  <div style="display:flex;gap:8px"><span class="pl">VISA</span><span class="pl">Mastercard</span><span class="pl">Maestro</span><span class="pl">AMEX</span></div>
+  <span style="font-size:12px;color:var(--mu)">info@uplyncio.com</span>
+  <div class="fla"><a href="#">Terms</a><a href="#">Privacy</a><a href="uplyncio-full.html">Main Site</a></div>
+</div>
+
 </body>
 </html>
