@@ -414,6 +414,7 @@ window.addEventListener('DOMContentLoaded', function(){
   updateBalance();
   updateInboxDot();
   resumeApprovals();
+  updateNotifDot();
 
   // Force show verified badge for info@uplyncio.com
   (function(){
@@ -503,9 +504,17 @@ window.addEventListener('DOMContentLoaded', function(){
       &#128172;
       <span id="inboxDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
     </div>
-    <div class="tb-ic" style="position:relative;cursor:pointer" title="Notifications">
+    <div class="tb-ic" style="position:relative;cursor:pointer" title="Notifications" onclick="toggleNotifPanel()" id="notifBell">
       &#128276;
-      <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
+      <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff;font-size:9px;font-weight:800;min-width:8px;text-align:center" id="notifBadge"></span>
+    </div>
+    <!-- NOTIFICATION PANEL -->
+    <div id="notifPanel" style="display:none;position:fixed;top:62px;right:70px;width:340px;max-height:480px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:99999;overflow:hidden;flex-direction:column">
+      <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:14px;font-weight:800;color:#0f172a">🔔 Notifications</span>
+        <button onclick="markAllNotifsRead()" style="font-size:11px;color:#4f7cff;font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit">Mark all read</button>
+      </div>
+      <div id="notifList" style="overflow-y:auto;max-height:380px"></div>
     </div>
     <div style="position:relative">
       <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span>
@@ -3296,6 +3305,7 @@ function scheduleApproval(siteId, delay){
       saveSites();
       applyFilters();
       toast('✅ Your site "'+mySites[idx].url+'" has been approved and is now live on the marketplace!', '#16a34a');
+      addNotif('approve','Site Approved! ✅','"'+mySites[idx].url+'" is now live on the Uplyncio marketplace. Buyers can now find and order from your site.','✅');
     }
   }, delay);
 }
@@ -3598,6 +3608,142 @@ function getTotalUnread(){
   if(!Array.isArray(sampleOrders)) return 0;
   return sampleOrders.filter(function(o){ return o.unreadChat; }).length;
 }
+
+// ── NOTIFICATION SYSTEM ──
+function getNotifs(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  try{ return JSON.parse(localStorage.getItem('uplyncio_notifs_'+uid)||'[]'); }catch(e){ return []; }
+}
+
+function saveNotifs(arr){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  try{ localStorage.setItem('uplyncio_notifs_'+uid, JSON.stringify(arr)); }catch(e){}
+}
+
+function addNotif(type, title, msg, icon){
+  var notifs = getNotifs();
+  notifs.unshift({
+    id: Date.now(),
+    type: type,        // 'order'|'chat'|'system'|'report'|'approve'
+    title: title,
+    msg: msg,
+    icon: icon||'🔔',
+    time: new Date().toISOString(),
+    read: false
+  });
+  // Keep max 50
+  if(notifs.length > 50) notifs = notifs.slice(0, 50);
+  saveNotifs(notifs);
+  updateNotifDot();
+  renderNotifList();
+}
+
+function updateNotifDot(){
+  var notifs = getNotifs();
+  var unread = notifs.filter(function(n){ return !n.read; }).length;
+  var dot = document.getElementById('notifDot');
+  if(dot){
+    dot.style.display = unread > 0 ? 'flex' : 'none';
+    dot.style.alignItems = 'center';
+    dot.style.justifyContent = 'center';
+    dot.style.color = '#fff';
+    dot.style.fontSize = '8px';
+    dot.style.width = unread > 9 ? '16px' : '14px';
+    dot.style.height = '14px';
+    dot.style.borderRadius = '100px';
+    dot.textContent = unread > 9 ? '9+' : (unread > 0 ? unread : '');
+  }
+}
+
+function toggleNotifPanel(){
+  var panel = document.getElementById('notifPanel');
+  if(!panel) return;
+  var isOpen = panel.style.display === 'flex';
+  if(isOpen){
+    panel.style.display = 'none';
+  } else {
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+    renderNotifList();
+  }
+}
+
+function renderNotifList(){
+  var el = document.getElementById('notifList');
+  if(!el) return;
+  var notifs = getNotifs();
+  if(notifs.length === 0){
+    el.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#94a3b8"><div style="font-size:32px;margin-bottom:10px">🔔</div><div style="font-size:13px;font-weight:600">No notifications yet</div><div style="font-size:12px;margin-top:4px">You will be notified about orders, approvals and messages here.</div></div>';
+    return;
+  }
+  el.innerHTML = notifs.map(function(n){
+    var timeStr = formatNotifTime(n.time);
+    var bg = n.read ? 'fff' : 'f0f7ff';
+    var dot = n.read ? '' : '<span style="width:7px;height:7px;border-radius:50%;background:#4f7cff;display:inline-block;flex-shrink:0;margin-top:5px"></span>';
+    var h = '<div onclick="readNotif(' + n.id + ')" style="display:flex;gap:12px;padding:13px 16px;border-bottom:1px solid #f1f5f9;cursor:pointer;background:#' + bg + '">';
+    h += '<div style="width:36px;height:36px;border-radius:10px;background:#e0e7ff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">' + n.icon + '</div>';
+    h += '<div style="flex:1;min-width:0">';
+    h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">';
+    h += '<div style="font-size:12.5px;font-weight:700;color:#0f172a;line-height:1.4">' + n.title + '</div>' + dot;
+    h += '</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-top:2px;line-height:1.5">' + n.msg + '</div>';
+    h += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">' + timeStr + '</div>';
+    h += '</div></div>';
+    return h;
+  }).join('');
+}
+
+function readNotif(id){
+  var notifs = getNotifs();
+  notifs.forEach(function(n){ if(n.id===id) n.read=true; });
+  saveNotifs(notifs);
+  updateNotifDot();
+  renderNotifList();
+}
+
+function markAllNotifsRead(){
+  var notifs = getNotifs();
+  notifs.forEach(function(n){ n.read=true; });
+  saveNotifs(notifs);
+  updateNotifDot();
+  renderNotifList();
+}
+
+function formatNotifTime(iso){
+  try{
+    var d = new Date(iso);
+    var now = new Date();
+    var diff = Math.floor((now-d)/1000);
+    if(diff < 60) return 'Just now';
+    if(diff < 3600) return Math.floor(diff/60)+' min ago';
+    if(diff < 86400) return Math.floor(diff/3600)+' hr ago';
+    if(diff < 604800) return Math.floor(diff/86400)+' day'+( Math.floor(diff/86400)>1?'s':'')+' ago';
+    return d.toLocaleDateString();
+  }catch(e){ return ''; }
+}
+
+// Close notif panel on outside click
+document.addEventListener('click', function(e){
+  var panel = document.getElementById('notifPanel');
+  var bell = document.getElementById('notifBell');
+  if(panel && bell && !bell.contains(e.target) && !panel.contains(e.target)){
+    panel.style.display = 'none';
+  }
+});
+
+// Add welcome notif for new sessions
+(function(){
+  var uid = localStorage.getItem('uplyncio_currentUid');
+  if(!uid) return;
+  var key = 'uplyncio_notif_welcomed_'+uid;
+  if(!localStorage.getItem(key)){
+    localStorage.setItem(key,'1');
+    setTimeout(function(){
+      addNotif('system','Welcome to Uplyncio! 👋','Your publisher account is active. Add your first site to start receiving orders.','🎉');
+    }, 1000);
+  }
+  updateNotifDot();
+})();
 
 function updateInboxDot(){
   var n = getTotalUnread();
