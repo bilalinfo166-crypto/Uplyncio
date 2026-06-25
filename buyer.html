@@ -1428,8 +1428,11 @@ function loadAllSites(){
 
         d.sites.forEach(function(s){
           if(!s.url) return;
-          // Skip deactivated sites
+          // Only show Live/approved sites — skip everything else
+          if(s.status==='rejected' || s.status==='hold' || s.status==='pending') return;
           if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
+          // Must be Live or no status set (old entries default to live)
+          if(s.status && s.status!=='Live' && s.status!=='live' && s.status!=='Active') return;
 
           var entry = {
             url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
@@ -1464,7 +1467,11 @@ function loadAllSites(){
             indexed: true,
             domainAge: s.domainAge||'N/A',
             _uid: uid,
-            _status: s.status||'Live'
+            _status: s.status||'Live',
+            publisherUid: uid,
+            publisherName: s.publisherName || '',
+            role: s.role || 'Owner',
+            isTeamSite: (s.role==='Uplyncio Team' || uid==='uplyncio_team_official')
           };
 
           // Group by URL — multiple publishers can have same URL
