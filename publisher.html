@@ -2754,16 +2754,7 @@ function renderSites(list){
             "<button onclick='editSite("+s.id+")' style='display:inline-flex;align-items:center;gap:5px;background:#4f7cff;border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit'>"+
               "<svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg> Edit"+
             "</button>" +
-            "<div style='position:relative;display:inline-block'>" +
-              "<button onclick='toggleDotMenu("+s.id+",event)' style='width:34px;height:34px;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:8px;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;padding-bottom:4px'>•••</button>" +
-              "<div id='dot-"+s.id+"' style='display:none;position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.14);min-width:190px;z-index:9999;overflow:hidden'>" +
-                "<div onclick='editSite("+s.id+");closeDotMenus()' style='display:flex;align-items:center;gap:10px;padding:11px 15px;font-size:13px;color:#0f172a;cursor:pointer;transition:background .15s' class='dm-item'>✏️ Edit site</div>" +
-                "<div onclick='toggleDetails("+s.id+");closeDotMenus()' style='display:flex;align-items:center;gap:10px;padding:11px 15px;font-size:13px;color:#0f172a;cursor:pointer;transition:background .15s' class='dm-item'>📊 View full details</div>" +
-                "<div onclick='deactivateSite("+s.id+");closeDotMenus()' style='display:flex;align-items:center;gap:10px;padding:11px 15px;font-size:13px;color:#0f172a;cursor:pointer;transition:background .15s' class='dm-item'>"+( s.active===false ? '▶️ Activate site' : '⏸️ Deactivate site' )+"</div>" +
-                "<div style='height:1px;background:#f1f5f9;margin:3px 0'></div>" +
-                "<div onclick='delSite("+s.id+");closeDotMenus()' style='display:flex;align-items:center;gap:10px;padding:11px 15px;font-size:13px;color:#ef4444;cursor:pointer;transition:background .15s' class='dm-item-red'>🗑️ Remove site</div>" +
-              "</div>" +
-            "</div>" +
+            "<button onclick='toggleDetails("+s.id+")' style='width:34px;height:34px;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:8px;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;letter-spacing:1px;padding-bottom:4px'>•••</button>" +
           "</div>" +
         "</td>" +
       "</tr>" +
