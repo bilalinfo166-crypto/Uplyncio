@@ -226,7 +226,26 @@
     <button onclick="openForm()" class="btn-a">🔗 Get Free Audit</button>
   </div>
 </nav>
-<script>(function(){try{var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');var li=localStorage.getItem('uplyncio_loggedIn')==='1';var el=document.getElementById('opNav');if(!el||(!u&&!li))return;if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=Array.isArray(us)?us.find(function(x){return x.uid===uid;});if(f)u={name:f.name||'',role:f.role||'publisher',verified:true};}if(!u)return;el.innerHTML=u.role==='publisher'?'<a href="publisher.html" class="btn-a">🌐 Dashboard</a>':'<a href="buyer.html" class="btn-a">🛒 Buyer Account</a>';}catch(e){}})()</script>
+<script>
+(function(){
+  try{
+    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
+    var el=document.getElementById('opNav');
+    if(!el||(!u&&!li)) return;
+    if(!u&&li){
+      var uid=localStorage.getItem('uplyncio_currentUid')||'';
+      var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+      var f=us.find(function(x){return x.uid===uid;});
+      if(f) u={name:f.name||'',role:f.role||'publisher',verified:true};
+    }
+    if(!u) return;
+    el.innerHTML=u.role==='publisher'
+      ?'<a href="publisher.html" class="btn-a">🌐 Dashboard</a>'
+      :'<a href="buyer.html" class="btn-a">🛒 Buyer Account</a>';
+  }catch(e){}
+})();
+</script>
 
 <!-- HERO -->
 <section class="hero">
