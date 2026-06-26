@@ -23,6 +23,7 @@ async function sbInsert(table, data) {
     body: JSON.stringify(data)
   });
   const text = await r.text();
+  console.log(`sbInsert ${table} status:`, r.status, text.substring(0, 200));
   try { return { ok: r.ok, data: JSON.parse(text) }; }
   catch { return { ok: false, data: text }; }
 }
@@ -92,8 +93,14 @@ export default async function handler(req, res) {
         publisher_verified: isTeam
       });
 
-      if (!result.ok)
-        return res.status(500).json({ error: 'Failed to create user', detail: result.data });
+      if (!result.ok) {
+        console.error('Supabase insert error:', JSON.stringify(result.data));
+        return res.status(500).json({ 
+          error: 'Failed to create user', 
+          detail: result.data,
+          hint: typeof result.data === 'object' ? result.data.message || result.data.hint || result.data.code : result.data
+        });
+      }
 
       const user = Array.isArray(result.data) ? result.data[0] : result.data;
 
