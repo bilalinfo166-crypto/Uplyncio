@@ -212,6 +212,44 @@ export default async function handler(req, res) {
       }
     }
 
+    // ── FORGOT PASSWORD ──
+    if (action === 'forgot_password') {
+      const { email } = body;
+      if (!email) return res.status(400).json({ error: 'Missing email' });
+      const emailLow = email.toLowerCase().trim();
+
+      // Check user exists
+      const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
+      if (!users?.length) {
+        // Don't reveal if email exists — always return success
+        return res.status(200).json({ success: true });
+      }
+      const user = users[0];
+
+      // Generate reset token (random + expiry)
+      const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2,'0')).join('');
+      const expiresAt = new Date(Date.now() + 3600000).toISOString(); // 1 hour
+
+      // Save token to DB
+      await sbUpdate('users', `id=eq.${user.id}`, {
+        verify_code: `RESET:${token}:${expiresAt}`
+      });
+
+      const resetLink = `https://uplyncio.vercel.app/reset-password.html?token=${token}&email=${encodeURIComponent(emailLow)}`;
+
+      // Send email
+      const { sendForgotPasswordEmail } = await import('./email.js');
+      await sendForgotPasswordEmail({
+        to: emailLow,
+        name: user.name || 'there',
+        resetLink,
+        expiresIn: '1 hour'
+      });
+
+      return res.status(200).json({ success: true });
+    }
+
     return res.status(400).json({ error: 'Unknown action: ' + action });
 
   } catch (e) {
