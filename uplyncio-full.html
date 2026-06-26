@@ -2871,7 +2871,8 @@ function toggleEye(id, btn){
 
 // Forgot Password Modal
 function openForgotPassword(){
-  document.getElementById('forgotPwdModal').style.display='flex';
+  var fpM=document.getElementById('forgotPwdModal');
+  if(fpM){fpM.style.display='flex';fpM.style.alignItems='center';fpM.style.justifyContent='center';}
   document.body.style.overflow='hidden';
 }
 function closeForgotPassword(){
@@ -3379,8 +3380,7 @@ function completeAuth(role, email, name, userId){
 }
 
 function showForgotPassword(role){
-  var email = prompt('Enter your email address to reset password:');
-  if(email) alert('Password reset link sent to '+email+'. Please check your inbox.');
+  openForgotPassword();
 }
 
 
