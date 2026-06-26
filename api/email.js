@@ -800,3 +800,218 @@ export async function sendBuyerFirstOrderCongrats({ to, name, orderId, siteUrl }
   );
   return send(to, `🎉 First order placed on Uplyncio — ${siteUrl}`, html);
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// PAYMENT & INVOICE TEMPLATES
+// ══════════════════════════════════════════════════════════════════
+
+function invoiceRow(label, value, opts = {}) {
+  const { bold, color, borderTop, large } = opts;
+  return `<tr${borderTop ? ' style="border-top:1.5px solid #e0e7ff"' : ''}>
+    <td style="font-family:Arial,sans-serif;font-size:${large ? '14' : '13'}px;${bold ? 'font-weight:700;' : ''}color:${color || (bold ? '#1a202c' : '#64748b')};padding:${borderTop ? '10' : '5'}px 0">${label}</td>
+    <td align="right" style="font-family:Arial,sans-serif;font-size:${large ? '16' : '13'}px;font-weight:${bold ? '800' : '600'};color:${color || (bold ? '#1a202c' : '#1a202c')};padding:${borderTop ? '10' : '5'}px 0">${value}</td>
+  </tr>`;
+}
+
+function invoiceBox(invoiceNum, date, rows, bgColor = '#f0f4ff', borderColor = '#c7d7ff', labelColor = '#4f7cff') {
+  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+    <tr><td style="background:${bgColor};border:1px solid ${borderColor};border-radius:8px;padding:16px">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px">
+        <tr>
+          <td><p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:${labelColor};letter-spacing:1.5px;text-transform:uppercase;margin:0">Invoice</p>
+          <p style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a202c;margin:4px 0 0">${invoiceNum}</p></td>
+          <td align="right"><p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0">Date</p>
+          <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;margin:4px 0 0">${date}</p></td>
+        </tr>
+      </table>
+      <div style="height:1px;background:${borderColor};margin:0 0 12px"></div>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>
+    </td></tr>
+  </table>`;
+}
+
+// ─────────────────────────────────────────
+// F1: Buyer — Funds Added Invoice
+// ─────────────────────────────────────────
+export async function sendBuyerFundsAdded({ to, name, invoiceNum, date, amount, method, transactionId, walletBalance }) {
+  const rows =
+    invoiceRow('Description', 'Wallet Top-Up — Uplyncio') +
+    invoiceRow('Payment Method', method) +
+    invoiceRow('Transaction ID', transactionId || '—') +
+    invoiceRow('Amount Added', `$${amount}`, { bold: true, color: '#00c27a', borderTop: true, large: true });
+
+  const html = wrap(
+    header('Payment Receipt', '#00c27a') +
+    bodyStart('Funds added successfully!',
+      `Hi <strong style="color:#1a202c">${name}</strong>, your wallet has been topped up. Your funds are ready to use for ordering guest posts and backlinks.`) +
+    invoiceBox(invoiceNum, date, rows, '#f0fdf4', '#bbf7d0', '#15803d') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Current Wallet Balance</p>
+        <p style="font-family:Arial,sans-serif;font-size:32px;font-weight:800;color:#1a202c;margin:0">$${walletBalance}</p>
+      </td></tr>
+    </table>` +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '🔒 Your funds are held securely in your Uplyncio wallet. They will only be deducted when you place an order and you confirm delivery.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Browse Publisher Sites →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `✅ $${amount} added to your Uplyncio wallet — ${invoiceNum}`, html);
+}
+
+// ─────────────────────────────────────────
+// F2: Buyer — Order Payment Invoice
+// ─────────────────────────────────────────
+export async function sendBuyerOrderInvoice({ to, name, invoiceNum, date, orderId, siteUrl, siteDA, siteDR, serviceType, subtotal, platformFee, total, paymentMethod, walletBalance }) {
+  const rows =
+    invoiceRow('Order ID', orderId) +
+    invoiceRow('Publisher Site', siteUrl) +
+    invoiceRow('Domain Authority', `DA ${siteDA} / DR ${siteDR}`) +
+    invoiceRow('Service Type', serviceType || 'Guest Post') +
+    invoiceRow('Payment Method', paymentMethod || 'Uplyncio Wallet') +
+    invoiceRow('Subtotal', `$${subtotal}`, { bold: false }) +
+    invoiceRow('Platform Fee', platformFee > 0 ? `$${platformFee}` : 'Included', { bold: false }) +
+    invoiceRow('Total Paid', `$${total}`, { bold: true, color: '#1a202c', borderTop: true, large: true });
+
+  const html = wrap(
+    header('Order Invoice', '#4f7cff') +
+    bodyStart('Your order invoice',
+      `Hi <strong style="color:#1a202c">${name}</strong>, thank you for your order. Please find your invoice below. Keep this for your records.`) +
+    invoiceBox(invoiceNum, date, rows, '#f0f4ff', '#c7d7ff', '#4f7cff') +
+    (walletBalance !== undefined ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;margin:0">Remaining wallet balance</p>
+        <p style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#1a202c;margin:0">$${walletBalance}</p>
+      </td></tr>
+    </table>` : '') +
+    alertBox('#f0fdf4','#bbf7d0','#15803d',
+      '🔒 Your payment is held in escrow until you confirm delivery of the live link. You are fully protected.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Track Your Order →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Invoice ${invoiceNum} — Order ${orderId} on ${siteUrl}`, html);
+}
+
+// ─────────────────────────────────────────
+// F3: Buyer — Refund Invoice
+// ─────────────────────────────────────────
+export async function sendBuyerRefundInvoice({ to, name, invoiceNum, date, orderId, siteUrl, refundAmount, refundMethod, transactionId, arrivalDays = '3-5' }) {
+  const rows =
+    invoiceRow('Original Order ID', orderId) +
+    invoiceRow('Publisher Site', siteUrl) +
+    invoiceRow('Refund Method', refundMethod) +
+    invoiceRow('Transaction ID', transactionId || 'Processing') +
+    invoiceRow('Expected Arrival', `${arrivalDays} business days`) +
+    invoiceRow('Refund Amount', `$${refundAmount}`, { bold: true, color: '#00c27a', borderTop: true, large: true });
+
+  const html = wrap(
+    header('Refund Processed', '#f59e0b') +
+    bodyStart(`Refund of $${refundAmount} is on its way`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, your refund has been processed successfully. Here are the details:`) +
+    invoiceBox(invoiceNum, date, rows, '#fef3c7', '#fde68a', '#b45309') +
+    alertBox('#f0fdf4','#bbf7d0','#15803d',
+      `💰 Your refund of <strong>$${refundAmount}</strong> will arrive within <strong>${arrivalDays} business days</strong> depending on your payment provider.`) +
+    alertBox('#f8faff','#e0e7ff','#475569',
+      'ℹ️ If you do not receive your refund within the expected timeframe, please contact us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a> with your invoice number.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Browse Publisher Sites →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Refund ${invoiceNum} — $${refundAmount} processed for Order ${orderId}`, html);
+}
+
+// ─────────────────────────────────────────
+// F4: Publisher — Withdrawal Request Received
+// ─────────────────────────────────────────
+export async function sendPublisherWithdrawalRequested({ to, name, withdrawalId, date, amount, method, accountMasked, processingDays = '1-3' }) {
+  const rows =
+    invoiceRow('Withdrawal ID', withdrawalId) +
+    invoiceRow('Payment Method', method) +
+    invoiceRow('Account / Address', accountMasked) +
+    invoiceRow('Processing Time', `${processingDays} business days`) +
+    invoiceRow('Amount Requested', `$${amount}`, { bold: true, color: '#4f7cff', borderTop: true, large: true });
+
+  const html = wrap(
+    header('Withdrawal Requested', '#4f7cff') +
+    bodyStart('Withdrawal request received',
+      `Hi <strong style="color:#1a202c">${name}</strong>, we have received your withdrawal request. Our team will process it within <strong style="color:#1a202c">${processingDays} business days</strong>.`) +
+    invoiceBox(withdrawalId, date, rows, '#f0f4ff', '#c7d7ff', '#4f7cff') +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      `⏳ Your withdrawal is being reviewed. You will receive a confirmation email with your payout invoice once the payment has been sent to your ${method} account.`) +
+    alertBox('#f8faff','#e0e7ff','#475569',
+      '🔒 If you did not request this withdrawal, contact us immediately at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a>') +
+    ctaBtn(`${SITE}/publisher.html`, 'View Wallet →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Withdrawal ${withdrawalId} Received — $${amount} via ${method}`, html);
+}
+
+// ─────────────────────────────────────────
+// F5: Publisher — Withdrawal Successful (Payout Invoice)
+// ─────────────────────────────────────────
+export async function sendPublisherPayoutInvoice({ to, name, payoutId, date, grossAmount, platformFee, netAmount, method, accountMasked, transactionId, walletBalance }) {
+  const rows =
+    invoiceRow('Payout ID', payoutId) +
+    invoiceRow('Payment Method', method) +
+    invoiceRow('Account / Address', accountMasked) +
+    invoiceRow('Transaction ID', transactionId || 'Completed') +
+    invoiceRow('Gross Amount', `$${grossAmount}`) +
+    invoiceRow('Platform Fee', platformFee > 0 ? `-$${platformFee}` : 'None', { color: platformFee > 0 ? '#ef4444' : '#00c27a' }) +
+    invoiceRow('Net Payout', `$${netAmount}`, { bold: true, color: '#00c27a', borderTop: true, large: true });
+
+  const html = wrap(
+    header('Payout Invoice', '#00c27a') +
+    bodyStart(`$${netAmount} sent to your ${method}!`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, your withdrawal has been processed successfully. Here is your official payout invoice.`) +
+    invoiceBox(payoutId, date, rows, '#f0fdf4', '#bbf7d0', '#15803d') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Remaining Wallet Balance</p>
+        <p style="font-family:Arial,sans-serif;font-size:28px;font-weight:800;color:#1a202c;margin:0">$${walletBalance}</p>
+      </td></tr>
+    </table>` +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '📁 Please save this invoice for your financial records. You can also download it from your publisher dashboard under Wallet → Withdrawal History.') +
+    ctaBtn(`${SITE}/publisher.html`, 'View Withdrawal History →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `💰 Payout ${payoutId} Sent — $${netAmount} via ${method}`, html);
+}
+
+// ─────────────────────────────────────────
+// F6: Publisher — Withdrawal Failed
+// ─────────────────────────────────────────
+export async function sendPublisherWithdrawalFailed({ to, name, withdrawalId, date, amount, method, reason, walletBalance }) {
+  const rows =
+    invoiceRow('Withdrawal ID', withdrawalId) +
+    invoiceRow('Amount', `$${amount}`) +
+    invoiceRow('Payment Method', method) +
+    invoiceRow('Failure Reason', reason || 'Payment gateway error') +
+    invoiceRow('Status', 'Failed — Amount Refunded to Wallet', { bold: true, color: '#ef4444', borderTop: true });
+
+  const html = wrap(
+    header('Withdrawal Failed', '#ef4444') +
+    bodyStart('Your withdrawal could not be processed',
+      `Hi <strong style="color:#1a202c">${name}</strong>, unfortunately your withdrawal request could not be completed. The full amount has been credited back to your Uplyncio wallet.`) +
+    invoiceBox(withdrawalId, date, rows, '#fef2f2', '#fecaca', '#ef4444') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Amount Credited Back to Wallet</p>
+        <p style="font-family:Arial,sans-serif;font-size:28px;font-weight:800;color:#00c27a;margin:0">$${amount}</p>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:#64748b;margin:6px 0 0">Current balance: <strong style="color:#1a202c">$${walletBalance}</strong></p>
+      </td></tr>
+    </table>` +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      `📋 <strong>How to fix:</strong> ${reason === 'Invalid account details' ? 'Please update your payment details in dashboard settings and retry.' : reason === 'Insufficient balance' ? 'Minimum withdrawal amount is $20. Keep earning and try again.' : 'Please try again or contact support if the issue persists.'}`) +
+    ctaBtn(`${SITE}/publisher.html`, 'Retry Withdrawal →', '#4f7cff') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:12px 14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">
+          Need help? Contact us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a> with your Withdrawal ID <strong>${withdrawalId}</strong> and we will resolve this within 24 hours.
+        </p>
+      </td></tr>
+    </table>` +
+    sign() + footer()
+  );
+  return send(to, `⚠️ Withdrawal ${withdrawalId} Failed — $${amount} credited back to wallet`, html);
+}
