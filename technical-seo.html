@@ -223,17 +223,32 @@
 <script>
 function openForm(){ document.getElementById('inquiryModal').style.display='flex'; document.body.style.overflow='hidden'; }
 function closeForm(){ document.getElementById('inquiryModal').style.display='none'; document.body.style.overflow=''; }
-async function submitInquiry(){
+function submitInquiry(){
   var name=(document.getElementById('f_name').value||'').trim();
   var email=(document.getElementById('f_email').value||'').trim();
   var st=document.getElementById('f_status');
-  if(!name||!email){st.style.display='block';st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Please fill in your Name and Email.';return;}
-  st.style.display='block';st.style.background='#f0f4ff';st.style.color='#4f7cff';st.textContent='Sending your inquiry...';
-  try{
-    var r=await fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service:'Technical SEO',name,email,phone:(document.getElementById('f_phone').value||''),website:(document.getElementById('f_website').value||''),budget:(document.getElementById('f_budget').value||''),message:(document.getElementById('f_message').value||'')})}));
-    if(r.ok){closeForm();document.getElementById('successModal').style.display='flex';}
-    else{st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Error. Please email info@uplyncio.com directly.';}
-  }catch(e){st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Network error. Email info@uplyncio.com directly.';}
+  if(!name||!email){
+    st.style.display='block';st.style.background='#fef2f2';st.style.color='#b91c1c';
+    st.textContent='Please fill in your Name and Email.';return;
+  }
+  st.style.display='block';st.style.background='#f0f4ff';st.style.color='#4f7cff';
+  st.textContent='Sending your inquiry...';
+  var payload={
+    service:'Technical SEO',
+    name:name,email:email,
+    phone:(document.getElementById('f_phone')?document.getElementById('f_phone').value:''),
+    website:(document.getElementById('f_website')?document.getElementById('f_website').value:''),
+    budget:(document.getElementById('f_budget')?document.getElementById('f_budget').value:''),
+    message:(document.getElementById('f_message')?document.getElementById('f_message').value:'')
+  };
+  fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){
+      if(r.ok){closeForm();document.getElementById('successModal').style.display='flex';}
+      else{st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Error. Please email info@uplyncio.com directly.';}
+    })
+    .catch(function(){
+      st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Network error. Email info@uplyncio.com directly.';
+    });
 }
 </script>
 </body>
