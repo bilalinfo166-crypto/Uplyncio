@@ -279,17 +279,18 @@ function _sendVerifyEmail(email, code, onDone){
 }
 
 function _showCodeFallback(code){
-  // Show code directly in verify modal as temporary fallback
-  var infoBox = document.querySelector('#verifyModal .info-box-text');
+  // Only show the code — do NOT auto-fill. User must type it manually.
   var fallback = document.getElementById('codeFallback');
   if(!fallback){
     fallback = document.createElement('div');
     fallback.id = 'codeFallback';
-    fallback.style.cssText = 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:12px;';
-    fallback.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;">⚠️ Email delivery issue — use this code:</div><div style="font-size:32px;font-weight:800;letter-spacing:10px;color:#f59e0b;font-family:monospace">'+code+'</div>';
+    fallback.style.cssText = 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:14px;';
     var otpBoxes = document.getElementById('otpBoxes');
     if(otpBoxes) otpBoxes.parentNode.insertBefore(fallback, otpBoxes);
   }
+  fallback.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px;letter-spacing:.5px;">⚠️ Email delivery issue — your code is:</div>'
+    + '<div style="font-size:34px;font-weight:800;letter-spacing:12px;color:#f59e0b;font-family:monospace;padding:4px 0">'+ code +'</div>'
+    + '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:8px">Please enter this code manually in the boxes above</div>';
 }
 
 
@@ -383,17 +384,10 @@ function openVerifyModal(email, isNew){
   _initOtpBoxes();
   setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); },200);
   _startOtpTimer();
-  // Check if we have a fallback code stored (email delivery failed)
-  var fbCode = localStorage.getItem('uplyncio_fallback_code_'+email.toLowerCase()) || user.verifyCode || '';
-  if(fbCode && fbCode.length === 6){
-    // Email failed — show code directly
-    setTimeout(function(){ _showCodeFallback(fbCode); }, 400);
-  } else {
-    // Try sending email (old flow for existing users)
-    _sendVerifyEmail(user.email, user.verifyCode, function(sent){
-      if(!sent && user.verifyCode) _showCodeFallback(user.verifyCode);
-    });
-  }
+  // Send verification email — user must enter OTP manually
+  _sendVerifyEmail(user.email, user.verifyCode||'', function(sent){
+    // Email sent or not — user types manually
+  });
 }
 
 function closeVerifyModal(){
@@ -3253,7 +3247,6 @@ function submitPublisherAuth(mode){
         var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',password:pass,verified:false,verifyCode:fallCode,createdAt:new Date().toISOString()};
         var us=getUsers();us.push(lu);saveUsers(us);
         localStorage.setItem('uplyncio_currentUid',uid);
-        if(fallCode) localStorage.setItem('uplyncio_fallback_code_'+email.toLowerCase(),fallCode);
         document.getElementById('publisherModal').style.display='none';
         document.body.style.overflow='';
         setTimeout(function(){openVerifyModal(email,true);},300);
@@ -3316,7 +3309,6 @@ function submitBuyerAuth(mode){
         var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',password:pass,verified:false,verifyCode:fallCode,createdAt:new Date().toISOString()};
         var us=getUsers();us.push(lu);saveUsers(us);
         localStorage.setItem('uplyncio_currentUid',uid);
-        if(fallCode) localStorage.setItem('uplyncio_fallback_code_'+email.toLowerCase(),fallCode);
         document.getElementById('buyerModal').style.display='none';
         document.body.style.overflow='';
         setTimeout(function(){openVerifyModal(email,true);},300);
