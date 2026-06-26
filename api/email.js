@@ -500,25 +500,44 @@ export async function sendPublisherMonthlyReport({ to, name, month, year, totalO
   return send(to, `📊 Your ${month} ${year} Publisher Report — $${totalEarnings} earned`, html);
 }
 
-// P7: Site Approved by Admin (Publisher)
-export async function sendPublisherSiteApproved({ to, name, siteUrl, da, dr, price }) {
+// P7: Sites Approved (Publisher) — all approved sites in one email
+export async function sendPublisherSitesApproved({ to, name, sites }) {
+  // sites = array of { siteUrl, da, dr, price }
+  const count = sites.length;
+  const siteRows = sites.map(s =>
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px">
+      <tr><td style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a202c;padding-bottom:8px">${s.siteUrl}</td>
+            <td align="right"><span style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;background:#00c27a;color:#fff;padding:3px 10px;border-radius:100px">✅ Approved</span></td>
+          </tr>
+          <tr>
+            <td style="font-family:Arial,sans-serif;font-size:12px;color:#64748b">DA ${s.da} &nbsp;·&nbsp; DR ${s.dr} &nbsp;·&nbsp; <strong style="color:#00c27a">$${s.price}/post</strong></td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>`
+  ).join('');
+
   const html = wrap(
-    header('Site Approved', '#00c27a') +
-    bodyStart('Your site has been approved!',
-      `Hi <strong style="color:#1a202c">${name}</strong>, great news! Your site has been reviewed and approved. It is now live on the Uplyncio marketplace and visible to all buyers.`) +
-    detailsBox('#f0fdf4','#bbf7d0', [
-      ['Site URL', siteUrl],
-      ['Domain Authority', `DA ${da}`],
-      ['Domain Rating', `DR ${dr}`],
-      ['Your Price', `$${price} per post`],
-      ['Status', '✅ Live on Marketplace', '#00c27a']
-    ]) +
+    header('Uplyncio Approved Sites', '#00c27a') +
+    bodyStart(
+      count === 1 ? 'Your site is now live on Uplyncio!' : `${count} of your sites are now live on Uplyncio!`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, your ${count === 1 ? 'site has' : `${count} sites have`} been reviewed and approved by the Uplyncio team. ${count === 1 ? 'It is' : 'They are'} now live on our marketplace and visible to all buyers.`
+    ) +
+    siteRows +
     alertBox('#f0f4ff','#c7d7ff','#1e40af',
-      '💡 <strong>Pro tip:</strong> Publishers with complete profiles and sample articles receive 3x more orders. Make sure your listing is fully filled out.') +
-    ctaBtn(`${SITE}/publisher.html`, 'View My Listing →', '#00c27a') +
+      '💡 <strong>Pro tip:</strong> Publishers with complete profiles and sample articles receive 3x more orders. Make sure your listings are fully filled out to maximize earnings.') +
+    ctaBtn(`${SITE}/publisher.html`, 'View My Live Listings →', '#00c27a') +
     sign() + footer()
   );
-  return send(to, `✅ Your site ${siteUrl} is approved and live!`, html);
+
+  const subject = count === 1
+    ? `✅ Your site is live on Uplyncio Marketplace`
+    : `✅ ${count} of your sites are now live on Uplyncio`;
+
+  return send(to, subject, html);
 }
 
 // P8: Site Rejected by Admin (Publisher)
