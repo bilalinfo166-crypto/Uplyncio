@@ -19,7 +19,8 @@
     .card h3{font-size:15px;font-weight:800;color:#1a202c;margin:12px 0 8px} .card p{font-size:13.5px;color:#64748b;line-height:1.7} .ic{font-size:26px}
     .rc{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:block;transition:all .2s} .rc:hover{border-color:#4f7cff;transform:translateY(-2px)}
     @media(max-width:900px){nav .nl{display:none}.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}nav,section,footer{padding-left:20px!important;padding-right:20px!important}}
-  </style>
+  .modal-box::-webkit-scrollbar{display:none}
+</style>
 </head>
 <body>
 <nav>
@@ -163,7 +164,7 @@
 </footer>
 
 <div id="inquiryModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeForm()">
-  <div style="background:#fff;border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.2)">
+  <div style="background:#fff;border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;box-shadow:0 24px 80px rgba(0,0,0,.2)">
     <div style="background:linear-gradient(135deg,#4f7cff,#6366f1);padding:22px 28px;display:flex;align-items:center;justify-content:space-between">
       <div><div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff">🔗 Browse Publisher Sites</div><div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px">We respond within 24 hours</div></div>
       <button onclick="closeForm()" style="width:30px;height:30px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
