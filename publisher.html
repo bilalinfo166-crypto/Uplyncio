@@ -247,24 +247,41 @@ setTimeout(applyVerifiedBadges, 500);
   }
 })();
 
-// ── ROLE GUARD: Publishers only ──
+// ── STRICT ROLE GUARD: Publishers only ──
 (function(){
   try{
-    // Admin bypass - if admin session active and uid is team, allow
-    if(localStorage.getItem('uplyncio_admin_sess')==='1' && 
+    // Admin bypass
+    if(localStorage.getItem('uplyncio_admin_sess')==='1' &&
        localStorage.getItem('uplyncio_currentUid')==='uplyncio_team_official'){
-      return; // Allow admin team access
+      return;
     }
-    var uid = localStorage.getItem('uplyncio_currentUid');
+    var loggedIn = localStorage.getItem('uplyncio_loggedIn');
     var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(uid && user && user.verified){
-      if(user.role === 'buyer'){
-        // Buyer trying to access publisher page
-        alert('⚠️ This page is for Publishers only. Redirecting to your Buyer dashboard.');
-        window.location.href = 'buyer.html';
-      }
+    var uid = localStorage.getItem('uplyncio_currentUid');
+
+    // NOT logged in → redirect to login
+    if(!loggedIn || loggedIn !== '1' || !user || !uid){
+      window.location.replace('uplyncio-full.html?openPublisher=1');
+      return;
     }
-  }catch(e){}
+    // Not verified → redirect to login
+    if(!user.verified && !user.email_verified){
+      window.location.replace('uplyncio-full.html?openPublisher=1');
+      return;
+    }
+    // Buyer trying to access publisher page
+    if(user.role === 'buyer'){
+      window.location.replace('buyer.html');
+      return;
+    }
+    // Role must be publisher
+    if(user.role && user.role !== 'publisher'){
+      window.location.replace('uplyncio-full.html');
+      return;
+    }
+  }catch(e){
+    window.location.replace('uplyncio-full.html?openPublisher=1');
+  }
 })();
 </script>
 
@@ -282,7 +299,7 @@ setTimeout(applyVerifiedBadges, 500);
     if(!user.role){ user.role = 'publisher'; _changed = true; }
     if(_changed) localStorage.setItem('uplyncio_user', JSON.stringify(user));
   }
-  localStorage.setItem('uplyncio_loggedIn','1');
+  // Note: Do NOT auto-set loggedIn here - guard above handles auth
   
   // Auto-setup for Uplyncio Team account
   var TEAM_EMAIL = 'info@uplyncio.com';

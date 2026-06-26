@@ -2346,19 +2346,32 @@ function onBuyerLogin(user){
   var em=document.getElementById('buyerMenuEmail');
   if(em) em.textContent=user.email||'—';
 }
-// Check logged in - redirect if not
+// ── STRICT ROLE GUARD: Buyers only ──
 (function(){
   try{
-    var uid=localStorage.getItem('uplyncio_currentUid');
-    var user=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(uid && user && (user.role==='buyer' || user.role===undefined)){
-      onBuyerLogin(user);
-    } else {
-      // Not logged in - redirect to home with buyer login modal
-      window.location.href='uplyncio-full.html?action=buyer-login';
+    var loggedIn = localStorage.getItem('uplyncio_loggedIn');
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var uid = localStorage.getItem('uplyncio_currentUid');
+
+    // NOT logged in → redirect to login
+    if(!loggedIn || loggedIn !== '1' || !user || !uid){
+      window.location.replace('uplyncio-full.html?openBuyer=1');
+      return;
     }
+    // Not verified → redirect
+    if(!user.verified && !user.email_verified){
+      window.location.replace('uplyncio-full.html?openBuyer=1');
+      return;
+    }
+    // Publisher trying to access buyer page
+    if(user.role === 'publisher'){
+      window.location.replace('publisher.html');
+      return;
+    }
+    // All good - load buyer dashboard
+    onBuyerLogin(user);
   }catch(e){
-    window.location.href='uplyncio-full.html?action=buyer-login';
+    window.location.replace('uplyncio-full.html?openBuyer=1');
   }
 })();
 
