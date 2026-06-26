@@ -159,22 +159,38 @@ html,body{overflow-x:hidden;max-width:100vw}
 <body>
 <script>
 
-// Show publisher verified badge on load
-(function(){
+// Show publisher verified badge on load - run after DOM ready
+function applyVerifiedBadges(){
   try{
     var uid = localStorage.getItem('uplyncio_currentUid');
     if(!uid) return;
     var data = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
-    if(data.publisherVerified){
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    // Team account (info@uplyncio.com) is always verified
+    var isTeam = user && user.email === 'info@uplyncio.com';
+    var isVerified = data.publisherVerified || isTeam;
+    
+    if(isVerified){
+      // Force save verified if team
+      if(isTeam && !data.publisherVerified){
+        data.publisherVerified = true;
+        data.publisherVerifiedDate = new Date().toISOString();
+        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data));
+      }
       var pb = document.getElementById('pubVerifiedBadge');
-      if(pb) pb.style.display = 'inline';
+      if(pb){ pb.style.display = 'inline-flex'; }
       var pnb = document.getElementById('pubNavVerifiedBadge');
-      if(pnb) pnb.style.display = 'inline';
+      if(pnb){ pnb.style.display = 'inline-flex'; }
       var pcb = document.getElementById('pubCrownBadge');
-      if(pcb) pcb.style.display = 'inline';
+      if(pcb){ pcb.style.display = 'inline'; }
     }
-  }catch(e){}
-})();
+  }catch(e){ console.error('Badge error:', e); }
+}
+// Run immediately + after DOM loads
+applyVerifiedBadges();
+document.addEventListener('DOMContentLoaded', applyVerifiedBadges);
+// Also run after a short delay to ensure all elements rendered
+setTimeout(applyVerifiedBadges, 500);
 
 
 // Admin mode indicator on publisher page
@@ -231,17 +247,19 @@ html,body{overflow-x:hidden;max-width:100vw}
       localStorage.setItem('uplyncio_currentUid', TEAM_UID);
       uid = TEAM_UID;
     }
-    // Auto-verify
+    // Auto-verify team account — always force verified
     var td = JSON.parse(localStorage.getItem('uplyncio_data_'+TEAM_UID)||'{}');
-    if(!td.publisherVerified){
-      td.publisherVerified = true;
-      td.publisherVerifiedDate = new Date().toISOString();
-      localStorage.setItem('uplyncio_data_'+TEAM_UID, JSON.stringify(td));
-    }
-    // Update user object
+    td.publisherVerified = true;
+    td.publisherVerifiedDate = td.publisherVerifiedDate || new Date().toISOString();
+    localStorage.setItem('uplyncio_data_'+TEAM_UID, JSON.stringify(td));
+    // Update user object with all required fields
     user.uid = TEAM_UID;
     user.verified = true;
+    user.role = 'publisher';
+    user.publisherVerified = true;
     localStorage.setItem('uplyncio_user', JSON.stringify(user));
+    // Also run badge update immediately
+    setTimeout(function(){ if(typeof applyVerifiedBadges==='function') applyVerifiedBadges(); }, 100);
   }
 
   // Load this user's orders/sites from their personal storage
