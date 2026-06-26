@@ -162,7 +162,7 @@
   <a href="uplyncio-full.html" class="nav-logo"><svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
   <ul class="nav-links">
     <li><a href="uplyncio-full.html">Home</a></li>
-    <li><a href="buyer.html">Browse Sites</a></li>
+    <li><a href="#" onclick="browsePublisherSites();return false">Browse Sites</a></li>
     <li><a href="about.html">About</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
@@ -680,5 +680,26 @@ document.addEventListener('change', function(e){
   </div>
 </div>
 
+
+<div id="bpsModal" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeBpsModal()">
+  <div style="background:#fff;border-radius:22px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3)">
+    <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:24px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">🔍 Browse Publisher Sites</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.55)">Create a free buyer account to access 8,500+ verified sites</div>
+      </div>
+      <button onclick="closeBpsModal()" style="width:30px;height:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;font-size:13px;color:#075985"><span>✅</span> Free to join — no credit card required</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#15803d"><span>🔍</span> Browse 8,500+ verified publisher sites</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:10px;font-size:13px;color:#7c3aed"><span>⚡</span> Filter by DA, niche, country & price</div>
+      </div>
+      <a href="uplyncio-full.html?openBuyer=1" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-align:center;text-decoration:none;box-shadow:0 6px 20px rgba(0,194,122,.3)">🛒 Create Free Buyer Account →</a>
+      <div style="text-align:center;margin-top:12px;font-size:12.5px;color:#94a3b8">Already have an account? <a href="uplyncio-full.html?openBuyer=1" style="color:#4f7cff;font-weight:600">Sign In →</a></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

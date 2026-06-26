@@ -160,7 +160,7 @@
       <p>When customers search for businesses like yours, they should find you first. Our Local SEO experts put you at the top of Google Maps, local search results, and the coveted 3-Pack — where 80% of local clicks happen.</p>
       <div class="hero-cta">
         <button onclick="openForm()" class="btn-green">📍 Get Free Local SEO Audit</button>
-        <a href="buyer.html" class="btn-ghost">Browse Link Building Sites</a>
+        <a href="#" onclick="browsePublisherSites();return false" class="btn-ghost">Browse Link Building Sites</a>
       </div>
       <div class="hero-stats">
         <div class="stat-box"><div class="num">500+</div><div class="lbl">Local Businesses Ranked</div></div>
@@ -249,7 +249,7 @@
     <p>Get a free Local SEO audit and discover exactly what is stopping your business from ranking #1 on Google Maps in your city.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
       <button onclick="openForm()" class="btn-green" style="font-size:15px;padding:14px 32px">📍 Get Free Audit Today</button>
-      <a href="buyer.html" class="btn-ghost" style="font-size:15px;padding:14px 28px;color:#fff">Browse Link Building →</a>
+      <a href="#" onclick="browsePublisherSites();return false" class="btn-ghost" style="font-size:15px;padding:14px 28px;color:#fff">Browse Link Building →</a>
     </div>
   </div>
 </section>
@@ -261,7 +261,7 @@
       <a href="link-building.html" class="rel-card"><div class="ri">🔗</div><div class="rt">Link Building</div><div class="rd">8,500+ publisher sites</div></a>
       <a href="on-page-seo.html" class="rel-card"><div class="ri">🎯</div><div class="rt">On-Page SEO</div><div class="rd">Optimize every element</div></a>
       <a href="content-writing.html" class="rel-card"><div class="ri">✍️</div><div class="rt">Content Writing</div><div class="rd">SEO-optimized content</div></a>
-      <a href="buyer.html" class="rel-card"><div class="ri">🔍</div><div class="rt">Browse Marketplace</div><div class="rd">Buy guest posts & links</div></a>
+      <a href="#" onclick="browsePublisherSites();return false" class="rel-card"><div class="ri">🔍</div><div class="rt">Browse Marketplace</div><div class="rd">Buy guest posts & links</div></a>
     </div>
   </div>
 </div>
@@ -287,7 +287,7 @@
     </ul></div>
     <div class="f-col"><h4>Platform</h4><ul>
       <li><a href="uplyncio-full.html">Home</a></li>
-      <li><a href="buyer.html">Browse Sites</a></li>
+      <li><a href="#" onclick="browsePublisherSites();return false">Browse Sites</a></li>
       <li><a href="publisher.html">Become Publisher</a></li>
       <li><a href="content-writing.html">Content Writing</a></li>
       <li><a href="ai-agents.html">AI Agents</a></li>
@@ -411,5 +411,26 @@ async function submitForm(){
   }
 }
 </script>
+
+<div id="bpsModal" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeBpsModal()">
+  <div style="background:#fff;border-radius:22px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3)">
+    <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:24px 28px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">🔍 Browse Publisher Sites</div>
+        <div style="font-size:12.5px;color:rgba(255,255,255,.55)">Create a free buyer account to access 8,500+ verified sites</div>
+      </div>
+      <button onclick="closeBpsModal()" style="width:30px;height:30px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;font-size:13px;color:#075985"><span>✅</span> Free to join — no credit card required</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#15803d"><span>🔍</span> Browse 8,500+ verified publisher sites</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:10px;font-size:13px;color:#7c3aed"><span>⚡</span> Filter by DA, niche, country & price</div>
+      </div>
+      <a href="uplyncio-full.html?openBuyer=1" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-align:center;text-decoration:none;box-shadow:0 6px 20px rgba(0,194,122,.3)">🛒 Create Free Buyer Account →</a>
+      <div style="text-align:center;margin-top:12px;font-size:12.5px;color:#94a3b8">Already have an account? <a href="uplyncio-full.html?openBuyer=1" style="color:#4f7cff;font-weight:600">Sign In →</a></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
