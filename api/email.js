@@ -337,3 +337,447 @@ export async function sendPasswordChangedEmail({ to, name, email, changedAt, ipA
   );
   return send(to, 'Your Uplyncio password was changed', html);
 }
+
+// ══════════════════════════════════════════════════════════════════
+// PUBLISHER TEMPLATES
+// ══════════════════════════════════════════════════════════════════
+
+// P1: New Order Received (Publisher)
+export async function sendPublisherNewOrder({ to, name, orderId, siteUrl, buyerName, price, anchorText, targetUrl, deadline, content, requirements }) {
+  const html = wrap(
+    header('New Order Received', '#4f7cff') +
+    bodyStart('You have a new order!',
+      `Hi <strong style="color:#1a202c">${name}</strong>, a buyer has placed an order on your site. Please review the details below and accept or decline within <strong style="color:#1a202c">24 hours</strong>.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:8px;padding:16px">
+        <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#4f7cff;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 12px">Order Details</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Order ID</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;padding:5px 0">${orderId}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Your Site</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${siteUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Buyer</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${buyerName}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${anchorText}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Target URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0;word-break:break-all">${targetUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Deadline</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#ef4444;padding:5px 0">${deadline}</td></tr>
+          <tr style="border-top:1px solid #e0e7ff"><td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a202c;padding:10px 0 4px">Your Earnings</td><td align="right" style="font-family:Arial,sans-serif;font-size:18px;font-weight:800;color:#00c27a;padding:10px 0 4px">$${price}</td></tr>
+        </table>
+      </td></tr>
+    </table>` +
+    (content ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px"><p style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#4f7cff;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px">Content / Article</p><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">${content.substring(0,300)}${content.length > 300 ? '...' : ''}</p></td></tr></table>` : '') +
+    (requirements ? alertBox('#fef3c7','#fde68a','#92400e', `📋 <strong>Special Requirements:</strong> ${requirements}`) : '') +
+    ctaBtn(`${SITE}/publisher.html`, 'View Order & Accept →', '#4f7cff') +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      '⏰ Please respond within <strong>24 hours</strong>. Orders not accepted within this window may be reassigned to another publisher.') +
+    sign() + footer()
+  );
+  return send(to, `New Order ${orderId} — $${price} on ${siteUrl}`, html);
+}
+
+// P2: Order Accepted Confirmation (Publisher)
+export async function sendPublisherOrderAccepted({ to, name, orderId, siteUrl, price, deadline }) {
+  const html = wrap(
+    header('Order Accepted', '#00c27a') +
+    bodyStart('Order accepted successfully',
+      `Hi <strong style="color:#1a202c">${name}</strong>, you have accepted order <strong style="color:#1a202c">${orderId}</strong>. The buyer has been notified. Please publish the post before the deadline.`) +
+    detailsBox('#f0fdf4','#bbf7d0', [
+      ['Order ID', orderId],
+      ['Site', siteUrl],
+      ['Your Earnings', `$${price}`, '#00c27a'],
+      ['Deadline', deadline, '#ef4444']
+    ]) +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '📝 <strong>Next steps:</strong> Publish the guest post on your site, then submit the live URL in your dashboard to mark the order complete and receive payment.') +
+    ctaBtn(`${SITE}/publisher.html`, 'Go to Publisher Dashboard →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `Order ${orderId} Accepted — Publish by ${deadline}`, html);
+}
+
+// P3: Order Completed & Payment Released (Publisher)
+export async function sendPublisherOrderComplete({ to, name, orderId, siteUrl, price, liveUrl, totalEarnings }) {
+  const html = wrap(
+    header('Payment Released', '#00c27a') +
+    bodyStart(`Payment of $${price} released!`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, the buyer has confirmed receipt of order <strong style="color:#1a202c">${orderId}</strong>. Your payment has been released to your Uplyncio wallet.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:#64748b;margin:0 0 6px;text-transform:uppercase;letter-spacing:1px">Amount Credited</p>
+        <p style="font-family:Arial,sans-serif;font-size:42px;font-weight:800;color:#00c27a;margin:0;line-height:1">$${price}</p>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:#64748b;margin:8px 0 0">Total wallet balance: <strong style="color:#1a202c">$${totalEarnings}</strong></p>
+      </td></tr>
+    </table>` +
+    detailsBox('#f8faff','#e0e7ff', [
+      ['Order ID', orderId],
+      ['Site', siteUrl],
+      ['Live URL', liveUrl || 'Confirmed', '#4f7cff']
+    ]) +
+    ctaBtn(`${SITE}/publisher.html`, 'View Wallet & Withdraw →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `💰 $${price} Payment Released — Order ${orderId}`, html);
+}
+
+// P4: New Message from Buyer (Publisher)
+export async function sendPublisherNewMessage({ to, name, buyerName, orderId, message, siteUrl }) {
+  const html = wrap(
+    header('New Message', '#6366f1') +
+    bodyStart(`Message from ${buyerName}`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, you have received a new message from the buyer regarding order <strong style="color:#1a202c">${orderId}</strong>.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px">
+        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px"><tr>
+          <td style="width:36px;height:36px;background:#6366f1;border-radius:50%;text-align:center;line-height:36px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff">${buyerName.charAt(0).toUpperCase()}</td>
+          <td style="padding-left:10px"><p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0">${buyerName}</p><p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0">Order ${orderId} · ${siteUrl}</p></td>
+        </tr></table>
+        <div style="background:#fff;border-radius:8px;padding:12px 14px;border-left:3px solid #6366f1">
+          <p style="font-family:Arial,sans-serif;font-size:14px;color:#1a202c;margin:0;line-height:1.7">${message}</p>
+        </div>
+      </td></tr>
+    </table>` +
+    ctaBtn(`${SITE}/publisher.html`, 'Reply to Message →', '#6366f1') +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      '⏰ Please reply within <strong>12 hours</strong> to maintain your publisher response rating.') +
+    sign() + footer()
+  );
+  return send(to, `💬 New message from ${buyerName} — Order ${orderId}`, html);
+}
+
+// P5: Order Cancelled by Buyer (Publisher)
+export async function sendPublisherOrderCancelled({ to, name, orderId, siteUrl, reason, price }) {
+  const html = wrap(
+    header('Order Cancelled', '#ef4444') +
+    bodyStart('An order has been cancelled',
+      `Hi <strong style="color:#1a202c">${name}</strong>, order <strong style="color:#1a202c">${orderId}</strong> has been cancelled by the buyer. No payment will be processed for this order.`) +
+    detailsBox('#fef2f2','#fecaca', [
+      ['Order ID', orderId],
+      ['Site', siteUrl],
+      ['Order Value', `$${price}`],
+      ['Cancelled By', 'Buyer'],
+      ['Reason', reason || 'Not specified']
+    ]) +
+    alertBox('#f8faff','#e0e7ff','#475569',
+      'ℹ️ This cancellation does not affect your publisher rating. Your other active orders remain unaffected. Keep delivering quality content to maintain your standing.') +
+    ctaBtn(`${SITE}/publisher.html`, 'View Active Orders →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Order ${orderId} Cancelled — No action required`, html);
+}
+
+// P6: Monthly Publisher Report
+export async function sendPublisherMonthlyReport({ to, name, month, year, totalOrders, completedOrders, totalEarnings, pendingEarnings, topSite, avgRating, newOrders }) {
+  const html = wrap(
+    header('Monthly Report', '#4f7cff') +
+    bodyStart(`Your ${month} ${year} Performance Report`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, here is your Uplyncio publisher performance summary for <strong style="color:#1a202c">${month} ${year}</strong>.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr>
+        <td style="width:50%;padding-right:6px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:8px;padding:14px;text-align:center">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Total Earnings</p>
+            <p style="font-family:Arial,sans-serif;font-size:28px;font-weight:800;color:#00c27a;margin:0">$${totalEarnings}</p></td></tr>
+          </table>
+        </td>
+        <td style="width:50%;padding-left:6px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;text-align:center">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px">Completed Orders</p>
+            <p style="font-family:Arial,sans-serif;font-size:28px;font-weight:800;color:#1a202c;margin:0">${completedOrders}</p></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>` +
+    detailsBox('#f8faff','#e0e7ff', [
+      ['Total Orders Received', totalOrders],
+      ['Completed Orders', completedOrders],
+      ['Pending Earnings', `$${pendingEarnings}`],
+      ['Top Performing Site', topSite],
+      ['Average Rating', `${avgRating} ⭐`],
+      ['New Orders This Month', newOrders]
+    ]) +
+    ctaBtn(`${SITE}/publisher.html`, 'View Full Report →', '#4f7cff') +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      `🎯 <strong>Tip for ${month}:</strong> Publishers with response times under 6 hours receive 40% more orders. Keep your dashboard active to maximize earnings.`) +
+    sign() + footer()
+  );
+  return send(to, `📊 Your ${month} ${year} Publisher Report — $${totalEarnings} earned`, html);
+}
+
+// P7: Site Approved by Admin (Publisher)
+export async function sendPublisherSiteApproved({ to, name, siteUrl, da, dr, price }) {
+  const html = wrap(
+    header('Site Approved', '#00c27a') +
+    bodyStart('Your site has been approved!',
+      `Hi <strong style="color:#1a202c">${name}</strong>, great news! Your site has been reviewed and approved. It is now live on the Uplyncio marketplace and visible to all buyers.`) +
+    detailsBox('#f0fdf4','#bbf7d0', [
+      ['Site URL', siteUrl],
+      ['Domain Authority', `DA ${da}`],
+      ['Domain Rating', `DR ${dr}`],
+      ['Your Price', `$${price} per post`],
+      ['Status', '✅ Live on Marketplace', '#00c27a']
+    ]) +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '💡 <strong>Pro tip:</strong> Publishers with complete profiles and sample articles receive 3x more orders. Make sure your listing is fully filled out.') +
+    ctaBtn(`${SITE}/publisher.html`, 'View My Listing →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `✅ Your site ${siteUrl} is approved and live!`, html);
+}
+
+// P8: Site Rejected by Admin (Publisher)
+export async function sendPublisherSiteRejected({ to, name, siteUrl, reason }) {
+  const html = wrap(
+    header('Site Review Update', '#ef4444') +
+    bodyStart('Your site needs some updates',
+      `Hi <strong style="color:#1a202c">${name}</strong>, our team has reviewed your submitted site and found some issues that need to be resolved before it can go live on the marketplace.`) +
+    detailsBox('#fef2f2','#fecaca', [
+      ['Site URL', siteUrl],
+      ['Status', '❌ Needs Revision', '#ef4444'],
+      ['Reason', reason || 'Does not meet our quality standards']
+    ]) +
+    alertBox('#f8faff','#e0e7ff','#475569',
+      `📋 <strong>Common issues:</strong> Low organic traffic, high spam score, thin content, or domain authority below our minimum threshold. Please review and resubmit once resolved.`) +
+    ctaBtn(`${SITE}/publisher.html`, 'Resubmit After Fixing →', '#4f7cff') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:12px 14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">
+          Have questions? Contact our team at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a> — we are happy to guide you through the resubmission process.
+        </p>
+      </td></tr>
+    </table>` +
+    sign() + footer()
+  );
+  return send(to, `Site Review Update — ${siteUrl}`, html);
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// BUYER TEMPLATES
+// ══════════════════════════════════════════════════════════════════
+
+// B1: Order Placed Successfully (Buyer)
+export async function sendBuyerOrderPlaced({ to, name, orderId, siteUrl, siteDA, siteDR, price, anchorText, targetUrl, deadline }) {
+  const html = wrap(
+    header('Order Confirmed', '#00c27a') +
+    bodyStart('Your order has been placed!',
+      `Hi <strong style="color:#1a202c">${name}</strong>, your guest post order has been received and sent to the publisher. You will be notified once the publisher accepts.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:8px;padding:16px">
+        <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#4f7cff;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 12px">Order Summary</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Order ID</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;padding:5px 0">${orderId}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Publisher Site</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${siteUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">DA / DR</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">DA ${siteDA} / DR ${siteDR}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${anchorText}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Target URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0;word-break:break-all">${targetUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Expected Delivery</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#f59e0b;padding:5px 0">${deadline}</td></tr>
+          <tr style="border-top:1px solid #e0e7ff"><td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a202c;padding:10px 0 4px">Total Paid</td><td align="right" style="font-family:Arial,sans-serif;font-size:18px;font-weight:800;color:#1a202c;padding:10px 0 4px">$${price}</td></tr>
+        </table>
+      </td></tr>
+    </table>` +
+    alertBox('#f0fdf4','#bbf7d0','#15803d',
+      '🔒 Your payment is held securely in escrow and will only be released to the publisher once you confirm the link is live and correct.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Track Your Order →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Order Confirmed ${orderId} — ${siteUrl}`, html);
+}
+
+// B2: Order Accepted by Publisher (Buyer)
+export async function sendBuyerOrderAccepted({ to, name, orderId, siteUrl, publisherName, deadline }) {
+  const html = wrap(
+    header('Order Accepted', '#00c27a') +
+    bodyStart('Publisher accepted your order!',
+      `Hi <strong style="color:#1a202c">${name}</strong>, the publisher has accepted your order <strong style="color:#1a202c">${orderId}</strong> and is now working on your guest post.`) +
+    detailsBox('#f0fdf4','#bbf7d0', [
+      ['Order ID', orderId],
+      ['Publisher Site', siteUrl],
+      ['Publisher', publisherName],
+      ['Expected Delivery', deadline, '#f59e0b'],
+      ['Status', '🟢 In Progress', '#00c27a']
+    ]) +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '📝 The publisher is now writing and preparing your guest post. You will receive an email notification as soon as it goes live.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Track Order Progress →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `Order ${orderId} Accepted — Publisher is working on it`, html);
+}
+
+// B3: Order Delivered — Link is Live (Buyer)
+export async function sendBuyerOrderDelivered({ to, name, orderId, siteUrl, liveUrl, anchorText, targetUrl, siteDA }) {
+  const html = wrap(
+    header('Link is Live!', '#00c27a') +
+    bodyStart(`Your backlink is live on DA ${siteDA}!`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, great news! Your guest post has been published and your backlink is now live. Please verify the link below and confirm delivery.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0fdf4;border:1.5px solid #00c27a;border-radius:8px;padding:16px">
+        <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#15803d;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 12px">Delivery Confirmation</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Order ID</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;padding:5px 0">${orderId}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Publisher Site</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${siteUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Live Article URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#00c27a;padding:5px 0;word-break:break-all"><a href="${liveUrl}" style="color:#00c27a">${liveUrl}</a></td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Your Backlink</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0;word-break:break-all">${targetUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${anchorText}</td></tr>
+        </table>
+      </td></tr>
+    </table>` +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      '⚠️ Please verify the live link within <strong>48 hours</strong> and confirm delivery in your dashboard. Payment will be released to the publisher after your confirmation.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Confirm Delivery →', '#00c27a') +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '🔒 <strong>12-Month Guarantee:</strong> If this link is removed within 12 months, Uplyncio will replace it at no extra cost.') +
+    sign() + footer()
+  );
+  return send(to, `🔗 Your backlink is live on ${siteUrl} — Order ${orderId}`, html);
+}
+
+// B4: New Message from Publisher (Buyer)
+export async function sendBuyerNewMessage({ to, name, publisherName, orderId, message, siteUrl }) {
+  const html = wrap(
+    header('New Message', '#6366f1') +
+    bodyStart(`Message from ${publisherName}`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, you have received a new message from the publisher regarding your order <strong style="color:#1a202c">${orderId}</strong>.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px">
+        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px"><tr>
+          <td style="width:36px;height:36px;background:#6366f1;border-radius:50%;text-align:center;line-height:36px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff">${publisherName.charAt(0).toUpperCase()}</td>
+          <td style="padding-left:10px"><p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0">${publisherName}</p><p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0">Order ${orderId} · ${siteUrl}</p></td>
+        </tr></table>
+        <div style="background:#fff;border-radius:8px;padding:12px 14px;border-left:3px solid #6366f1">
+          <p style="font-family:Arial,sans-serif;font-size:14px;color:#1a202c;margin:0;line-height:1.7">${message}</p>
+        </div>
+      </td></tr>
+    </table>` +
+    ctaBtn(`${SITE}/buyer.html`, 'Reply to Message →', '#6366f1') +
+    sign() + footer()
+  );
+  return send(to, `💬 New message from ${publisherName} — Order ${orderId}`, html);
+}
+
+// B5: Order Cancelled (Buyer)
+export async function sendBuyerOrderCancelled({ to, name, orderId, siteUrl, reason, price, refundStatus }) {
+  const html = wrap(
+    header('Order Cancelled', '#ef4444') +
+    bodyStart('Your order has been cancelled',
+      `Hi <strong style="color:#1a202c">${name}</strong>, order <strong style="color:#1a202c">${orderId}</strong> has been cancelled. Here are the details:`) +
+    detailsBox('#fef2f2','#fecaca', [
+      ['Order ID', orderId],
+      ['Site', siteUrl],
+      ['Order Value', `$${price}`],
+      ['Reason', reason || 'Cancelled by request'],
+      ['Refund Status', refundStatus || 'Full refund — within 3-5 business days', '#00c27a']
+    ]) +
+    alertBox('#f0fdf4','#bbf7d0','#15803d',
+      `💰 <strong>Refund Notice:</strong> Your payment of <strong>$${price}</strong> will be refunded to your original payment method within 3-5 business days.`) +
+    ctaBtn(`${SITE}/buyer.html`, 'Place a New Order →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Order ${orderId} Cancelled — Refund Processing`, html);
+}
+
+// B6: Order Rejected by Publisher (Buyer)
+export async function sendBuyerOrderRejected({ to, name, orderId, siteUrl, reason, price }) {
+  const html = wrap(
+    header('Order Not Accepted', '#ef4444') +
+    bodyStart('Publisher declined your order',
+      `Hi <strong style="color:#1a202c">${name}</strong>, unfortunately the publisher was unable to accept your order <strong style="color:#1a202c">${orderId}</strong>. Your payment will be fully refunded.`) +
+    detailsBox('#fef2f2','#fecaca', [
+      ['Order ID', orderId],
+      ['Site', siteUrl],
+      ['Publisher\'s Reason', reason || 'Unable to fulfill at this time'],
+      ['Refund', `$${price} — Full refund within 3-5 days`, '#00c27a']
+    ]) +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '🔍 <strong>Alternative sites available:</strong> We have 20,000+ verified publisher sites. Browse similar sites in the same niche to find a replacement quickly.') +
+    ctaBtn(`${SITE}/buyer.html`, 'Find Alternative Sites →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `Order ${orderId} Not Accepted — Full Refund Processing`, html);
+}
+
+// B7: Monthly Buyer Report
+export async function sendBuyerMonthlyReport({ to, name, month, year, totalOrders, liveLinks, totalSpent, avgDA, topNiche, pendingOrders }) {
+  const html = wrap(
+    header('Monthly Report', '#4f7cff') +
+    bodyStart(`Your ${month} ${year} Link Building Report`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, here is your Uplyncio link building summary for <strong style="color:#1a202c">${month} ${year}</strong>.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr>
+        <td style="width:33%;padding-right:4px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:8px;padding:14px;text-align:center">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:10px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px">Total Spent</p>
+            <p style="font-family:Arial,sans-serif;font-size:22px;font-weight:800;color:#4f7cff;margin:0">$${totalSpent}</p></td></tr>
+          </table>
+        </td>
+        <td style="width:33%;padding:0 4px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;text-align:center">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:10px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px">Live Links</p>
+            <p style="font-family:Arial,sans-serif;font-size:22px;font-weight:800;color:#00c27a;margin:0">${liveLinks}</p></td></tr>
+          </table>
+        </td>
+        <td style="width:33%;padding-left:4px">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px;text-align:center">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:10px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px">Avg DA</p>
+            <p style="font-family:Arial,sans-serif;font-size:22px;font-weight:800;color:#b45309;margin:0">${avgDA}</p></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>` +
+    detailsBox('#f8faff','#e0e7ff', [
+      ['Total Orders This Month', totalOrders],
+      ['Live Links Acquired', liveLinks],
+      ['Pending Orders', pendingOrders],
+      ['Top Niche', topNiche],
+      ['Average Domain Authority', `DA ${avgDA}`]
+    ]) +
+    ctaBtn(`${SITE}/buyer.html`, 'View All Orders →', '#4f7cff') +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      `🎯 <strong>SEO Tip:</strong> Building 5-10 high-DA links per month consistently is more effective than large one-time campaigns. Keep your link building steady for best results.`) +
+    sign() + footer()
+  );
+  return send(to, `📊 Your ${month} ${year} Link Building Report — ${liveLinks} links live`, html);
+}
+
+// B8: Reminder — Order Awaiting Confirmation (Buyer)
+export async function sendBuyerConfirmReminder({ to, name, orderId, siteUrl, liveUrl, hoursLeft }) {
+  const html = wrap(
+    header('Action Required', '#f59e0b') +
+    bodyStart('Please confirm your delivery',
+      `Hi <strong style="color:#1a202c">${name}</strong>, your guest post for order <strong style="color:#1a202c">${orderId}</strong> has been delivered. You have <strong style="color:#ef4444">${hoursLeft} hours</strong> left to confirm.`) +
+    detailsBox('#fef3c7','#fde68a', [
+      ['Order ID', orderId],
+      ['Publisher Site', siteUrl],
+      ['Live URL', liveUrl, '#4f7cff'],
+      ['Time to Confirm', `${hoursLeft} hours remaining`, '#ef4444']
+    ]) +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      `⚠️ If you do not confirm within <strong>${hoursLeft} hours</strong>, the order will be automatically marked as complete and payment released to the publisher.`) +
+    ctaBtn(`${SITE}/buyer.html`, 'Confirm Delivery Now →', '#f59e0b') +
+    sign() + footer()
+  );
+  return send(to, `⏰ Action Required: Confirm Order ${orderId} — ${hoursLeft} hours left`, html);
+}
+
+// B9: Welcome Publisher After First Order (Buyer)
+export async function sendBuyerFirstOrderCongrats({ to, name, orderId, siteUrl }) {
+  const html = wrap(
+    header('First Order Placed!', '#4f7cff') +
+    bodyStart(`Congratulations, ${name}!`,
+      `You have just placed your first order on Uplyncio. Welcome to the world of strategic link building! Here is what happens next:`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="padding-bottom:8px"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px"><tr>
+        <td style="padding:12px 14px;width:30px;vertical-align:top"><span style="font-family:Arial,sans-serif;font-size:16px">⏳</span></td>
+        <td style="padding:12px 14px 12px 0"><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.5"><strong style="color:#1a202c">Publisher reviews your order</strong> — They will accept within 24 hours and begin working on your guest post.</p></td>
+      </tr></table></td></tr>
+      <tr><td style="padding-bottom:8px"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px"><tr>
+        <td style="padding:12px 14px;width:30px;vertical-align:top"><span style="font-family:Arial,sans-serif;font-size:16px">✍️</span></td>
+        <td style="padding:12px 14px 12px 0"><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.5"><strong style="color:#1a202c">Post is written and published</strong> — Your guest post goes live on ${siteUrl} with your backlink.</p></td>
+      </tr></table></td></tr>
+      <tr><td><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px"><tr>
+        <td style="padding:12px 14px;width:30px;vertical-align:top"><span style="font-family:Arial,sans-serif;font-size:16px">🔗</span></td>
+        <td style="padding:12px 14px 12px 0"><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.5"><strong style="color:#1a202c">You verify and confirm</strong> — Check the live link, confirm delivery, and your SEO journey begins!</p></td>
+      </tr></table></td></tr>
+    </table>` +
+    ctaBtn(`${SITE}/buyer.html`, 'Track Your Order →', '#4f7cff') +
+    sign() + footer()
+  );
+  return send(to, `🎉 First order placed on Uplyncio — ${siteUrl}`, html);
+}
