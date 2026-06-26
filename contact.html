@@ -478,6 +478,34 @@ function submitContact() {
   document.getElementById('cBudget').value = '';
   document.getElementById('cMessage').value = '';
 }
+
+function browseSites(){
+  try{
+    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
+    if(u&&li){ window.location.href='buyer.html'; return; }
+  }catch(e){}
+  showBpsPopup();
+}
+function browsePublisherSites(){ browseSites(); }
+function showBpsPopup(){
+  var m=document.getElementById('bpsModal');
+  if(!m) return;
+  m.style.display='flex';
+  m.style.position='fixed';
+  m.style.inset='0';
+  m.style.zIndex='99999';
+  m.style.alignItems='center';
+  m.style.justifyContent='center';
+  m.style.padding='20px';
+  document.body.style.overflow='hidden';
+}
+function closeBpsModal(){ closeBps(); }
+function closeBps(){
+  var m=document.getElementById('bpsModal');
+  if(m) m.style.display='none';
+  document.body.style.overflow='';
+}
 </script>
 </body>
 </html>

@@ -604,7 +604,7 @@
 </div>
 
 <!-- BPS LOGIN MODAL -->
-<div id="bpsModal" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeBpsModal()">
+<div id="bpsModal" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this){closeBps();return false;}">
   <div style="background:#fff;border-radius:22px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3)">
     <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:24px 28px;display:flex;align-items:center;justify-content:space-between">
       <div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">🔍 View All Sites</div><div style="font-size:12.5px;color:rgba(255,255,255,.55)">Create a free buyer account to access 8,500+ verified sites</div></div>
@@ -616,8 +616,8 @@
         <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:13px;color:#15803d"><span>🔍</span> Browse 8,500+ verified publisher sites</div>
         <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f3ff;border:1px solid #e9d5ff;border-radius:10px;font-size:13px;color:#7c3aed"><span>⚡</span> Filter by DA, niche, country & price</div>
       </div>
-      <a href="uplyncio-full.html?openBuyer=1" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-align:center;text-decoration:none;box-shadow:0 6px 20px rgba(0,194,122,.3)">🛒 Create Free Buyer Account →</a>
-      <div style="text-align:center;margin-top:12px;font-size:12.5px;color:#94a3b8">Already have an account? <a href="uplyncio-full.html?openBuyer=1" style="color:#4f7cff;font-weight:600">Sign In →</a></div>
+      <button onclick="closeBps();window.location.href='uplyncio-full.html?openBuyer=1'" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-align:center;border:none;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px rgba(0,194,122,.3)">🛒 Login / Create Free Account →</button>
+      <div style="text-align:center;margin-top:12px;font-size:12.5px;color:#94a3b8">Already have an account? <button onclick="closeBps();window.location.href='uplyncio-full.html?openBuyer=1'" style="background:none;border:none;color:#4f7cff;font-weight:600;cursor:pointer;font-family:inherit;font-size:12.5px">Sign In →</button></div>
     </div>
   </div>
 </div>
@@ -629,15 +629,7 @@ function togT(btn){btn.classList.toggle('sel');}
 function togDA(btn){btn.classList.toggle('sel');}
 function selB(btn,val){document.querySelectorAll('.bud-g .bud').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('lb_budget').value=val;}
 
-function browsePublisherSites(){
-  try{
-    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
-    if(u&&li){window.location.href='buyer.html';}
-    else{document.getElementById('bpsModal').style.display='flex';document.body.style.overflow='hidden';}
-  }catch(e){document.getElementById('bpsModal').style.display='flex';document.body.style.overflow='hidden';}
-}
-function closeBpsModal(){document.getElementById('bpsModal').style.display='none';document.body.style.overflow='';}
+
 
 function submitLB(){
   var name=(document.getElementById('lb_name').value||'').trim();
@@ -674,6 +666,34 @@ function submitLB(){
     st.style.background='#fef2f2';st.style.color='#b91c1c';st.style.border='1px solid #fecaca';
     st.textContent='Network error. Email info@uplyncio.com directly.';
   });
+}
+
+function browseSites(){
+  try{
+    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
+    if(u&&li){ window.location.href='buyer.html'; return; }
+  }catch(e){}
+  showBpsPopup();
+}
+function browsePublisherSites(){ browseSites(); }
+function showBpsPopup(){
+  var m=document.getElementById('bpsModal');
+  if(!m) return;
+  m.style.display='flex';
+  m.style.position='fixed';
+  m.style.inset='0';
+  m.style.zIndex='99999';
+  m.style.alignItems='center';
+  m.style.justifyContent='center';
+  m.style.padding='20px';
+  document.body.style.overflow='hidden';
+}
+function closeBpsModal(){ closeBps(); }
+function closeBps(){
+  var m=document.getElementById('bpsModal');
+  if(m) m.style.display='none';
+  document.body.style.overflow='';
 }
 </script>
 </body>
