@@ -28,7 +28,26 @@
   <ul class="nl"><li><a href="uplyncio-full.html">Home</a></li><li><a href="buyer.html">Marketplace</a></li><li><a href="link-building.html">Link Building</a></li><li><a href="contact.html">Contact</a></li></ul>
   <div class="nr" id="pgNav"><a href="publisher.html" class="bg">Become Publisher</a><button onclick="openForm()" class="ba">🔗 Browse Publisher Sites</button></div>
 </nav>
-<script>(function(){try{var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');var li=localStorage.getItem('uplyncio_loggedIn')==='1';var el=document.getElementById('pgNav');if(!el||(!u&&!li))return;if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=Array.isArray(us)?us.find(function(x){return x.uid===uid;});if(f)u={name:f.name||'',role:f.role||'publisher',verified:true};}if(!u)return;el.innerHTML=u.role==='publisher'?'<a href="publisher.html" class="ba">🌐 Dashboard</a>':'<a href="buyer.html" class="ba">🛒 Buyer</a>';}catch(e){}})();</script>
+<script>
+(function(){
+  try{
+    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
+    var el=document.getElementById('pgNav');
+    if(!el||(!u&&!li)) return;
+    if(!u&&li){
+      var uid=localStorage.getItem('uplyncio_currentUid')||'';
+      var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
+      var f=us.find(function(x){return x.uid===uid;});
+      if(f) u={name:f.name||'',role:f.role||'publisher',verified:true};
+    }
+    if(!u) return;
+    el.innerHTML=u.role==='publisher'
+      ?'<a href="publisher.html" class="btn-a">🌐 Dashboard</a>'
+      :'<a href="buyer.html" class="btn-a">🛒 Buyer Account</a>';
+  }catch(e){}
+})();
+</script>
 
 <section style="linear-gradient(135deg,#06090f,#0d1628);padding:130px 48px 80px;position:relative;overflow:hidden">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 25% 50%,rgba(79,124,255,.12) 0%,transparent 60%)"></div>
