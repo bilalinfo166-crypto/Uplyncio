@@ -325,7 +325,7 @@
   </div>
 </div>
 
-<div id="bpsModal" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeBps()">
+<div id="bpsModal" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeBps()">
   <div style="background:#fff;border-radius:22px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3)">
     <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:24px 28px;display:flex;align-items:center;justify-content:space-between">
       <div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:4px">🔍 View All Sites</div><div style="font-size:12.5px;color:rgba(255,255,255,.55)">Create a free buyer account to access 8,500+ sites</div></div>
@@ -348,21 +348,23 @@ function closeForm(){document.getElementById('pgModal').style.display='none';doc
 function togSel(btn){btn.classList.toggle('sel');}
 function selBud(btn,val){document.querySelectorAll('.bud-g .bud').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('pg_budget').value=val;}
 function browseSites(){
+  var m=document.getElementById('bpsModal');
+  if(!m){console.error('bpsModal not found');return;}
   try{
     var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
     var li=localStorage.getItem('uplyncio_loggedIn')==='1';
     if(u&&li){
       window.location.href='buyer.html';
-    } else {
-      document.getElementById('bpsModal').style.display='flex';
-      document.body.style.overflow='hidden';
+      return;
     }
-  } catch(e){
-    document.getElementById('bpsModal').style.display='flex';
-    document.body.style.overflow='hidden';
-  }
+  }catch(e){}
+  m.style.cssText='display:flex!important;position:fixed;inset:0;background:rgba(7,9,15,.8);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;padding:20px';
+  document.body.style.overflow='hidden';
 }
-function closeBps(){document.getElementById('bpsModal').style.display='none';document.body.style.overflow='';}
+function closeBps(){
+  var m=document.getElementById('bpsModal');
+  if(m){m.style.display='none';document.body.style.overflow='';}
+}
 function submitForm(){
   var name=(document.getElementById('pg_name').value||'').trim();
   var email=(document.getElementById('pg_email').value||'').trim();
