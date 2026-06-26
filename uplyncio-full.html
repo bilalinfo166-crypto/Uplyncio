@@ -383,7 +383,17 @@ function openVerifyModal(email, isNew){
   _initOtpBoxes();
   setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); },200);
   _startOtpTimer();
-  _sendVerifyEmail(user.email, user.verifyCode, function(sent){});
+  // Check if we have a fallback code stored (email delivery failed)
+  var fbCode = localStorage.getItem('uplyncio_fallback_code_'+email.toLowerCase()) || user.verifyCode || '';
+  if(fbCode && fbCode.length === 6){
+    // Email failed — show code directly
+    setTimeout(function(){ _showCodeFallback(fbCode); }, 400);
+  } else {
+    // Try sending email (old flow for existing users)
+    _sendVerifyEmail(user.email, user.verifyCode, function(sent){
+      if(!sent && user.verifyCode) _showCodeFallback(user.verifyCode);
+    });
+  }
 }
 
 function closeVerifyModal(){
@@ -3135,9 +3145,11 @@ function submitPublisherAuth(mode){
     .then(function(result){
       if(result.success){
         var uid=result.user.id||'uid_'+Date.now();
-        var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',password:pass,verified:false,verifyCode:'',createdAt:new Date().toISOString()};
+        var fallCode=result.code||'';
+        var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',password:pass,verified:false,verifyCode:fallCode,createdAt:new Date().toISOString()};
         var us=getUsers();us.push(lu);saveUsers(us);
         localStorage.setItem('uplyncio_currentUid',uid);
+        if(fallCode) localStorage.setItem('uplyncio_fallback_code_'+email.toLowerCase(),fallCode);
         document.getElementById('publisherModal').style.display='none';
         document.body.style.overflow='';
         setTimeout(function(){openVerifyModal(email,true);},300);
@@ -3195,11 +3207,12 @@ function submitBuyerAuth(mode){
     .then(function(r){return r.json();})
     .then(function(result){
       if(result.success){
-        // Save locally too
         var uid=result.user.id||'uid_'+Date.now();
-        var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',password:pass,verified:false,verifyCode:'',createdAt:new Date().toISOString()};
+        var fallCode=result.code||'';
+        var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',password:pass,verified:false,verifyCode:fallCode,createdAt:new Date().toISOString()};
         var us=getUsers();us.push(lu);saveUsers(us);
         localStorage.setItem('uplyncio_currentUid',uid);
+        if(fallCode) localStorage.setItem('uplyncio_fallback_code_'+email.toLowerCase(),fallCode);
         document.getElementById('buyerModal').style.display='none';
         document.body.style.overflow='';
         setTimeout(function(){openVerifyModal(email,true);},300);
