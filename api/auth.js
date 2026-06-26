@@ -1,6 +1,6 @@
 // Unified Auth API - handles signup, login, verify
-const SUPABASE_URL = 'https://ridafwpazwqjhimecyyl.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
 
 function headers() {
   return {
@@ -151,6 +151,47 @@ export default async function handler(req, res) {
           publisher_verified: user.publisher_verified
         }
       });
+    }
+
+    // ── SYNC USER (upsert) ──
+    if (action === 'sync_user') {
+      const { id, email, name, role, verified } = req.body;
+      if (!email) return res.status(400).json({ error: 'Missing email' });
+
+      // Check if user exists by email
+      const existing = await fetch(
+        `${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email.toLowerCase())}&select=id`,
+        { headers: headers() }
+      );
+      const existingData = await existing.json();
+
+      if (existingData?.length > 0) {
+        // Update existing user
+        const userId = existingData[0].id;
+        await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
+          method: 'PATCH',
+          headers: { ...headers(), 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ name, verified: true, email_verified: true, updated_at: new Date().toISOString() })
+        });
+        return res.status(200).json({ success: true, userId });
+      } else {
+        // Insert new user
+        const isTeam = email.toLowerCase() === 'info@uplyncio.com';
+        const newUser = {
+          email: email.toLowerCase(), name, role: role || 'publisher',
+          verified: true, email_verified: true,
+          publisher_verified: isTeam,
+          password_hash: 'local_auth_' + Date.now()
+        };
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+          method: 'POST',
+          headers: { ...headers(), 'Prefer': 'return=representation' },
+          body: JSON.stringify(newUser)
+        });
+        const data = await r.json();
+        const user = Array.isArray(data) ? data[0] : data;
+        return res.status(200).json({ success: true, userId: user?.id });
+      }
     }
 
     return res.status(400).json({ error: 'Unknown action' });

@@ -529,11 +529,30 @@ function _loginSuccess(user){
     s['settEmail'] = user.email||'';
     localStorage.setItem('uplyncio_settings', JSON.stringify(s));
     localStorage.setItem('uplyncio_loggedIn', '1');
-    localStorage.setItem('uplyncio_currentUid', user.uid||'');
-    localStorage.setItem('uplyncio_user', JSON.stringify(user));
-    // Load user's personal data
-    var userData = getUserData(user.uid);
+    localStorage.setItem('uplyncio_currentUid', user.uid||user.id||'');
+    localStorage.setItem('uplyncio_user', JSON.stringify({
+      uid: user.uid||user.id, id: user.uid||user.id,
+      name: user.name, email: user.email,
+      role: user.role||'publisher',
+      verified: true, email_verified: true,
+      publisher_verified: user.publisher_verified||user.email==='info@uplyncio.com'
+    }));
+    var userData = getUserData(user.uid||user.id);
     localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
+
+    // Save/update user in Supabase
+    fetch('/api/auth', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'sync_user',
+        id: user.uid||user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role||'publisher',
+        verified: true
+      })
+    }).catch(function(){});
   }catch(ex){}
   window.location.href='publisher.html';
 }
@@ -3144,6 +3163,13 @@ function completeAuth(role, email, name, userId){
   localStorage.setItem('uplyncio_currentUid', uid);
   localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,name:name,email:email,role:role,verified:true}));
   
+  // Sync to Supabase
+  fetch('/api/auth', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'sync_user', id:uid, email:email, name:name, role:role, verified:true})
+  }).catch(function(){});
+
   // Close modals
   document.getElementById('publisherModal').style.display='none';
   document.getElementById('buyerModal').style.display='none';
