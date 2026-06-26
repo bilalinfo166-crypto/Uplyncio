@@ -410,34 +410,70 @@ function submitVerifyCode(){
     return;
   }
   var email = window._verifyingEmail||'';
-  var users = getUsers();
-  var idx   = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
-  if(idx===-1){ closeVerifyModal(); return; }
-  var user = users[idx];
-  if(code === user.verifyCode){
-    clearInterval(_otpTimerInterval);
-    user.verified=true; user.verifyCode=''; user.emailVerified=true;
-    users[idx]=user; saveUsers(users);
-    try{
-      var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
-      s['settEmail']=user.email; s['emailVerified']=true;
-      localStorage.setItem('uplyncio_settings',JSON.stringify(s));
-    }catch(e){}
-    // Show success briefly
-    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
-    var vBtn=document.getElementById('verifyBtn');
-    if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; }
-    setTimeout(function(){ closeVerifyModal(); _loginSuccess(user); }, 600);
-  } else {
-    // Wrong code — red boxes + error
-    document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; b.style.background='rgba(239,68,68,.08)'; });
-    var err = document.getElementById('verifyError');
-    if(err){ err.textContent='❌ Incorrect code. Please try again.'; err.style.display='block'; }
-    setTimeout(function(){ 
-      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)'; });
-      if(err) err.style.display='none';
-    }, 2500);
-  }
+  var vBtn=document.getElementById('verifyBtn');
+  if(vBtn){ vBtn.textContent='Verifying...'; vBtn.disabled=true; }
+
+  // Try Supabase API first
+  fetch('/api/auth', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({action:'verify', email:email, code:code})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result){
+    if(result.success){
+      // Verified via Supabase!
+      clearInterval(_otpTimerInterval);
+      // Update localStorage
+      var users = getUsers();
+      var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+      if(idx>-1){ users[idx].verified=true; users[idx].verifyCode=''; users[idx].emailVerified=true; saveUsers(users); }
+      var localUser = idx>-1 ? users[idx] : {email:email, name:result.user.name||'', role:result.user.role||'publisher', uid:result.user.id, verified:true};
+      // Show success
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
+      if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; vBtn.disabled=false; }
+      setTimeout(function(){ closeVerifyModal(); _loginSuccess({...localUser, ...result.user, uid:result.user.id||localUser.uid}); }, 600);
+    } else {
+      // Try localStorage fallback
+      var users2 = getUsers();
+      var idx2 = users2.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+      if(idx2>-1 && code === users2[idx2].verifyCode){
+        clearInterval(_otpTimerInterval);
+        users2[idx2].verified=true; users2[idx2].verifyCode=''; users2[idx2].emailVerified=true;
+        saveUsers(users2);
+        document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
+        if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; vBtn.disabled=false; }
+        setTimeout(function(){ closeVerifyModal(); _loginSuccess(users2[idx2]); }, 600);
+      } else {
+        if(vBtn){ vBtn.textContent='Verify Email →'; vBtn.disabled=false; }
+        document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; b.style.background='rgba(239,68,68,.08)'; });
+        var err = document.getElementById('verifyError');
+        if(err){ err.textContent='❌ '+(result.error||'Incorrect code. Please try again.'); err.style.display='block'; }
+        setTimeout(function(){ 
+          document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)'; });
+          if(err) err.style.display='none';
+        }, 2500);
+      }
+    }
+  })
+  .catch(function(){
+    // Full localStorage fallback
+    if(vBtn){ vBtn.textContent='Verify Email →'; vBtn.disabled=false; }
+    var users3 = getUsers();
+    var idx3 = users3.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+    if(idx3>-1 && code === users3[idx3].verifyCode){
+      clearInterval(_otpTimerInterval);
+      users3[idx3].verified=true; users3[idx3].verifyCode=''; users3[idx3].emailVerified=true;
+      saveUsers(users3);
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; });
+      if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; }
+      setTimeout(function(){ closeVerifyModal(); _loginSuccess(users3[idx3]); }, 600);
+    } else {
+      document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; });
+      var err2 = document.getElementById('verifyError');
+      if(err2){ err2.textContent='❌ Incorrect code.'; err2.style.display='block'; }
+    }
+  });
 }
 
 function resendCode(){
@@ -3093,7 +3129,23 @@ function submitPublisherAuth(mode){
     var pass = document.getElementById('pubPass').value;
     if(!name||!email||!pass){ errEl.textContent='Please fill all fields'; return; }
     if(pass.length<8){ errEl.textContent='Password must be at least 8 characters'; return; }
-    completeAuth('publisher', email, name);
+    errEl.textContent='Creating account...'; errEl.style.color='#64748b';
+    fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'signup',email:email,password:pass,name:name,role:'publisher'})})
+    .then(function(r){return r.json();})
+    .then(function(result){
+      if(result.success){
+        var uid=result.user.id||'uid_'+Date.now();
+        var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',password:pass,verified:false,verifyCode:'',createdAt:new Date().toISOString()};
+        var us=getUsers();us.push(lu);saveUsers(us);
+        localStorage.setItem('uplyncio_currentUid',uid);
+        document.getElementById('publisherModal').style.display='none';
+        document.body.style.overflow='';
+        setTimeout(function(){openVerifyModal(email,true);},300);
+      } else {
+        errEl.textContent=result.error||'Failed to create account';errEl.style.color='#ef4444';
+      }
+    })
+    .catch(function(){completeAuth('publisher',email,name);});
   } else {
     var email = document.getElementById('pubLoginEmail').value.trim();
     var pass = document.getElementById('pubLoginPass').value;
@@ -3137,15 +3189,51 @@ function submitBuyerAuth(mode){
     var pass = document.getElementById('buyerPass').value;
     if(!name||!email||!pass){ errEl.textContent='Please fill all fields'; return; }
     if(pass.length<8){ errEl.textContent='Password must be at least 8 characters'; return; }
-    completeAuth('buyer', email, name);
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errEl.textContent='Please enter a valid email'; return; }
+    errEl.textContent='Creating account...'; errEl.style.color='#64748b';
+    fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'signup',email:email,password:pass,name:name,role:'buyer'})})
+    .then(function(r){return r.json();})
+    .then(function(result){
+      if(result.success){
+        // Save locally too
+        var uid=result.user.id||'uid_'+Date.now();
+        var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',password:pass,verified:false,verifyCode:'',createdAt:new Date().toISOString()};
+        var us=getUsers();us.push(lu);saveUsers(us);
+        localStorage.setItem('uplyncio_currentUid',uid);
+        document.getElementById('buyerModal').style.display='none';
+        document.body.style.overflow='';
+        setTimeout(function(){openVerifyModal(email,true);},300);
+      } else {
+        errEl.textContent=result.error||'Failed to create account';errEl.style.color='#ef4444';
+      }
+    })
+    .catch(function(){
+      // Fallback: local only
+      completeAuth('buyer',email,name);
+    });
   } else {
     var email = document.getElementById('buyerLoginEmail').value.trim();
     var pass = document.getElementById('buyerLoginPass').value;
     if(!email||!pass){ errEl.textContent='Please enter email and password'; return; }
-    var users = JSON.parse(localStorage.getItem('uplyncio_users')||'{}');
-    if(!users[email]||users[email].role!=='buyer'){ errEl.textContent='No buyer account found with this email'; return; }
-    if(users[email].pass!==btoa(pass)){ errEl.textContent='Incorrect password'; return; }
-    completeAuth('buyer', email, users[email].name);
+    errEl.textContent='Signing in...'; errEl.style.color='#64748b';
+    fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',email:email,password:pass})})
+    .then(function(r){return r.json();})
+    .then(function(result){
+      if(result.success){
+        var u=result.user;
+        if(u.role!=='buyer'){errEl.textContent='This email is registered as a '+u.role+'. Please use the correct login.';errEl.style.color='#ef4444';return;}
+        completeAuth('buyer',u.email,u.name,u.id);
+      } else {
+        // Fallback localStorage
+        var lu=getUsers().find(function(x){return x.email===email.toLowerCase();});
+        if(lu&&lu.role==='buyer'&&(lu.password===pass||lu.pass===btoa(pass))){
+          completeAuth('buyer',email,lu.name,lu.uid||lu.id);
+        } else {
+          errEl.textContent=result.error||'Invalid email or password';errEl.style.color='#ef4444';
+        }
+      }
+    })
+    .catch(function(){errEl.textContent='Connection error. Please try again.';errEl.style.color='#ef4444';});
   }
 }
 
