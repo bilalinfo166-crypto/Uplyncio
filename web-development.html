@@ -336,7 +336,7 @@ await website.deploy();</div>
     <p>From simple landing pages to complex web applications — we deliver on time, on budget, and exceed expectations every single time.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
       <button onclick="openForm()" class="btn-hero" style="font-size:15px;padding:15px 34px">💻 Get Free Project Quote →</button>
-      <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:15px 28px;background:rgba(255,255,255,.08);color:#fff;border-radius:12px;font-size:15px;font-weight:600;border:1px solid rgba(255,255,255,.2)">Browse Link Building →</a>
+      <a href="link-building.html" style="display:inline-flex;align-items:center;gap:8px;padding:15px 28px;background:rgba(255,255,255,.08);color:#fff;border-radius:12px;font-size:15px;font-weight:600;border:1px solid rgba(255,255,255,.2)">🔗 Browse Link Building →</a>
     </div>
   </div>
 </div>
@@ -436,6 +436,18 @@ await website.deploy();</div>
           </select>
         </div>
       </div>
+      <div style="margin-top:12px">
+        <label class="fl">Development Method <span class="fr">*</span></label>
+        <div class="type-grid" id="wdMethodGrid" style="grid-template-columns:repeat(2,1fr)">
+          <button class="type-btn" onclick="selMethod(this,'WordPress (CMS)')">🖊️ WordPress<br><span style="font-size:10px;font-weight:400;color:#94a3b8">Easy content management</span></button>
+          <button class="type-btn" onclick="selMethod(this,'Vibe Coding (AI-assisted)')">🤖 Vibe Coding<br><span style="font-size:10px;font-weight:400;color:#94a3b8">AI-assisted development</span></button>
+          <button class="type-btn" onclick="selMethod(this,'Custom Code (React/Next.js)')">💻 Custom Code<br><span style="font-size:10px;font-weight:400;color:#94a3b8">Full custom development</span></button>
+          <button class="type-btn" onclick="selMethod(this,'No Preference')">🤷 No Preference<br><span style="font-size:10px;font-weight:400;color:#94a3b8">You decide what&apos;s best</span></button>
+        </div>
+        <input type="hidden" id="wd_method">
+      </div>
+
+      </div>
 
       <div class="form-section">
         <div class="form-sec-title"><div class="form-sec-num">4</div> Timeline & Budget</div>
@@ -484,6 +496,7 @@ await website.deploy();</div>
 function openForm(){document.getElementById('wdModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeForm(){document.getElementById('wdModal').classList.remove('open');document.body.style.overflow='';}
 function toggleType(btn){btn.classList.toggle('sel');}
+function selMethod(btn,val){document.querySelectorAll('#wdMethodGrid .type-btn').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('wd_method').value=val;}
 function selPages(btn,val){document.querySelectorAll('#wdPagesGrid .type-btn').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('wd_pages').value=val;}
 function selBudget(btn,val){document.querySelectorAll('.budget-grid .budget-btn').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('wd_budget').value=val;}
 
@@ -510,7 +523,7 @@ async function submitWD(){
       details:{
         'Project Type':types.join(', ')||'Not specified',
         'Industry':industry,'Pages':document.getElementById('wd_pages').value||'Not specified',
-        'Platform':document.getElementById('wd_platform').value||'No preference',
+        'Platform':document.getElementById('wd_platform').value||'No preference','Build Method':document.getElementById('wd_method').value||'Not specified',
         'Timeline':timeline
       }
     })});
