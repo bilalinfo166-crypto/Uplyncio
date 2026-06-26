@@ -197,15 +197,51 @@ function completeSignup(){
   // Init empty data for this user
   saveUserData(uid, {sites:[], orders:[], balance:0, reserved:0, bonus:0});
 
-  var users = getUsers();
-  users.push(newUser);
-  saveUsers(users);
-
-  if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
-  if(typeof closeSignupStep2==='function') closeSignupStep2();
+  // Use Supabase API
+  var role = window._selectedRole || 'publisher';
   
-  // Show verification
-  setTimeout(function(){ openVerifyModal(email, true); }, 300);
+  UplyncioAuth.signup(email, password, name, role)
+    .then(function(result) {
+      if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+      if(result.error) {
+        if(result.error.includes('already registered')) {
+          var emailErr = document.getElementById('su2EmailErr');
+          if(emailErr){ emailErr.innerHTML='⚠ Email already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>'; emailErr.style.display='block'; }
+        } else {
+          alert(result.error);
+        }
+        return;
+      }
+      // Save locally too for backward compat
+      var user = result.user;
+      var uid = user.id;
+      // Save to localStorage
+      var localUser = { uid:uid, id:uid, name:name, email:email, role:role, verified:user.verified||false, email_verified:user.email_verified||false };
+      var users = getUsers();
+      users.push({ ...localUser, password:password, verifyCode:'', createdAt:new Date().toISOString() });
+      saveUsers(users);
+      saveUserData(uid, {sites:[], orders:[], balance:0, reserved:0, bonus:0});
+      localStorage.setItem('uplyncio_currentUid', uid);
+
+      if(typeof closeSignupStep2==='function') closeSignupStep2();
+      // Show verification modal
+      setTimeout(function(){ openVerifyModal(email, true); }, 300);
+    })
+    .catch(function(e) {
+      if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+      console.error('Signup error:', e);
+      // Fallback to localStorage only
+      var uid = 'user_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+      var code = genCode();
+      var role2 = window._selectedRole||'publisher';
+      var newUser2 = { uid:uid, name:name, email:email, password:password, role:role2, verified:false, verifyCode:code, createdAt:new Date().toISOString() };
+      saveUserData(uid, {sites:[],orders:[],balance:0,reserved:0,bonus:0});
+      var users2 = getUsers(); users2.push(newUser2); saveUsers(users2);
+      localStorage.setItem('uplyncio_currentUid', uid);
+      _sendVerifyEmail(email, code, function(){});
+      if(typeof closeSignupStep2==='function') closeSignupStep2();
+      setTimeout(function(){ openVerifyModal(email, true); }, 300);
+    });
 }
 
 // ── EMAILJS CONFIG ──
@@ -510,7 +546,8 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 
 
 <title>Uplyncio – Premium Guest Post & Link Building Marketplace</title>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -3042,11 +3079,34 @@ function submitPublisherAuth(mode){
     var email = document.getElementById('pubLoginEmail').value.trim();
     var pass = document.getElementById('pubLoginPass').value;
     if(!email||!pass){ errEl.textContent='Please enter email and password'; return; }
-    // Check if user exists
-    var users = JSON.parse(localStorage.getItem('uplyncio_users')||'{}');
-    if(!users[email]||users[email].role!=='publisher'){ errEl.textContent='No publisher account found with this email'; return; }
-    if(users[email].pass!==btoa(pass)){ errEl.textContent='Incorrect password'; return; }
-    completeAuth('publisher', email, users[email].name);
+    errEl.textContent='Signing in...';
+    // Try Supabase first
+    UplyncioAuth.login(email, pass)
+      .then(function(result){
+        if(result.error){
+          // Fallback: check localStorage
+          var localUsers = getUsers();
+          var localUser = localUsers.find(function(u){ return u.email===email.toLowerCase(); });
+          if(localUser && localUser.role==='publisher' && (localUser.password===pass || localUser.pass===btoa(pass))){
+            completeAuth('publisher', email, localUser.name, localUser.uid||localUser.id);
+          } else {
+            errEl.textContent = result.error || 'Invalid email or password';
+          }
+          return;
+        }
+        var u = result.user;
+        completeAuth(u.role||'publisher', u.email, u.name, u.id);
+      })
+      .catch(function(){
+        // Full fallback to localStorage
+        var localUsers = getUsers();
+        var localUser = localUsers.find(function(u){ return u.email===email.toLowerCase(); });
+        if(localUser && localUser.role==='publisher'){
+          completeAuth('publisher', email, localUser.name, localUser.uid||localUser.id);
+        } else {
+          errEl.textContent = 'Unable to connect. Please try again.';
+        }
+      });
   }
 }
 
@@ -3070,15 +3130,15 @@ function submitBuyerAuth(mode){
   }
 }
 
-function completeAuth(role, email, name){
-  // Save user
+function completeAuth(role, email, name, userId){
+  var uid = userId || 'uid_'+Date.now();
+  // Save locally
   var users = JSON.parse(localStorage.getItem('uplyncio_users')||'{}');
-  var uid = 'uid_'+Date.now();
   if(!users[email]){
     users[email] = {uid:uid, name:name, email:email, role:role, pass:''};
     localStorage.setItem('uplyncio_users', JSON.stringify(users));
   } else {
-    uid = users[email].uid;
+    uid = users[email].uid || uid;
   }
   localStorage.setItem('uplyncio_loggedIn','1');
   localStorage.setItem('uplyncio_currentUid', uid);

@@ -7,7 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Uplyncio Publisher Portal</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="/supabase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#f0f2f7;--wh:#fff;--br:#e2e8f0;--ac:#4f7cff;--tl:#00d4aa;--tx:#0f172a;--t2:#475569;--mu:#94a3b8;--gn:#22c55e;--rd:#ef4444;--r:12px}
@@ -158,6 +159,51 @@ html,body{overflow-x:hidden;max-width:100vw}
 </head>
 <body>
 <script>
+
+// ── SUPABASE SYNC ──
+async function syncSitesToSupabase(){
+  try{
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    if(!user||!user.id) return;
+    // Push local sites to Supabase if not already there
+    var localSites = _publisherSites || [];
+    for(var s of localSites){
+      if(!s._synced && s.url){
+        var result = await UplyncioDB.addSite({
+          publisher_id: user.id,
+          url: s.url,
+          domain: s.domain || s.url.replace(/^https?:\/\//,'').split('/')[0],
+          da: parseInt(s.da)||0,
+          dr: parseInt(s.dr)||0,
+          traffic: parseInt(s.traffic)||0,
+          category: s.category||'',
+          link_type: s.linkType||'Dofollow',
+          price: parseFloat(s.price)||0,
+          status: s.status||'Pending Review',
+          publisher_name: user.name||'',
+          publisher_email: user.email||''
+        });
+        if(result.success) s._synced = true;
+      }
+    }
+  }catch(e){ console.log('Supabase sync skipped:', e.message); }
+}
+
+async function loadSitesFromSupabase(){
+  try{
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    if(!user||!user.id) return;
+    var result = await UplyncioDB.getSites({publisher_id: user.id});
+    if(Array.isArray(result) && result.length > 0){
+      console.log('[Supabase] Loaded '+result.length+' sites from cloud');
+      // Merge with local
+      return result;
+    }
+  }catch(e){ console.log('Supabase load skipped:', e.message); }
+  return null;
+}
+
+// ── END SUPABASE SYNC ──
 
 // Show publisher verified badge on load - run after DOM ready
 function applyVerifiedBadges(){
