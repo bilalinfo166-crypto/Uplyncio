@@ -1,3 +1,5 @@
+import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './email.js';
+
 const SUPABASE_URL = 'https://ridafwpazwqjhimecyyl.supabase.co';
 const RESEND_KEY = process.env.RESEND_API_KEY;
 
@@ -106,15 +108,10 @@ export default async function handler(req, res) {
 
       // Send verification email
     if (!isTeam) {
-        const emailResult = await sendEmail(emailLow, `Your Uplyncio verification code: ${code}`,
-          `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;background:#f8faff;padding:32px;border-radius:16px">
-            <div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c;margin-bottom:8px">Uply<span style="color:#4f7cff">ncio</span></div>
-            <h2 style="color:#1a202c;margin-bottom:16px">Verify your email address</h2>
-            <p style="color:#64748b;margin-bottom:24px">Hi ${name}, enter this code to complete your ${role} account setup:</p>
-            <div style="font-size:40px;font-weight:800;color:#4f7cff;letter-spacing:10px;background:#fff;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px;border:2px solid #e0e7ff">${code}</div>
-            <p style="color:#94a3b8;font-size:13px">This code expires in 10 minutes. If you did not create an Uplyncio account, ignore this email.</p>
-          </div>`
-        );
+        // Send welcome email
+        await sendWelcomeEmail({ to: emailLow, name, role }).catch(e => console.log('Welcome email error:', e.message));
+        // Send verify email with OTP
+        const emailResult = await sendVerifyEmail({ to: emailLow, name, code }).catch(e => ({ ok: false, error: e.message }));
         console.log('Email result:', JSON.stringify(emailResult));
         // Always return code in response so frontend can show it as fallback
         return res.status(200).json({
