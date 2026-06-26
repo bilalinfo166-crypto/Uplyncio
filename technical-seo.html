@@ -3,30 +3,207 @@
 <head>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Expert Technical SEO — Core Web Vitals, crawl errors, schema, site speed fixes.">
+  <meta name="description" content="Expert Technical SEO services — Core Web Vitals, crawl error fixes, schema markup, site speed optimization, and 100+ point technical audits.">
   <title>Technical SEO Services — Uplyncio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0} body{font-family:'Plus Jakarta Sans',sans-serif;color:#1a202c;line-height:1.6} a{text-decoration:none;color:inherit}
-    @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}} @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}
-    .logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px} .logo em{font-style:normal;color:#4f7cff}
-    .nl{display:flex;gap:28px;list-style:none} .nl a{font-size:13.5px;font-weight:600;color:#8892a4} .nl a:hover{color:#fff}
-    .nr{display:flex;gap:10px} .bg{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;background:transparent;text-decoration:none}
-    .ba{padding:9px 20px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block}
-    .g2{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center} .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px} .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .card{background:#fff;border:1px solid #e2e8f0;border-left:4px solid #b45309;border-radius:0 14px 14px 0;padding:24px;transition:all .2s} .card:hover{box-shadow:0 6px 24px rgba(0,0,0,.08);transform:translateX(3px)}
-    .card h3{font-size:15px;font-weight:800;color:#1a202c;margin:12px 0 8px} .card p{font-size:13.5px;color:#64748b;line-height:1.7} .ic{font-size:26px}
-    .rc{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;display:block;transition:all .2s} .rc:hover{border-color:#b45309;transform:translateY(-2px)}
-    @media(max-width:900px){nav .nl{display:none}.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}nav,section,footer{padding-left:20px!important;padding-right:20px!important}}
-  .modal-box::-webkit-scrollbar{display:none}
-</style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;color:#1a202c;line-height:1.6;background:#fff}
+    a{text-decoration:none;color:inherit}
+    @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes scanline{0%{top:-10%}100%{top:110%}}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;display:flex;align-items:center;padding:0 48px;justify-content:space-between;background:rgba(7,9,15,.96);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07)}
+    .logo{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px}
+    .logo em{font-style:normal;color:#f59e0b}
+    .nl{display:flex;gap:28px;list-style:none}
+    .nl a{font-size:13.5px;font-weight:600;color:#8892a4;transition:color .15s}
+    .nl a:hover{color:#fff}
+    .nr{display:flex;gap:10px}
+    .btn-g{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:600;background:transparent;text-decoration:none}
+    .btn-a{padding:9px 22px;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;border-radius:9px;font-size:13.5px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block}
+
+    /* HERO — Dark with amber/orange accent, code-terminal feel */
+    .hero{background:#07090f;min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:0}
+    .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(245,158,11,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(245,158,11,.04) 1px,transparent 1px);background-size:52px 52px}
+    .hero-glow{position:absolute;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(180,83,9,.18) 0%,transparent 65%);top:-200px;right:-200px}
+    .hero-inner{max-width:1160px;margin:0 auto;padding:130px 48px 80px;display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:center;position:relative;z-index:1;width:100%}
+    .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:22px;text-transform:uppercase;letter-spacing:1.5px}
+    .hero h1{font-family:Manrope,sans-serif;font-size:clamp(34px,4.2vw,54px);font-weight:800;line-height:1.06;letter-spacing:-2px;color:#fff;margin-bottom:20px}
+    .hero h1 .hl{display:block;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-p{font-size:16px;color:#94a3b8;line-height:1.85;margin-bottom:32px;max-width:500px}
+    .hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:38px}
+    .btn-hero{display:inline-flex;align-items:center;gap:9px;padding:14px 30px;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;border-radius:12px;font-size:14.5px;font-weight:700;border:none;cursor:pointer;font-family:inherit;box-shadow:0 8px 28px rgba(180,83,9,.35);transition:all .2s}
+    .btn-hero:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(180,83,9,.5)}
+    .btn-sec{display:inline-flex;align-items:center;gap:8px;padding:14px 26px;background:transparent;color:#fff;border-radius:12px;font-size:14.5px;font-weight:600;border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:all .2s;text-decoration:none}
+    .btn-sec:hover{background:rgba(255,255,255,.07)}
+    .hero-chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:4px 12px;font-size:11.5px;color:#94a3b8;font-weight:600}
+
+    /* TERMINAL VISUAL */
+    .terminal{background:#0d1117;border:1px solid rgba(245,158,11,.2);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+    .term-bar{background:#161b22;padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .term-dots{display:flex;gap:6px}
+    .term-dots span{width:11px;height:11px;border-radius:50%}
+    .term-title{font-size:12px;color:#8892a4;font-family:'JetBrains Mono',monospace;margin-left:8px}
+    .term-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.9}
+    .tl{display:flex;gap:8px;margin-bottom:2px}
+    .tl-prompt{color:#f59e0b}
+    .tl-cmd{color:#e2e8f0}
+    .tl-ok{color:#4ade80}
+    .tl-warn{color:#fbbf24}
+    .tl-err{color:#f87171}
+    .tl-muted{color:#6b7280}
+    .score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)}
+    .score-box{text-align:center;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 6px}
+    .score-num{font-family:Manrope,sans-serif;font-size:22px;font-weight:800}
+    .score-lbl{font-size:10px;color:#6b7280;margin-top:3px}
+
+    /* STATS */
+    .stats-band{background:linear-gradient(135deg,#92400e,#b45309);padding:44px 48px}
+    .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
+    .s-num{font-family:Manrope,sans-serif;font-size:36px;font-weight:800;color:#fff}
+    .s-lbl{font-size:13px;color:rgba(255,255,255,.75);margin-top:6px}
+
+    /* WHAT IS */
+    .what-wrap{padding:80px 48px;background:#fff}
+    .what-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+    .sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#b45309;margin-bottom:10px}
+    .sec-title{font-family:Manrope,sans-serif;font-size:clamp(24px,3.5vw,36px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#1a202c;margin-bottom:16px}
+    .grad-amb{background:linear-gradient(135deg,#b45309,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .long-txt{font-size:15px;color:#475569;line-height:1.9;display:flex;flex-direction:column;gap:16px}
+    .audit-list{list-style:none;margin-top:20px}
+    .audit-list li{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #fef3c7;font-size:14px;color:#475569}
+    .audit-list li::before{content:'⚙';width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+    /* SERVICES */
+    .svc-wrap{background:#fefce8;border-top:1px solid #fde68a;border-bottom:1px solid #fde68a;padding:80px 48px}
+    .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:48px}
+    .svc-card{background:#fff;border:1.5px solid #fde68a;border-radius:18px;padding:28px;transition:all .25s;position:relative;overflow:hidden}
+    .svc-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,#b45309,#f59e0b);transform:scaleY(0);transform-origin:top;transition:transform .25s}
+    .svc-card:hover{border-color:#f59e0b;box-shadow:0 8px 30px rgba(245,158,11,.15);transform:translateY(-4px)}
+    .svc-card:hover::before{transform:scaleY(1)}
+    .svc-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+    .svc-card h3{font-size:15.5px;font-weight:800;color:#1a202c;margin-bottom:9px}
+    .svc-card p{font-size:13.5px;color:#64748b;line-height:1.75}
+    .svc-tag{display:inline-block;margin-top:14px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;border:1px solid #fde68a}
+
+    /* HEALTH SCORE SECTION */
+    .health-wrap{padding:80px 48px;background:#07090f}
+    .health-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+    .health-visual{background:#0d1117;border:1px solid rgba(245,158,11,.15);border-radius:20px;padding:28px}
+    .hv-title{font-size:11px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px}
+    .hv-meter{display:flex;align-items:center;justify-content:center;margin-bottom:24px;position:relative}
+    .hv-score{text-align:center}
+    .hv-big{font-family:Manrope,sans-serif;font-size:72px;font-weight:800;line-height:1;background:linear-gradient(135deg,#f59e0b,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hv-sub{font-size:13px;color:#94a3b8;margin-top:6px}
+    .hv-items{display:flex;flex-direction:column;gap:10px}
+    .hv-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+    .hv-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .hv-name{font-size:13px;font-weight:600;color:#e2e8f0;flex:1}
+    .hv-score-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px}
+    .health-txt .sec-label{color:#f59e0b}
+    .health-txt .sec-title{color:#fff}
+    .chk-list{list-style:none;margin:18px 0 28px}
+    .chk-list li{display:flex;align-items:flex-start;gap:12px;padding:10px 0;font-size:14.5px;color:#94a3b8;border-bottom:1px solid rgba(255,255,255,.06)}
+    .chk-list li::before{content:'✓';width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+    /* PROCESS */
+    .proc-wrap{padding:80px 48px;background:#fff}
+    .proc-inner{max-width:1100px;margin:0 auto}
+    .proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;position:relative}
+    .proc-grid::before{content:'';position:absolute;top:34px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,#b45309,#f59e0b,#4ade80)}
+    .ps{text-align:center;padding:0 10px;position:relative;z-index:1}
+    .ps-num{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#fff}
+    .ps h4{font-size:15px;font-weight:800;color:#1a202c;margin-bottom:8px}
+    .ps p{font-size:13px;color:#64748b;line-height:1.65}
+
+    /* CTA */
+    .cta-wrap{background:#07090f;padding:100px 48px;text-align:center;position:relative;overflow:hidden}
+    .cta-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(180,83,9,.18) 0%,transparent 70%)}
+    .cta-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+    .cta-wrap h2{font-family:Manrope,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:-1.5px;line-height:1.1}
+    .cta-wrap p{font-size:16px;color:#94a3b8;margin-bottom:36px;line-height:1.8}
+
+    /* RELATED */
+    .related{background:#fefce8;border-top:1px solid #fde68a;padding:52px 48px}
+    .rel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .rc{background:#fff;border:1.5px solid #fde68a;border-radius:14px;padding:18px;display:block;transition:all .2s}
+    .rc:hover{border-color:#f59e0b;box-shadow:0 4px 20px rgba(245,158,11,.15);transform:translateY(-2px)}
+
+    /* FOOTER */
+    footer{background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:60px 48px 0}
+    .fg{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .fb p{font-size:13px;color:#8892a4;line-height:1.8;max-width:260px;margin:12px 0 18px}
+    .fss{display:flex;gap:8px}
+    .sb{width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none;transition:all .2s}
+    .sb:hover{border-color:#f59e0b;color:#f59e0b}
+    .fc h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif}
+    .fc ul{list-style:none}
+    .fc ul li{margin-bottom:9px}
+    .fc ul li a{color:#8892a4;font-size:13px;font-weight:500;text-decoration:none;transition:color .2s}
+    .fc ul li a:hover{color:#fff}
+    .fbot{max-width:1100px;margin:0 auto;padding:20px 0;display:flex;align-items:center;justify-content:space-between}
+    .fbot p{font-size:12px;color:#8892a4}
+    .pb{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4;margin-left:6px}
+
+    /* FORM */
+    .modal-ov{display:none;position:fixed;inset:0;background:rgba(7,9,15,.88);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;padding:16px}
+    .modal-ov.open{display:flex}
+    .modal-box{background:#fff;border-radius:24px;width:100%;max-width:720px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 100px rgba(0,0,0,.5);scrollbar-width:none;-ms-overflow-style:none}
+    .modal-box::-webkit-scrollbar{display:none}
+    .mhead{background:#07090f;padding:28px 32px;border-top:3px solid #f59e0b}
+    .mh-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+    .mhead h3{font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff;margin-bottom:5px}
+    .mhead p{font-size:13px;color:rgba(255,255,255,.5)}
+    .m-cls{width:32px;height:32px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .prog{display:flex;gap:5px;margin-top:2px}
+    .pr{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.1)}
+    .pr.done{background:linear-gradient(90deg,#b45309,#f59e0b)}
+    .mbody{padding:28px 32px}
+    .fsec{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid #fef3c7}
+    .fsec:last-child{border-bottom:none}
+    .fsec-ttl{font-size:11.5px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .fsec-n{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .fl{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+    .fr{color:#ef4444}
+    .fi{width:100%;padding:12px 15px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;transition:all .15s;box-sizing:border-box;color:#1a202c}
+    .fi:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.1)}
+    .fsel{width:100%;padding:12px 15px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;cursor:pointer;box-sizing:border-box;color:#1a202c}
+    .fsel:focus{border-color:#f59e0b}
+    .fta{width:100%;padding:12px 15px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical;min-height:90px;box-sizing:border-box;color:#1a202c}
+    .fta:focus{border-color:#f59e0b}
+    .tog-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .tog{padding:10px 8px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;text-align:center;transition:all .15s;background:#fff;font-family:inherit;line-height:1.4}
+    .tog:hover{border-color:#f59e0b;color:#b45309;background:#fefce8}
+    .tog.sel{border-color:#f59e0b;background:#fef3c7;color:#92400e}
+    .bud-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .bud{padding:10px 6px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;text-align:center;transition:all .15s;background:#fff;font-family:inherit}
+    .bud.sel{border-color:#f59e0b;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff}
+    .fnote{background:#fefce8;border:1px solid #fde68a;border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start}
+    .fnote p{font-size:12.5px;color:#92400e;line-height:1.6}
+    .sub-btn{width:100%;padding:16px;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(180,83,9,.3);transition:all .2s}
+    .sub-btn:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(180,83,9,.4)}
+    .f-st{display:none;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px}
+    .guar{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px;font-size:12px;color:#94a3b8}
+    .guar strong{color:#b45309}
+
+    @media(max-width:900px){nav .nl{display:none}.hero-inner,.what-inner,.health-inner,.fg{grid-template-columns:1fr}.stats-inner,.svc-grid,.proc-grid,.rel-grid{grid-template-columns:1fr 1fr}.fg2,.tog-g,.bud-g{grid-template-columns:1fr 1fr}.proc-grid::before{display:none}nav,.hero-inner,.stats-band,.what-wrap,.svc-wrap,.health-wrap,.proc-wrap,.cta-wrap,.related,footer,.mhead,.mbody{padding-left:20px;padding-right:20px}}
+  </style>
 </head>
 <body>
+
 <nav>
   <a href="uplyncio-full.html" class="logo"><svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
-  <ul class="nl"><li><a href="uplyncio-full.html">Home</a></li><li><a href="buyer.html">Marketplace</a></li><li><a href="link-building.html">Link Building</a></li><li><a href="contact.html">Contact</a></li></ul>
-  <div class="nr" id="pgNav"><a href="publisher.html" class="bg">Become Publisher</a><button onclick="openForm()" class="ba">⚙️ Get Free Technical Audit</button></div>
+  <ul class="nl"><li><a href="uplyncio-full.html">Home</a></li><li><a href="buyer.html">Marketplace</a></li><li><a href="on-page-seo.html">On-Page SEO</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <div class="nr" id="pgNav">
+    <a href="publisher.html" class="btn-g">Become Publisher</a>
+    <button onclick="openForm()" class="btn-a">⚙️ Get Free Audit</button>
+  </div>
 </nav>
 <script>
 (function(){
@@ -35,220 +212,374 @@
     var li=localStorage.getItem('uplyncio_loggedIn')==='1';
     var el=document.getElementById('pgNav');
     if(!el||(!u&&!li)) return;
-    if(!u&&li){
-      var uid=localStorage.getItem('uplyncio_currentUid')||'';
-      var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');
-      var f=us.find(function(x){return x.uid===uid;});
-      if(f) u={name:f.name||'',role:f.role||'publisher',verified:true};
-    }
+    if(!u&&li){var uid=localStorage.getItem('uplyncio_currentUid')||'';var us=JSON.parse(localStorage.getItem('uplyncio_users')||'[]');var f=us.find(function(x){return x.uid===uid;});if(f)u={name:f.name||'',role:f.role||'publisher',verified:true};}
     if(!u) return;
-    el.innerHTML=u.role==='publisher'
-      ?'<a href="publisher.html" class="btn-a">🌐 Dashboard</a>'
-      :'<a href="buyer.html" class="btn-a">🛒 Buyer Account</a>';
+    el.innerHTML=u.role==='publisher'?'<a href="publisher.html" class="btn-a">🌐 Dashboard</a>':'<a href="buyer.html" class="btn-a">🛒 Buyer Account</a>';
   }catch(e){}
 })();
 </script>
 
-<section style="linear-gradient(135deg,#0f0a00,#1a1200);padding:130px 48px 80px;position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 25% 50%,rgba(180,83,9,.12) 0%,transparent 60%)"></div>
-  <div class="g2" style="max-width:1100px;margin:0 auto;position:relative;z-index:1">
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
     <div style="animation:fadeUp .6s ease both">
-      <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(180,83,9,.12);border:1px solid rgba(180,83,9,.25);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px">Technical SEO Services</div>
-      <h1 style="font-family:Manrope,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:800;line-height:1.08;letter-spacing:-1.5px;color:#fff;margin-bottom:18px">Fix the Technical Issues <span style="background:linear-gradient(135deg,#b45309,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Silently Killing Your Rankings</span></h1>
-      <p style="font-size:15.5px;color:#8892a4;line-height:1.8;margin-bottom:28px;max-width:500px">Technical SEO issues are invisible ranking killers. A slow page, a crawl error, a missing canonical tag — any one of these can cost you dozens of ranking positions. Our technical SEO specialists run a 100+ point audit and fix every issue that prevents Google from properly crawling, indexing, and ranking your site.</p>
-      <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit">⚙️ Get Free Technical Audit</button>
-        <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:#fff;border-radius:11px;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.2)">Browse Marketplace →</a>
+      <div class="badge">⚙️ Technical SEO Specialists</div>
+      <h1>Technical Issues Are<br><span class="hl">Killing Your Rankings.</span></h1>
+      <p class="hero-p">Most websites have dozens of technical SEO problems quietly blocking Google from crawling, indexing, and ranking their pages. Our 100+ point technical audit finds every single one — and we fix them all.</p>
+      <div class="hero-btns">
+        <button onclick="openForm()" class="btn-hero">⚙️ Get Free Technical Audit →</button>
+        <a href="buyer.html" class="btn-sec">🔍 Browse Publisher Sites</a>
+      </div>
+      <div class="hero-chips">
+        <span class="chip">✅ 100+ Point Audit</span>
+        <span class="chip">⚡ Core Web Vitals Expert</span>
+        <span class="chip">🔒 HTTPS & Security Checks</span>
+        <span class="chip">📊 48hr Delivery</span>
       </div>
     </div>
     <div style="animation:fadeUp .6s .2s ease both">
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px">
-        <div style="font-size:12px;color:#fbbf24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Why Choose Uplyncio</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">✅</span><span style="font-size:13px;color:#fff;font-weight:600">500+ clients — proven track record</span></div>
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">📊</span><span style="font-size:13px;color:#fff;font-weight:600">Transparent monthly reporting</span></div>
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">🔒</span><span style="font-size:13px;color:#fff;font-weight:600">100% white-hat, safe strategies</span></div>
-          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px"><span style="font-size:18px">⚡</span><span style="font-size:13px;color:#fff;font-weight:600">Dedicated specialist for your account</span></div>
-          <button onclick="openForm()" style="width:100%;padding:12px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px">⚙️ Get Free Technical Audit →</button>
+      <div class="terminal">
+        <div class="term-bar">
+          <div class="term-dots"><span style="background:#ff5f57"></span><span style="background:#febc2e"></span><span style="background:#28c840"></span></div>
+          <span class="term-title">technical-seo-audit.sh — uplyncio</span>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section style="background:#fff;padding:72px 48px">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="display:grid;grid-template-columns:3fr 2fr;gap:52px">
-      <div>
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#b45309;margin-bottom:10px">Service Overview</div>
-        <h2 style="font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:#1a202c;margin-bottom:20px;letter-spacing:-1px">What Is Technical SEO Services and Why Does It Matter for Your Business?</h2>
-        <div style="font-size:15px;color:#475569;line-height:1.9;display:flex;flex-direction:column;gap:16px">
-          <p>Technical SEO issues are invisible ranking killers. A slow page, a crawl error, a missing canonical tag — any one of these can cost you dozens of ranking positions. Our technical SEO specialists run a 100+ point audit and fix every issue that prevents Google from properly crawling, indexing, and ranking your site.</p>
-          <p>At Uplyncio, we combine deep industry expertise with data-driven strategies to deliver measurable results. Unlike generic agencies that apply cookie-cutter tactics, we build custom strategies tailored to your specific industry, competitive landscape, and growth goals.</p>
-          <p>Our team has worked with businesses across dozens of industries — from SaaS startups and e-commerce brands to law firms, local service businesses, and enterprise companies. Every engagement starts with a thorough audit to pinpoint the highest-impact opportunities and build a roadmap that delivers real, sustainable results.</p>
-          <p>When you work with Uplyncio, you get a dedicated specialist who learns your business deeply, a clear strategy with measurable milestones, and monthly reports that show exactly what was done and what results were achieved. No black boxes. No vague promises. Just clear, measurable progress.</p>
-        </div>
-        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
-          <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border-radius:11px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:inherit">⚙️ Get Free Technical Audit</button>
-          <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border:1.5px solid #b45309;color:#b45309;border-radius:11px;font-size:14px;font-weight:600">Browse Marketplace →</a>
-        </div>
-      </div>
-      <div>
-        <div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:16px">
-          <div style="font-size:13px;font-weight:700;color:#1a202c;margin-bottom:16px">Service Stats</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px;color:#64748b">Clients Served</span><span style="font-size:13px;font-weight:700;color:#b45309">500+</span></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px;color:#64748b">Avg Results Timeline</span><span style="font-size:13px;font-weight:700;color:#b45309">30–90 Days</span></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:13px;color:#64748b">Client Retention</span><span style="font-size:13px;font-weight:700;color:#b45309">94%</span></div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:13px;color:#64748b">Rating</span><span style="font-size:13px;font-weight:700;color:#b45309">4.9/5 ⭐</span></div>
+        <div class="term-body">
+          <div class="tl"><span class="tl-prompt">$</span><span class="tl-cmd"> uplyncio audit --site yourwebsite.com</span></div>
+          <div class="tl"><span class="tl-muted">→ Running 100+ point technical audit...</span></div>
+          <div style="height:8px"></div>
+          <div class="tl"><span class="tl-ok">✓</span><span class="tl-cmd"> XML Sitemap: Found & Indexed</span></div>
+          <div class="tl"><span class="tl-ok">✓</span><span class="tl-cmd"> Robots.txt: Properly Configured</span></div>
+          <div class="tl"><span class="tl-ok">✓</span><span class="tl-cmd"> HTTPS / SSL: Valid (A+)</span></div>
+          <div class="tl"><span class="tl-warn">⚠</span><span class="tl-cmd"> Core Web Vitals: LCP 4.2s </span><span class="tl-warn">[NEEDS FIX]</span></div>
+          <div class="tl"><span class="tl-err">✗</span><span class="tl-cmd"> Schema Markup: Missing on 14 pages</span></div>
+          <div class="tl"><span class="tl-err">✗</span><span class="tl-cmd"> Crawl Errors: 23 broken links found</span></div>
+          <div class="tl"><span class="tl-warn">⚠</span><span class="tl-cmd"> Canonical Tags: 7 conflicts detected</span></div>
+          <div class="tl"><span class="tl-ok">✓</span><span class="tl-cmd"> Mobile Friendly: Passed</span></div>
+          <div style="height:8px"></div>
+          <div class="tl"><span class="tl-muted">→ Generating fix report...</span></div>
+          <div class="tl"><span class="tl-ok">✓ Report ready. Issues prioritized by impact.</span></div>
+          <div class="score-row">
+            <div class="score-box"><div class="score-num" style="color:#4ade80">94</div><div class="score-lbl">Performance</div></div>
+            <div class="score-box"><div class="score-num" style="color:#fbbf24">78</div><div class="score-lbl">SEO Score</div></div>
+            <div class="score-box"><div class="score-num" style="color:#f87171">61</div><div class="score-lbl">Tech Health</div></div>
+            <div class="score-box"><div class="score-num" style="color:#4ade80">A+</div><div class="score-lbl">Security</div></div>
           </div>
         </div>
-        <div style="background:linear-gradient(135deg,#b45309,#d97706);border-radius:16px;padding:24px;color:#fff;text-align:center">
-          <div style="font-size:32px;margin-bottom:10px">🚀</div>
-          <div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;margin-bottom:8px">Free Audit — No Commitment</div>
-          <div style="font-size:13px;opacity:.8;margin-bottom:16px">Get a personalized strategy and free audit today.</div>
-          <button onclick="openForm()" style="width:100%;padding:11px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">⚙️ Get Free Technical Audit</button>
-        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section style="background:#f8faff;border-top:1px solid #e2e8f0;padding:72px 48px">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;max-width:600px;margin:0 auto">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#b45309;margin-bottom:10px">What's Included</div>
-      <h2 style="font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:#1a202c;margin-bottom:14px">Everything in Our <span style="background:linear-gradient(135deg,#b45309,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Technical SEO Package</span></h2>
-    </div>
-    <div class="g3" style="margin-top:40px">
-      <div class="card"><div class="ic">🎯</div><h3>Custom Strategy</h3><p>A personalized strategy built around your specific business goals, competitive landscape, and budget — not a generic template copied from another client.</p></div>
-      <div class="card"><div class="ic">⚡</div><h3>Expert Execution</h3><p>A dedicated specialist with deep expertise in technical seo handles all implementation — you get results, not just a report of recommendations.</p></div>
-      <div class="card"><div class="ic">📊</div><h3>Monthly Reports</h3><p>Clear, jargon-free monthly reports showing exactly what was done, what results were achieved, and what is planned for next month.</p></div>
-      <div class="card"><div class="ic">💬</div><h3>Dedicated Support</h3><p>Your personal account manager is available via email and WhatsApp for any questions or updates throughout your engagement.</p></div>
-      <div class="card"><div class="ic">🔄</div><h3>Continuous Optimization</h3><p>We analyze results monthly and refine the strategy to maximize performance — never a set-and-forget approach to your account.</p></div>
-      <div class="card"><div class="ic">🔒</div><h3>White-Hat Guarantee</h3><p>We only use safe, algorithm-compliant tactics. No shortcuts or black-hat techniques that could put your business at risk.</p></div>
-    </div>
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div><div class="s-num">500+</div><div class="s-lbl">Sites Audited & Fixed</div></div>
+    <div><div class="s-num">100+</div><div class="s-lbl">Point Audit Checklist</div></div>
+    <div><div class="s-num">48 hrs</div><div class="s-lbl">Full Audit Delivery</div></div>
+    <div><div class="s-num">98%</div><div class="s-lbl">Issue Fix Rate</div></div>
   </div>
-</section>
+</div>
 
-<section style="background:#1a202c;padding:72px 48px">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;max-width:560px;margin:0 auto">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#fbbf24;margin-bottom:10px">Our Process</div>
-      <h2 style="font-family:Manrope,sans-serif;font-size:30px;font-weight:800;color:#fff;margin-bottom:14px">How We <span style="background:linear-gradient(135deg,#b45309,#d97706);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Deliver Results</span></h2>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:44px;position:relative">
-      <div style="position:absolute;top:26px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,#b45309,#d97706);z-index:0"></div>
-      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">1</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Free Audit</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Analyze your current position, identify opportunities, and benchmark against competitors.</p></div>
-      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">2</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Strategy</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Build a detailed roadmap with clear milestones, deliverables, timelines, and expected outcomes.</p></div>
-      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">3</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Execute</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Implement everything with full transparency — you see exactly what is being done and why.</p></div>
-      <div style="text-align:center;padding:0 12px;position:relative;z-index:1"><div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;font-family:Manrope,sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">4</div><h4 style="font-size:14px;font-weight:700;color:#fff;margin-bottom:7px">Report & Improve</h4><p style="font-size:13px;color:#8892a4;line-height:1.6">Monthly reporting with data-driven optimizations to improve results every single month.</p></div>
-    </div>
-  </div>
-</section>
-
-<section style="background:linear-gradient(135deg,#b45309,#d97706);padding:80px 48px;text-align:center">
-  <div style="max-width:600px;margin:0 auto">
-    <h2 style="font-family:Manrope,sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:#fff;margin-bottom:14px;letter-spacing:-1px">Start Your Technical SEO Journey Today</h2>
-    <p style="font-size:16px;color:rgba(255,255,255,.8);margin-bottom:32px;line-height:1.7">Join 500+ businesses that trust Uplyncio for real, measurable results. Get your free audit — no commitment required.</p>
-    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <button onclick="openForm()" style="display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.5);color:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">⚙️ Get Free Technical Audit</button>
-      <a href="buyer.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:11px;font-size:15px;font-weight:600">Browse Publisher Sites →</a>
-    </div>
-  </div>
-</section>
-
-<section style="background:#f8faff;border-top:1px solid #e2e8f0;padding:52px 48px">
-  <div style="max-width:1100px;margin:0 auto">
-    <h3 style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:20px">Explore More Services</h3>
-    <div class="g4">
-      <a href="buyer.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🔍</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Browse Marketplace</div><div style="font-size:12px;color:#94a3b8">8,500+ publisher sites</div></a>
-      <a href="publisher.html" class="rc"><div style="font-size:22px;margin-bottom:8px">💼</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Become a Publisher</div><div style="font-size:12px;color:#94a3b8">Monetize your website</div></a>
-      <a href="content-writing.html" class="rc"><div style="font-size:22px;margin-bottom:8px">✍️</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Content Writing</div><div style="font-size:12px;color:#94a3b8">SEO-optimized content</div></a>
-      <a href="uplyncio-full.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🏠</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Back to Home</div><div style="font-size:12px;color:#94a3b8">Uplyncio platform</div></a>
-    </div>
-  </div>
-</section>
-
-<footer style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:60px 48px 0">
-  <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.08)">
-    <div><a href="uplyncio-full.html" style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.8px;display:flex;align-items:center;gap:10px;text-decoration:none"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span></a>
-    <p style="font-size:13px;color:#8892a4;line-height:1.8;max-width:260px;margin:12px 0 18px">Premium guest posting and link building marketplace. 8,500+ verified publisher sites.</p>
-    <div style="display:flex;gap:8px"><a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">in</a><a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">fb</a><a href="https://www.instagram.com/uplyncio" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">ig</a><a href="https://wa.me/923001234567" target="_blank" style="width:34px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;font-size:12px;font-weight:700;text-decoration:none">wa</a></div></div>
-    <div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">SEO Services</h4><ul style="list-style:none"><li style="margin-bottom:9px"><a href="local-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Local SEO</a></li><li style="margin-bottom:9px"><a href="on-page-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">On-Page SEO</a></li><li style="margin-bottom:9px"><a href="off-page-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Off-Page SEO</a></li><li style="margin-bottom:9px"><a href="technical-seo.html" style="color:#8892a4;font-size:13px;text-decoration:none">Technical SEO</a></li><li style="margin-bottom:9px"><a href="link-building.html" style="color:#8892a4;font-size:13px;text-decoration:none">Link Building</a></li></ul></div>
-    <div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">Platform</h4><ul style="list-style:none"><li style="margin-bottom:9px"><a href="uplyncio-full.html" style="color:#8892a4;font-size:13px;text-decoration:none">Home</a></li><li style="margin-bottom:9px"><a href="buyer.html" style="color:#8892a4;font-size:13px;text-decoration:none">Browse Sites</a></li><li style="margin-bottom:9px"><a href="publisher.html" style="color:#8892a4;font-size:13px;text-decoration:none">Become Publisher</a></li><li style="margin-bottom:9px"><a href="ai-agents.html" style="color:#8892a4;font-size:13px;text-decoration:none">AI Agents</a></li><li style="margin-bottom:9px"><a href="web-development.html" style="color:#8892a4;font-size:13px;text-decoration:none">Web Development</a></li></ul></div>
-    <div><h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:16px;font-family:Manrope,sans-serif">Company</h4><ul style="list-style:none"><li style="margin-bottom:9px"><a href="about.html" style="color:#8892a4;font-size:13px;text-decoration:none">About Us</a></li><li style="margin-bottom:9px"><a href="contact.html" style="color:#8892a4;font-size:13px;text-decoration:none">Contact</a></li><li style="margin-bottom:9px"><a href="terms.html" style="color:#8892a4;font-size:13px;text-decoration:none">Terms & Conditions</a></li><li style="margin-bottom:9px"><a href="privacy.html" style="color:#8892a4;font-size:13px;text-decoration:none">Privacy Policy</a></li></ul></div>
-  </div>
-  <div style="max-width:1100px;margin:0 auto;padding:16px 0;display:flex;align-items:center;justify-content:space-between"><p style="font-size:12px;color:#8892a4">© 2026 Uplyncio. All rights reserved.</p><div style="display:flex;gap:6px"><span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">PayPal</span><span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">Wise</span><span style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:3px 10px;font-size:11px;font-weight:700;color:#8892a4">USDT</span></div></div>
-</footer>
-
-<div id="inquiryModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeForm()">
-  <div style="background:#fff;border-radius:20px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;box-shadow:0 24px 80px rgba(0,0,0,.2)">
-    <div style="background:linear-gradient(135deg,#b45309,#d97706);padding:22px 28px;display:flex;align-items:center;justify-content:space-between">
-      <div><div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff">⚙️ Get Free Technical Audit</div><div style="font-size:12px;color:rgba(255,255,255,.65);margin-top:3px">We respond within 24 hours</div></div>
-      <button onclick="closeForm()" style="width:30px;height:30px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;cursor:pointer;font-size:16px">✕</button>
-    </div>
-    <div style="padding:24px 28px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Name *</label><input id="f_name" type="text" placeholder="Your name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
-        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Email *</label><input id="f_email" type="email" placeholder="you@company.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
+<!-- WHAT IS -->
+<div class="what-wrap">
+  <div class="what-inner">
+    <div>
+      <div class="sec-label">Why Technical SEO Matters</div>
+      <h2 class="sec-title">Your Content Can't Rank<br>If Google Can't <span class="grad-amb">Read It</span></h2>
+      <div class="long-txt">
+        <p>Technical SEO is the foundation that every other SEO strategy depends on. No matter how great your content is or how many backlinks you build, if your website has serious technical issues, Google cannot properly crawl, understand, or rank your pages.</p>
+        <p>Common technical issues like slow page speed, crawl errors, missing schema markup, duplicate content, broken canonical tags, and poor Core Web Vitals scores silently cost you rankings every single day — without any visible warning signs.</p>
+        <p>Our technical SEO audit covers over 100 checkpoints across every technical dimension of your website, identifying every issue and prioritizing fixes by their ranking impact so your team knows exactly what to tackle first.</p>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Phone</label><input id="f_phone" type="tel" placeholder="+1 234 567 8900" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
-        <div><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Website</label><input id="f_website" type="url" placeholder="https://yoursite.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box"></div>
-      </div>
-      <div style="margin-bottom:14px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Monthly Budget</label>
-        <select id="f_budget" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:#fff;box-sizing:border-box">
-          <option value="">Select budget range...</option><option>Under $500/month</option><option>$500–$1,500/month</option><option>$1,500–$5,000/month</option><option>$5,000+/month</option>
-        </select>
-      </div>
-      <div style="margin-bottom:16px"><label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Goals & Requirements</label>
-        <textarea id="f_message" placeholder="What are your main goals? Current challenges? Any specific requirements?" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;resize:vertical;min-height:90px;box-sizing:border-box"></textarea>
-      </div>
-      <div id="f_status" style="display:none;padding:11px 14px;border-radius:9px;font-size:13px;font-weight:600;margin-bottom:12px"></div>
-      <button onclick="submitInquiry()" style="width:100%;padding:14px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">⚙️ Get Free Technical Audit →</button>
+      <ul class="audit-list" style="margin-top:24px">
+        <li>Crawlability & indexation — sitemap, robots.txt, crawl budget</li>
+        <li>Core Web Vitals — LCP, INP, and CLS optimization</li>
+        <li>Schema markup — structured data for rich snippets</li>
+        <li>HTTPS, security headers, and SSL configuration</li>
+        <li>Duplicate content, canonical tags, and redirect chains</li>
+        <li>Mobile-first indexing and responsive design compliance</li>
+      </ul>
+    </div>
+    <div class="long-txt">
+      <p>Technical SEO issues are unique because they are often invisible to the human eye. A site can look perfectly fine to a visitor but be a nightmare for Google's crawlers — missing canonical tags, JavaScript rendering issues, crawl traps, and hreflang errors all cause ranking problems that content or link building cannot solve.</p>
+      <p>At Uplyncio, our technical SEO specialists use enterprise-grade tools — Screaming Frog, Ahrefs, Google Search Console, and PageSpeed Insights — to conduct the most thorough technical audit possible, then implement every fix directly on your site or provide a detailed specification for your developer.</p>
+      <p>We do not just report problems — we fix them. Our team has experience across WordPress, Shopify, Webflow, custom React/Next.js sites, and enterprise CMS platforms, so we can implement technical changes regardless of your technology stack.</p>
+      <button onclick="openForm()" class="btn-hero" style="width:auto;font-size:14px;padding:13px 26px;margin-top:8px">⚙️ Get My Free Audit →</button>
     </div>
   </div>
 </div>
 
-<div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:10001;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:40px 32px;text-align:center">
-    <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px">✅</div>
-    <h3 style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin-bottom:10px">Inquiry Sent!</h3>
-    <p style="font-size:13.5px;color:#64748b;line-height:1.7;margin-bottom:24px">Our team will respond at <strong>info@uplyncio.com</strong> within 24 hours.</p>
-    <button onclick="document.getElementById('successModal').style.display='none'" style="width:100%;padding:12px;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Done</button>
+<!-- SERVICES -->
+<div class="svc-wrap">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;max-width:600px;margin:0 auto">
+      <div class="sec-label">What We Fix</div>
+      <h2 class="sec-title">100+ Technical Issues, <span class="grad-amb">Zero Left Behind</span></h2>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card"><div class="svc-icon" style="background:#fef3c7">🕷️</div><h3>Crawl & Index Audit</h3><p>Identify and fix crawl errors, blocked resources, orphan pages, crawl budget waste, redirect chains, and indexation issues that prevent Google from discovering your content.</p><span class="svc-tag">Google Search Console</span></div>
+      <div class="svc-card"><div class="svc-icon" style="background:#fef3c7">⚡</div><h3>Core Web Vitals Fix</h3><p>Improve your LCP, INP, and CLS scores through code optimization, image compression, lazy loading, CDN configuration, and render-blocking resource elimination.</p><span class="svc-tag">PageSpeed & CWV</span></div>
+      <div class="svc-card"><div class="svc-icon" style="background:#fef3c7">🏗️</div><h3>Site Architecture</h3><p>Optimize URL structure, breadcrumb navigation, internal linking patterns, and site hierarchy for both users and search engine crawlers — reducing crawl depth and improving authority flow.</p><span class="svc-tag">Information Architecture</span></div>
+      <div class="svc-card"><div class="svc-icon" style="background:#fef3c7">📊</div><h3>Schema Markup</h3><p>Implement and validate structured data for Articles, Products, FAQs, Reviews, LocalBusiness, Events, and more — to win rich snippets and featured placements in Google Search.</p><span class="svc-tag">Rich Snippets</span></div>
+      <div class="svc-card"><div class="svc-icon" style="background:#fef3c7">🔒</div><h3>HTTPS & Security</h3><p>Audit and fix SSL certificate issues, mixed content errors, security headers (HSTS, CSP, X-Frame), and ensure your site fully meets Google's security and trust requirements.</p><span class="svc-tag">Security Headers</span></div>
+      <div class="svc-card"><div class="svc-icon" style="background:#fef3c7">📱</div><h3>Mobile Optimization</h3><p>Ensure your site passes Google's mobile-first indexing requirements — responsive design verification, tap target sizing, viewport configuration, and mobile page speed.</p><span class="svc-tag">Mobile-First Index</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- HEALTH SCORE SECTION -->
+<div class="health-wrap">
+  <div class="health-inner">
+    <div class="health-visual">
+      <div class="hv-title">🏥 Technical Health Dashboard</div>
+      <div class="hv-meter">
+        <div class="hv-score">
+          <div class="hv-big">94</div>
+          <div class="hv-sub">After Uplyncio Fix</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px">Was: 61/100</div>
+        </div>
+      </div>
+      <div class="hv-items">
+        <div class="hv-item"><div class="hv-dot" style="background:#4ade80"></div><span class="hv-name">Core Web Vitals</span><span class="hv-score-badge" style="background:rgba(74,222,128,.12);color:#4ade80">98 ✓</span></div>
+        <div class="hv-item"><div class="hv-dot" style="background:#4ade80"></div><span class="hv-name">Crawlability</span><span class="hv-score-badge" style="background:rgba(74,222,128,.12);color:#4ade80">100 ✓</span></div>
+        <div class="hv-item"><div class="hv-dot" style="background:#4ade80"></div><span class="hv-name">HTTPS Security</span><span class="hv-score-badge" style="background:rgba(74,222,128,.12);color:#4ade80">A+ ✓</span></div>
+        <div class="hv-item"><div class="hv-dot" style="background:#fbbf24"></div><span class="hv-name">Schema Markup</span><span class="hv-score-badge" style="background:rgba(251,191,36,.12);color:#fbbf24">88 ↑</span></div>
+        <div class="hv-item"><div class="hv-dot" style="background:#4ade80"></div><span class="hv-name">Mobile Friendly</span><span class="hv-score-badge" style="background:rgba(74,222,128,.12);color:#4ade80">100 ✓</span></div>
+        <div class="hv-item"><div class="hv-dot" style="background:#4ade80"></div><span class="hv-name">Site Speed (LCP)</span><span class="hv-score-badge" style="background:rgba(74,222,128,.12);color:#4ade80">1.4s ✓</span></div>
+      </div>
+    </div>
+    <div class="health-txt">
+      <div class="sec-label">Proven Results</div>
+      <h2 class="sec-title" style="color:#fff">From Broken to <span class="grad-amb">Fully Optimized</span></h2>
+      <p style="font-size:15px;color:#94a3b8;line-height:1.85;margin-bottom:4px">Technical issues are silent ranking killers. Our team identifies and fixes every barrier holding your site back — from crawl budget waste to Core Web Vitals failures — so Google can properly reward your content.</p>
+      <ul class="chk-list">
+        <li>100+ point technical audit with prioritized fix roadmap</li>
+        <li>Core Web Vitals optimization — LCP, INP, CLS all targets</li>
+        <li>Crawl error resolution and XML sitemap optimization</li>
+        <li>Schema markup for rich snippet eligibility</li>
+        <li>Mobile-first optimization and HTTPS security audit</li>
+        <li>Monthly monitoring to catch new technical issues early</li>
+      </ul>
+      <button onclick="openForm()" class="btn-hero" style="font-size:14px;padding:13px 26px">⚙️ Start My Technical Audit →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROCESS -->
+<div class="proc-wrap">
+  <div class="proc-inner">
+    <div style="text-align:center;max-width:560px;margin:0 auto">
+      <div class="sec-label">Our Process</div>
+      <h2 class="sec-title">Audit to <span class="grad-amb">Fixed in 4 Steps</span></h2>
+    </div>
+    <div class="proc-grid">
+      <div class="ps"><div class="ps-num" style="background:linear-gradient(135deg,#b45309,#f59e0b)">1</div><h4>100+ Point Audit</h4><p>We run a comprehensive technical crawl identifying every issue — from crawl errors to missing schema to Core Web Vitals failures.</p></div>
+      <div class="ps"><div class="ps-num" style="background:linear-gradient(135deg,#f59e0b,#22c55e)">2</div><h4>Priority Fix Plan</h4><p>Issues ranked by ranking impact. High-impact fixes tackled first so you see results as fast as possible.</p></div>
+      <div class="ps"><div class="ps-num" style="background:linear-gradient(135deg,#22c55e,#4f7cff)">3</div><h4>Implement Fixes</h4><p>We fix directly on your site or provide developer-ready specifications — compatible with WordPress, Shopify, or any platform.</p></div>
+      <div class="ps"><div class="ps-num" style="background:linear-gradient(135deg,#4f7cff,#6366f1)">4</div><h4>Monitor & Report</h4><p>Monthly technical health monitoring via Google Search Console with proactive alerts for any new issues.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <div class="cta-inner">
+    <h2>Find Every Technical Issue <span class="grad-amb">Today — Free</span></h2>
+    <p>Technical SEO issues could be silently costing you dozens of ranking positions. Get a full 100+ point audit and discover every barrier holding your site back.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <button onclick="openForm()" class="btn-hero" style="font-size:15px;padding:15px 34px">⚙️ Get Free Technical Audit →</button>
+      <a href="buyer.html" class="btn-sec" style="font-size:15px;padding:15px 28px">🔍 Browse Publisher Sites</a>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED -->
+<div class="related">
+  <div style="max-width:1100px;margin:0 auto">
+    <h3 style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:20px">Explore More Services</h3>
+    <div class="rel-grid">
+      <a href="on-page-seo.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🎯</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">On-Page SEO</div><div style="font-size:12px;color:#94a3b8">Optimize every element</div></a>
+      <a href="off-page-seo.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🌐</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Off-Page SEO</div><div style="font-size:12px;color:#94a3b8">Build domain authority</div></a>
+      <a href="buyer.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🔍</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Browse Marketplace</div><div style="font-size:12px;color:#94a3b8">8,500+ publisher sites</div></a>
+      <a href="link-building.html" class="rc"><div style="font-size:22px;margin-bottom:8px">🔗</div><div style="font-size:13.5px;font-weight:700;color:#1a202c">Link Building</div><div style="font-size:12px;color:#94a3b8">High-authority backlinks</div></a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="fg">
+    <div class="fb">
+      <a href="uplyncio-full.html" class="logo" style="color:#fff"><svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="14" fill="#0f1628"/><g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g><g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg><span>Uply<em>ncio</em></span></a>
+      <p>Premium guest posting and link building marketplace. 8,500+ verified publisher sites.</p>
+      <div class="fss"><a href="https://www.linkedin.com/company/uplyncio" target="_blank" class="sb">in</a><a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" class="sb">fb</a><a href="https://www.instagram.com/uplyncio" target="_blank" class="sb">ig</a><a href="https://wa.me/923001234567" target="_blank" class="sb">wa</a></div>
+    </div>
+    <div class="fc"><h4>SEO Services</h4><ul><li><a href="local-seo.html">Local SEO</a></li><li><a href="on-page-seo.html">On-Page SEO</a></li><li><a href="off-page-seo.html">Off-Page SEO</a></li><li><a href="technical-seo.html">Technical SEO</a></li><li><a href="link-building.html">Link Building</a></li></ul></div>
+    <div class="fc"><h4>Platform</h4><ul><li><a href="uplyncio-full.html">Home</a></li><li><a href="buyer.html">Browse Sites</a></li><li><a href="publisher.html">Become Publisher</a></li><li><a href="content-writing.html">Content Writing</a></li></ul></div>
+    <div class="fc"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li><li><a href="terms.html">Terms & Conditions</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+  </div>
+  <div class="fbot"><p>© 2026 Uplyncio. All rights reserved.</p><div><span class="pb">PayPal</span><span class="pb">Wise</span><span class="pb">USDT</span><span class="pb">Bank</span></div></div>
+</footer>
+
+<!-- FORM -->
+<div id="tsModal" class="modal-ov" onclick="if(event.target===this)closeForm()">
+  <div class="modal-box">
+    <div class="mhead">
+      <div class="mh-top">
+        <div><h3>⚙️ Free Technical SEO Audit</h3><p>100+ point audit delivered within 48 hours — completely free</p></div>
+        <button class="m-cls" onclick="closeForm()">✕</button>
+      </div>
+      <div class="prog"><div class="pr done"></div><div class="pr done"></div><div class="pr done"></div><div class="pr done"></div><div class="pr done"></div><div class="pr"></div></div>
+    </div>
+    <div class="mbody">
+      <div class="fnote"><div style="font-size:20px">⚙️</div><p>Your audit covers 100+ technical checkpoints including Core Web Vitals, crawl errors, schema, HTTPS, and mobile optimization. We respond at <strong>info@uplyncio.com</strong> within 48 hours.</p></div>
+
+      <div class="fsec">
+        <div class="fsec-ttl"><div class="fsec-n">1</div> Your Details</div>
+        <div class="fg2">
+          <div><label class="fl">Full Name <span class="fr">*</span></label><input id="ts_name" type="text" placeholder="e.g. David Park" class="fi"></div>
+          <div><label class="fl">Email <span class="fr">*</span></label><input id="ts_email" type="email" placeholder="david@company.com" class="fi"></div>
+        </div>
+        <div class="fg2" style="margin-top:12px">
+          <div><label class="fl">Phone / WhatsApp</label><input id="ts_phone" type="tel" placeholder="+1 234 567 8900" class="fi"></div>
+          <div><label class="fl">Website URL <span class="fr">*</span></label><input id="ts_website" type="url" placeholder="https://yoursite.com" class="fi"></div>
+        </div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-ttl"><div class="fsec-n">2</div> Website Info</div>
+        <div class="fg2">
+          <div><label class="fl">Platform / CMS <span class="fr">*</span></label>
+            <select id="ts_platform" class="fsel">
+              <option value="">Select platform...</option>
+              <option>WordPress</option><option>Shopify</option><option>Webflow</option>
+              <option>React / Next.js (Custom)</option><option>Wix</option><option>Squarespace</option><option>Other</option>
+            </select>
+          </div>
+          <div><label class="fl">Monthly Traffic</label>
+            <select id="ts_traffic" class="fsel">
+              <option value="">Select range...</option>
+              <option>0–1,000 visits</option><option>1,000–10,000</option>
+              <option>10,000–50,000</option><option>50,000+</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg2" style="margin-top:12px">
+          <div><label class="fl">Site Size</label>
+            <select id="ts_pages" class="fsel">
+              <option value="">Select pages...</option>
+              <option>Under 50 pages</option><option>50–200 pages</option>
+              <option>200–1,000 pages</option><option>1,000+ pages</option>
+            </select>
+          </div>
+          <div><label class="fl">Hosting Provider</label>
+            <input id="ts_host" type="text" placeholder="e.g. Vercel, WP Engine, Kinsta" class="fi">
+          </div>
+        </div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-ttl"><div class="fsec-n">3</div> Known Issues (if any)</div>
+        <label class="fl" style="margin-bottom:10px">What technical problems are you aware of?</label>
+        <div class="tog-g" id="tsIssueGrid">
+          <button class="tog" onclick="togI(this)">🐌 Slow Page Speed</button>
+          <button class="tog" onclick="togI(this)">🕷️ Crawl Errors</button>
+          <button class="tog" onclick="togI(this)">📊 No Schema Markup</button>
+          <button class="tog" onclick="togI(this)">🔒 HTTPS Issues</button>
+          <button class="tog" onclick="togI(this)">📱 Mobile Problems</button>
+          <button class="tog" onclick="togI(this)">⚡ Core Web Vitals</button>
+          <button class="tog" onclick="togI(this)">🔗 Broken Links</button>
+          <button class="tog" onclick="togI(this)">📋 Duplicate Content</button>
+          <button class="tog" onclick="togI(this)">🗺️ Sitemap Issues</button>
+        </div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-ttl"><div class="fsec-n">4</div> Goals & Budget</div>
+        <div style="margin-bottom:12px"><label class="fl">Primary Goal</label>
+          <select id="ts_goal" class="fsel">
+            <option value="">Select your main goal...</option>
+            <option>Improve Google rankings overall</option>
+            <option>Fix Core Web Vitals / PageSpeed</option>
+            <option>Fix crawl / indexation issues</option>
+            <option>Recover from Google penalty</option>
+            <option>Pre-launch technical review</option>
+            <option>Ongoing technical monitoring</option>
+          </select>
+        </div>
+        <div><label class="fl">Monthly Budget</label>
+          <div class="bud-g">
+            <button class="bud" onclick="selB(this,'Under $500')">Under $500</button>
+            <button class="bud" onclick="selB(this,'$500–$1,500')">$500–$1.5K</button>
+            <button class="bud" onclick="selB(this,'$1,500–$5K')">$1.5K–$5K</button>
+            <button class="bud" onclick="selB(this,'$5K+')">$5K+</button>
+          </div>
+          <input type="hidden" id="ts_budget">
+        </div>
+      </div>
+
+      <div class="fsec">
+        <div class="fsec-ttl"><div class="fsec-n">5</div> Additional Notes</div>
+        <textarea id="ts_message" class="fta" placeholder="Any past SEO issues, recent Google Search Console warnings, algorithm update impacts, or anything specific you'd like us to focus on in the audit..."></textarea>
+      </div>
+
+      <div id="ts_status" class="f-st"></div>
+      <button onclick="submitTS()" class="sub-btn">⚙️ Send My Free Audit Request →</button>
+      <div class="guar"><strong>🔒 Confidential</strong>&nbsp;·&nbsp;<strong>⚡ 48hr Audit</strong>&nbsp;·&nbsp;<strong>✅ Free</strong></div>
+    </div>
+  </div>
+</div>
+
+<div id="tsSuccess" style="display:none;position:fixed;inset:0;background:rgba(7,9,15,.9);backdrop-filter:blur(8px);z-index:10001;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:24px;max-width:420px;width:100%;padding:48px 36px;text-align:center">
+    <div style="width:72px;height:72px;background:linear-gradient(135deg,#b45309,#f59e0b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px">⚙️</div>
+    <h3 style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#1a202c;margin-bottom:12px">Audit Request Received!</h3>
+    <p style="font-size:14px;color:#64748b;line-height:1.75;margin-bottom:28px">Our technical SEO team will crawl your site and send a <strong style="color:#b45309">100+ point audit report</strong> to info@uplyncio.com within 48 hours.</p>
+    <button onclick="document.getElementById('tsSuccess').style.display='none'" style="width:100%;padding:14px;background:linear-gradient(135deg,#b45309,#f59e0b);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Done</button>
   </div>
 </div>
 
 <script>
-function openForm(){ document.getElementById('inquiryModal').style.display='flex'; document.body.style.overflow='hidden'; }
-function closeForm(){ document.getElementById('inquiryModal').style.display='none'; document.body.style.overflow=''; }
-function submitInquiry(){
-  var name=(document.getElementById('f_name').value||'').trim();
-  var email=(document.getElementById('f_email').value||'').trim();
-  var st=document.getElementById('f_status');
-  if(!name||!email){
-    st.style.display='block';st.style.background='#fef2f2';st.style.color='#b91c1c';
-    st.textContent='Please fill in your Name and Email.';return;
+function openForm(){document.getElementById('tsModal').classList.add('open');document.body.style.overflow='hidden';}
+function closeForm(){document.getElementById('tsModal').classList.remove('open');document.body.style.overflow='';}
+function togI(btn){btn.classList.toggle('sel');}
+function selB(btn,val){document.querySelectorAll('.bud-g .bud').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');document.getElementById('ts_budget').value=val;}
+function submitTS(){
+  var name=(document.getElementById('ts_name').value||'').trim();
+  var email=(document.getElementById('ts_email').value||'').trim();
+  var website=(document.getElementById('ts_website').value||'').trim();
+  var platform=document.getElementById('ts_platform').value;
+  var st=document.getElementById('ts_status');
+  if(!name||!email||!website||!platform){
+    st.style.display='block';st.style.background='#fef2f2';st.style.color='#b91c1c';st.style.border='1px solid #fecaca';
+    st.textContent='⚠️ Please fill Name, Email, Website, and Platform.';return;
   }
-  st.style.display='block';st.style.background='#f0f4ff';st.style.color='#4f7cff';
-  st.textContent='Sending your inquiry...';
-  var payload={
-    service:'Technical SEO',
-    name:name,email:email,
-    phone:(document.getElementById('f_phone')?document.getElementById('f_phone').value:''),
-    website:(document.getElementById('f_website')?document.getElementById('f_website').value:''),
-    budget:(document.getElementById('f_budget')?document.getElementById('f_budget').value:''),
-    message:(document.getElementById('f_message')?document.getElementById('f_message').value:'')
-  };
-  fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(function(r){
-      if(r.ok){closeForm();document.getElementById('successModal').style.display='flex';}
-      else{st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Error. Please email info@uplyncio.com directly.';}
-    })
-    .catch(function(){
-      st.style.background='#fef2f2';st.style.color='#b91c1c';st.textContent='Network error. Email info@uplyncio.com directly.';
-    });
+  st.style.display='block';st.style.background='#fefce8';st.style.color='#b45309';st.style.border='1px solid #fde68a';
+  st.textContent='Sending your audit request...';
+  var issues=[];document.querySelectorAll('#tsIssueGrid .tog.sel').forEach(function(b){issues.push(b.textContent.trim());});
+  fetch('/api/inquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    service:'Technical SEO',name:name,email:email,
+    phone:document.getElementById('ts_phone').value||'',
+    website:website,budget:document.getElementById('ts_budget').value||'',
+    message:document.getElementById('ts_message').value||'',
+    details:{
+      'Platform':platform,
+      'Monthly Traffic':document.getElementById('ts_traffic').value||'Not specified',
+      'Site Size':document.getElementById('ts_pages').value||'Not specified',
+      'Hosting':document.getElementById('ts_host').value||'Not specified',
+      'Known Issues':issues.join(', ')||'None specified',
+      'Primary Goal':document.getElementById('ts_goal').value||'Not specified'
+    }
+  })})
+  .then(function(r){
+    if(r.ok){closeForm();document.getElementById('tsSuccess').style.display='flex';}
+    else{st.style.background='#fef2f2';st.style.color='#b91c1c';st.style.border='1px solid #fecaca';st.textContent='Error. Please email info@uplyncio.com directly.';}
+  })
+  .catch(function(){
+    st.style.background='#fef2f2';st.style.color='#b91c1c';st.style.border='1px solid #fecaca';
+    st.textContent='Network error. Email info@uplyncio.com directly.';
+  });
 }
 </script>
 </body>
