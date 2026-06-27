@@ -456,7 +456,11 @@ function submitVerifyCode(){
       var users = getUsers();
       var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
       if(idx>-1){ users[idx].verified=true; users[idx].verifyCode=''; users[idx].emailVerified=true; saveUsers(users); }
-      var localUser = idx>-1 ? users[idx] : {email:email, name:result.user.name||'', role:result.user.role||'publisher', uid:result.user.id, verified:true};
+      // Get stored role - check localStorage first, then result
+      var storedRole = '';
+      try{ var storedUser = JSON.parse(localStorage.getItem('uplyncio_user')||'{}'); storedRole = storedUser.role||''; }catch(e){}
+      var resultRole = (result.user && result.user.role) || storedRole || (idx>-1 ? users[idx].role : '') || 'buyer';
+      var localUser = idx>-1 ? users[idx] : {email:email, name:result.user.name||'', role:resultRole, uid:result.user.id, verified:true};
       // Show success
       document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
       if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; vBtn.disabled=false; }
@@ -3498,6 +3502,7 @@ function submitPublisherAuth(mode){
         var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',password:pass,verified:false,verifyCode:fallCode,createdAt:new Date().toISOString()};
         var us=getUsers();us.push(lu);saveUsers(us);
         localStorage.setItem('uplyncio_currentUid',uid);
+        localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',verified:false}));
         document.getElementById('publisherModal').style.display='none';
         document.body.style.overflow='';
         setTimeout(function(){openVerifyModal(email,true);},300);
@@ -3562,6 +3567,7 @@ function submitBuyerAuth(mode){
         var lu={uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',password:pass,verified:false,verifyCode:fallCode,createdAt:new Date().toISOString()};
         var us=getUsers();us.push(lu);saveUsers(us);
         localStorage.setItem('uplyncio_currentUid',uid);
+        localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',verified:false}));
         document.getElementById('buyerModal').style.display='none';
         document.body.style.overflow='';
         setTimeout(function(){openVerifyModal(email,true);},300);
