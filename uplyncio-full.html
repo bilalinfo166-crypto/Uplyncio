@@ -710,7 +710,13 @@ function _loginSuccess(user){
       })
     }).catch(function(){});
   }catch(ex){}
-  window.location.href='publisher.html';
+  // Redirect based on role
+  var userRole = (user.role||'').toLowerCase();
+  if(userRole === 'publisher'){
+    window.location.replace('publisher.html');
+  } else {
+    window.location.replace('buyer.html');
+  }
 }
 
 async function googleLogin(role){
