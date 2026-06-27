@@ -2619,7 +2619,28 @@ var _ordersFilter = 'all';
 function openOrdersPage(){
   var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveBuyerState('orders');
-  document.getElementById('ordersModal').style.display='flex';
+  // Create modal if not exists
+  var modal = document.getElementById('ordersModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'ordersModal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(5px);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px';
+    modal.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:700px;margin:0 auto;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.2)">'
+      + '<div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between">'
+      + '<div style="font-size:18px;font-weight:800;color:#1a202c">📦 My Orders</div>'
+      + '<button onclick="closeOrdersPage()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px">✕</button>'
+      + '</div>'
+      + '<div style="display:flex;gap:0;border-bottom:1px solid #e2e8f0;padding:0 24px">'
+      + '<button class="ord-tab" onclick="filterOrders(this,'all')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#4f7cff;border:none;background:none;cursor:pointer;border-bottom:2px solid #4f7cff;font-family:inherit">All</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,'Pending')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">Pending</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,'In Progress')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">In Progress</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,'Completed')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">Completed</button>'
+      + '</div>'
+      + '<div id="ordersList" style="padding:20px 24px;min-height:200px"></div>'
+      + '</div>';
+    document.body.appendChild(modal);
+  }
+  modal.style.display='flex';
   document.body.style.overflow='hidden';
   renderOrders();
 }
@@ -2627,7 +2648,8 @@ function openOrdersPage(){
 function closeOrdersPage(){
   var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='block';
   saveBuyerState('browse');
-  document.getElementById('ordersModal').style.display='none';
+  var modal=document.getElementById('ordersModal');
+  if(modal) modal.style.display='none';
   document.body.style.overflow='';
 }
 
