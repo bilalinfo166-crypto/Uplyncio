@@ -1362,3 +1362,509 @@ export async function sendRefundInvoice({ to, name, refundId, date, orderId, sit
   );
   return send(to, `Refund ${refundId} — $${refundAmount} processing for Order ${orderId}`, html);
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// SECURITY TEMPLATES (S1 – S13)
+// ══════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────
+// S1: Suspicious Login Attempt Blocked
+// ─────────────────────────────────────────
+export async function sendSuspiciousLoginBlocked({ to, name, attempts, lockedUntil, ipAddress, device, location, time }) {
+  const html = wrap(
+    header('Security Alert', '#ef4444') +
+    bodyStart('Suspicious login activity detected',
+      `Hi <strong style="color:#1a202c">${name}</strong>, we detected <strong style="color:#ef4444">${attempts} failed login attempts</strong> on your Uplyncio account. For your security, we have temporarily blocked access.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:10px;padding:18px">
+        <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#ef4444;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 12px">Login Attempt Details</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${invoiceRow('Time', time)}
+          ${invoiceRow('IP Address', ipAddress || 'Unknown')}
+          ${invoiceRow('Device', device || 'Unknown')}
+          ${invoiceRow('Location', location || 'Unknown')}
+          ${invoiceRow('Failed Attempts', attempts)}
+          ${invoiceRow('Account Locked Until', lockedUntil, { bold: true, color: '#ef4444' })}
+        </table>
+      </td></tr>
+    </table>` +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      `🔴 <strong>Was this you?</strong> If you forgot your password, use the Forgot Password option to reset it. If this was NOT you, your password may be compromised — reset it immediately.`) +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      `⏳ Your account will automatically unlock at <strong>${lockedUntil}</strong>. Or contact us at <a href="mailto:info@uplyncio.com" style="color:#b45309;text-decoration:none">info@uplyncio.com</a> to unlock it immediately.`) +
+    ctaBtn(`${SITE}/uplyncio-full.html`, 'Reset Password Now →', '#ef4444') +
+    sign() + footer()
+  );
+  return send(to, `🔴 Security Alert: ${attempts} failed login attempts on your Uplyncio account`, html);
+}
+
+// ─────────────────────────────────────────
+// S2: Account Temporarily Locked
+// ─────────────────────────────────────────
+export async function sendAccountLocked({ to, name, reason, lockedUntil, role }) {
+  const dashLink = role === 'publisher' ? `${SITE}/publisher.html` : `${SITE}/buyer.html`;
+  const html = wrap(
+    header('Account Locked', '#ef4444') +
+    bodyStart('Your account has been temporarily locked',
+      `Hi <strong style="color:#1a202c">${name}</strong>, your Uplyncio account has been temporarily locked due to security reasons.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:10px;padding:18px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:32px;margin:0 0 10px">🔒</p>
+        <p style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#1a202c;margin:0 0 6px">Account Locked</p>
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;margin:0 0 12px">Reason: <strong style="color:#ef4444">${reason || 'Multiple failed login attempts'}</strong></p>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:#94a3b8;margin:0">Unlocks automatically at</p>
+        <p style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#1a202c;margin:4px 0 0">${lockedUntil}</p>
+      </td></tr>
+    </table>` +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="padding-bottom:8px">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px">
+          <tr><td style="padding:12px 14px"><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.5">
+            <strong style="color:#1a202c">Option 1 — Wait:</strong> Your account will automatically unlock at ${lockedUntil}. No action needed.
+          </p></td></tr>
+        </table>
+      </td></tr>
+      <tr><td>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px">
+          <tr><td style="padding:12px 14px"><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.5">
+            <strong style="color:#1a202c">Option 2 — Reset Password:</strong> Use Forgot Password to verify your identity and unlock your account immediately.
+          </p></td></tr>
+        </table>
+      </td></tr>
+    </table>` +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      '🔴 If you did not trigger this lock, contact us at <a href="mailto:info@uplyncio.com" style="color:#b91c1c;text-decoration:none">info@uplyncio.com</a> immediately — include your registered email in the subject line.') +
+    ctaBtn(`${SITE}/uplyncio-full.html`, 'Reset Password to Unlock →', '#ef4444') +
+    sign() + footer()
+  );
+  return send(to, `🔒 Your Uplyncio account has been temporarily locked`, html);
+}
+
+// ─────────────────────────────────────────
+// S3: Account Unlocked
+// ─────────────────────────────────────────
+export async function sendAccountUnlocked({ to, name, unlockedAt, unlockedBy = 'System' }) {
+  const html = wrap(
+    header('Account Unlocked', '#00c27a') +
+    bodyStart('Your account is unlocked and active',
+      `Hi <strong style="color:#1a202c">${name}</strong>, your Uplyncio account has been unlocked and is fully accessible again.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0fdf4;border:1.5px solid #00c27a;border-radius:10px;padding:18px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:32px;margin:0 0 10px">🔓</p>
+        <p style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#1a202c;margin:0 0 6px">Account Unlocked</p>
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;margin:0">Unlocked on ${unlockedAt} by ${unlockedBy}</p>
+      </td></tr>
+    </table>` +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      '💡 <strong>For your security:</strong> We strongly recommend changing your password immediately if you did not initiate the failed login attempts.') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0 0 8px">Stay secure:</p>
+        <ul style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;padding-left:18px;line-height:1.9">
+          <li>Use a strong, unique password for Uplyncio</li>
+          <li>Never share your login credentials with anyone</li>
+          <li>Always log out from shared or public devices</li>
+          <li>Contact us immediately if you notice unusual activity</li>
+        </ul>
+      </td></tr>
+    </table>` +
+    ctaBtn(`${SITE}/uplyncio-full.html`, 'Log In to Your Account →', '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `🔓 Your Uplyncio account has been unlocked`, html);
+}
+
+// ─────────────────────────────────────────
+// S4: Unauthorized Access Attempt
+// ─────────────────────────────────────────
+export async function sendUnauthorizedAccessAttempt({ to, name, role, attemptedArea, time, ipAddress }) {
+  const html = wrap(
+    header('Security Alert', '#ef4444') +
+    bodyStart('Unauthorized area access attempt',
+      `Hi <strong style="color:#1a202c">${name}</strong>, someone attempted to access a restricted area of Uplyncio using your account that does not match your role permissions.`) +
+    detailsBox('#fef2f2','#fecaca', [
+      ['Your Role', role.charAt(0).toUpperCase() + role.slice(1), '#4f7cff'],
+      ['Attempted Area', attemptedArea, '#ef4444'],
+      ['Time', time],
+      ['IP Address', ipAddress || 'Unknown'],
+      ['Action Taken', 'Access Blocked ✅', '#00c27a']
+    ]) +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      `⚠️ <strong>Role reminder:</strong> Your account is registered as a <strong>${role}</strong>. You can only access the ${role} dashboard. If you need a different role, please create a separate account with a different email.`) +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      '🔴 If this was NOT you, your account may be compromised. Change your password immediately and contact us at <a href="mailto:info@uplyncio.com" style="color:#b91c1c;text-decoration:none">info@uplyncio.com</a>') +
+    ctaBtn(`${SITE}/uplyncio-full.html`, 'Secure My Account →', '#ef4444') +
+    sign() + footer()
+  );
+  return send(to, `⚠️ Security Alert: Unauthorized access attempt on your Uplyncio account`, html);
+}
+
+// ─────────────────────────────────────────
+// S5: Account Suspended by Admin
+// ─────────────────────────────────────────
+export async function sendAccountSuspended({ to, name, role, reason, suspendedAt, pendingOrdersInfo, pendingPaymentInfo, appealDeadline }) {
+  const html = wrap(
+    header('Account Suspended', '#ef4444') +
+    bodyStart('Your account has been suspended',
+      `Hi <strong style="color:#1a202c">${name}</strong>, your Uplyncio ${role} account has been suspended following a review by our Trust & Safety team.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:10px;padding:18px">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${invoiceRow('Account Type', role.charAt(0).toUpperCase() + role.slice(1))}
+          ${invoiceRow('Suspended On', suspendedAt)}
+          ${invoiceRow('Reason', reason || 'Violation of Uplyncio Terms of Service', { bold: true, color: '#ef4444' })}
+          ${invoiceRow('Status', 'Suspended — Access Restricted', { bold: true, color: '#ef4444' })}
+          ${pendingOrdersInfo ? invoiceRow('Pending Orders', pendingOrdersInfo) : ''}
+          ${pendingPaymentInfo ? invoiceRow('Pending Payments', pendingPaymentInfo) : ''}
+        </table>
+      </td></tr>
+    </table>` +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#92400e;margin:0 0 8px">How to appeal this decision:</p>
+        <ol style="font-family:Arial,sans-serif;font-size:13px;color:#92400e;margin:0;padding-left:18px;line-height:1.9">
+          <li>Email us at <a href="mailto:info@uplyncio.com" style="color:#92400e">info@uplyncio.com</a></li>
+          <li>Use subject line: <strong>Account Appeal — ${name}</strong></li>
+          <li>Explain your situation and provide any relevant evidence</li>
+          <li>Appeals must be submitted before <strong>${appealDeadline || '30 days from suspension date'}</strong></li>
+        </ol>
+      </td></tr>
+    </table>` +
+    alertBox('#f8faff','#e0e7ff','#475569',
+      'ℹ️ During suspension, you cannot access your dashboard, place or receive orders. Any active orders will be managed by Uplyncio. Pending earnings will be held until the suspension is resolved.') +
+    sign() + footer()
+  );
+  return send(to, `Your Uplyncio account has been suspended`, html);
+}
+
+// ─────────────────────────────────────────
+// S6: Account Reactivated
+// ─────────────────────────────────────────
+export async function sendAccountReactivated({ to, name, role, reactivatedAt, pendingOrdersStatus }) {
+  const dashLink = role === 'publisher' ? `${SITE}/publisher.html` : `${SITE}/buyer.html`;
+  const html = wrap(
+    header('Account Reactivated', '#00c27a') +
+    bodyStart(`Welcome back, ${name}!`,
+      `Your Uplyncio ${role} account has been reviewed and is now fully reactivated. We are glad to have you back on the platform.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0fdf4;border:1.5px solid #00c27a;border-radius:10px;padding:18px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:32px;margin:0 0 10px">✅</p>
+        <p style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#1a202c;margin:0 0 4px">Account Active</p>
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;margin:0">Reactivated on ${reactivatedAt}</p>
+      </td></tr>
+    </table>` +
+    (pendingOrdersStatus ? alertBox('#f0f4ff','#c7d7ff','#1e40af', `📋 <strong>Pending orders update:</strong> ${pendingOrdersStatus}`) : '') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#92400e;margin:0 0 8px">⚠️ Please note:</p>
+        <ul style="font-family:Arial,sans-serif;font-size:13px;color:#92400e;margin:0;padding-left:18px;line-height:1.9">
+          <li>Any future violations may result in permanent suspension</li>
+          <li>Please review our <a href="${SITE}/terms.html" style="color:#92400e">Terms of Service</a> and <a href="${SITE}/privacy.html" style="color:#92400e">Policies</a></li>
+          <li>Contact us if you have any questions before resuming activity</li>
+        </ul>
+      </td></tr>
+    </table>` +
+    ctaBtn(dashLink, `Go to ${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard →`, '#00c27a') +
+    sign() + footer()
+  );
+  return send(to, `✅ Your Uplyncio account has been reactivated`, html);
+}
+
+// ─────────────────────────────────────────
+// S7: Publisher Verified Badge Earned
+// ─────────────────────────────────────────
+export async function sendPublisherBadgeEarned({ to, name, completedOrders, earnedAt, totalEarnings, nextMilestone }) {
+  const html = wrap(
+    header('Verified Badge Earned', '#f59e0b') +
+    `<tr><td style="padding:28px">
+      <div style="text-align:center;margin-bottom:20px">
+        <p style="font-family:Arial,sans-serif;font-size:48px;margin:0 0 8px">👑</p>
+        <p style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#1a202c;margin:0 0 6px">Congratulations, ${name}!</p>
+        <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0">You have earned the Uplyncio Verified Publisher badge</p>
+      </div>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+        <tr>
+          <td style="width:33%;padding-right:4px">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px;text-align:center">
+              <tr><td><p style="font-family:Arial,sans-serif;font-size:10px;color:#92400e;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px">Orders Done</p>
+              <p style="font-family:Arial,sans-serif;font-size:24px;font-weight:800;color:#b45309;margin:0">${completedOrders}</p></td></tr>
+            </table>
+          </td>
+          <td style="width:33%;padding:0 4px">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;text-align:center">
+              <tr><td><p style="font-family:Arial,sans-serif;font-size:10px;color:#15803d;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px">Total Earned</p>
+              <p style="font-family:Arial,sans-serif;font-size:24px;font-weight:800;color:#00c27a;margin:0">$${totalEarnings}</p></td></tr>
+            </table>
+          </td>
+          <td style="width:33%;padding-left:4px">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:8px;padding:14px;text-align:center">
+              <tr><td><p style="font-family:Arial,sans-serif;font-size:10px;color:#1e40af;margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px">Badge</p>
+              <p style="font-family:Arial,sans-serif;font-size:18px;font-weight:800;color:#4f7cff;margin:0">👑 Verified</p></td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+        <tr><td style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:14px">
+          <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#92400e;margin:0 0 8px">What your Verified badge means:</p>
+          <ul style="font-family:Arial,sans-serif;font-size:13px;color:#92400e;margin:0;padding-left:18px;line-height:1.9">
+            <li>👑 Crown badge displayed on your profile and all listings</li>
+            <li>📈 Priority placement in buyer search results</li>
+            <li>🤝 Higher buyer trust — verified publishers get 3x more orders</li>
+            <li>💰 Access to premium buyer requests not available to unverified publishers</li>
+          </ul>
+        </td></tr>
+      </table>
+      ${nextMilestone ? alertBox('#f0f4ff','#c7d7ff','#1e40af', `🎯 <strong>Next milestone:</strong> ${nextMilestone}`) : ''}
+    </td></tr>` +
+    `<tr><td style="padding:0 28px 28px">` +
+    ctaBtn(`${SITE}/publisher.html`, 'View My Verified Profile →', '#f59e0b') +
+    sign() +
+    `</td></tr>` +
+    footer()
+  );
+  return send(to, `👑 Congratulations! You earned the Uplyncio Verified Publisher badge`, html);
+}
+
+// ─────────────────────────────────────────
+// S8: Policy Violation Warning
+// ─────────────────────────────────────────
+export async function sendPolicyViolationWarning({ to, name, role, violation, warningNum, details, consequenceNext }) {
+  const html = wrap(
+    header('Policy Violation Warning', '#ef4444') +
+    bodyStart(`Warning ${warningNum}: Policy violation detected`,
+      `Hi <strong style="color:#1a202c">${name}</strong>, our Trust & Safety team has reviewed your account and found a violation of Uplyncio's policies. This is a formal warning.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:10px;padding:18px">
+        <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#ef4444;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 12px">Violation Details</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${invoiceRow('Warning Number', `${warningNum} of 3`)}
+          ${invoiceRow('Account Type', role.charAt(0).toUpperCase() + role.slice(1))}
+          ${invoiceRow('Violation Type', violation, { bold: true, color: '#ef4444' })}
+          ${details ? invoiceRow('Details', details) : ''}
+        </table>
+      </td></tr>
+    </table>` +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr>
+        <td style="width:33%;padding-right:4px;text-align:center">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${warningNum >= 1 ? '#fef2f2' : '#f8faff'};border:1px solid ${warningNum >= 1 ? '#fecaca' : '#e0e7ff'};border-radius:8px;padding:12px">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 4px">Warning 1</p>
+            <p style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:${warningNum >= 1 ? '#ef4444' : '#94a3b8'};margin:0">${warningNum >= 1 ? '⚠️ Issued' : '—'}</p></td></tr>
+          </table>
+        </td>
+        <td style="width:33%;padding:0 4px;text-align:center">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${warningNum >= 2 ? '#fef2f2' : '#f8faff'};border:1px solid ${warningNum >= 2 ? '#fecaca' : '#e0e7ff'};border-radius:8px;padding:12px">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 4px">Warning 2</p>
+            <p style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:${warningNum >= 2 ? '#ef4444' : '#94a3b8'};margin:0">${warningNum >= 2 ? '⚠️ Issued' : 'Pending'}</p></td></tr>
+          </table>
+        </td>
+        <td style="width:33%;padding-left:4px;text-align:center">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${warningNum >= 3 ? '#fef2f2' : '#f8faff'};border:1px solid ${warningNum >= 3 ? '#fecaca' : '#e0e7ff'};border-radius:8px;padding:12px">
+            <tr><td><p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 4px">Warning 3</p>
+            <p style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:${warningNum >= 3 ? '#ef4444' : '#94a3b8'};margin:0">${warningNum >= 3 ? '❌ Ban' : 'Permanent Ban'}</p></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>` +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      `🔴 <strong>Next consequence:</strong> ${consequenceNext || 'A third violation will result in permanent account suspension with no possibility of appeal.'}`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">
+          Review our <a href="${SITE}/terms.html" style="color:#4f7cff;text-decoration:none">Terms of Service</a> to understand what is and is not permitted. If you believe this warning was issued in error, contact us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a>
+        </p>
+      </td></tr>
+    </table>` +
+    sign() + footer()
+  );
+  return send(to, `⚠️ Policy Violation Warning ${warningNum}/3 — Action Required`, html);
+}
+
+// ─────────────────────────────────────────
+// S9: Account Permanently Banned
+// ─────────────────────────────────────────
+export async function sendAccountPermanentlyBanned({ to, name, role, reason, bannedAt, pendingEarnings, refundInfo }) {
+  const html = wrap(
+    header('Account Banned', '#1a202c') +
+    bodyStart('Your account has been permanently closed',
+      `Hi <strong style="color:#1a202c">${name}</strong>, after multiple violations of Uplyncio's policies, your ${role} account has been permanently closed. This decision is final.`) +
+    detailsBox('#fef2f2','#fecaca', [
+      ['Account Type', role.charAt(0).toUpperCase() + role.slice(1)],
+      ['Banned On', bannedAt],
+      ['Reason', reason || 'Repeated violation of Uplyncio Terms of Service', '#ef4444'],
+      ['Status', '❌ Permanently Banned', '#ef4444'],
+      ...(pendingEarnings ? [['Pending Earnings', pendingEarnings]] : []),
+      ...(refundInfo ? [['Refund / Payment Info', refundInfo]] : [])
+    ]) +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      '🔴 <strong>This ban is permanent.</strong> Creating a new account with a different email to bypass this ban is a violation and will result in legal action. All associated accounts have been flagged.') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">
+          For questions regarding pending payments or data, contact us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a> with the subject line: <strong>Account Closure — ${name}</strong>
+        </p>
+      </td></tr>
+    </table>` +
+    sign() + footer()
+  );
+  return send(to, `Your Uplyncio account has been permanently closed`, html);
+}
+
+// ─────────────────────────────────────────
+// S10: Dispute Raised — Notification to Both Parties
+// ─────────────────────────────────────────
+export async function sendDisputeRaised({ to, name, role, disputeId, orderId, siteUrl, raisedBy, reason, raisedAt }) {
+  const isRaiser = raisedBy === role;
+  const html = wrap(
+    header('Dispute Opened', '#f59e0b') +
+    bodyStart(
+      isRaiser ? 'Your dispute has been received' : 'A dispute has been raised on your order',
+      isRaiser
+        ? `Hi <strong style="color:#1a202c">${name}</strong>, your dispute for order <strong style="color:#1a202c">${orderId}</strong> has been received. Our team will investigate and respond within 48–72 hours.`
+        : `Hi <strong style="color:#1a202c">${name}</strong>, a dispute has been raised on order <strong style="color:#1a202c">${orderId}</strong>. Please do not take any action — our team is reviewing the case.`
+    ) +
+    detailsBox('#fef3c7','#fde68a', [
+      ['Dispute ID', disputeId],
+      ['Order ID', orderId],
+      ['Publisher Site', siteUrl],
+      ['Raised By', raisedBy.charAt(0).toUpperCase() + raisedBy.slice(1)],
+      ['Reason', reason],
+      ['Raised On', raisedAt],
+      ['Expected Resolution', '48–72 business hours', '#f59e0b']
+    ]) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0 0 8px">What happens next:</p>
+        <ol style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;padding-left:18px;line-height:1.9">
+          <li>Uplyncio's Trust & Safety team reviews all evidence</li>
+          <li>Both parties may be contacted for additional information</li>
+          <li>A fair decision will be made within 48–72 hours</li>
+          <li>Both parties will be notified of the final decision by email</li>
+        </ol>
+      </td></tr>
+    </table>` +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '🔒 Payment for this order is held in escrow and will not be released until the dispute is fully resolved.') +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:12px 14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">
+          To add evidence or comments, email us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a> with subject: <strong>Dispute ${disputeId}</strong>
+        </p>
+      </td></tr>
+    </table>` +
+    sign() + footer()
+  );
+  return send(to, `Dispute ${disputeId} Opened — Order ${orderId} Under Review`, html);
+}
+
+// ─────────────────────────────────────────
+// S11: Dispute Resolved
+// ─────────────────────────────────────────
+export async function sendDisputeResolved({ to, name, role, disputeId, orderId, decision, decisionInFavor, paymentAction, resolvedAt }) {
+  const won = decisionInFavor === role;
+  const accentColor = won ? '#00c27a' : '#f59e0b';
+  const html = wrap(
+    header('Dispute Resolved', accentColor) +
+    bodyStart('Dispute resolution — final decision',
+      `Hi <strong style="color:#1a202c">${name}</strong>, our Trust & Safety team has completed the review of dispute <strong style="color:#1a202c">${disputeId}</strong> for order <strong style="color:#1a202c">${orderId}</strong>.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:${won ? '#f0fdf4' : '#fef3c7'};border:1.5px solid ${won ? '#00c27a' : '#f59e0b'};border-radius:10px;padding:18px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:28px;margin:0 0 8px">${won ? '✅' : '⚖️'}</p>
+        <p style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#1a202c;margin:0 0 6px">
+          ${won ? 'Decision in your favor' : 'Decision in favor of ' + (decisionInFavor.charAt(0).toUpperCase() + decisionInFavor.slice(1))}
+        </p>
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;margin:0">Resolved on ${resolvedAt}</p>
+      </td></tr>
+    </table>` +
+    detailsBox('#f8faff','#e0e7ff', [
+      ['Dispute ID', disputeId],
+      ['Order ID', orderId],
+      ['Decision', decision],
+      ['In Favor Of', decisionInFavor.charAt(0).toUpperCase() + decisionInFavor.slice(1)],
+      ['Payment Action', paymentAction, '#00c27a'],
+      ['Resolved On', resolvedAt]
+    ]) +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      `📋 <strong>Payment update:</strong> ${paymentAction}`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:12px 14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">
+          If you disagree with this decision, you may appeal within <strong>7 days</strong> by emailing <a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a> with subject: <strong>Appeal — Dispute ${disputeId}</strong>
+        </p>
+      </td></tr>
+    </table>` +
+    sign() + footer()
+  );
+  return send(to, `Dispute ${disputeId} Resolved — Final Decision Issued`, html);
+}
+
+// ─────────────────────────────────────────
+// S12: Data Export Request Received
+// ─────────────────────────────────────────
+export async function sendDataExportRequest({ to, name, requestId, requestedAt, deliveryHours = 72 }) {
+  const html = wrap(
+    header('Data Export Request', '#4f7cff') +
+    bodyStart('Your data export request is received',
+      `Hi <strong style="color:#1a202c">${name}</strong>, we have received your request to export your personal data from Uplyncio. This is your right under applicable data protection laws.`) +
+    detailsBox('#f0f4ff','#c7d7ff', [
+      ['Request ID', requestId],
+      ['Requested On', requestedAt],
+      ['Data Delivery', `Within ${deliveryHours} hours by email`, '#4f7cff'],
+      ['Format', 'JSON / CSV (downloadable link)'],
+      ['Status', '⏳ Processing', '#f59e0b']
+    ]) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0 0 8px">Your export will include:</p>
+        <ul style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;padding-left:18px;line-height:1.9">
+          <li>Account details and profile information</li>
+          <li>Order history (placed or received)</li>
+          <li>Payment and transaction records</li>
+          <li>Publisher site listings (if applicable)</li>
+          <li>Message history</li>
+        </ul>
+      </td></tr>
+    </table>` +
+    alertBox('#fef3c7','#fde68a','#92400e',
+      '🔒 Your data export download link will be sent to this email address only and will expire after 24 hours for security reasons.') +
+    sign() + footer()
+  );
+  return send(to, `Data Export Request ${requestId} Received`, html);
+}
+
+// ─────────────────────────────────────────
+// S13: Account Deletion Confirmation
+// ─────────────────────────────────────────
+export async function sendAccountDeletionConfirm({ to, name, role, deletionCode, requestedAt, recoveryWindowDays = 30 }) {
+  const html = wrap(
+    header('Account Deletion Request', '#ef4444') +
+    bodyStart('Confirm your account deletion',
+      `Hi <strong style="color:#1a202c">${name}</strong>, we received a request to permanently delete your Uplyncio ${role} account. This action is irreversible after the recovery window.`) +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:10px;padding:20px">
+        <p style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:#ef4444;letter-spacing:1px;text-transform:uppercase;margin:0 0 16px">⚠️ What will be permanently deleted:</p>
+        <ul style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;padding-left:18px;line-height:1.9">
+          <li>Your account and all profile information</li>
+          <li>All order history and transaction records</li>
+          ${role === 'publisher' ? '<li>All publisher site listings</li><li>Any pending or unpaid earnings</li>' : '<li>All wallet balance (non-refundable)</li>'}
+          <li>All messages and communication history</li>
+        </ul>
+      </td></tr>
+    </table>` +
+    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
+      <tr><td style="background:#f0f4ff;border:2px solid #c7d7ff;border-radius:10px;padding:20px;text-align:center">
+        <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#4f7cff;letter-spacing:2px;text-transform:uppercase;margin:0 0 10px">Deletion Confirmation Code</p>
+        <p style="font-family:'Courier New',monospace;font-size:34px;font-weight:700;color:#1a202c;letter-spacing:10px;margin:0">${deletionCode}</p>
+        <p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:10px 0 0">Enter this code in your dashboard to confirm deletion</p>
+      </td></tr>
+    </table>` +
+    alertBox('#f0fdf4','#bbf7d0','#15803d',
+      `✅ <strong>Recovery window:</strong> You have <strong>${recoveryWindowDays} days</strong> to cancel this deletion request by logging in to your account. After that, deletion is permanent and cannot be reversed.`) +
+    alertBox('#fef2f2','#fecaca','#b91c1c',
+      '🔴 If you did NOT request account deletion, do not enter this code. Contact us immediately at <a href="mailto:info@uplyncio.com" style="color:#b91c1c;text-decoration:none">info@uplyncio.com</a>') +
+    sign() + footer()
+  );
+  return send(to, `Account Deletion Request — Confirmation Code Inside`, html);
+}
