@@ -6507,9 +6507,85 @@ async function submitNewPasswordSecure(){
   }
 }
 function openForgotFromSettings(){
-  // Redirect to login page for forgot password
-  if(typeof openForgotPassword === 'function') openForgotPassword();
-  else window.location.href='/uplyncio-full.html';
+  closeChangePass();
+  document.getElementById('settForgotModal').style.display='flex';
+  document.getElementById('sfStep1').style.display='block';
+  document.getElementById('sfStep2').style.display='none';
+  document.getElementById('sfStep3').style.display='none';
+  document.getElementById('sfEmail').value='';
+  document.getElementById('sfStatus').textContent='';
+  // Pre-fill current email
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+  var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+  var email = ud.email || sett.settEmail || '';
+  var emailEl = document.getElementById('sfEmail');
+  if(emailEl && email) emailEl.value = email;
+}
+function closeSettForgot(){
+  document.getElementById('settForgotModal').style.display='none';
+}
+async function sfSendCode(){
+  var email = document.getElementById('sfEmail').value.trim();
+  var st = document.getElementById('sfStatus');
+  if(!email){ st.textContent='Please enter your email'; st.style.color='#ef4444'; return; }
+  var btn = document.getElementById('sfSendBtn');
+  if(btn){ btn.textContent='Sending...'; btn.disabled=true; }
+  st.textContent=''; 
+  try{
+    await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'forgot_password',email:email})});
+    if(btn){ btn.textContent='Resend Code'; btn.disabled=false; }
+    window._sfEmail = email;
+    document.getElementById('sfStep1').style.display='none';
+    document.getElementById('sfStep2').style.display='block';
+  } catch(e){
+    if(btn){ btn.textContent='Send Code'; btn.disabled=false; }
+    st.textContent='Error. Try again.'; st.style.color='#ef4444';
+  }
+}
+async function sfVerifyCode(){
+  var code = document.getElementById('sfCode').value.trim();
+  var errEl = document.getElementById('sfCodeErr');
+  if(code.length<6){ errEl.textContent='Enter 6-digit code'; return; }
+  errEl.textContent='Verifying...'; errEl.style.color='#64748b';
+  try{
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'verify_reset_code',email:window._sfEmail,code:code})});
+    var res = await r.json();
+    if(res.success){
+      errEl.textContent='';
+      document.getElementById('sfStep2').style.display='none';
+      document.getElementById('sfStep3').style.display='block';
+      setTimeout(function(){ document.getElementById('sfNewPass').focus(); },200);
+    } else {
+      errEl.textContent='⚠ '+(res.error||'Incorrect code'); errEl.style.color='#ef4444';
+    }
+  } catch(e){ errEl.textContent='Connection error'; errEl.style.color='#ef4444'; }
+}
+async function sfSubmitNewPass(){
+  var p1 = document.getElementById('sfNewPass').value;
+  var p2 = document.getElementById('sfConfPass').value;
+  var errEl = document.getElementById('sfPassErr');
+  if(p1.length<8){ errEl.textContent='Min 8 characters'; return; }
+  if(!/[A-Z]/.test(p1)){ errEl.textContent='Add uppercase letter (A-Z)'; return; }
+  if(!/[a-z]/.test(p1)){ errEl.textContent='Add lowercase letter (a-z)'; return; }
+  if(!/[0-9]/.test(p1)){ errEl.textContent='Add a number'; return; }
+  if(!/[^A-Za-z0-9]/.test(p1)){ errEl.textContent='Add special character'; return; }
+  if(p1!==p2){ errEl.textContent='Passwords do not match'; return; }
+  errEl.textContent='Updating...'; errEl.style.color='#64748b';
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'change_password',userId:uid,newPassword:p1})});
+    var res = await r.json();
+    if(res.success){
+      closeSettForgot();
+      showToast('✅ Password reset successfully!');
+    } else {
+      errEl.textContent=res.error||'Failed'; errEl.style.color='#ef4444';
+    }
+  } catch(e){ errEl.textContent='Connection error'; errEl.style.color='#ef4444'; }
 }
 
 // ── CHANGE EMAIL FLOW ──
@@ -6610,5 +6686,53 @@ async function submitNewEmail(){
 }
 </script>
 
+
+<!-- SETTINGS FORGOT PASSWORD MODAL -->
+<div id="settForgotModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:999999;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeSettForgot()">
+  <div style="background:#fff;border-radius:16px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.25)">
+    <div style="background:#07090f;padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff">🔑 Forgot Password</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">Reset via email verification</div>
+      </div>
+      <button onclick="closeSettForgot()" style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;width:30px;height:30px;color:#fff;cursor:pointer;font-size:16px">✕</button>
+    </div>
+
+    <!-- Step 1: Email -->
+    <div id="sfStep1" style="padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">YOUR EMAIL ADDRESS</label>
+      <input id="sfEmail" type="email" placeholder="Enter your registered email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:10px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" onkeydown="if(event.key==='Enter')sfSendCode()">
+      <div id="sfStatus" style="font-size:12px;min-height:16px;margin-bottom:12px"></div>
+      <button id="sfSendBtn" onclick="sfSendCode()" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Reset Code →</button>
+    </div>
+
+    <!-- Step 2: OTP -->
+    <div id="sfStep2" style="display:none;padding:24px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:16px;text-align:center">
+        <p style="font-size:13px;color:#15803d;margin:0">📧 Code sent! Check your inbox and spam folder.</p>
+      </div>
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">ENTER 6-DIGIT CODE</label>
+      <input id="sfCode" type="text" maxlength="6" placeholder="000000" style="width:100%;padding:13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:26px;font-family:monospace;letter-spacing:10px;text-align:center;outline:none;box-sizing:border-box;margin-bottom:6px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" onkeydown="if(event.key==='Enter')sfVerifyCode()">
+      <div id="sfCodeErr" style="font-size:12px;min-height:16px;margin-bottom:12px"></div>
+      <button onclick="sfVerifyCode()" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px">Verify Code →</button>
+      <div style="text-align:center"><a onclick="sfSendCode()" style="font-size:12px;color:#4f7cff;cursor:pointer;font-weight:600">Resend code</a></div>
+    </div>
+
+    <!-- Step 3: New password -->
+    <div id="sfStep3" style="display:none;padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">NEW PASSWORD</label>
+      <div style="position:relative;margin-bottom:6px">
+        <input id="sfNewPass" type="password" placeholder="Create new password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrengthEl(this.value,'sfBar','sfBarTxt')">
+        <span onclick="toggleEyeEl(this,'sfNewPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:16px">👁</span>
+      </div>
+      <div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:4px"><div id="sfBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
+      <span id="sfBarTxt" style="font-size:11.5px;font-weight:600;display:block;min-height:16px;margin-bottom:12px"></span>
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">CONFIRM PASSWORD</label>
+      <input id="sfConfPass" type="password" placeholder="Repeat new password" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:6px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <div id="sfPassErr" style="font-size:12px;min-height:16px;margin-bottom:12px"></div>
+      <button onclick="sfSubmitNewPass()" style="width:100%;padding:13px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Reset Password ✓</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
