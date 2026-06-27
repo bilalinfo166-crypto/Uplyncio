@@ -3062,10 +3062,10 @@ function submitForgotPassword(){
 
       <!-- Form -->
       <div id="pub-signup-form">
-        <input id="pubName" type="text" placeholder="Full Name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s;margin-bottom:12px;display:block" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
-        <input id="pubEmail" type="email" placeholder="Email Address" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s;margin-bottom:12px;display:block" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+        <input id="pubName" type="text" placeholder="Full Name" autocomplete="name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s;margin-bottom:12px;display:block" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+        <input id="pubEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s;margin-bottom:12px;display:block" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
         <div style="position:relative;margin-bottom:6px">
-          <input id="pubPass" type="password" placeholder="Create a password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')">
+          <input id="pubPass" type="password" placeholder="Create a password" autocomplete="new-password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')">
           <span onclick="toggleEye('pubPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;display:flex;align-items:center;user-select:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
         </div>
         <div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:4px"><div id="pubPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
@@ -3082,10 +3082,10 @@ function submitForgotPassword(){
       <!-- Login form (hidden) -->
       <div id="pub-login-form" style="display:none">
         <div style="margin-bottom:12px">
-          <input id="pubLoginEmail" type="email" placeholder="Email Address" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="pubLoginEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:6px;position:relative">
-          <input id="pubLoginPass" type="password" placeholder="Password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="pubLoginPass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
           <button type="button" onclick="toggleEye('pubLoginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
         <div style="text-align:right;margin-bottom:14px"><a onclick="openForgotPassword()" style="font-size:12px;color:#4f7cff;cursor:pointer;font-weight:600">Forgot password?</a></div>
@@ -3160,14 +3160,14 @@ function submitForgotPassword(){
 
       <div id="buyer-signup-form">
         <div style="margin-bottom:12px">
-          <input id="buyerName" type="text" placeholder="Full Name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="buyerName" type="text" placeholder="Full Name" autocomplete="name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:12px">
-          <input id="buyerEmail" type="email" placeholder="Email Address" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="buyerEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:16px">
           <div style="position:relative">
-          <input id="buyerPass" type="password" placeholder="Create a password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')">
+          <input id="buyerPass" type="password" placeholder="Create a password" autocomplete="new-password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')">
           <button type="button" onclick="toggleEye('buyerPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
           <div style="margin-top:8px">
@@ -3189,11 +3189,11 @@ function submitForgotPassword(){
 
       <div id="buyer-login-form" style="display:none">
         <div style="margin-bottom:12px">
-          <input id="buyerLoginEmail" type="email" placeholder="Email Address" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="buyerLoginEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:6px">
           <div style="position:relative">
-          <input id="buyerLoginPass" type="password" placeholder="Password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="buyerLoginPass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
           <button type="button" onclick="toggleEye('buyerLoginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
@@ -3242,7 +3242,7 @@ function submitForgotPassword(){
         <input type="email" id="su2Email" placeholder="Email Address" oninput="clearSignupEmailErr()" style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         <div id="su2EmailErr" style="display:none;font-size:12px;color:#ef4444;font-weight:600;padding:4px 2px"></div>
         <div style="position:relative">
-        <input type="password" id="su2Pass" placeholder="Create a password" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 42px 12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" oninput="showPassStrength(this.value,'su2PassBar','su2PassTxt')">
+        <input type="password" id="su2Pass" placeholder="Create a password" autocomplete="new-password" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 42px 12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" oninput="showPassStrength(this.value,'su2PassBar','su2PassTxt')">
         <button type="button" onclick="toggleEye('su2Pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
         <div style="margin-top:8px">
