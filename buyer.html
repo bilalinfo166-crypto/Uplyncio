@@ -7,6 +7,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Browse Publisher Sites — Uplyncio</title>
 <script src="/supabase-client.js"></script>
+<script>
+// ── STRICT ROLE GUARD — runs before page renders ──
+(function(){
+  try{
+    var loggedIn = localStorage.getItem('uplyncio_loggedIn');
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var uid = localStorage.getItem('uplyncio_currentUid');
+    // Not logged in
+    if(!loggedIn||loggedIn!=='1'||!user||!uid){
+      window.location.replace('uplyncio-full.html?openBuyer=1'); return;
+    }
+    // Not verified
+    if(!user.verified&&!user.email_verified){
+      window.location.replace('uplyncio-full.html?openBuyer=1'); return;
+    }
+    // Publisher trying buyer page
+    if(user.role==='publisher'){
+      window.location.replace('publisher.html'); return;
+    }
+  }catch(e){
+    window.location.replace('uplyncio-full.html?openBuyer=1');
+  }
+})();
+</script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
