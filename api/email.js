@@ -1061,7 +1061,7 @@ export async function sendPaymentAccountVerifyRequest({ to, name, method, accoun
       `Hi <strong style="color:#1a202c">${name}</strong>, a new payment account has been added to your Uplyncio profile. Please verify it before you can use it for withdrawals.`) +
     `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
       <tr><td style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:20px;text-align:center">
-        <p style="font-family:Arial,sans-serif;font-size:28px;margin:0 0 8px">${icon}</p>
+        
         <p style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#b45309;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px">Payment Method</p>
         <p style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#1a202c;margin:0 0 4px">${method}</p>
         <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0">${accountDisplay}</p>
@@ -1101,7 +1101,7 @@ export async function sendPaymentAccountVerified({ to, name, method, accountDisp
       `Hi <strong style="color:#1a202c">${name}</strong>, your payment account has been verified and is now active. You can use it to withdraw your earnings anytime.`) +
     `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
       <tr><td style="background:#f0fdf4;border:1.5px solid #00c27a;border-radius:10px;padding:20px;text-align:center">
-        <p style="font-family:Arial,sans-serif;font-size:28px;margin:0 0 8px">${icon}</p>
+        
         <p style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#15803d;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px">Verified Account</p>
         <p style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#1a202c;margin:0 0 4px">${method}</p>
         <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0 0 10px">${accountDisplay}</p>
@@ -1206,12 +1206,9 @@ export async function sendPayoutInvoice({ to, name, payoutId, date, grossAmount,
 
   const html = wrap(
     header('Payout Invoice', '#00c27a') +
-    `<tr><td style="padding:28px">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="width:64px;height:64px;border-radius:50%;background:#f0fdf4;border:2px solid #00c27a;display:inline-flex;align-items:center;justify-content:center;font-size:28px;line-height:64px">💰</div>
-      </div>
-      <p style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#1a202c;margin:0 0 8px;text-align:center">$${netAmount} sent to your ${method}!</p>
-      <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0 0 24px;line-height:1.7;text-align:center">Hi <strong style="color:#1a202c">${name}</strong>, your withdrawal has been processed successfully. Here is your official payout invoice — keep it for your records.</p>
+    `<tr><td style="padding:28px 28px 8px">
+      <p style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#1a202c;margin:0 0 8px">$${netAmount} sent to your ${method}!</p>
+      <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0;line-height:1.7">Hi <strong style="color:#1a202c">${name}</strong>, your withdrawal has been processed successfully. Here is your official payout invoice — keep it for your records.</p>
     </td></tr>` +
     `<tr><td style="padding:0 28px 28px">` +
     invoiceBox(payoutId, date, rows, '#f0fdf4', '#bbf7d0', '#15803d') +
