@@ -71,7 +71,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}
 
 /* ── LAYOUT ── */
-.layout{display:flex;position:fixed;top:54px;left:0;right:0;bottom:44px;overflow:hidden}
+.layout{display:flex;position:fixed;top:92px;left:0;right:0;bottom:44px;overflow:hidden}
 
 /* ── LEFT SIDEBAR ── */
 .sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0;padding-bottom:44px}.sidebar::-webkit-scrollbar{display:none}
@@ -987,7 +987,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </nav>
 
 <!-- TICKER BANNER -->
-<div id="verifiedTicker" style="display:none;position:fixed;top:54px;left:220px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;z-index:150;font-family:'Plus Jakarta Sans',sans-serif">
+<div id="verifiedTicker" style="position:fixed;top:54px;left:220px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;z-index:150;font-family:'Plus Jakarta Sans',sans-serif">
   <div class="ticker-inner">
     <span class="ticker-txt">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Place your first 10 orders on Uplyncio and get a permanent 👑 Verified Buyer badge on your profile &nbsp;•&nbsp; Showing publishers you are a trusted client &nbsp;•&nbsp; The more you order, the more trust you build &nbsp;•&nbsp; Join thousands of verified buyers on Uplyncio &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <span class="ticker-txt">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Place your first 10 orders on Uplyncio and get a permanent 👑 Verified Buyer badge on your profile &nbsp;•&nbsp; Showing publishers you are a trusted client &nbsp;•&nbsp; The more you order, the more trust you build &nbsp;•&nbsp; Join thousands of verified buyers on Uplyncio &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -2931,9 +2931,7 @@ function saveContactInfo(){
 }
 function hideAllPages(){
   var tk=document.getElementById('verifiedTicker'); 
-  if(tk) tk.style.display='none';
-  var layout=document.querySelector('.layout');
-  if(layout) layout.style.top='54px'; /* buyer stub */ }
+  if(tk) tk.style.display='none'; /* buyer stub */ }
 // Buyer stubs for publisher functions
 var sampleOrders = [];
 var mySites = [];
