@@ -753,52 +753,52 @@ function completeSignupSocial(pr){
   var params = new URLSearchParams(window.location.search);
   if(params.get('oauth_success')==='1'){
     try{
-      var rawUser = params.get('user')||'{}';
-      console.log('OAuth raw user param:', rawUser.substring(0,200));
-      var user = JSON.parse(decodeURIComponent(rawUser));
-      console.log('OAuth user parsed:', JSON.stringify(user));
+      // Try 'u' param first, then 'user' param
+      var raw = params.get('u') || params.get('user') || '{}';
+      var user = JSON.parse(decodeURIComponent(raw));
+      
       if(user && user.email){
         var uid = user.id || ('google_'+Date.now());
-        user.uid = uid;
-        user.verified = true;
-        user.email_verified = true;
-
-        // Full localStorage setup
-        localStorage.setItem('uplyncio_loggedIn','1');
+        
+        // Setup full session in localStorage
+        var fullUser = {
+          uid: uid, id: uid,
+          name: user.name || '',
+          email: user.email,
+          role: user.role || 'buyer',
+          verified: true,
+          email_verified: true,
+          publisher_verified: false,
+          google: true
+        };
+        
+        localStorage.setItem('uplyncio_loggedIn', '1');
         localStorage.setItem('uplyncio_currentUid', uid);
-        localStorage.setItem('uplyncio_user', JSON.stringify(user));
-        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(user));
-        localStorage.setItem('uplyncio_last_email', user.email);
-
-        // Settings
+        localStorage.setItem('uplyncio_user', JSON.stringify(fullUser));
+        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(fullUser));
         localStorage.setItem('uplyncio_settings', JSON.stringify({
-          settName: user.name,
-          settEmail: user.email
+          settName: fullUser.name,
+          settEmail: fullUser.email
         }));
 
-        // Clean URL
+        // Clean URL then redirect
         window.history.replaceState({}, '', window.location.pathname);
-
-        // Redirect based on role
-        setTimeout(function(){
-          if(user.role === 'publisher'){
-            window.location.replace('publisher.html');
-          } else {
-            window.location.replace('buyer.html');
-          }
-        }, 100);
+        
+        var dest = (fullUser.role === 'publisher') ? 'publisher.html' : 'buyer.html';
+        window.location.replace(dest);
+      } else {
+        // No user data — go home
+        window.history.replaceState({}, '', window.location.pathname);
       }
-    }catch(e){
-      console.log('OAuth callback error:', e);
+    } catch(e){
+      console.error('OAuth callback error:', e);
       window.history.replaceState({}, '', window.location.pathname);
     }
   }
   if(params.get('oauth_error')){
-    var err = decodeURIComponent(params.get('oauth_error')||'unknown error');
+    var err = decodeURIComponent(params.get('oauth_error') || 'Unknown error');
     window.history.replaceState({}, '', window.location.pathname);
-    setTimeout(function(){
-      alert('Google sign in failed: ' + err + '. Please use Email/Password instead.');
-    }, 500);
+    alert('Google sign in failed: ' + err + '. Please use Email/Password.');
   }
 })();
 </script>

@@ -1,7 +1,6 @@
 // Google OAuth Handler
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REDIRECT_URI = 'https://uplyncio.vercel.app/api/google-auth';
 const SUPABASE_URL = 'https://ridafwpazwqjhimecyyl.supabase.co';
 
 function sbHeaders() {
@@ -37,20 +36,19 @@ async function sbUpdate(table, filter, data) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const { code, state, action } = req.method === 'GET' ? req.query : (req.body || {});
+  const query = req.method === 'GET' ? req.query : (req.body || {});
+  const { code, state, action } = query;
 
-  // Dynamic redirect URI based on host
   const host = req.headers.host || 'uplyncio.vercel.app';
-  const dynamicRedirectURI = host.includes('uplyncio.com')
-    ? 'https://uplyncio.com/api/google-auth'
-    : 'https://uplyncio.vercel.app/api/google-auth';
+  const BASE = host.includes('uplyncio.com') ? 'https://uplyncio.com' : 'https://uplyncio.vercel.app';
+  const REDIRECT_URI = `${BASE}/api/google-auth`;
 
-  // Step 1: Generate Google OAuth URL
-  if (action === 'get_url' || req.method === 'POST') {
+  // ── Step 1: Frontend calls this to get Google OAuth URL ──
+  if (req.method === 'POST' || action === 'get_url') {
     const role = req.body?.role || 'buyer';
     const params = new URLSearchParams({
       client_id: GOOGLE_CLIENT_ID,
-      redirect_uri: dynamicRedirectURI,
+      redirect_uri: REDIRECT_URI,
       response_type: 'code',
       scope: 'openid email profile',
       state: role,
@@ -60,12 +58,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ url: `https://accounts.google.com/o/oauth2/v2/auth?${params}` });
   }
 
-  // Step 2: Handle callback with code
+  // ── Step 2: Google redirects back here with code ──
   if (code) {
     try {
       const role = state || 'buyer';
 
-      // Exchange code for tokens
+      // Exchange code for access token
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -73,82 +71,91 @@ export default async function handler(req, res) {
           code,
           client_id: GOOGLE_CLIENT_ID,
           client_secret: GOOGLE_CLIENT_SECRET,
-          redirect_uri: dynamicRedirectURI,
+          redirect_uri: REDIRECT_URI,
           grant_type: 'authorization_code'
         })
       });
       const tokens = await tokenRes.json();
 
       if (!tokens.access_token) {
-        return res.redirect(`https://uplyncio.vercel.app/uplyncio-full.html?oauth_error=token_failed&detail=${JSON.stringify(tokens)}`);
+        console.error('Token error:', JSON.stringify(tokens));
+        return res.redirect(`${BASE}/uplyncio-full.html?oauth_error=token_failed`);
       }
 
-      // Get user info from Google
+      // Get Google user info
       const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
         headers: { Authorization: `Bearer ${tokens.access_token}` }
       });
-      const googleUser = await userRes.json();
+      const gu = await userRes.json();
 
-      if (!googleUser.email) {
-        return res.redirect(`https://uplyncio.vercel.app/uplyncio-full.html?oauth_error=no_email`);
+      if (!gu.email) {
+        return res.redirect(`${BASE}/uplyncio-full.html?oauth_error=no_email`);
       }
 
-      const email = googleUser.email.toLowerCase();
-      const name = googleUser.name || email.split('@')[0];
+      const email = gu.email.toLowerCase();
+      const name = gu.name || email.split('@')[0];
 
-      // Check if user exists in Supabase
+      // Check Supabase for existing user
       const existing = await sbGet('users', `email=eq.${encodeURIComponent(email)}`);
       let user;
 
       if (existing?.length > 0) {
-        // Existing user — login
         user = existing[0];
+        // Update google_id
         await sbUpdate('users', `id=eq.${user.id}`, {
-          google_id: googleUser.id,
+          google_id: gu.id,
           updated_at: new Date().toISOString()
         });
       } else {
-        // New user — create account
+        // Create new user
         const result = await sbInsert('users', {
           email, name,
-          role: role || 'buyer',
-          google_id: googleUser.id,
+          role,
+          google_id: gu.id,
           verified: true,
           email_verified: true,
           publisher_verified: false,
-          password_hash: 'google_oauth_' + googleUser.id
+          password_hash: 'google_' + gu.id
         });
         user = Array.isArray(result.data) ? result.data[0] : result.data;
 
-        // Send welcome email + verified email (Google users are auto-verified)
+        // Send welcome email async
         try {
-          const { sendWelcomeEmail, sendEmailVerifiedEmail } = await import('./email.js');
-          const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
-          await sendWelcomeEmail({ to: email, name, role });
-          await sendEmailVerifiedEmail({ to: email, name, role, email, verifiedAt: now });
-        } catch(e) { console.log('Welcome email error:', e.message); }
+          const { sendWelcomeEmail } = await import('./email.js');
+          sendWelcomeEmail({ to: email, name, role }).catch(() => {});
+        } catch(e) {}
       }
 
-      // Redirect with user data encoded
-      const userData = encodeURIComponent(JSON.stringify({
+      if (!user || !user.id) {
+        return res.redirect(`${BASE}/uplyncio-full.html?oauth_error=user_create_failed`);
+      }
+
+      // Build small user object - keep URL short
+      const userPayload = {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role: user.role || role,
         verified: true,
-        email_verified: true,
-        publisher_verified: user.publisher_verified || false,
         google: true
-      }));
+      };
 
-      const callbackBase = host.includes('uplyncio.com') ? 'https://uplyncio.com' : 'https://uplyncio.vercel.app';
-      return res.redirect(`${callbackBase}/uplyncio-full.html?oauth_success=1&user=${userData}`);
+      // Set cookie for session
+      const cookieVal = encodeURIComponent(JSON.stringify(userPayload));
+      res.setHeader('Set-Cookie', `uplyncio_google_user=${cookieVal}; Path=/; Max-Age=60; SameSite=Lax`);
+
+      // Redirect directly to dashboard based on role
+      const dashboard = (user.role || role) === 'publisher' ? 'publisher.html' : 'buyer.html';
+      
+      // Pass user data in URL for localStorage setup
+      const u = encodeURIComponent(JSON.stringify(userPayload));
+      return res.redirect(`${BASE}/uplyncio-full.html?oauth_success=1&u=${u}`);
 
     } catch(e) {
-      console.error('Google OAuth error:', e);
-      return res.redirect(`https://uplyncio.vercel.app/uplyncio-full.html?oauth_error=${encodeURIComponent(e.message)}`);
+      console.error('Google OAuth error:', e.message);
+      return res.redirect(`${BASE}/uplyncio-full.html?oauth_error=${encodeURIComponent(e.message)}`);
     }
   }
 
-  return res.status(400).json({ error: 'Invalid request' });
+  return res.status(400).json({ error: 'Invalid request - no code provided' });
 }
