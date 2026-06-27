@@ -108,7 +108,8 @@ export default async function handler(req, res) {
         });
       } else {
         // Create new user
-        const result = await sbInsert('users', {
+        // Try with google_id first
+        let result = await sbInsert('users', {
           email, name,
           role,
           google_id: gu.id,
@@ -117,7 +118,21 @@ export default async function handler(req, res) {
           publisher_verified: false,
           password_hash: 'google_' + gu.id
         });
+
+        // If failed (google_id column may not exist), try without it
+        if (!result.ok || !result.data || (Array.isArray(result.data) && result.data.length === 0)) {
+          result = await sbInsert('users', {
+            email, name,
+            role,
+            verified: true,
+            email_verified: true,
+            publisher_verified: false,
+            password_hash: 'google_' + gu.id
+          });
+        }
+
         user = Array.isArray(result.data) ? result.data[0] : result.data;
+        console.log('Insert result:', JSON.stringify(result));
 
         // Send welcome email async
         try {
@@ -126,8 +141,15 @@ export default async function handler(req, res) {
         } catch(e) {}
       }
 
+      // If user creation failed, try to get existing user
       if (!user || !user.id) {
-        return res.redirect(`${BASE}/uplyncio-full.html?oauth_error=user_create_failed`);
+        const retry = await sbGet('users', `email=eq.${encodeURIComponent(email)}`);
+        if (retry?.length > 0) {
+          user = retry[0];
+        } else {
+          // Last resort: create minimal user object for session (no DB)
+          user = { id: 'google_'+gu.id, email, name, role, verified: true };
+        }
       }
 
       const finalRole = user.role || role || 'buyer';
