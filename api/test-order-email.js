@@ -7,8 +7,10 @@ import {
   sendPasswordResetSuccessEmail,
   sendNewDeviceLoginEmail,
   sendPublisherNewOrder,
+  sendPublisherNewMessage,
   sendBuyerOrderPlaced,
   sendBuyerOrderDelivered,
+  sendBuyerNewMessage,
   sendPublisherSitesApproved,
   sendPublisherBadgeEarned,
   sendDisputeRaised,
@@ -47,6 +49,21 @@ export default async function handler(req, res) {
 
     if (type === 'all' || type === 'resetdone') {
       results.resetSuccess = await sendPasswordResetSuccessEmail({ to, name: 'Ahmed Khan', email: to, changedAt: now, ipAddress: '103.47.12.88' });
+    }
+
+    if (type === 'all' || type === 'message') {
+      results.publisherMsg = await sendPublisherNewMessage({
+        to, name: 'Br Advertisers',
+        buyerName: 'Ahmed Khan',
+        orderId: '#OR72910',
+        siteUrl: 'techbullion.com'
+      });
+      results.buyerMsg = await sendBuyerNewMessage({
+        to, name: 'Ahmed Khan',
+        publisherName: 'Br Advertisers',
+        orderId: '#OR72910',
+        siteUrl: 'techbullion.com'
+      });
     }
 
     if (type === 'all' || type === 'neworder') {

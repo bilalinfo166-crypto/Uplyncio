@@ -306,6 +306,22 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // ── SEND MESSAGE NOTIFICATION ──
+    if (action === 'send_message_notif') {
+      const { to, name, from: fromName, role, orderId, siteUrl } = body;
+      if (!to || !name || !fromName) return res.status(400).json({ error: 'Missing fields' });
+      try {
+        if (role === 'buyer') {
+          const { sendBuyerNewMessage } = await import('./email.js');
+          sendBuyerNewMessage({ to, name, publisherName: fromName, orderId, siteUrl }).catch(()=>{});
+        } else {
+          const { sendPublisherNewMessage } = await import('./email.js');
+          sendPublisherNewMessage({ to, name, buyerName: fromName, orderId, siteUrl }).catch(()=>{});
+        }
+      } catch(e) {}
+      return res.status(200).json({ success: true });
+    }
+
     // ── CHANGE PASSWORD ──
     if (action === 'change_password') {
       const { userId, newPassword } = body;

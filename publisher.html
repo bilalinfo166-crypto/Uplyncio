@@ -3566,6 +3566,29 @@ function sendChatMsg(){
     renderChatMessages(o);
     var msgs = document.getElementById('chatMessages');
     if(msgs) msgs.scrollTop = msgs.scrollHeight;
+
+    // Send email notification to buyer
+    try {
+      var uid = localStorage.getItem('uplyncio_currentUid')||'';
+      var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+      var publisherName = userData.name || sett.settName || 'Publisher';
+      if(o.buyerEmail) {
+        fetch('/api/auth', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            action: 'send_message_notif',
+            to: o.buyerEmail,
+            name: o.buyerName || 'Buyer',
+            from: publisherName,
+            role: 'buyer',
+            orderId: o.id,
+            siteUrl: o.site || o.siteUrl || ''
+          })
+        }).catch(function(){});
+      }
+    } catch(e) {}
   // Simulate client reply after 2 seconds
   setTimeout(function(){
     var replies = [
