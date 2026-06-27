@@ -228,34 +228,62 @@ export default async function handler(req, res) {
       if (!email) return res.status(400).json({ error: 'Missing email' });
       const emailLow = email.toLowerCase().trim();
 
-      // Check user exists
+      // Always return success (don't reveal if email exists)
       const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
       if (!users?.length) {
-        // Don't reveal if email exists — always return success
         return res.status(200).json({ success: true });
       }
       const user = users[0];
 
-      // Generate reset token (random + expiry)
-      const token = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2,'0')).join('');
-      const expiresAt = new Date(Date.now() + 3600000).toISOString(); // 1 hour
+      // Generate 6-digit OTP
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 min
 
-      // Save token to DB
+      // Save OTP to DB
       await sbUpdate('users', `id=eq.${user.id}`, {
-        verify_code: `RESET:${token}:${expiresAt}`
+        verify_code: `RESET:${code}:${expiresAt}`
       });
 
-      const resetLink = `https://uplyncio.vercel.app/reset-password.html?token=${token}&email=${encodeURIComponent(emailLow)}`;
-
-      // Send email
-      const { sendForgotPasswordEmail } = await import('./email.js');
-      await sendForgotPasswordEmail({
+      // Send OTP email
+      const { sendOtpEmail } = await import('./email.js');
+      await sendOtpEmail({
         to: emailLow,
         name: user.name || 'there',
-        resetLink,
-        expiresIn: '1 hour'
+        code,
+        expiresIn: '5 minutes'
       });
+
+      return res.status(200).json({ success: true });
+    }
+
+    // ── VERIFY RESET CODE ──
+    if (action === 'verify_reset_code') {
+      const { email, code } = body;
+      if (!email || !code) return res.status(400).json({ error: 'Missing email or code' });
+      const emailLow = email.toLowerCase().trim();
+
+      const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
+      if (!users?.length) return res.status(404).json({ error: 'User not found' });
+
+      const user = users[0];
+      const stored = user.verify_code || '';
+
+      // Format: RESET:CODE:EXPIRY
+      if (!stored.startsWith('RESET:')) return res.status(400).json({ error: 'No reset code found. Please request a new one.' });
+
+      const parts = stored.split(':');
+      const savedCode = parts[1];
+      const expiresAt = parts[2];
+
+      // Check expiry
+      if (new Date() > new Date(expiresAt)) {
+        return res.status(400).json({ error: 'Code has expired. Please request a new one.' });
+      }
+
+      // Check code
+      if (savedCode !== code) {
+        return res.status(400).json({ error: 'Incorrect code. Please try again.' });
+      }
 
       return res.status(200).json({ success: true });
     }

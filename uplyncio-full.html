@@ -588,11 +588,44 @@ function sendForgotCode(){
 function verifyResetCode(){
   var inp = document.getElementById('resetCodeInput');
   if(!inp||!inp.value.trim()){ alert('Please enter the code.'); return; }
-  var user = findUser(window._resetEmail||'');
-  if(!user){ alert('User not found.'); return; }
-  if(inp.value.trim()!==user.resetCode){ alert('Incorrect code. Please try again.'); return; }
-  document.getElementById('forgotStep2').style.display='none';
-  document.getElementById('forgotStep3').style.display='block';
+  var code = inp.value.trim();
+  var email = window._resetEmail||'';
+  if(!email){ alert('Session expired. Please start again.'); return; }
+
+  var vBtn = document.querySelector('[onclick="verifyResetCode()"]');
+  if(vBtn){ vBtn.textContent='Verifying...'; vBtn.disabled=true; }
+
+  // Verify via Supabase API
+  fetch('/api/auth',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'verify_reset_code', email:email, code:code})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result){
+    if(vBtn){ vBtn.textContent='Verify Code →'; vBtn.disabled=false; }
+    if(result.success){
+      window._resetVerified = true;
+      document.getElementById('forgotStep2').style.display='none';
+      document.getElementById('forgotStep3').style.display='block';
+    } else {
+      inp.style.borderColor='#ef4444';
+      alert('⚠ ' + (result.error||'Incorrect or expired code. Please try again.'));
+      setTimeout(function(){ inp.style.borderColor='rgba(255,255,255,.15)'; }, 2000);
+    }
+  })
+  .catch(function(){
+    if(vBtn){ vBtn.textContent='Verify Code →'; vBtn.disabled=false; }
+    // Fallback localStorage
+    var user = findUser(email);
+    if(user && inp.value.trim()===user.resetCode){
+      window._resetVerified = true;
+      document.getElementById('forgotStep2').style.display='none';
+      document.getElementById('forgotStep3').style.display='block';
+    } else {
+      alert('Incorrect code. Please try again.');
+    }
+  });
 }
 function submitNewPassword(){
   var p1=document.getElementById('newPass1');
