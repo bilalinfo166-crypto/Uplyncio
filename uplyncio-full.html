@@ -363,7 +363,7 @@ function _syncOtpInput(){
 function _startOtpTimer(){
   clearInterval(_otpTimerInterval);
   _otpExpired=false;
-  var totalSecs=180;
+  var totalSecs=600;
   var timerEl=document.getElementById('verifyTimer');
   var timerWrap=document.getElementById('verifyTimerWrap');
   var expiredEl=document.getElementById('verifyExpiredMsg');
@@ -586,6 +586,36 @@ function submitNewPassword(){
 }
 
 // ── LOGIN SUCCESS ──
+
+function pushHomeNotif(icon, title, message){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    if(!uid) return;
+    var notifs = [];
+    try{ notifs = JSON.parse(localStorage.getItem('uplyncio_notifs_'+uid)||'[]'); }catch(e){}
+    notifs.unshift({
+      id: 'n_'+Date.now(),
+      icon: icon,
+      title: title,
+      message: message,
+      time: new Date().toISOString(),
+      read: false
+    });
+    // Keep max 50
+    if(notifs.length > 50) notifs = notifs.slice(0,50);
+    localStorage.setItem('uplyncio_notifs_'+uid, JSON.stringify(notifs));
+    // Update bell count if visible
+    var bellBadge = document.getElementById('homeNotifBadge');
+    if(bellBadge){
+      var unread = notifs.filter(function(n){ return !n.read; }).length;
+      if(unread > 0){
+        bellBadge.textContent = unread > 9 ? '9+' : unread;
+        bellBadge.style.display = 'flex';
+      }
+    }
+  }catch(e){}
+}
+
 function _loginSuccess(user){
   try{
     var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
@@ -603,6 +633,10 @@ function _loginSuccess(user){
     }));
     var userData = getUserData(user.uid||user.id);
     localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
+
+    // Welcome notification on bell
+    pushHomeNotif('🎉', 'Welcome to Uplyncio!',
+      'Your account is verified. ' + (user.role==='publisher' ? 'Start listing your sites and earning.' : 'Browse 20,000+ publisher sites and place your first order.'));
 
     // Save/update user in Supabase
     fetch('/api/auth', {

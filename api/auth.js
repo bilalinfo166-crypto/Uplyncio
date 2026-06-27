@@ -115,18 +115,14 @@ export default async function handler(req, res) {
 
       const user = Array.isArray(result.data) ? result.data[0] : result.data;
 
-      // Send verification email
-    if (!isTeam) {
-        // Send welcome email
-        await sendWelcomeEmail({ to: emailLow, name, role }).catch(e => console.log('Welcome email error:', e.message));
-        // Send verify email with OTP
+      // Send OTP verification email only (welcome email sent after verify)
+      if (!isTeam) {
         const emailResult = await sendVerifyEmail({ to: emailLow, name, code }).catch(e => ({ ok: false, error: e.message }));
-        console.log('Email result:', JSON.stringify(emailResult));
-        // Always return code in response so frontend can show it as fallback
+        console.log('OTP email result:', JSON.stringify(emailResult));
         return res.status(200).json({
           success: true,
           emailSent: emailResult.ok,
-          code: emailResult.ok ? undefined : code, // only expose if email failed
+          code: emailResult.ok ? undefined : code,
           user: { id: user.id, email: user.email, name: user.name, role: user.role, verified: false }
         });
       }
@@ -153,6 +149,11 @@ export default async function handler(req, res) {
       await sbUpdate('users', `id=eq.${user.id}`, {
         verified: true, email_verified: true, verify_code: null
       });
+
+      // Send welcome email AFTER successful verification
+      const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      sendWelcomeEmail({ to: emailLow, name: user.name, role: user.role }).catch(e => console.log('Welcome email err:', e.message));
+      sendEmailVerifiedEmail({ to: emailLow, name: user.name, role: user.role, email: emailLow, verifiedAt: now }).catch(e => console.log('Verified email err:', e.message));
 
       return res.status(200).json({
         success: true,
