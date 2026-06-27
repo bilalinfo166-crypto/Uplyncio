@@ -1591,15 +1591,15 @@ window.addEventListener('DOMContentLoaded', function(){
           <span id="emailVerifiedBadge" style="font-size:11px;font-weight:700;color:#94a3b8;display:none">✓ Verified</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
-          <input id="settEmail" type="email" placeholder="your@email.com" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
-          <button onclick="editField('settEmail')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+          <input id="settEmail" type="email" placeholder="your@email.com" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent" readonly>
+          <button onclick="openChangeEmail()" style="background:none;border:none;cursor:pointer;color:var(--ac);font-size:15px" title="Change email">✏️</button>
         </div>
       </div>
       <div>
         <div style="margin-bottom:6px"><label style="font-size:12px;font-weight:700;color:var(--tx)">Password *</label></div>
         <div style="display:flex;align-items:center;gap:8px;background:#f8faff;border:1px solid var(--br);border-radius:8px;padding:10px 13px">
-          <input id="settPass" type="password" placeholder="••••••••" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent">
-          <button onclick="editField('settPass')" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:15px">✏️</button>
+          <input id="settPass" type="password" placeholder="••••••••" value="••••••••" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;color:var(--tx);background:transparent" readonly>
+          <button onclick="openChangePassword()" style="background:none;border:none;cursor:pointer;color:var(--ac);font-size:15px" title="Change password">✏️</button>
         </div>
       </div>
     </div>
@@ -6319,6 +6319,298 @@ function toast(msg,bg){
   <span style="font-size:12px;color:var(--mu)">info@uplyncio.com</span>
   <div class="fla"><a href="#">Terms</a><a href="#">Privacy</a><a href="uplyncio-full.html">Main Site</a></div>
 </div>
+
+
+<!-- ── CHANGE PASSWORD MODAL ── -->
+<div id="changePassModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeChangePass()">
+  <div style="background:#fff;border-radius:16px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2)">
+    <div style="background:#07090f;padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff">🔒 Change Password</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">Verify your current password first</div>
+      </div>
+      <button onclick="closeChangePass()" style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;width:30px;height:30px;color:#fff;cursor:pointer;font-size:16px">✕</button>
+    </div>
+
+    <!-- Step 1: Old password -->
+    <div id="cpStep1" style="padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">CURRENT PASSWORD</label>
+      <div style="position:relative;margin-bottom:12px">
+        <input id="cpOldPass" type="password" placeholder="Enter your current password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+        <span onclick="toggleEyeEl(this,'cpOldPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:16px">👁</span>
+      </div>
+      <div id="cpOldErr" style="font-size:12px;color:#ef4444;margin-bottom:10px;min-height:16px"></div>
+      <div style="text-align:right;margin-bottom:16px">
+        <a onclick="closeChangePass();openForgotFromSettings()" style="font-size:12px;color:#4f7cff;cursor:pointer;font-weight:600">Forgot password?</a>
+      </div>
+      <button onclick="verifyOldPassword()" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Verify & Continue →</button>
+    </div>
+
+    <!-- Step 2: New password -->
+    <div id="cpStep2" style="display:none;padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">NEW PASSWORD</label>
+      <div style="position:relative;margin-bottom:6px">
+        <input id="cpNewPass" type="password" placeholder="Create new password" oninput="showPassStrengthEl(this.value,'cpBar','cpBarTxt')" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+        <span onclick="toggleEyeEl(this,'cpNewPass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:16px">👁</span>
+      </div>
+      <div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:4px"><div id="cpBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
+      <span id="cpBarTxt" style="font-size:11.5px;font-weight:600;display:block;min-height:16px;margin-bottom:12px"></span>
+
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">CONFIRM NEW PASSWORD</label>
+      <input id="cpConfPass" type="password" placeholder="Repeat new password" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <div id="cpNewErr" style="font-size:12px;color:#ef4444;margin-bottom:10px;min-height:16px"></div>
+      <button onclick="submitNewPasswordSecure()" style="width:100%;padding:13px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Update Password ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHANGE EMAIL MODAL ── -->
+<div id="changeEmailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeChangeEmail()">
+  <div style="background:#fff;border-radius:16px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2)">
+    <div style="background:#07090f;padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff">📧 Change Email</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px" id="ceStepLabel">Step 1 of 2 — Verify your identity</div>
+      </div>
+      <button onclick="closeChangeEmail()" style="background:rgba(255,255,255,0.1);border:none;border-radius:8px;width:30px;height:30px;color:#fff;cursor:pointer;font-size:16px">✕</button>
+    </div>
+
+    <!-- Step 1: Send OTP -->
+    <div id="ceStep1" style="padding:24px">
+      <div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:10px;padding:12px 14px;margin-bottom:16px">
+        <p style="font-size:13px;color:#1e40af;margin:0;line-height:1.6">📨 We will send a 6-digit verification code to your <strong>current email</strong> to confirm your identity before changing it.</p>
+      </div>
+      <div id="ceOtpStatus" style="font-size:12px;color:#64748b;margin-bottom:12px;min-height:16px"></div>
+      <button onclick="sendEmailChangeOtp()" id="ceSendBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Verification Code →</button>
+    </div>
+
+    <!-- Step 2: Enter OTP -->
+    <div id="ceStep2" style="display:none;padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">VERIFICATION CODE</label>
+      <input id="ceOtpInput" type="text" maxlength="6" placeholder="Enter 6-digit code" style="width:100%;padding:13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:22px;font-family:monospace;letter-spacing:8px;text-align:center;outline:none;box-sizing:border-box;margin-bottom:6px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <div id="ceOtpErr" style="font-size:12px;color:#ef4444;margin-bottom:14px;min-height:16px"></div>
+      <button onclick="verifyEmailChangeOtp()" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px">Verify Code →</button>
+      <div style="text-align:center"><a onclick="sendEmailChangeOtp()" style="font-size:12px;color:#4f7cff;cursor:pointer">Resend code</a></div>
+    </div>
+
+    <!-- Step 3: New email -->
+    <div id="ceStep3" style="display:none;padding:24px">
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">NEW EMAIL ADDRESS</label>
+      <input id="ceNewEmail" type="email" placeholder="Enter new email address" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <div id="ceNewErr" style="font-size:12px;color:#ef4444;margin-bottom:10px;min-height:16px"></div>
+      <button onclick="submitNewEmail()" style="width:100%;padding:13px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Update Email ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CHANGE PASSWORD FLOW ──
+function openChangePassword(){
+  document.getElementById('changePassModal').style.display='flex';
+  document.getElementById('cpStep1').style.display='block';
+  document.getElementById('cpStep2').style.display='none';
+  document.getElementById('cpOldPass').value='';
+  document.getElementById('cpOldErr').textContent='';
+  setTimeout(function(){ document.getElementById('cpOldPass').focus(); },200);
+}
+function closeChangePass(){
+  document.getElementById('changePassModal').style.display='none';
+}
+function toggleEyeEl(el,id){
+  var inp=document.getElementById(id);
+  if(!inp) return;
+  inp.type = inp.type==='password'?'text':'password';
+}
+function showPassStrengthEl(pass,barId,txtId){
+  var bar=document.getElementById(barId);
+  var txt=document.getElementById(txtId);
+  if(!bar) return;
+  if(!pass){ bar.style.width='0%'; if(txt) txt.textContent=''; return; }
+  var score=0;
+  if(pass.length>=8) score++;
+  if(/[A-Z]/.test(pass)) score++;
+  if(/[a-z]/.test(pass)) score++;
+  if(/[0-9]/.test(pass)) score++;
+  if(/[^A-Za-z0-9]/.test(pass)) score++;
+  var colors=['#ef4444','#f97316','#f59e0b','#84cc16','#00c27a'];
+  bar.style.width=(score/5*100)+'%';
+  bar.style.background=colors[score-1]||'#e5e7eb';
+  if(txt){
+    var labels=['Too weak','Weak','Fair','Strong','Very strong'];
+    var err=null;
+    if(pass.length<8) err='Min 8 characters required';
+    else if(!/[A-Z]/.test(pass)) err='Add uppercase letter (A-Z)';
+    else if(!/[a-z]/.test(pass)) err='Add lowercase letter (a-z)';
+    else if(!/[0-9]/.test(pass)) err='Add a number (0-9)';
+    else if(!/[^A-Za-z0-9]/.test(pass)) err='Add special character (!@#$%)';
+    if(err){ txt.textContent=err; txt.style.color='#ef4444'; }
+    else { txt.textContent=labels[score-1]||''; txt.style.color=colors[score-1]; }
+  }
+}
+async function verifyOldPassword(){
+  var oldPass = document.getElementById('cpOldPass').value;
+  var errEl = document.getElementById('cpOldErr');
+  if(!oldPass){ errEl.textContent='Please enter your current password'; return; }
+
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var user = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+  var email = user.email || localStorage.getItem('uplyncio_settings') && JSON.parse(localStorage.getItem('uplyncio_settings')).settEmail || '';
+
+  errEl.textContent='Verifying...'; errEl.style.color='#64748b';
+
+  try{
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'login',email:email,password:oldPass})});
+    var res = await r.json();
+    if(res.error){
+      errEl.textContent='⚠ Incorrect password. Please try again.'; errEl.style.color='#ef4444';
+      document.getElementById('cpOldPass').style.borderColor='#ef4444';
+    } else {
+      errEl.textContent='';
+      document.getElementById('cpStep1').style.display='none';
+      document.getElementById('cpStep2').style.display='block';
+      setTimeout(function(){ document.getElementById('cpNewPass').focus(); },200);
+    }
+  } catch(e){
+    errEl.textContent='Connection error. Try again.'; errEl.style.color='#ef4444';
+  }
+}
+async function submitNewPasswordSecure(){
+  var newPass = document.getElementById('cpNewPass').value;
+  var confPass = document.getElementById('cpConfPass').value;
+  var errEl = document.getElementById('cpNewErr');
+
+  if(!newPass){ errEl.textContent='Please enter a new password'; return; }
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var user = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+
+  // Validate strength
+  if(newPass.length<8){ errEl.textContent='Min 8 characters required'; return; }
+  if(!/[A-Z]/.test(newPass)){ errEl.textContent='Add uppercase letter (A-Z)'; return; }
+  if(!/[a-z]/.test(newPass)){ errEl.textContent='Add lowercase letter (a-z)'; return; }
+  if(!/[0-9]/.test(newPass)){ errEl.textContent='Add a number (0-9)'; return; }
+  if(!/[^A-Za-z0-9]/.test(newPass)){ errEl.textContent='Add special character (!@#$%)'; return; }
+  if(newPass!==confPass){ errEl.textContent='Passwords do not match'; return; }
+
+  errEl.textContent='Updating...'; errEl.style.color='#64748b';
+
+  try{
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'change_password',userId:uid,newPassword:newPass})});
+    var res = await r.json();
+    if(res.success){
+      closeChangePass();
+      showToast('✅ Password updated successfully!');
+    } else {
+      errEl.textContent=res.error||'Failed to update password'; errEl.style.color='#ef4444';
+    }
+  } catch(e){
+    errEl.textContent='Connection error. Try again.'; errEl.style.color='#ef4444';
+  }
+}
+function openForgotFromSettings(){
+  // Redirect to login page for forgot password
+  if(typeof openForgotPassword === 'function') openForgotPassword();
+  else window.location.href='/uplyncio-full.html';
+}
+
+// ── CHANGE EMAIL FLOW ──
+var _ceOtpCode = '';
+function openChangeEmail(){
+  document.getElementById('changeEmailModal').style.display='flex';
+  document.getElementById('ceStep1').style.display='block';
+  document.getElementById('ceStep2').style.display='none';
+  document.getElementById('ceStep3').style.display='none';
+  document.getElementById('ceStepLabel').textContent='Step 1 of 3 — Verify your identity';
+  document.getElementById('ceOtpStatus').textContent='';
+}
+function closeChangeEmail(){
+  document.getElementById('changeEmailModal').style.display='none';
+}
+async function sendEmailChangeOtp(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+  var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+  var email = userData.email || sett.settEmail || '';
+  if(!email){ document.getElementById('ceOtpStatus').textContent='Email not found. Please re-login.'; return; }
+
+  var btn = document.getElementById('ceSendBtn');
+  if(btn){ btn.textContent='Sending...'; btn.disabled=true; }
+  document.getElementById('ceOtpStatus').textContent='Sending code to '+email+'...';
+
+  try{
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'forgot_password',email:email})});
+    if(btn){ btn.textContent='Resend Code'; btn.disabled=false; }
+    document.getElementById('ceStep1').style.display='none';
+    document.getElementById('ceStep2').style.display='block';
+    document.getElementById('ceStepLabel').textContent='Step 2 of 3 — Enter verification code';
+    setTimeout(function(){ document.getElementById('ceOtpInput').focus(); },200);
+  } catch(e){
+    if(btn){ btn.textContent='Send Verification Code →'; btn.disabled=false; }
+    document.getElementById('ceOtpStatus').textContent='Error sending code. Try again.';
+  }
+}
+async function verifyEmailChangeOtp(){
+  var code = document.getElementById('ceOtpInput').value.trim();
+  var errEl = document.getElementById('ceOtpErr');
+  if(code.length<6){ errEl.textContent='Please enter the 6-digit code'; return; }
+
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+  var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+  var email = userData.email || sett.settEmail || '';
+
+  errEl.textContent='Verifying...'; errEl.style.color='#64748b';
+
+  try{
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'verify_reset_code',email:email,code:code})});
+    var res = await r.json();
+    if(res.success){
+      errEl.textContent='';
+      document.getElementById('ceStep2').style.display='none';
+      document.getElementById('ceStep3').style.display='block';
+      document.getElementById('ceStepLabel').textContent='Step 3 of 3 — Enter new email';
+      setTimeout(function(){ document.getElementById('ceNewEmail').focus(); },200);
+    } else {
+      errEl.textContent='⚠ '+(res.error||'Incorrect code. Try again.'); errEl.style.color='#ef4444';
+    }
+  } catch(e){
+    errEl.textContent='Connection error. Try again.'; errEl.style.color='#ef4444';
+  }
+}
+async function submitNewEmail(){
+  var newEmail = document.getElementById('ceNewEmail').value.trim();
+  var errEl = document.getElementById('ceNewErr');
+  if(!newEmail||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
+    errEl.textContent='Please enter a valid email address'; return;
+  }
+
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  errEl.textContent='Updating...'; errEl.style.color='#64748b';
+
+  try{
+    var r = await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'change_email',userId:uid,newEmail:newEmail})});
+    var res = await r.json();
+    if(res.success){
+      // Update locally
+      var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+      sett.settEmail = newEmail;
+      localStorage.setItem('uplyncio_settings', JSON.stringify(sett));
+      var emailEl = document.getElementById('settEmail');
+      if(emailEl) emailEl.value = newEmail;
+      closeChangeEmail();
+      showToast('✅ Email updated successfully!');
+    } else {
+      errEl.textContent=res.error||'Failed to update email'; errEl.style.color='#ef4444';
+    }
+  } catch(e){
+    errEl.textContent='Connection error. Try again.'; errEl.style.color='#ef4444';
+  }
+}
+</script>
 
 </body>
 </html>

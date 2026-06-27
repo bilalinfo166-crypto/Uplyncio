@@ -256,6 +256,44 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // ── CHANGE PASSWORD ──
+    if (action === 'change_password') {
+      const { userId, newPassword } = body;
+      if (!userId || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+      if (newPassword.length < 8) return res.status(400).json({ error: 'Password too short' });
+      if (!/[A-Z]/.test(newPassword)) return res.status(400).json({ error: 'Add uppercase letter' });
+      if (!/[a-z]/.test(newPassword)) return res.status(400).json({ error: 'Add lowercase letter' });
+      if (!/[0-9]/.test(newPassword)) return res.status(400).json({ error: 'Add a number' });
+      if (!/[^A-Za-z0-9]/.test(newPassword)) return res.status(400).json({ error: 'Add special character' });
+      const hash = await hashPass(newPassword);
+      await sbUpdate('users', `id=eq.${userId}`, { password_hash: hash });
+      const { sendPasswordChangedEmail } = await import('./email.js');
+      const users2 = await sbGet('users', `id=eq.${userId}`);
+      if (users2?.length) {
+        const u = users2[0];
+        const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        sendPasswordChangedEmail({ to: u.email, name: u.name, email: u.email, changedAt: now, ipAddress: req.headers['x-forwarded-for'] || 'Unknown' }).catch(()=>{});
+      }
+      return res.status(200).json({ success: true });
+    }
+
+    // ── CHANGE EMAIL ──
+    if (action === 'change_email') {
+      const { userId, newEmail } = body;
+      if (!userId || !newEmail) return res.status(400).json({ error: 'Missing fields' });
+      const newEmailLow = newEmail.toLowerCase().trim();
+      const existing = await sbGet('users', `email=eq.${encodeURIComponent(newEmailLow)}`);
+      if (existing?.length) return res.status(409).json({ error: 'This email is already registered' });
+      const users3 = await sbGet('users', `id=eq.${userId}`);
+      if (!users3?.length) return res.status(404).json({ error: 'User not found' });
+      const oldUser = users3[0];
+      await sbUpdate('users', `id=eq.${userId}`, { email: newEmailLow, email_verified: false });
+      const { sendEmailChangedEmail } = await import('./email.js');
+      const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      sendEmailChangedEmail({ to: oldUser.email, name: oldUser.name, oldEmail: oldUser.email, newEmail: newEmailLow, changedAt: now }).catch(()=>{});
+      return res.status(200).json({ success: true });
+    }
+
     // ── VERIFY RESET CODE ──
     if (action === 'verify_reset_code') {
       const { email, code } = body;
