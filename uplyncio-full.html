@@ -3032,14 +3032,14 @@ function submitForgotPassword(){
           <input id="pubEmail" type="email" placeholder="Email Address" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:16px;position:relative">
-          <input id="pubPass" type="password" placeholder="Password (A-Z a-z 0-9 @#$ min 8)" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')">
+          <input id="pubPass" type="password" placeholder="Create a password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')">
           <button type="button" onclick="toggleEye('pubPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
           <div style="margin-top:8px">
             <div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:4px"><div id="pubPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
             <div style="display:flex;justify-content:space-between">
               <span id="pubPassTxt" style="font-size:11px;font-weight:600"></span>
-              <span style="font-size:11px;color:#94a3b8">A-Z · a-z · 0-9 · @#$</span>
+
             </div>
           <div style="display:none">
         </div>
@@ -3140,14 +3140,14 @@ function submitForgotPassword(){
         </div>
         <div style="margin-bottom:16px">
           <div style="position:relative">
-          <input id="buyerPass" type="password" placeholder="Password (min 8 chars, A-Z a-z 0-9 @#$)" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')">
+          <input id="buyerPass" type="password" placeholder="Create a password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')">
           <button type="button" onclick="toggleEye('buyerPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
           <div style="margin-top:8px">
             <div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:4px"><div id="buyerPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span id="buyerPassTxt" style="font-size:11px;font-weight:600"></span>
-              <span style="font-size:11px;color:#94a3b8">Min: 8 chars · A-Z · a-z · 0-9 · @#$</span>
+
             </div>
           </div>
         </div>
@@ -3215,7 +3215,7 @@ function submitForgotPassword(){
         <input type="email" id="su2Email" placeholder="Email Address" oninput="clearSignupEmailErr()" style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
         <div id="su2EmailErr" style="display:none;font-size:12px;color:#ef4444;font-weight:600;padding:4px 2px"></div>
         <div style="position:relative">
-        <input type="password" id="su2Pass" placeholder="Password (A-Z a-z 0-9 @#$ min 8)" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 42px 12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" oninput="showPassStrength(this.value,'su2PassBar','su2PassTxt')">
+        <input type="password" id="su2Pass" placeholder="Create a password" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 42px 12px 14px;font-size:13.5px;font-family:inherit;outline:none;color:#fff;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" oninput="showPassStrength(this.value,'su2PassBar','su2PassTxt')">
         <button type="button" onclick="toggleEye('su2Pass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.4);padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         </div>
         <div style="margin-top:8px">
