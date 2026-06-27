@@ -609,7 +609,7 @@ window.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- TICKER BANNER -->
-<div style="position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;z-index:98">
+<div id="verifiedTicker" style="position:fixed;top:58px;left:210px;right:0;background:#fffbeb;border-bottom:1px solid #fde68a;overflow:hidden;white-space:nowrap;padding:9px 0;z-index:98">
   <div class="ticker-inner">
     <span class="ticker-txt">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <span class="ticker-txt">👑 Earn your Gold Verified Badge! &nbsp;•&nbsp; Successfully complete 10 orders on Uplyncio and earn a permanent 👑 Verified Publisher badge &nbsp;•&nbsp; Your sites will show a verified badge to all buyers &nbsp;•&nbsp; Boost trust and get more orders &nbsp;•&nbsp; Join our elite verified publishers network &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -4100,6 +4100,7 @@ document.addEventListener('click', function(e){
 var currentTxnFilter = 'all';
 
 function showBalance(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("balance");
   hideAllPages();
   var bp=document.getElementById('balancePage');
@@ -4353,6 +4354,7 @@ var twoFaOn = true;
 var settingsData = {};
 
 function showSettings(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("settings");
   setTimeout(load2FAState, 100);
   hideAllPages();
@@ -5005,6 +5007,7 @@ var publisherReviews = [];
 var removedLinks = 0; // tracks how many links were removed
 
 function showRating(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("rating");
   hideAllPages();
   var rp=document.getElementById('ratingPage');
@@ -5222,6 +5225,8 @@ function closePublisherRules(){
 
 // ── REFERRAL PROGRAM ──
 function hideAllPages(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
+  
   // Hide all special pages
   ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.style.display='none';
@@ -5241,6 +5246,7 @@ function setActiveSidebar(text){
 }
 
 function showReferral(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("referral");
   hideAllPages();
   var rfp=document.getElementById('referralPage');
@@ -5549,6 +5555,7 @@ var statusConfig={
 };
 
 function showOrders(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("orders");
   hideAllPages();
   var op=document.getElementById('ordersPage');
@@ -5565,6 +5572,9 @@ function showMain(){
   // Always reload sites from localStorage to prevent data loss
   mySites = loadSites();
   saveState("main",{step:1});
+  // Show ticker only on main page
+  var tk=document.getElementById('verifiedTicker');
+  if(tk) tk.style.display='block';
   // Hide all special pages
   ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.style.display='none';
@@ -5577,6 +5587,7 @@ function showMain(){
 }
 
 function showTrending(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("trending");
   hideAllPages();
   var tp=document.getElementById('trendingPage');
