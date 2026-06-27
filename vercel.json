@@ -26,6 +26,9 @@
     },
     "api/test-inquiry-email.js": {
       "maxDuration": 15
+    },
+    "api/google-auth.js": {
+      "maxDuration": 15
     }
   }
 }

@@ -713,9 +713,58 @@ function _loginSuccess(user){
   window.location.href='publisher.html';
 }
 
-function googleLogin(){ alert('Google login requires backend setup. Please use Email/Password.'); }
-function facebookLogin(){ alert('Facebook login requires backend setup. Please use Email/Password.'); }
+async function googleLogin(role){
+  try {
+    role = role || 'buyer';
+    var r = await fetch('/api/google-auth', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'get_url', role: role })
+    });
+    var data = await r.json();
+    if(data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Google login failed. Please try again.');
+    }
+  } catch(e) {
+    alert('Google login error. Please use Email/Password.');
+  }
+}
+function facebookLogin(){ alert('Facebook login coming soon! Please use Email/Password for now.'); }
+function handleSocialAuth(provider, role){ if(provider==='google') googleLogin(role); else facebookLogin(); }
 function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else facebookLogin(); }
+
+// Handle Google OAuth callback
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('oauth_success')==='1'){
+    try{
+      var user = JSON.parse(decodeURIComponent(params.get('user')||'{}'));
+      if(user.email){
+        // Save to localStorage
+        localStorage.setItem('uplyncio_loggedIn','1');
+        localStorage.setItem('uplyncio_currentUid', user.id||'google_'+Date.now());
+        localStorage.setItem('uplyncio_user', JSON.stringify(user));
+        var uid = user.id||'google_'+Date.now();
+        localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(user));
+        // Clean URL
+        window.history.replaceState({}, '', window.location.pathname);
+        // Redirect to dashboard
+        if(user.role==='publisher'){
+          window.location.href='publisher.html';
+        } else {
+          window.location.href='buyer.html';
+        }
+      }
+    }catch(e){ console.log('OAuth callback error:', e); }
+  }
+  if(params.get('oauth_error')){
+    var err = decodeURIComponent(params.get('oauth_error')||'');
+    window.history.replaceState({}, '', window.location.pathname);
+    alert('Google login failed: ' + err + '. Please use Email/Password.');
+  }
+})();
 </script>
 
 
