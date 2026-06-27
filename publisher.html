@@ -352,10 +352,8 @@ setTimeout(applyVerifiedBadges, 500);
 
 // ── RESET PASSWORD from settings ──
 function openResetPasswordModal(){
-  var m = document.getElementById('resetPwdModal');
-  if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
-  var i1=document.getElementById('rp1'); var i2=document.getElementById('rp2');
-  if(i1)i1.value=''; if(i2)i2.value='';
+  // Use secure flow: verify old password first, then allow change
+  openChangePassword();
 }
 function closeResetPwdModal(){
   var m=document.getElementById('resetPwdModal');
