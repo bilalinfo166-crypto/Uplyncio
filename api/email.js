@@ -5,21 +5,23 @@ const SITE = 'https://uplyncio.vercel.app';
 
 // ── SHARED: Header ──
 function header(category, accent = '#4f7cff') {
+  // Exact favicon.svg inline as SVG image in email
+  const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40">
+    <rect width="64" height="64" rx="14" fill="#0f1628"/>
+    <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+    <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+  </svg>`;
+  const logoB64 = Buffer.from(logoSvg).toString('base64');
+
   return `
   <tr><td style="background:#07090f;padding:18px 28px;text-align:center;border-bottom:3px solid ${accent}">
     <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
       <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6px"><tr>
-        <td style="background:#0f1628;border-radius:10px;padding:7px 10px">
-          <table cellpadding="0" cellspacing="0" border="0"><tr>
-            <td style="padding-right:3px">
-              <div style="width:22px;height:15px;border:4px solid #4f7cff;border-radius:6px;display:inline-block"></div>
-            </td>
-            <td>
-              <div style="width:22px;height:15px;border:4px solid #00d4aa;border-radius:6px;display:inline-block"></div>
-            </td>
-          </tr></table>
+        <td style="vertical-align:middle;padding-right:10px">
+          <img src="data:image/svg+xml;base64,${logoB64}" width="40" height="40" alt="Uplyncio" style="display:block;border-radius:10px"/>
         </td>
-        <td style="padding-left:10px;vertical-align:middle">
+        <td style="vertical-align:middle">
           <span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Uply<span style="color:#4f7cff">ncio</span></span>
         </td>
       </tr></table>
@@ -34,13 +36,15 @@ function footer() {
   return `
   <tr><td style="background:#07090f;padding:24px 28px">
     <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px"><tr>
-      <td style="background:#0f1628;border-radius:8px;padding:5px 8px">
-        <table cellpadding="0" cellspacing="0" border="0"><tr>
-          <td style="padding-right:3px"><div style="width:18px;height:12px;border:3px solid #4f7cff;border-radius:5px;display:inline-block"></div></td>
-          <td><div style="width:18px;height:12px;border:3px solid #00d4aa;border-radius:5px;display:inline-block"></div></td>
-        </tr></table>
+      <td style="vertical-align:middle;padding-right:8px">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" style="display:block;border-radius:8px">
+          <rect width="64" height="64" rx="14" fill="#0f1628"/>
+          <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+          <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+          <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+        </svg>
       </td>
-      <td style="padding-left:8px;vertical-align:middle">
+      <td style="vertical-align:middle">
         <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Uply<span style="color:#4f7cff">ncio</span></span>
       </td>
     </tr></table>
