@@ -572,9 +572,17 @@ window.addEventListener('DOMContentLoaded', function(){
       &#128172;
       <span id="inboxDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
     </div>
-    <div class="tb-ic" style="position:relative;cursor:pointer" title="Notifications">
+    <div class="tb-ic" style="position:relative;cursor:pointer" title="Notifications" onclick="toggleNotifPanel()" id="notifBellBtn">
       &#128276;
-      <span id="notifDot" style="display:none;position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
+      <span id="notifDot" style="display:none;position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:#ef4444;border:2px solid #fff;font-family:Arial,sans-serif;font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:13px"></span>
+    </div>
+    <!-- NOTIFICATION PANEL -->
+    <div id="notifPanel" style="display:none;position:fixed;top:62px;right:60px;width:340px;max-height:480px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:99998;overflow:hidden;flex-direction:column">
+      <div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:14px;font-weight:800;color:#0f172a">Notifications</span>
+        <button onclick="markAllNotifsRead()" style="font-size:11px;font-weight:600;color:#4f7cff;background:none;border:none;cursor:pointer;font-family:inherit">Mark all read</button>
+      </div>
+      <div id="notifList" style="overflow-y:auto;max-height:380px"></div>
     </div>
     <div style="position:relative">
       <span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span>
@@ -6797,6 +6805,185 @@ function showChatError(msg, tip) {
     if(errEl) errEl.style.display = 'none';
   }, 4000);
 }
+
+
+// ── NOTIFICATION SYSTEM ──
+var _notifs = [];
+
+function getNotifIcon(type) {
+  const icons = {
+    'new_order': '🛒', 'order_accepted': '✅', 'order_delivered': '📦',
+    'order_cancelled': '❌', 'order_completed': '🎉', 'new_message': '💬',
+    'site_approved': '🌐', 'site_rejected': '⚠️', 'payment': '💰',
+    'badge': '👑', 'dispute': '⚖️', 'warning': '🚨', 'system': '🔔'
+  };
+  return icons[type] || '🔔';
+}
+
+function addNotification(type, title, body, link) {
+  var notif = {
+    id: 'n_' + Date.now(),
+    type: type,
+    title: title,
+    body: body,
+    link: link || null,
+    time: new Date().toISOString(),
+    read: false
+  };
+  _notifs.unshift(notif);
+  if (_notifs.length > 50) _notifs = _notifs.slice(0, 50);
+  saveNotifs();
+  renderNotifDot();
+  renderNotifList();
+}
+
+function saveNotifs() {
+  var uid = localStorage.getItem('uplyncio_currentUid') || '';
+  localStorage.setItem('uplyncio_notifs_' + uid, JSON.stringify(_notifs));
+}
+
+function loadNotifs() {
+  var uid = localStorage.getItem('uplyncio_currentUid') || '';
+  try { _notifs = JSON.parse(localStorage.getItem('uplyncio_notifs_' + uid) || '[]'); }
+  catch(e) { _notifs = []; }
+  renderNotifDot();
+  renderNotifList();
+}
+
+function renderNotifDot() {
+  var dot = document.getElementById('notifDot');
+  var unread = _notifs.filter(function(n){ return !n.read; }).length;
+  if (!dot) return;
+  if (unread > 0) {
+    dot.style.display = 'block';
+    dot.textContent = unread > 9 ? '9+' : unread;
+  } else {
+    dot.style.display = 'none';
+  }
+}
+
+function renderNotifList() {
+  var list = document.getElementById('notifList');
+  if (!list) return;
+  if (_notifs.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:32px 20px"><div style="font-size:32px;margin-bottom:8px">🔔</div><div style="font-size:13px;font-weight:600;color:#64748b">No notifications yet</div></div>';
+    return;
+  }
+  list.innerHTML = _notifs.map(function(n) {
+    var timeAgo = getTimeAgo(n.time);
+    return '<div onclick="clickNotif('' + n.id + '')" style="padding:12px 16px;border-bottom:1px solid #f8faff;cursor:pointer;background:' + (n.read ? '#fff' : '#f0f4ff') + ';display:flex;gap:12px;align-items:flex-start" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='' + (n.read ? '#fff' : '#f0f4ff') + ''">'
+      + '<div style="font-size:20px;flex-shrink:0;line-height:1.3">' + getNotifIcon(n.type) + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-size:13px;font-weight:' + (n.read ? '600' : '700') + ';color:#0f172a;margin-bottom:2px">' + n.title + '</div>'
+      + '<div style="font-size:12px;color:#64748b;line-height:1.5">' + n.body + '</div>'
+      + '<div style="font-size:11px;color:#94a3b8;margin-top:4px">' + timeAgo + '</div>'
+      + '</div>'
+      + (!n.read ? '<div style="width:8px;height:8px;border-radius:50%;background:#4f7cff;flex-shrink:0;margin-top:4px"></div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function getTimeAgo(iso) {
+  var diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+function clickNotif(id) {
+  var n = _notifs.find(function(x){ return x.id === id; });
+  if (!n) return;
+  n.read = true;
+  saveNotifs();
+  renderNotifDot();
+  renderNotifList();
+  if (n.link) {
+    closeNotifPanel();
+    if (n.link === 'orders') showOrders();
+    else if (n.link === 'settings') showSettings();
+    else if (n.link === 'balance') showBalance();
+  }
+}
+
+function toggleNotifPanel() {
+  var panel = document.getElementById('notifPanel');
+  if (!panel) return;
+  if (panel.style.display === 'flex') {
+    closeNotifPanel();
+  } else {
+    panel.style.display = 'flex';
+    panel.style.flexDirection = 'column';
+    renderNotifList();
+  }
+}
+
+function closeNotifPanel() {
+  var panel = document.getElementById('notifPanel');
+  if (panel) panel.style.display = 'none';
+}
+
+function markAllNotifsRead() {
+  _notifs.forEach(function(n){ n.read = true; });
+  saveNotifs();
+  renderNotifDot();
+  renderNotifList();
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('notifPanel');
+  var btn = document.getElementById('notifBellBtn');
+  if (panel && panel.style.display === 'flex' && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
+    closeNotifPanel();
+  }
+});
+
+// Auto-add notifications when key events happen
+function notifyNewOrder(orderId, siteUrl, price) {
+  addNotification('new_order', 'New Order Received!', 
+    'Order ' + orderId + ' for ' + siteUrl + ' — $' + price, 'orders');
+}
+function notifyOrderCancelled(orderId) {
+  addNotification('order_cancelled', 'Order Cancelled', 
+    'Order ' + orderId + ' has been cancelled by the buyer.', 'orders');
+}
+function notifyNewMessage(buyerName, orderId) {
+  addNotification('new_message', 'New Message from ' + buyerName,
+    'You have an unread message on order ' + orderId + '. Tap to reply.', 'orders');
+}
+function notifyPayment(amount) {
+  addNotification('payment', 'Payment Received!',
+    '$' + amount + ' has been added to your wallet balance.', 'balance');
+}
+function notifySiteApproved(siteUrl) {
+  addNotification('site_approved', 'Site Approved!',
+    siteUrl + ' is now live on the marketplace.', null);
+}
+function notifySiteRejected(siteUrl, reason) {
+  addNotification('site_rejected', 'Site Needs Review',
+    siteUrl + ' — ' + (reason || 'Please check requirements.'), null);
+}
+function notifyBadge(badge) {
+  addNotification('badge', 'Badge Earned! ' + badge,
+    'Congratulations! You earned a new achievement.', null);
+}
+
+// Load on startup
+loadNotifs();
+
+// Demo: add welcome notif if first time
+(function(){
+  var uid = localStorage.getItem('uplyncio_currentUid') || '';
+  var key = 'uplyncio_notif_welcomed_' + uid;
+  if (!localStorage.getItem(key) && uid) {
+    localStorage.setItem(key, '1');
+    setTimeout(function(){
+      addNotification('system', 'Welcome to Uplyncio! 👋',
+        'Your publisher account is set up. Add your first site to start earning.', null);
+    }, 1000);
+  }
+})();
 
 </body>
 </html>
