@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Uplyncio — Admin Control Room</title>
@@ -103,139 +106,115 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#07090f;color:#e8eaf0
 .frame-wrap{position:fixed;top:0;left:200px;right:0;bottom:0;z-index:9998;display:none}
 .frame-wrap.visible{display:block}
 </style>
+  <link rel="stylesheet" href="/shared.css">
 </head>
 <body>
-
-<!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
-  <div class="login-box">
-    <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:22px">
-      <svg width="34" height="34" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
-      <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Uply<em style="color:#4f7cff;font-style:normal">ncio</em></span>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:#6b7a99;text-align:center;margin-bottom:20px;text-transform:uppercase;letter-spacing:.8px">🔐 Admin Control Room</div>
-    <input class="login-inp" id="aUser" type="text" placeholder="Admin username" autocomplete="off">
-    <input class="login-inp" id="aPass" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Enter Control Room →</button>
-    <div class="login-err" id="loginErr">❌ Invalid credentials</div>
-  </div>
+<div class="login-box">
+<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:22px">
+<svg width="34" height="34" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
+<span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Uply<em style="color:#4f7cff;font-style:normal">ncio</em></span>
 </div>
-
-<!-- ADMIN PANEL -->
+<div style="font-size:11px;font-weight:700;color:#6b7a99;text-align:center;margin-bottom:20px;text-transform:uppercase;letter-spacing:.8px">🔐 Admin Control Room</div>
+<input class="login-inp" id="aUser" type="text" placeholder="Admin username" autocomplete="off">
+<input class="login-inp" id="aPass" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')doLogin()">
+<button class="login-btn" onclick="doLogin()">Enter Control Room →</button>
+<div class="login-err" id="loginErr">❌ Invalid credentials</div>
+</div>
+</div>
 <div id="adminPanel">
-
-  <!-- ADMIN SIDEBAR -->
-  <div class="admin-sb">
-    <div class="admin-logo">
-      <svg width="26" height="26" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
-      <div><div class="admin-logo-text">Uply<em>ncio</em><span class="admin-badge">ADMIN</span></div><div style="font-size:9px;color:#6b7a99">Control Room</div></div>
-    </div>
-    <div class="admin-nav">
-      <div class="admin-lbl">Overview</div>
-      <div class="admin-item active" onclick="showAdminPage('dashboard',this)">📊 Dashboard</div>
-      <div class="admin-lbl">Our Platform</div>
-      <div class="admin-item" onclick="openTeamPublisher()">🌐 Our Sites & Orders</div>
-      <div class="admin-lbl">Users</div>
-      <div class="admin-item" onclick="showAdminPage('publishers',this)">📰 Publishers <span id="sbP" style="margin-left:auto;background:rgba(79,124,255,.2);color:#4f7cff;font-size:10px;padding:1px 7px;border-radius:20px"></span></div>
-      <div class="admin-item" onclick="showAdminPage('buyers',this)">🛒 Buyers <span id="sbB" style="margin-left:auto;background:rgba(0,212,170,.2);color:#00d4aa;font-size:10px;padding:1px 7px;border-radius:20px"></span></div>
-      <div class="admin-lbl">Finance</div>
-      <div class="admin-item" onclick="showAdminPage('revenue',this)">💰 Revenue</div>
-      <div class="admin-lbl">Settings</div>
-      <div class="admin-item" onclick="showAdminPage('settings',this)">⚙️ Settings</div>
-    </div>
-    <div class="admin-bottom">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="admin-av">A</div>
-        <div style="flex:1"><div style="font-size:11px;font-weight:700;color:#e8eaf0">Uplyncio Admin</div><div style="font-size:9px;color:#6b7a99">Super Admin</div></div>
-        <button onclick="logout()" style="background:none;border:none;color:#6b7a99;cursor:pointer;font-size:15px" title="Logout">🚪</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PUBLISHER PANEL (Our Sites & Orders) -->
-  <div class="frame-wrap" id="frameWrap" style="position:fixed;top:0;left:200px;right:0;bottom:0;z-index:9998;display:none">
-    <iframe id="pubFrame" title="Publisher Panel" style="width:100%;height:100%;border:none;background:#f0f2f7"></iframe>
-  </div>
-
-  <!-- ADMIN MAIN CONTENT -->
-  <div class="admin-main" id="adminMain">
-    <div class="admin-topbar">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span class="live-dot"></span>
-        <span class="admin-topbar-title" id="adminTitle">📊 Dashboard</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <span id="adminClock" style="font-size:12px;color:#6b7a99;font-family:Manrope,sans-serif"></span>
-        <button onclick="refreshAdmin()" style="background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:#4f7cff;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
-      </div>
-    </div>
-    <div class="admin-content">
-
-      <!-- DASHBOARD -->
-      <div class="admin-page active" id="pg-dashboard">
-        <div class="stats-row" id="dashStats"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div class="asection"><div class="asection-head"><div class="asection-title">Recent Publishers</div></div><table class="atbl"><tbody id="rPubs"></tbody></table></div>
-          <div class="asection"><div class="asection-head"><div class="asection-title">Recent Buyers</div></div><table class="atbl"><tbody id="rBuys"></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- PUBLISHERS -->
-      <div class="admin-page" id="pg-publishers">
-        <div class="asection">
-          <div class="asection-head"><div class="asection-title">All Publishers</div><span id="pCnt" style="background:rgba(79,124,255,.15);color:#4f7cff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span></div>
-          <div class="afbar">
-            <input class="asinp" id="pQ" placeholder="🔍 Name or email..." oninput="renderPubs()">
-            <select class="assel" id="pF" onchange="renderPubs()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
-          </div>
-          <table class="atbl"><thead><tr><th>Publisher</th><th>Email</th><th>Sites</th><th>Orders</th><th>Earnings</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="pBody"></tbody></table>
-        </div>
-      </div>
-
-      <!-- BUYERS -->
-      <div class="admin-page" id="pg-buyers">
-        <div class="asection">
-          <div class="asection-head"><div class="asection-title">All Buyers</div><span id="bCnt" style="background:rgba(0,212,170,.15);color:#00d4aa;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span></div>
-          <div class="afbar">
-            <input class="asinp" id="bQ" placeholder="🔍 Name or email..." oninput="renderBuys()">
-            <select class="assel" id="bF" onchange="renderBuys()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
-          </div>
-          <table class="atbl"><thead><tr><th>Buyer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Balance</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="bBody"></tbody></table>
-        </div>
-      </div>
-
-      <!-- REVENUE -->
-      <div class="admin-page" id="pg-revenue">
-        <div class="stats-row" id="revStats"></div>
-        <div class="asection"><div class="asection-head"><div class="asection-title">Revenue Details</div></div><div id="revDetail" style="padding:20px;color:#6b7a99;font-size:13px"></div></div>
-      </div>
-
-      <!-- SETTINGS -->
-      <div class="admin-page" id="pg-settings">
-        <div class="asection"><div class="asection-head"><div class="asection-title">Admin Settings</div></div>
-          <div style="padding:22px;display:flex;flex-direction:column;gap:18px">
-            <div>
-              <label style="font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Change Admin Password</label>
-              <div style="display:flex;gap:10px"><input id="newPw" type="password" class="ainp" placeholder="New password" style="max-width:260px"><button class="abtn abtn-p" onclick="changePw()">Update</button></div>
-            </div>
-            <div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
-              <label style="font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Team Accounts</label>
-              <div style="font-size:13px;color:#8892a4;margin-bottom:10px">Admin publisher & buyer accounts are auto-created with Verified status.</div>
-              <button class="abtn abtn-s" onclick="ensureTeam()">✓ Sync Team Accounts</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
+<div class="admin-sb">
+<div class="admin-logo">
+<svg width="26" height="26" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
+<div><div class="admin-logo-text">Uply<em>ncio</em><span class="admin-badge">ADMIN</span></div><div style="font-size:9px;color:#6b7a99">Control Room</div></div>
 </div>
-
-<!-- PUB MODAL -->
+<div class="admin-nav">
+<div class="admin-lbl">Overview</div>
+<div class="admin-item active" onclick="showAdminPage('dashboard',this)">📊 Dashboard</div>
+<div class="admin-lbl">Our Platform</div>
+<div class="admin-item" onclick="openTeamPublisher()">🌐 Our Sites & Orders</div>
+<div class="admin-lbl">Users</div>
+<div class="admin-item" onclick="showAdminPage('publishers',this)">📰 Publishers <span id="sbP" style="margin-left:auto;background:rgba(79,124,255,.2);color:#4f7cff;font-size:10px;padding:1px 7px;border-radius:20px"></span></div>
+<div class="admin-item" onclick="showAdminPage('buyers',this)">🛒 Buyers <span id="sbB" style="margin-left:auto;background:rgba(0,212,170,.2);color:#00d4aa;font-size:10px;padding:1px 7px;border-radius:20px"></span></div>
+<div class="admin-lbl">Finance</div>
+<div class="admin-item" onclick="showAdminPage('revenue',this)">💰 Revenue</div>
+<div class="admin-lbl">Settings</div>
+<div class="admin-item" onclick="showAdminPage('settings',this)">⚙️ Settings</div>
+</div>
+<div class="admin-bottom">
+<div style="display:flex;align-items:center;gap:8px">
+<div class="admin-av">A</div>
+<div style="flex:1"><div style="font-size:11px;font-weight:700;color:#e8eaf0">Uplyncio Admin</div><div style="font-size:9px;color:#6b7a99">Super Admin</div></div>
+<button onclick="logout()" style="background:none;border:none;color:#6b7a99;cursor:pointer;font-size:15px" title="Logout">🚪</button>
+</div>
+</div>
+</div>
+<div class="frame-wrap" id="frameWrap" style="position:fixed;top:0;left:200px;right:0;bottom:0;z-index:9998;display:none">
+<iframe id="pubFrame" title="Publisher Panel" style="width:100%;height:100%;border:none;background:#f0f2f7"></iframe>
+</div>
+<div class="admin-main" id="adminMain">
+<div class="admin-topbar">
+<div style="display:flex;align-items:center;gap:10px">
+<span class="live-dot"></span>
+<span class="admin-topbar-title" id="adminTitle">📊 Dashboard</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px">
+<span id="adminClock" style="font-size:12px;color:#6b7a99;font-family:Manrope,sans-serif"></span>
+<button onclick="refreshAdmin()" style="background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:#4f7cff;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
+</div>
+</div>
+<div class="admin-content">
+<div class="admin-page active" id="pg-dashboard">
+<div class="stats-row" id="dashStats"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div class="asection"><div class="asection-head"><div class="asection-title">Recent Publishers</div></div><table class="atbl"><tbody id="rPubs"></tbody></table></div>
+<div class="asection"><div class="asection-head"><div class="asection-title">Recent Buyers</div></div><table class="atbl"><tbody id="rBuys"></tbody></table></div>
+</div>
+</div>
+<div class="admin-page" id="pg-publishers">
+<div class="asection">
+<div class="asection-head"><div class="asection-title">All Publishers</div><span id="pCnt" style="background:rgba(79,124,255,.15);color:#4f7cff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span></div>
+<div class="afbar">
+<input class="asinp" id="pQ" placeholder="🔍 Name or email..." oninput="renderPubs()">
+<select class="assel" id="pF" onchange="renderPubs()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
+</div>
+<table class="atbl"><thead><tr><th>Publisher</th><th>Email</th><th>Sites</th><th>Orders</th><th>Earnings</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="pBody"></tbody></table>
+</div>
+</div>
+<div class="admin-page" id="pg-buyers">
+<div class="asection">
+<div class="asection-head"><div class="asection-title">All Buyers</div><span id="bCnt" style="background:rgba(0,212,170,.15);color:#00d4aa;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span></div>
+<div class="afbar">
+<input class="asinp" id="bQ" placeholder="🔍 Name or email..." oninput="renderBuys()">
+<select class="assel" id="bF" onchange="renderBuys()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
+</div>
+<table class="atbl"><thead><tr><th>Buyer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Balance</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="bBody"></tbody></table>
+</div>
+</div>
+<div class="admin-page" id="pg-revenue">
+<div class="stats-row" id="revStats"></div>
+<div class="asection"><div class="asection-head"><div class="asection-title">Revenue Details</div></div><div id="revDetail" style="padding:20px;color:#6b7a99;font-size:13px"></div></div>
+</div>
+<div class="admin-page" id="pg-settings">
+<div class="asection"><div class="asection-head"><div class="asection-title">Admin Settings</div></div>
+<div style="padding:22px;display:flex;flex-direction:column;gap:18px">
+<div>
+<label style="font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Change Admin Password</label>
+<div style="display:flex;gap:10px"><input id="newPw" type="password" class="ainp" placeholder="New password" style="max-width:260px"><button class="abtn abtn-p" onclick="changePw()">Update</button></div>
+</div>
+<div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
+<label style="font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Team Accounts</label>
+<div style="font-size:13px;color:#8892a4;margin-bottom:10px">Admin publisher & buyer accounts are auto-created with Verified status.</div>
+<button class="abtn abtn-s" onclick="ensureTeam()">✓ Sync Team Accounts</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div class="aoverlay" id="pModal"><div class="ambox"><div class="amhead"><div class="amhead-title" id="pMTitle"></div><button class="amclose" onclick="closeAModal('pModal')">✕</button></div><div class="ambody" id="pMBody"></div></div></div>
-<!-- BUY MODAL -->
 <div class="aoverlay" id="bModal"><div class="ambox"><div class="amhead"><div class="amhead-title" id="bMTitle"></div><button class="amclose" onclick="closeAModal('bModal')">✕</button></div><div class="ambody" id="bMBody"></div></div></div>
-
 <script>
 var ADMIN_ID = 'uplyncio_admin';
 var TEAM_UID = 'uplyncio_team_official';

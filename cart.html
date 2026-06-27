@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Cart — Uplyncio</title>
@@ -68,66 +71,60 @@ nav{background:var(--wh);border-bottom:1px solid var(--br);padding:0 32px;height
 .btn-add{padding:8px 16px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn-unsave{padding:8px 12px;background:#fee2e2;color:#ef4444;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
 </style>
+  <link rel="stylesheet" href="/shared.css">
 </head>
 <body>
-
 <nav>
-  <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>@keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}</style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
+<a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+<svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+<rect width="64" height="64" rx="14" fill="#0f1628"/>
+<g style="animation:chainMove 2.5s ease-in-out infinite">
+<rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+</g>
+<g style="animation:chainMove 2.5s ease-in-out infinite reverse">
+<rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+</g>
+<rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+<style>@keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}</style>
+</svg>
+<span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
 </a>
-  <a href="buyer.html" class="nav-back">← Back to Browse</a>
+<a href="buyer.html" class="nav-back">← Back to Browse</a>
 </nav>
-
 <div class="tabs-bar">
-  <button class="tab-btn act" id="tab-cart" onclick="showTab('cart')">
+<button class="tab-btn act" id="tab-cart" onclick="showTab('cart')">
     🛒 My Cart <span class="tab-cnt" id="cnt-cart">0</span>
-  </button>
-  <button class="tab-btn" id="tab-saved" onclick="showTab('saved')">
+</button>
+<button class="tab-btn" id="tab-saved" onclick="showTab('saved')">
     ❤️ Saved Sites <span class="tab-cnt" id="cnt-saved" style="background:#94a3b8">0</span>
-  </button>
+</button>
 </div>
-
-<!-- MY CART -->
 <div id="view-cart" class="container">
-  <div class="cart-main" id="cartList"></div>
-  <div class="order-summary" id="summaryBox" style="display:none">
-    <div class="summary-card">
-      <div class="summary-title">Order Summary</div>
-      <div class="summary-row"><span>Items</span><span id="sumItems">0</span></div>
-      <div class="summary-row"><span>Subtotal</span><span id="sumSub">$0.00</span></div>
-      <div class="summary-row" style="color:#16a34a"><span>💰 Balance discount</span><span>$0.00</span></div>
-      <hr class="summary-divider">
-      <div class="summary-total"><span>Total</span><span id="sumTotal" style="color:var(--ac)">$0.00</span></div>
-      <button class="btn-checkout" onclick="proceedCheckout()">Proceed to Checkout →</button>
-      <div class="trust-badges">
-        <span class="trust-b">🔒 SSL Secure</span>
-        <span class="trust-b">💳 PayPal / USDT</span>
-      </div>
-    </div>
-    <div class="summary-card" style="background:#f0fdf4;border-color:#bbf7d0">
-      <div style="font-size:12.5px;color:#15803d;line-height:1.6">
+<div class="cart-main" id="cartList"></div>
+<div class="order-summary" id="summaryBox" style="display:none">
+<div class="summary-card">
+<div class="summary-title">Order Summary</div>
+<div class="summary-row"><span>Items</span><span id="sumItems">0</span></div>
+<div class="summary-row"><span>Subtotal</span><span id="sumSub">$0.00</span></div>
+<div class="summary-row" style="color:#16a34a"><span>💰 Balance discount</span><span>$0.00</span></div>
+<hr class="summary-divider">
+<div class="summary-total"><span>Total</span><span id="sumTotal" style="color:var(--ac)">$0.00</span></div>
+<button class="btn-checkout" onclick="proceedCheckout()">Proceed to Checkout →</button>
+<div class="trust-badges">
+<span class="trust-b">🔒 SSL Secure</span>
+<span class="trust-b">💳 PayPal / USDT</span>
+</div>
+</div>
+<div class="summary-card" style="background:#f0fdf4;border-color:#bbf7d0">
+<div style="font-size:12.5px;color:#15803d;line-height:1.6">
         💡 <strong>Need help?</strong> Contact us at <a href="mailto:info@uplyncio.com" style="color:#15803d;font-weight:700">info@uplyncio.com</a> for bulk orders or custom packages.
       </div>
-    </div>
-  </div>
 </div>
-
-<!-- SAVED SITES -->
+</div>
+</div>
 <div id="view-saved" class="container" style="display:none">
-  <div style="flex:1" id="savedList"></div>
+<div style="flex:1" id="savedList"></div>
 </div>
-
 <script>
 function showTab(tab){
   document.getElementById('view-cart').style.display = tab==='cart'?'flex':'none';

@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="shortcut icon" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact Us — Uplyncio</title>
@@ -94,273 +97,256 @@ nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;height:58px;d
 .success-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:16px 20px;font-size:14px;color:#15803d;font-weight:600;display:none;align-items:center;gap:10px}
 .error-box{background:#fff5f5;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;font-size:13px;color:#ef4444;display:none}
 </style>
+  <link rel="stylesheet" href="/shared.css">
 </head>
 <body>
-
 <nav>
-  <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>
+<a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+<svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+<rect width="64" height="64" rx="14" fill="#0f1628"/>
+<g style="animation:chainMove 2.5s ease-in-out infinite">
+<rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+</g>
+<g style="animation:chainMove 2.5s ease-in-out infinite reverse">
+<rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+</g>
+<rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+<style>
       @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
     </style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
+</svg>
+<span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
 </a>
-  <div class="nav-links">
-    <a href="uplyncio-full.html">Home</a>
-    <a href="buyer.html">Browse Sites</a>
-    <a href="publisher.html">Become Publisher</a>
-    <a href="faq.html">FAQ</a>
-    <a href="buyer.html" class="btn-primary">Get Started</a>
-  </div>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge">📬 We're here to help</div>
-    <h1>Get in <em>Touch</em> With Us</h1>
-    <p>Have a question about guest posting, link building, or your account? Our team responds within 24 hours — usually much faster.</p>
-    <div class="hero-stats">
-      <div class="hero-stat"><strong>&lt; 24h</strong><span>Response time</span></div>
-      <div class="hero-stat"><strong>Mon–Sat</strong><span>Support hours</span></div>
-      <div class="hero-stat"><strong>info@uplyncio.com</strong><span>Direct email</span></div>
-    </div>
-  </div>
+<div class="nav-links">
+<a href="uplyncio-full.html">Home</a>
+<a href="buyer.html">Browse Sites</a>
+<a href="publisher.html">Become Publisher</a>
+<a href="faq.html">FAQ</a>
+<a href="buyer.html" class="btn-primary">Get Started</a>
 </div>
-
+</nav>
+<div class="hero">
+<div class="hero-inner">
+<div class="hero-badge">📬 We're here to help</div>
+<h1>Get in <em>Touch</em> With Us</h1>
+<p>Have a question about guest posting, link building, or your account? Our team responds within 24 hours — usually much faster.</p>
+<div class="hero-stats">
+<div class="hero-stat"><strong>&lt; 24h</strong><span>Response time</span></div>
+<div class="hero-stat"><strong>Mon–Sat</strong><span>Support hours</span></div>
+<div class="hero-stat"><strong>info@uplyncio.com</strong><span>Direct email</span></div>
+</div>
+</div>
+</div>
 <div class="page-wrap">
-
-  <!-- STEP 1: SERVICE SELECTOR -->
-  <div class="service-selector">
-    <div class="section-label">Step 1</div>
-    <div class="section-title">What do you need help with?</div>
-    <div class="services-grid">
-      <div class="svc-card" onclick="selectService(this,'guest-posting')" data-svc="guest-posting">
-        <div class="svc-icon" style="background:#eff6ff">📝</div>
-        <div class="svc-info"><h4>Guest Posting</h4><p>Place articles on high-authority sites with dofollow links</p></div>
-      </div>
-      <div class="svc-card" onclick="selectService(this,'link-building')" data-svc="link-building">
-        <div class="svc-icon" style="background:#f0fdf4">🔗</div>
-        <div class="svc-info"><h4>Link Building</h4><p>Build powerful backlinks to improve your domain authority</p></div>
-      </div>
-      <div class="svc-card" onclick="selectService(this,'press-release')" data-svc="press-release">
-        <div class="svc-icon" style="background:#fef9ee">📡</div>
-        <div class="svc-info"><h4>Press Release</h4><p>Distribute your news to media and high-traffic publications</p></div>
-      </div>
-      <div class="svc-card" onclick="selectService(this,'content-writing')" data-svc="content-writing">
-        <div class="svc-icon" style="background:#fdf4ff">✍️</div>
-        <div class="svc-info"><h4>Content Writing</h4><p>Get professional SEO content written by our team</p></div>
-      </div>
-      <div class="svc-card" onclick="selectService(this,'publisher')" data-svc="publisher">
-        <div class="svc-icon" style="background:#f0fdf4">🌐</div>
-        <div class="svc-info"><h4>Become a Publisher</h4><p>Monetize your website by accepting guest posts</p></div>
-      </div>
-      <div class="svc-card" onclick="selectService(this,'other')" data-svc="other">
-        <div class="svc-icon" style="background:#f8faff">💬</div>
-        <div class="svc-info"><h4>General Inquiry</h4><p>Billing, account, partnership, or other questions</p></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 2: DYNAMIC SERVICE FIELDS -->
-  <div class="dynamic-fields" id="dynamicFields">
-    <div class="section-label">Step 2</div>
-    <div class="section-title" id="dynamicTitle">Tell us about your requirements</div>
-    <div class="fields-grid" id="dynamicContent"></div>
-  </div>
-
-  <!-- STEP 3: CONTACT FORM + INFO -->
-  <div class="contact-grid">
-
-    <!-- FORM -->
-    <div class="form-card">
-      <div class="section-label">Step 3</div>
-      <div class="section-title">Your Contact Details</div>
-      <div class="form-fields">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div class="field-group">
-            <label class="field-label">Full Name <span>*</span></label>
-            <input id="cName" class="fi" type="text" placeholder="John Smith">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Email Address <span>*</span></label>
-            <input id="cEmail" class="fi" type="email" placeholder="your@email.com">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div class="field-group">
-            <label class="field-label">Phone / WhatsApp</label>
-            <input id="cPhone" class="fi" type="tel" placeholder="+1 (555) 000-0000">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Company / Website</label>
-            <input id="cCompany" class="fi" type="text" placeholder="yoursite.com">
-          </div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Budget Range</label>
-          <select id="cBudget" class="fi-sel">
-            <option value="">Select your budget...</option>
-            <option>Under $100</option>
-            <option>$100 – $500</option>
-            <option>$500 – $1,000</option>
-            <option>$1,000 – $5,000</option>
-            <option>$5,000+</option>
-            <option>I'm a Publisher (no budget)</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Message <span>*</span></label>
-          <textarea id="cMessage" class="fi" placeholder="Describe your project, goals, and any specific requirements..." style="min-height:180px;resize:vertical;line-height:1.7;font-size:14px"></textarea>
-        </div>
-        <div class="error-box" id="errBox">⚠️ Please fill all required fields.</div>
-        <div class="success-box" id="successBox">
-          <span style="font-size:22px">✅</span>
-          <div>
-            <div>Message sent successfully!</div>
-            <div style="font-size:12.5px;font-weight:400;margin-top:2px">We'll reply to your email within 24 hours.</div>
-          </div>
-        </div>
-        <button class="btn-submit" onclick="submitContact()" style="margin-top:12px">
+<div class="service-selector">
+<div class="section-label">Step 1</div>
+<div class="section-title">What do you need help with?</div>
+<div class="services-grid">
+<div class="svc-card" onclick="selectService(this,'guest-posting')" data-svc="guest-posting">
+<div class="svc-icon" style="background:#eff6ff">📝</div>
+<div class="svc-info"><h4>Guest Posting</h4><p>Place articles on high-authority sites with dofollow links</p></div>
+</div>
+<div class="svc-card" onclick="selectService(this,'link-building')" data-svc="link-building">
+<div class="svc-icon" style="background:#f0fdf4">🔗</div>
+<div class="svc-info"><h4>Link Building</h4><p>Build powerful backlinks to improve your domain authority</p></div>
+</div>
+<div class="svc-card" onclick="selectService(this,'press-release')" data-svc="press-release">
+<div class="svc-icon" style="background:#fef9ee">📡</div>
+<div class="svc-info"><h4>Press Release</h4><p>Distribute your news to media and high-traffic publications</p></div>
+</div>
+<div class="svc-card" onclick="selectService(this,'content-writing')" data-svc="content-writing">
+<div class="svc-icon" style="background:#fdf4ff">✍️</div>
+<div class="svc-info"><h4>Content Writing</h4><p>Get professional SEO content written by our team</p></div>
+</div>
+<div class="svc-card" onclick="selectService(this,'publisher')" data-svc="publisher">
+<div class="svc-icon" style="background:#f0fdf4">🌐</div>
+<div class="svc-info"><h4>Become a Publisher</h4><p>Monetize your website by accepting guest posts</p></div>
+</div>
+<div class="svc-card" onclick="selectService(this,'other')" data-svc="other">
+<div class="svc-icon" style="background:#f8faff">💬</div>
+<div class="svc-info"><h4>General Inquiry</h4><p>Billing, account, partnership, or other questions</p></div>
+</div>
+</div>
+</div>
+<div class="dynamic-fields" id="dynamicFields">
+<div class="section-label">Step 2</div>
+<div class="section-title" id="dynamicTitle">Tell us about your requirements</div>
+<div class="fields-grid" id="dynamicContent"></div>
+</div>
+<div class="contact-grid">
+<div class="form-card">
+<div class="section-label">Step 3</div>
+<div class="section-title">Your Contact Details</div>
+<div class="form-fields">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="field-group">
+<label class="field-label">Full Name <span>*</span></label>
+<input id="cName" class="fi" type="text" placeholder="John Smith">
+</div>
+<div class="field-group">
+<label class="field-label">Email Address <span>*</span></label>
+<input id="cEmail" class="fi" type="email" placeholder="your@email.com">
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="field-group">
+<label class="field-label">Phone / WhatsApp</label>
+<input id="cPhone" class="fi" type="tel" placeholder="+1 (555) 000-0000">
+</div>
+<div class="field-group">
+<label class="field-label">Company / Website</label>
+<input id="cCompany" class="fi" type="text" placeholder="yoursite.com">
+</div>
+</div>
+<div class="field-group">
+<label class="field-label">Budget Range</label>
+<select id="cBudget" class="fi-sel">
+<option value="">Select your budget...</option>
+<option>Under $100</option>
+<option>$100 – $500</option>
+<option>$500 – $1,000</option>
+<option>$1,000 – $5,000</option>
+<option>$5,000+</option>
+<option>I'm a Publisher (no budget)</option>
+</select>
+</div>
+<div class="field-group">
+<label class="field-label">Message <span>*</span></label>
+<textarea id="cMessage" class="fi" placeholder="Describe your project, goals, and any specific requirements..." style="min-height:180px;resize:vertical;line-height:1.7;font-size:14px"></textarea>
+</div>
+<div class="error-box" id="errBox">⚠️ Please fill all required fields.</div>
+<div class="success-box" id="successBox">
+<span style="font-size:22px">✅</span>
+<div>
+<div>Message sent successfully!</div>
+<div style="font-size:12.5px;font-weight:400;margin-top:2px">We'll reply to your email within 24 hours.</div>
+</div>
+</div>
+<button class="btn-submit" onclick="submitContact()" style="margin-top:12px">
           Send Message →
         </button>
-        <div style="text-align:center;font-size:12px;color:#94a3b8">🔒 Your information is secure and will never be shared</div>
-      </div>
-    </div>
-
-    <!-- RIGHT INFO -->
-    <div>
-      <div class="info-card">
-        <div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:18px">Get In Touch</div>
-        <div class="contact-item">
-          <div class="c-icon" style="background:#eff6ff">📧</div>
-          <div>
-            <div class="c-label">Email Us</div>
-            <div class="c-value"><a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a></div>
-            <div class="c-sub">We reply within 24 hours</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="c-icon" style="background:#f0fdf4">💬</div>
-          <div>
-            <div class="c-label">WhatsApp</div>
-            <div class="c-value"><a href="https://wa.me/923001234567" target="_blank" style="color:#16a34a;text-decoration:none">Chat on WhatsApp</a></div>
-            <div class="c-sub">Mon–Sat, 9am–7pm PKT</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="c-icon" style="background:#fef9ee">⏰</div>
-          <div>
-            <div class="c-label">Response Time</div>
-            <div class="c-value">Within 24 hours</div>
-            <div class="c-sub">Usually much faster</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="c-icon" style="background:#f5f3ff">📍</div>
-          <div>
-            <div class="c-label">Headquarters</div>
-            <div class="c-value">Remote — Worldwide</div>
-            <div class="c-sub">Serving clients globally</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dark-card">
-        <h3>Quick Links</h3>
-        <a href="faq.html" class="quick-link"><div class="quick-link-icon">❓</div> Frequently Asked Questions</a>
-        <a href="refund.html" class="quick-link"><div class="quick-link-icon">💰</div> Refund Policy</a>
-        <a href="terms.html" class="quick-link"><div class="quick-link-icon">📋</div> Terms of Service</a>
-        <a href="privacy.html" class="quick-link"><div class="quick-link-icon">🔒</div> Privacy Policy</a>
-        <a href="publisher.html" class="quick-link"><div class="quick-link-icon">🌐</div> Become a Publisher</a>
-        <a href="buyer.html" class="quick-link"><div class="quick-link-icon">🛒</div> Browse Marketplace</a>
-      </div>
-    </div>
-  </div>
+<div style="text-align:center;font-size:12px;color:#94a3b8">🔒 Your information is secure and will never be shared</div>
 </div>
-
-<!-- FOOTER -->
+</div>
+<div>
+<div class="info-card">
+<div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#1a202c;margin-bottom:18px">Get In Touch</div>
+<div class="contact-item">
+<div class="c-icon" style="background:#eff6ff">📧</div>
+<div>
+<div class="c-label">Email Us</div>
+<div class="c-value"><a href="mailto:info@uplyncio.com" style="color:#4f7cff;text-decoration:none">info@uplyncio.com</a></div>
+<div class="c-sub">We reply within 24 hours</div>
+</div>
+</div>
+<div class="contact-item">
+<div class="c-icon" style="background:#f0fdf4">💬</div>
+<div>
+<div class="c-label">WhatsApp</div>
+<div class="c-value"><a href="https://wa.me/923001234567" target="_blank" style="color:#16a34a;text-decoration:none">Chat on WhatsApp</a></div>
+<div class="c-sub">Mon–Sat, 9am–7pm PKT</div>
+</div>
+</div>
+<div class="contact-item">
+<div class="c-icon" style="background:#fef9ee">⏰</div>
+<div>
+<div class="c-label">Response Time</div>
+<div class="c-value">Within 24 hours</div>
+<div class="c-sub">Usually much faster</div>
+</div>
+</div>
+<div class="contact-item">
+<div class="c-icon" style="background:#f5f3ff">📍</div>
+<div>
+<div class="c-label">Headquarters</div>
+<div class="c-value">Remote — Worldwide</div>
+<div class="c-sub">Serving clients globally</div>
+</div>
+</div>
+</div>
+<div class="dark-card">
+<h3>Quick Links</h3>
+<a href="faq.html" class="quick-link"><div class="quick-link-icon">❓</div> Frequently Asked Questions</a>
+<a href="refund.html" class="quick-link"><div class="quick-link-icon">💰</div> Refund Policy</a>
+<a href="terms.html" class="quick-link"><div class="quick-link-icon">📋</div> Terms of Service</a>
+<a href="privacy.html" class="quick-link"><div class="quick-link-icon">🔒</div> Privacy Policy</a>
+<a href="publisher.html" class="quick-link"><div class="quick-link-icon">🌐</div> Become a Publisher</a>
+<a href="buyer.html" class="quick-link"><div class="quick-link-icon">🛒</div> Browse Marketplace</a>
+</div>
+</div>
+</div>
+</div>
 <div style="background:#07090f;border-top:1px solid rgba(255,255,255,.08);padding:52px 48px 0;font-family:'Plus Jakarta Sans',sans-serif;width:100%;box-sizing:border-box">
-  <div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)">
-    <div>
-      <a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-  <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <g style="animation:chainMove 2.5s ease-in-out infinite">
-      <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    </g>
-    <g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-      <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    </g>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-    <style>
+<div style="display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:52px;max-width:1180px;margin:0 auto;padding-bottom:52px;border-bottom:1px solid rgba(255,255,255,.08)">
+<div>
+<a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+<svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+<rect width="64" height="64" rx="14" fill="#0f1628"/>
+<g style="animation:chainMove 2.5s ease-in-out infinite">
+<rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+</g>
+<g style="animation:chainMove 2.5s ease-in-out infinite reverse">
+<rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+</g>
+<rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+<style>
       @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
     </style>
-  </svg>
-  <span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Up<em style="font-style:normal;color:#4f7cff">lyncio</em></span>
+</svg>
+<span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Up<em style="font-style:normal;color:#4f7cff">lyncio</em></span>
 </a>
-      <p style="font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px">Premium guest posting and link building marketplace. 20,000+ verified publisher sites across 30+ niches.</p>
-      <div style="display:flex;gap:9px">
-        <a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">in</a>
-        <a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">fb</a>
-        <a href="https://www.instagram.com/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">ig</a>
-        <a href="https://wa.me/923001234567" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">wa</a>
-      </div>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Services</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="guest-posting.html" style="color:#8892a4;font-size:13.5px">Guest Posting</a></li>
-        <li style="margin-bottom:11px"><a href="link-building.html" style="color:#8892a4;font-size:13.5px">Link Building</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">Press Release</a></li>
-        <li style="margin-bottom:11px"><a href="content-writing.html" style="color:#8892a4;font-size:13.5px">Content Writing</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">High DA Links</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">White Label</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Company</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="about.html" style="color:#8892a4;font-size:13.5px">About Us</a></li>
-        <li style="margin-bottom:11px"><a href="blog.html" style="color:#8892a4;font-size:13.5px">Blog</a></li>
-        <li style="margin-bottom:11px"><a href="case-studies.html" style="color:#8892a4;font-size:13.5px">Case Studies</a></li>
-        <li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;font-size:13.5px">Contact Us</a></li>
-        <li style="margin-bottom:11px"><a href="publisher.html" style="color:#8892a4;font-size:13.5px">Become a Publisher</a></li>
-        <li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">Affiliate Program</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Support</h4>
-      <ul style="list-style:none;padding:0;margin:0">
-        <li style="margin-bottom:11px"><a href="faq.html" style="color:#8892a4;font-size:13.5px">FAQ</a></li>
-        <li style="margin-bottom:11px"><a href="refund.html" style="color:#8892a4;font-size:13.5px">Refund Policy</a></li>
-        <li style="margin-bottom:11px"><a href="privacy.html" style="color:#8892a4;font-size:13.5px">Privacy Policy</a></li>
-        <li style="margin-bottom:11px"><a href="terms.html" style="color:#8892a4;font-size:13.5px">Terms of Service</a></li>
-        <li style="margin-bottom:11px"><a href="https://wa.me/923001234567" style="color:#8892a4;font-size:13.5px">Live Chat</a></li>
-        <li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;font-size:13.5px">Contact Us</a></li>
-      </ul>
-    </div>
-  </div>
-  <div style="max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between">
-    <p style="font-size:12.5px;color:#4a5568;margin:0">© 2026 Uplyncio. All rights reserved.</p>
-    <div style="display:flex;gap:8px">
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">PayPal</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Wise</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">USDT</div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Bank Transfer</div>
-    </div>
-  </div>
+<p style="font-size:13.5px;color:#8892a4;line-height:1.8;max-width:270px;margin:14px 0 22px">Premium guest posting and link building marketplace. 20,000+ verified publisher sites across 30+ niches.</p>
+<div style="display:flex;gap:9px">
+<a href="https://www.linkedin.com/company/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">in</a>
+<a href="https://www.facebook.com/profile.php?id=61579091653953" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">fb</a>
+<a href="https://www.instagram.com/uplyncio" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">ig</a>
+<a href="https://wa.me/923001234567" target="_blank" style="width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:#8892a4;text-decoration:none;font-size:13px;font-weight:700">wa</a>
 </div>
-
+</div>
+<div>
+<h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Services</h4>
+<ul style="list-style:none;padding:0;margin:0">
+<li style="margin-bottom:11px"><a href="guest-posting.html" style="color:#8892a4;font-size:13.5px">Guest Posting</a></li>
+<li style="margin-bottom:11px"><a href="link-building.html" style="color:#8892a4;font-size:13.5px">Link Building</a></li>
+<li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">Press Release</a></li>
+<li style="margin-bottom:11px"><a href="content-writing.html" style="color:#8892a4;font-size:13.5px">Content Writing</a></li>
+<li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">High DA Links</a></li>
+<li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">White Label</a></li>
+</ul>
+</div>
+<div>
+<h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Company</h4>
+<ul style="list-style:none;padding:0;margin:0">
+<li style="margin-bottom:11px"><a href="about.html" style="color:#8892a4;font-size:13.5px">About Us</a></li>
+<li style="margin-bottom:11px"><a href="blog.html" style="color:#8892a4;font-size:13.5px">Blog</a></li>
+<li style="margin-bottom:11px"><a href="case-studies.html" style="color:#8892a4;font-size:13.5px">Case Studies</a></li>
+<li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;font-size:13.5px">Contact Us</a></li>
+<li style="margin-bottom:11px"><a href="publisher.html" style="color:#8892a4;font-size:13.5px">Become a Publisher</a></li>
+<li style="margin-bottom:11px"><a href="#" style="color:#8892a4;font-size:13.5px">Affiliate Program</a></li>
+</ul>
+</div>
+<div>
+<h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#8892a4;margin-bottom:18px;margin-top:0">Support</h4>
+<ul style="list-style:none;padding:0;margin:0">
+<li style="margin-bottom:11px"><a href="faq.html" style="color:#8892a4;font-size:13.5px">FAQ</a></li>
+<li style="margin-bottom:11px"><a href="refund.html" style="color:#8892a4;font-size:13.5px">Refund Policy</a></li>
+<li style="margin-bottom:11px"><a href="privacy.html" style="color:#8892a4;font-size:13.5px">Privacy Policy</a></li>
+<li style="margin-bottom:11px"><a href="terms.html" style="color:#8892a4;font-size:13.5px">Terms of Service</a></li>
+<li style="margin-bottom:11px"><a href="https://wa.me/923001234567" style="color:#8892a4;font-size:13.5px">Live Chat</a></li>
+<li style="margin-bottom:11px"><a href="contact.html" style="color:#8892a4;font-size:13.5px">Contact Us</a></li>
+</ul>
+</div>
+</div>
+<div style="max-width:1180px;margin:0 auto;padding:22px 0;display:flex;align-items:center;justify-content:space-between">
+<p style="font-size:12.5px;color:#4a5568;margin:0">© 2026 Uplyncio. All rights reserved.</p>
+<div style="display:flex;gap:8px">
+<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">PayPal</div>
+<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Wise</div>
+<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">USDT</div>
+<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;color:#8892a4">Bank Transfer</div>
+</div>
+</div>
+</div>
 <script>
 var selectedService = '';
 
@@ -369,68 +355,68 @@ var serviceFields = {
     title: '📝 Guest Posting Requirements',
     fields: `
       <div class="field-group"><label class="field-label">Target Website / Niche <span>*</span></label><input class="fi" id="sf_niche" placeholder="e.g. Technology, Finance, Health"></div>
-      <div class="field-group"><label class="field-label">Target URL (to be linked)</label><input class="fi" id="sf_url" placeholder="https://yoursite.com/page"></div>
-      <div class="field-group"><label class="field-label">Minimum DA Required</label><div class="range-group"><input class="fi" id="sf_da_min" type="number" placeholder="20" style="width:100px"><span class="range-sep">to</span><input class="fi" id="sf_da_max" type="number" placeholder="80" style="width:100px"><span class="range-sep" style="color:#94a3b8;font-size:12px">DA range</span></div></div>
-      <div class="field-group"><label class="field-label">Minimum DR Required</label><div class="range-group"><input class="fi" id="sf_dr_min" type="number" placeholder="20" style="width:100px"><span class="range-sep">to</span><input class="fi" id="sf_dr_max" type="number" placeholder="80" style="width:100px"><span class="range-sep" style="color:#94a3b8;font-size:12px">DR range</span></div></div>
-      <div class="field-group"><label class="field-label">Monthly Traffic Minimum</label><input class="fi" id="sf_traffic" type="number" placeholder="e.g. 10000"></div>
-      <div class="field-group"><label class="field-label">Country / Region</label><select class="fi-sel" id="sf_country"><option value="">Any country</option><option>United States</option><option>United Kingdom</option><option>Australia</option><option>Canada</option><option>Pakistan</option><option>India</option><option>UAE</option><option>Other</option></select></div>
-      <div class="field-group"><label class="field-label">Link Type</label><select class="fi-sel" id="sf_link"><option>Dofollow</option><option>Dofollow or Nofollow</option></select></div>
-      <div class="field-group"><label class="field-label">Do you need content written?</label><select class="fi-sel" id="sf_content"><option>Yes, write it for me</option><option>No, I will provide the article</option><option>Not sure yet</option></select></div>
-      <div class="field-group full"><label class="field-label">Anchor Text</label><input class="fi" id="sf_anchor" placeholder="e.g. best SEO tools, digital marketing agency"></div>
-      <div class="field-group full"><label class="field-label">Number of Links Needed</label><select class="fi-sel" id="sf_qty"><option>1 link</option><option>2–5 links</option><option>6–10 links</option><option>10–20 links</option><option>20+ links (bulk)</option></select></div>`
+<div class="field-group"><label class="field-label">Target URL (to be linked)</label><input class="fi" id="sf_url" placeholder="https://yoursite.com/page"></div>
+<div class="field-group"><label class="field-label">Minimum DA Required</label><div class="range-group"><input class="fi" id="sf_da_min" type="number" placeholder="20" style="width:100px"><span class="range-sep">to</span><input class="fi" id="sf_da_max" type="number" placeholder="80" style="width:100px"><span class="range-sep" style="color:#94a3b8;font-size:12px">DA range</span></div></div>
+<div class="field-group"><label class="field-label">Minimum DR Required</label><div class="range-group"><input class="fi" id="sf_dr_min" type="number" placeholder="20" style="width:100px"><span class="range-sep">to</span><input class="fi" id="sf_dr_max" type="number" placeholder="80" style="width:100px"><span class="range-sep" style="color:#94a3b8;font-size:12px">DR range</span></div></div>
+<div class="field-group"><label class="field-label">Monthly Traffic Minimum</label><input class="fi" id="sf_traffic" type="number" placeholder="e.g. 10000"></div>
+<div class="field-group"><label class="field-label">Country / Region</label><select class="fi-sel" id="sf_country"><option value="">Any country</option><option>United States</option><option>United Kingdom</option><option>Australia</option><option>Canada</option><option>Pakistan</option><option>India</option><option>UAE</option><option>Other</option></select></div>
+<div class="field-group"><label class="field-label">Link Type</label><select class="fi-sel" id="sf_link"><option>Dofollow</option><option>Dofollow or Nofollow</option></select></div>
+<div class="field-group"><label class="field-label">Do you need content written?</label><select class="fi-sel" id="sf_content"><option>Yes, write it for me</option><option>No, I will provide the article</option><option>Not sure yet</option></select></div>
+<div class="field-group full"><label class="field-label">Anchor Text</label><input class="fi" id="sf_anchor" placeholder="e.g. best SEO tools, digital marketing agency"></div>
+<div class="field-group full"><label class="field-label">Number of Links Needed</label><select class="fi-sel" id="sf_qty"><option>1 link</option><option>2–5 links</option><option>6–10 links</option><option>10–20 links</option><option>20+ links (bulk)</option></select></div>`
   },
   'link-building': {
     title: '🔗 Link Building Requirements',
     fields: `
       <div class="field-group"><label class="field-label">Your Website URL <span>*</span></label><input class="fi" id="sf_site" placeholder="https://yoursite.com"></div>
-      <div class="field-group"><label class="field-label">Industry / Niche</label><input class="fi" id="sf_niche" placeholder="e.g. SaaS, E-commerce, Finance"></div>
-      <div class="field-group"><label class="field-label">Current Domain Authority (DA)</label><input class="fi" id="sf_curr_da" type="number" placeholder="e.g. 25"></div>
-      <div class="field-group"><label class="field-label">Target DA</label><input class="fi" id="sf_target_da" type="number" placeholder="e.g. 50"></div>
-      <div class="field-group"><label class="field-label">Minimum Site DA for Links</label><div class="range-group"><input class="fi" id="sf_da_min" type="number" placeholder="30" style="width:100px"><span class="range-sep">to</span><input class="fi" id="sf_da_max" type="number" placeholder="80" style="width:100px"></div></div>
-      <div class="field-group"><label class="field-label">Links per Month</label><select class="fi-sel" id="sf_monthly"><option>1–5 links/month</option><option>6–10 links/month</option><option>11–20 links/month</option><option>20–50 links/month</option><option>50+ links/month</option></select></div>
-      <div class="field-group full"><label class="field-label">Target Keywords (comma separated)</label><input class="fi" id="sf_kw" placeholder="e.g. best crm software, project management tools"></div>
-      <div class="field-group full"><label class="field-label">Competitor URLs (optional)</label><input class="fi" id="sf_comp" placeholder="https://competitor1.com, https://competitor2.com"></div>`
+<div class="field-group"><label class="field-label">Industry / Niche</label><input class="fi" id="sf_niche" placeholder="e.g. SaaS, E-commerce, Finance"></div>
+<div class="field-group"><label class="field-label">Current Domain Authority (DA)</label><input class="fi" id="sf_curr_da" type="number" placeholder="e.g. 25"></div>
+<div class="field-group"><label class="field-label">Target DA</label><input class="fi" id="sf_target_da" type="number" placeholder="e.g. 50"></div>
+<div class="field-group"><label class="field-label">Minimum Site DA for Links</label><div class="range-group"><input class="fi" id="sf_da_min" type="number" placeholder="30" style="width:100px"><span class="range-sep">to</span><input class="fi" id="sf_da_max" type="number" placeholder="80" style="width:100px"></div></div>
+<div class="field-group"><label class="field-label">Links per Month</label><select class="fi-sel" id="sf_monthly"><option>1–5 links/month</option><option>6–10 links/month</option><option>11–20 links/month</option><option>20–50 links/month</option><option>50+ links/month</option></select></div>
+<div class="field-group full"><label class="field-label">Target Keywords (comma separated)</label><input class="fi" id="sf_kw" placeholder="e.g. best crm software, project management tools"></div>
+<div class="field-group full"><label class="field-label">Competitor URLs (optional)</label><input class="fi" id="sf_comp" placeholder="https://competitor1.com, https://competitor2.com"></div>`
   },
   'press-release': {
     title: '📡 Press Release Requirements',
     fields: `
       <div class="field-group"><label class="field-label">Company Name <span>*</span></label><input class="fi" id="sf_company" placeholder="Your Company Ltd."></div>
-      <div class="field-group"><label class="field-label">Press Release Topic <span>*</span></label><input class="fi" id="sf_topic" placeholder="e.g. Product Launch, Funding Round, Partnership"></div>
-      <div class="field-group"><label class="field-label">Target Publications</label><select class="fi-sel" id="sf_pubs"><option>General News Sites</option><option>Tech Publications</option><option>Business/Finance Sites</option><option>Industry-Specific Sites</option><option>All of the above</option></select></div>
-      <div class="field-group"><label class="field-label">Distribution Volume</label><select class="fi-sel" id="sf_vol"><option>1–5 sites</option><option>5–10 sites</option><option>10–25 sites</option><option>25+ sites</option></select></div>
-      <div class="field-group"><label class="field-label">Do you have the content ready?</label><select class="fi-sel" id="sf_ready"><option>Yes, I have the press release</option><option>No, please write it for me</option></select></div>
-      <div class="field-group"><label class="field-label">Preferred Publish Date</label><input class="fi" id="sf_date" type="date"></div>
-      <div class="field-group full"><label class="field-label">Key Message / Summary</label><textarea class="fi" id="sf_summary" placeholder="What is the main announcement about?" style="min-height:80px;resize:vertical;line-height:1.6"></textarea></div>`
+<div class="field-group"><label class="field-label">Press Release Topic <span>*</span></label><input class="fi" id="sf_topic" placeholder="e.g. Product Launch, Funding Round, Partnership"></div>
+<div class="field-group"><label class="field-label">Target Publications</label><select class="fi-sel" id="sf_pubs"><option>General News Sites</option><option>Tech Publications</option><option>Business/Finance Sites</option><option>Industry-Specific Sites</option><option>All of the above</option></select></div>
+<div class="field-group"><label class="field-label">Distribution Volume</label><select class="fi-sel" id="sf_vol"><option>1–5 sites</option><option>5–10 sites</option><option>10–25 sites</option><option>25+ sites</option></select></div>
+<div class="field-group"><label class="field-label">Do you have the content ready?</label><select class="fi-sel" id="sf_ready"><option>Yes, I have the press release</option><option>No, please write it for me</option></select></div>
+<div class="field-group"><label class="field-label">Preferred Publish Date</label><input class="fi" id="sf_date" type="date"></div>
+<div class="field-group full"><label class="field-label">Key Message / Summary</label><textarea class="fi" id="sf_summary" placeholder="What is the main announcement about?" style="min-height:80px;resize:vertical;line-height:1.6"></textarea></div>`
   },
   'content-writing': {
     title: '✍️ Content Writing Requirements',
     fields: `
       <div class="field-group"><label class="field-label">Content Type <span>*</span></label><select class="fi-sel" id="sf_type"><option>Blog Post / Article</option><option>Guest Post</option><option>Product Description</option><option>Landing Page Copy</option><option>Social Media Content</option><option>Press Release</option><option>Other</option></select></div>
-      <div class="field-group"><label class="field-label">Topic / Title</label><input class="fi" id="sf_topic" placeholder="e.g. 10 Best SEO Strategies for 2025"></div>
-      <div class="field-group"><label class="field-label">Word Count</label><select class="fi-sel" id="sf_words"><option>500 words</option><option>750 words</option><option>1,000 words</option><option>1,500 words</option><option>2,000 words</option><option>2,500+ words</option></select></div>
-      <div class="field-group"><label class="field-label">Tone of Voice</label><select class="fi-sel" id="sf_tone"><option>Professional</option><option>Conversational</option><option>Authoritative</option><option>Friendly</option><option>Persuasive</option></select></div>
-      <div class="field-group"><label class="field-label">Target Keywords</label><input class="fi" id="sf_kw" placeholder="Primary and secondary keywords"></div>
-      <div class="field-group"><label class="field-label">Number of Articles</label><select class="fi-sel" id="sf_qty"><option>1 article</option><option>2–5 articles</option><option>5–10 articles</option><option>10+ articles/month</option></select></div>
-      <div class="field-group full"><label class="field-label">Promoted URL / Product</label><input class="fi" id="sf_url" placeholder="https://yoursite.com/product"></div>
-      <div class="field-group full"><label class="field-label">Special Instructions</label><textarea class="fi" id="sf_notes" placeholder="Any specific style, tone, references, or topics to avoid..." style="min-height:80px;resize:vertical;line-height:1.6"></textarea></div>`
+<div class="field-group"><label class="field-label">Topic / Title</label><input class="fi" id="sf_topic" placeholder="e.g. 10 Best SEO Strategies for 2025"></div>
+<div class="field-group"><label class="field-label">Word Count</label><select class="fi-sel" id="sf_words"><option>500 words</option><option>750 words</option><option>1,000 words</option><option>1,500 words</option><option>2,000 words</option><option>2,500+ words</option></select></div>
+<div class="field-group"><label class="field-label">Tone of Voice</label><select class="fi-sel" id="sf_tone"><option>Professional</option><option>Conversational</option><option>Authoritative</option><option>Friendly</option><option>Persuasive</option></select></div>
+<div class="field-group"><label class="field-label">Target Keywords</label><input class="fi" id="sf_kw" placeholder="Primary and secondary keywords"></div>
+<div class="field-group"><label class="field-label">Number of Articles</label><select class="fi-sel" id="sf_qty"><option>1 article</option><option>2–5 articles</option><option>5–10 articles</option><option>10+ articles/month</option></select></div>
+<div class="field-group full"><label class="field-label">Promoted URL / Product</label><input class="fi" id="sf_url" placeholder="https://yoursite.com/product"></div>
+<div class="field-group full"><label class="field-label">Special Instructions</label><textarea class="fi" id="sf_notes" placeholder="Any specific style, tone, references, or topics to avoid..." style="min-height:80px;resize:vertical;line-height:1.6"></textarea></div>`
   },
   'publisher': {
     title: '🌐 Publisher Application',
     fields: `
       <div class="field-group"><label class="field-label">Website URL <span>*</span></label><input class="fi" id="sf_url" placeholder="https://yoursite.com"></div>
-      <div class="field-group"><label class="field-label">Website Niche</label><input class="fi" id="sf_niche" placeholder="e.g. Technology, Finance, Health, Travel"></div>
-      <div class="field-group"><label class="field-label">Domain Authority (DA)</label><input class="fi" id="sf_da" type="number" placeholder="e.g. 35"></div>
-      <div class="field-group"><label class="field-label">Domain Rating (DR)</label><input class="fi" id="sf_dr" type="number" placeholder="e.g. 30"></div>
-      <div class="field-group"><label class="field-label">Monthly Traffic</label><input class="fi" id="sf_traffic" type="number" placeholder="e.g. 15000"></div>
-      <div class="field-group"><label class="field-label">Number of Sites</label><select class="fi-sel" id="sf_sites"><option>1 site</option><option>2–5 sites</option><option>5–10 sites</option><option>10+ sites</option></select></div>
-      <div class="field-group"><label class="field-label">Preferred Payment Method</label><select class="fi-sel" id="sf_pay"><option>PayPal</option><option>USDT (TRC20)</option><option>Wise</option><option>Bank Transfer</option></select></div>
-      <div class="field-group"><label class="field-label">Guest Post Price (per article)</label><input class="fi" id="sf_price" type="number" placeholder="e.g. 80 (in USD)"></div>`
+<div class="field-group"><label class="field-label">Website Niche</label><input class="fi" id="sf_niche" placeholder="e.g. Technology, Finance, Health, Travel"></div>
+<div class="field-group"><label class="field-label">Domain Authority (DA)</label><input class="fi" id="sf_da" type="number" placeholder="e.g. 35"></div>
+<div class="field-group"><label class="field-label">Domain Rating (DR)</label><input class="fi" id="sf_dr" type="number" placeholder="e.g. 30"></div>
+<div class="field-group"><label class="field-label">Monthly Traffic</label><input class="fi" id="sf_traffic" type="number" placeholder="e.g. 15000"></div>
+<div class="field-group"><label class="field-label">Number of Sites</label><select class="fi-sel" id="sf_sites"><option>1 site</option><option>2–5 sites</option><option>5–10 sites</option><option>10+ sites</option></select></div>
+<div class="field-group"><label class="field-label">Preferred Payment Method</label><select class="fi-sel" id="sf_pay"><option>PayPal</option><option>USDT (TRC20)</option><option>Wise</option><option>Bank Transfer</option></select></div>
+<div class="field-group"><label class="field-label">Guest Post Price (per article)</label><input class="fi" id="sf_price" type="number" placeholder="e.g. 80 (in USD)"></div>`
   },
   'other': {
     title: '💬 General Inquiry',
     fields: `
       <div class="field-group full"><label class="field-label">How can we help you? <span>*</span></label><select class="fi-sel" id="sf_type"><option value="">Select inquiry type...</option><option>Account / Login Issue</option><option>Billing / Payment</option><option>Order Support</option><option>Refund Request</option><option>Technical Issue</option><option>Partnership / Reseller</option><option>White Label Enquiry</option><option>Other</option></select></div>
-      <div class="field-group full"><label class="field-label">Order ID (if applicable)</label><input class="fi" id="sf_order" placeholder="e.g. #OR1234"></div>`
+<div class="field-group full"><label class="field-label">Order ID (if applicable)</label><input class="fi" id="sf_order" placeholder="e.g. #OR1234"></div>`
   }
 };
 

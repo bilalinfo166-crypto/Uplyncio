@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="shortcut icon" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Uplyncio – Guest Post Marketplace</title>
@@ -646,208 +649,186 @@
     .marketplace-section { padding: 0 16px; }
   }
 </style>
+  <link rel="stylesheet" href="/shared.css">
 </head>
 <body>
-
-<!-- NAV -->
 <nav>
-  <div class="logo">Up<span>lyncio</span></div>
-  <ul class="nav-links">
-    <li><a href="#">Marketplace</a></li>
-    <li><a href="#">How It Works</a></li>
-    <li><a href="#">Packages</a></li>
-    <li><a href="#">Blog</a></li>
-  </ul>
-  <div class="nav-actions">
-    <button class="btn btn-ghost">Sign In</button>
-    <button class="btn btn-primary">Get Started</button>
-  </div>
+<div class="logo">Up<span>lyncio</span></div>
+<ul class="nav-links">
+<li><a href="#">Marketplace</a></li>
+<li><a href="#">How It Works</a></li>
+<li><a href="#">Packages</a></li>
+<li><a href="#">Blog</a></li>
+</ul>
+<div class="nav-actions">
+<button class="btn btn-ghost">Sign In</button>
+<button class="btn btn-primary">Get Started</button>
+</div>
 </nav>
-
-<!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">🔗 20,000+ Publisher Sites</div>
-  <h1>Buy Guest Posts From<br><span class="highlight">Real Authority Sites</span></h1>
-  <p>Browse our verified publisher network. Filter by DA, niche, and price. Order in minutes and get your link live fast.</p>
-  <div class="hero-cta">
-    <button class="btn btn-primary btn-lg" onclick="document.querySelector('.marketplace-section').scrollIntoView({behavior:'smooth'})">Browse Sites</button>
-    <button class="btn btn-ghost btn-lg">View Packages</button>
-  </div>
+<div class="hero-badge">🔗 20,000+ Publisher Sites</div>
+<h1>Buy Guest Posts From<br><span class="highlight">Real Authority Sites</span></h1>
+<p>Browse our verified publisher network. Filter by DA, niche, and price. Order in minutes and get your link live fast.</p>
+<div class="hero-cta">
+<button class="btn btn-primary btn-lg" onclick="document.querySelector('.marketplace-section').scrollIntoView({behavior:'smooth'})">Browse Sites</button>
+<button class="btn btn-ghost btn-lg">View Packages</button>
+</div>
 </section>
-
-<!-- STATS -->
 <div class="stats">
-  <div class="stat">
-    <div class="stat-num">20,000<span>+</span></div>
-    <div class="stat-label">Publisher Sites</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">3<span>yr</span></div>
-    <div class="stat-label">Experience</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">200<span>+</span></div>
-    <div class="stat-label">Monthly Orders</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">DA90<span>+</span></div>
-    <div class="stat-label">Max Authority</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">24<span>hr</span></div>
-    <div class="stat-label">Avg Turnaround</div>
-  </div>
+<div class="stat">
+<div class="stat-num">20,000<span>+</span></div>
+<div class="stat-label">Publisher Sites</div>
 </div>
-
-<!-- MARKETPLACE -->
+<div class="stat">
+<div class="stat-num">3<span>yr</span></div>
+<div class="stat-label">Experience</div>
+</div>
+<div class="stat">
+<div class="stat-num">200<span>+</span></div>
+<div class="stat-label">Monthly Orders</div>
+</div>
+<div class="stat">
+<div class="stat-num">DA90<span>+</span></div>
+<div class="stat-label">Max Authority</div>
+</div>
+<div class="stat">
+<div class="stat-num">24<span>hr</span></div>
+<div class="stat-label">Avg Turnaround</div>
+</div>
+</div>
 <div class="marketplace-section">
-  <div class="section-header">
-    <div class="section-title">Publisher Marketplace</div>
-    <div class="result-count">Showing <span id="resultCount">20</span> sites</div>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="filters">
-    <input type="text" class="filter-input" id="searchInput" placeholder="🔍  Search by site name or URL...">
-    <select class="filter-input" id="nicheFilter">
-      <option value="">All Niches</option>
-      <option value="SaaS">SaaS</option>
-      <option value="Tech">Tech</option>
-      <option value="Business">Business</option>
-      <option value="Finance">Finance</option>
-      <option value="Health">Health</option>
-      <option value="Marketing">Marketing</option>
-      <option value="Crypto">Crypto</option>
-    </select>
-    <select class="filter-input" id="daFilter">
-      <option value="">Any DA</option>
-      <option value="30">DA 30+</option>
-      <option value="50">DA 50+</option>
-      <option value="70">DA 70+</option>
-    </select>
-    <select class="filter-input" id="priceFilter">
-      <option value="">Any Price</option>
-      <option value="50">Under $50</option>
-      <option value="100">Under $100</option>
-      <option value="200">Under $200</option>
-    </select>
-    <select class="filter-input" id="trafficFilter">
-      <option value="">Any Traffic</option>
-      <option value="1000">1K+</option>
-      <option value="5000">5K+</option>
-      <option value="10000">10K+</option>
-    </select>
-    <button class="btn-filter" onclick="applyFilters()">Apply</button>
-  </div>
-
-  <!-- TABLE -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Website</th>
-          <th>DA</th>
-          <th>DR</th>
-          <th>Traffic</th>
-          <th>Niche</th>
-          <th>Link Type</th>
-          <th>Price</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="sitesTable"></tbody>
-    </table>
-  </div>
-
-  <!-- PAGINATION -->
-  <div class="pagination">
-    <div class="page-info">Page 1 of 425</div>
-    <div class="page-btns">
-      <button class="page-btn">‹</button>
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">›</button>
-    </div>
-  </div>
+<div class="section-header">
+<div class="section-title">Publisher Marketplace</div>
+<div class="result-count">Showing <span id="resultCount">20</span> sites</div>
 </div>
-
-<!-- HOW IT WORKS -->
+<div class="filters">
+<input type="text" class="filter-input" id="searchInput" placeholder="🔍  Search by site name or URL...">
+<select class="filter-input" id="nicheFilter">
+<option value="">All Niches</option>
+<option value="SaaS">SaaS</option>
+<option value="Tech">Tech</option>
+<option value="Business">Business</option>
+<option value="Finance">Finance</option>
+<option value="Health">Health</option>
+<option value="Marketing">Marketing</option>
+<option value="Crypto">Crypto</option>
+</select>
+<select class="filter-input" id="daFilter">
+<option value="">Any DA</option>
+<option value="30">DA 30+</option>
+<option value="50">DA 50+</option>
+<option value="70">DA 70+</option>
+</select>
+<select class="filter-input" id="priceFilter">
+<option value="">Any Price</option>
+<option value="50">Under $50</option>
+<option value="100">Under $100</option>
+<option value="200">Under $200</option>
+</select>
+<select class="filter-input" id="trafficFilter">
+<option value="">Any Traffic</option>
+<option value="1000">1K+</option>
+<option value="5000">5K+</option>
+<option value="10000">10K+</option>
+</select>
+<button class="btn-filter" onclick="applyFilters()">Apply</button>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Website</th>
+<th>DA</th>
+<th>DR</th>
+<th>Traffic</th>
+<th>Niche</th>
+<th>Link Type</th>
+<th>Price</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="sitesTable"></tbody>
+</table>
+</div>
+<div class="pagination">
+<div class="page-info">Page 1 of 425</div>
+<div class="page-btns">
+<button class="page-btn">‹</button>
+<button class="page-btn active">1</button>
+<button class="page-btn">2</button>
+<button class="page-btn">3</button>
+<button class="page-btn">›</button>
+</div>
+</div>
+</div>
 <div class="how-section">
-  <h2>How It Works</h2>
-  <p>Get your guest post live in 4 simple steps</p>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <h3>Browse Sites</h3>
-      <p>Filter 20,000+ verified publishers by DA, niche, traffic, and price.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <h3>Place Order</h3>
-      <p>Submit your target URL, anchor text, and any content instructions.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <h3>We Publish</h3>
-      <p>Our team writes and publishes your guest post on the selected site.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <h3>Get Live Link</h3>
-      <p>Receive the live URL and watch your rankings climb.</p>
-    </div>
-  </div>
+<h2>How It Works</h2>
+<p>Get your guest post live in 4 simple steps</p>
+<div class="steps">
+<div class="step">
+<div class="step-num">1</div>
+<h3>Browse Sites</h3>
+<p>Filter 20,000+ verified publishers by DA, niche, traffic, and price.</p>
 </div>
-
-<!-- FOOTER -->
+<div class="step">
+<div class="step-num">2</div>
+<h3>Place Order</h3>
+<p>Submit your target URL, anchor text, and any content instructions.</p>
+</div>
+<div class="step">
+<div class="step-num">3</div>
+<h3>We Publish</h3>
+<p>Our team writes and publishes your guest post on the selected site.</p>
+</div>
+<div class="step">
+<div class="step-num">4</div>
+<h3>Get Live Link</h3>
+<p>Receive the live URL and watch your rankings climb.</p>
+</div>
+</div>
+</div>
 <footer>
-  <p>© 2026 Uplyncio. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Refund Policy</a> | <a href="https://uplyncio.com">uplyncio.com</a></p>
+<p>© 2026 Uplyncio. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Refund Policy</a> | <a href="https://uplyncio.com">uplyncio.com</a></p>
 </footer>
-
-<!-- ORDER MODAL -->
 <div class="modal-overlay" id="orderModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2>Place Order</h2>
-    <div class="modal-site" id="modalSiteName"></div>
-    <div class="modal-metrics">
-      <div class="metric-box">
-        <div class="metric-val" id="modalDA"></div>
-        <div class="metric-label">Domain Authority</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-val" id="modalDR"></div>
-        <div class="metric-label">Domain Rating</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-val" id="modalTraffic"></div>
-        <div class="metric-label">Monthly Traffic</div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Your Target URL</label>
-      <input type="url" class="form-input" placeholder="https://yoursite.com/page">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Anchor Text</label>
-      <input type="text" class="form-input" placeholder="e.g. best SaaS tools">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Special Instructions (optional)</label>
-      <input type="text" class="form-input" placeholder="Topic, tone, or keywords...">
-    </div>
-    <div class="modal-price">
-      <span class="modal-price-label">Total Price</span>
-      <span class="modal-price-val" id="modalPrice"></span>
-    </div>
-    <button class="btn-confirm" onclick="confirmOrder()">Confirm Order & Pay via WhatsApp</button>
-  </div>
+<div class="modal">
+<button class="modal-close" onclick="closeModal()">✕</button>
+<h2>Place Order</h2>
+<div class="modal-site" id="modalSiteName"></div>
+<div class="modal-metrics">
+<div class="metric-box">
+<div class="metric-val" id="modalDA"></div>
+<div class="metric-label">Domain Authority</div>
 </div>
-
-<!-- TOAST -->
+<div class="metric-box">
+<div class="metric-val" id="modalDR"></div>
+<div class="metric-label">Domain Rating</div>
+</div>
+<div class="metric-box">
+<div class="metric-val" id="modalTraffic"></div>
+<div class="metric-label">Monthly Traffic</div>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Your Target URL</label>
+<input type="url" class="form-input" placeholder="https://yoursite.com/page">
+</div>
+<div class="form-group">
+<label class="form-label">Anchor Text</label>
+<input type="text" class="form-input" placeholder="e.g. best SaaS tools">
+</div>
+<div class="form-group">
+<label class="form-label">Special Instructions (optional)</label>
+<input type="text" class="form-input" placeholder="Topic, tone, or keywords...">
+</div>
+<div class="modal-price">
+<span class="modal-price-label">Total Price</span>
+<span class="modal-price-val" id="modalPrice"></span>
+</div>
+<button class="btn-confirm" onclick="confirmOrder()">Confirm Order & Pay via WhatsApp</button>
+</div>
+</div>
 <div class="toast" id="toast">✅ Order received! We'll contact you within 24 hours.</div>
-
 <script>
 const sites = [
   { name: "TechBullion", url: "techbullion.com", da: 72, dr: 68, traffic: "48K", niche: "Tech", price: 120 },
@@ -879,18 +860,18 @@ function renderTable(data) {
   document.getElementById('resultCount').textContent = data.length;
   tbody.innerHTML = data.map(s => `
     <tr>
-      <td>
-        <div class="site-name">${s.name}</div>
-        <div class="site-url">${s.url}</div>
-      </td>
-      <td><span class="badge badge-da">DA ${s.da}</span></td>
-      <td><span class="badge badge-dr">DR ${s.dr}</span></td>
-      <td><span class="badge badge-traffic">${s.traffic}</span></td>
-      <td><span class="niche-tag">${s.niche}</span></td>
-      <td><span class="dofollow"><span class="dot"></span>Dofollow</span></td>
-      <td><span class="price-cell">$${s.price}</span></td>
-      <td><button class="btn-order" onclick='openModal(${JSON.stringify(s)})'>Order Now</button></td>
-    </tr>
+<td>
+<div class="site-name">${s.name}</div>
+<div class="site-url">${s.url}</div>
+</td>
+<td><span class="badge badge-da">DA ${s.da}</span></td>
+<td><span class="badge badge-dr">DR ${s.dr}</span></td>
+<td><span class="badge badge-traffic">${s.traffic}</span></td>
+<td><span class="niche-tag">${s.niche}</span></td>
+<td><span class="dofollow"><span class="dot"></span>Dofollow</span></td>
+<td><span class="price-cell">$${s.price}</span></td>
+<td><button class="btn-order" onclick='openModal(${JSON.stringify(s)})'>Order Now</button></td>
+</tr>
   `).join('');
 }
 

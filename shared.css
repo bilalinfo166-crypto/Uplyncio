@@ -1,0 +1,43 @@
+/* ── Uplyncio Shared Styles ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',Arial,sans-serif;background:#f0f2f5;color:#1a202c}
+
+/* Common buttons */
+.btn-primary{background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:#f0f4ff;color:#4f7cff;border:1.5px solid #c7d7ff;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-danger{background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* Common cards */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px}
+.card-header{font-size:15px;font-weight:700;color:#1a202c;margin-bottom:12px}
+
+/* Common modals */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.2);width:100%;max-width:480px;margin:20px}
+
+/* Status badges */
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:100px;padding:4px 12px;font-size:11.5px;font-weight:700}
+.badge-green{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.badge-blue{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.badge-amber{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.badge-red{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.badge-gray{background:#f8faff;color:#64748b;border:1px solid #e2e8f0}
+
+/* Input fields */
+.input{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.input:focus{border-color:#4f7cff}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a202c;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:999999;animation:slideUp .3s ease;white-space:nowrap}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes menuFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
