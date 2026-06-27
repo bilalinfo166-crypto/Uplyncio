@@ -5,21 +5,12 @@ const SITE = 'https://uplyncio.vercel.app';
 
 // ── SHARED: Header ──
 function header(category, accent = '#4f7cff') {
-  // Exact favicon.svg inline as SVG image in email
-  const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="40" height="40">
-    <rect width="64" height="64" rx="14" fill="#0f1628"/>
-    <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-    <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-    <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-  </svg>`;
-  const logoB64 = Buffer.from(logoSvg).toString('base64');
-
   return `
   <tr><td style="background:#07090f;padding:18px 28px;text-align:center;border-bottom:3px solid ${accent}">
     <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
       <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6px"><tr>
         <td style="vertical-align:middle;padding-right:10px">
-          <img src="data:image/svg+xml;base64,${logoB64}" width="40" height="40" alt="Uplyncio" style="display:block;border-radius:10px"/>
+          <img src="https://uplyncio.com/favicon.svg" width="40" height="40" alt="Uplyncio logo" style="display:block;border-radius:10px;border:0"/>
         </td>
         <td style="vertical-align:middle">
           <span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Uply<span style="color:#4f7cff">ncio</span></span>
@@ -37,12 +28,7 @@ function footer() {
   <tr><td style="background:#07090f;padding:24px 28px">
     <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px"><tr>
       <td style="vertical-align:middle;padding-right:8px">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" style="display:block;border-radius:8px">
-          <rect width="64" height="64" rx="14" fill="#0f1628"/>
-          <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-          <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-          <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-        </svg>
+        <img src="https://uplyncio.com/favicon.svg" width="32" height="32" alt="Uplyncio" style="display:block;border-radius:8px;border:0"/>
       </td>
       <td style="vertical-align:middle">
         <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Uply<span style="color:#4f7cff">ncio</span></span>
@@ -92,6 +78,21 @@ function wrap(rows) {
     </td></tr>
   </table>
 </body></html>`;
+}
+
+
+// Truncate text for privacy in emails
+function truncate(str, len=30) {
+  if(!str) return '—';
+  if(str.length <= len) return str;
+  return str.substring(0, len) + '...';
+}
+function maskUrl(url, len=25) {
+  if(!url) return '—';
+  // Remove https:// for display
+  const clean = url.replace(/https?:\/\//,'');
+  if(clean.length <= len) return clean.substring(0,3)+'...'+clean.slice(-6);
+  return clean.substring(0,len)+'...';
 }
 
 // ── SEND via Resend ──
@@ -374,8 +375,8 @@ export async function sendPublisherNewOrder({ to, name, orderId, siteUrl, buyerN
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Order ID</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;padding:5px 0">${orderId}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Your Site</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${siteUrl}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Buyer</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${buyerName}</td></tr>
-          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${anchorText}</td></tr>
-          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Target URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0;word-break:break-all">${targetUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${truncate(anchorText,25)}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Target URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${maskUrl(targetUrl)}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Deadline</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#ef4444;padding:5px 0">${deadline}</td></tr>
           <tr style="border-top:1px solid #e0e7ff"><td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a202c;padding:10px 0 4px">Your Earnings</td><td align="right" style="font-family:Arial,sans-serif;font-size:18px;font-weight:800;color:#00c27a;padding:10px 0 4px">$${price}</td></tr>
         </table>
@@ -384,6 +385,8 @@ export async function sendPublisherNewOrder({ to, name, orderId, siteUrl, buyerN
     (content ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px"><p style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#4f7cff;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px">Content / Article</p><p style="font-family:Arial,sans-serif;font-size:13px;color:#475569;margin:0;line-height:1.6">${content.substring(0,300)}${content.length > 300 ? '...' : ''}</p></td></tr></table>` : '') +
     (requirements ? alertBox('#fef3c7','#fde68a','#92400e', `📋 <strong>Special Requirements:</strong> ${requirements}`) : '') +
     ctaBtn(`${SITE}/publisher.html`, 'View Order & Accept →', '#4f7cff') +
+    alertBox('#f0f4ff','#c7d7ff','#1e40af',
+      '🔒 <strong>For security:</strong> Full order details including complete anchor text and target URL are available in your publisher dashboard.') +
     alertBox('#fef2f2','#fecaca','#b91c1c',
       '⏰ Please respond within <strong>24 hours</strong>. Orders not accepted within this window may be reassigned to another publisher.') +
     sign() + footer()
@@ -603,8 +606,8 @@ export async function sendBuyerOrderPlaced({ to, name, orderId, siteUrl, siteDA,
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Order ID</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;padding:5px 0">${orderId}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Publisher Site</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${siteUrl}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">DA / DR</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">DA ${siteDA} / DR ${siteDR}</td></tr>
-          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${anchorText}</td></tr>
-          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Target URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0;word-break:break-all">${targetUrl}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${truncate(anchorText,25)}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Target URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${maskUrl(targetUrl)}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Expected Delivery</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#f59e0b;padding:5px 0">${deadline}</td></tr>
           <tr style="border-top:1px solid #e0e7ff"><td style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a202c;padding:10px 0 4px">Total Paid</td><td align="right" style="font-family:Arial,sans-serif;font-size:18px;font-weight:800;color:#1a202c;padding:10px 0 4px">$${price}</td></tr>
         </table>
@@ -653,7 +656,7 @@ export async function sendBuyerOrderDelivered({ to, name, orderId, siteUrl, live
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Publisher Site</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${siteUrl}</td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Live Article URL</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#00c27a;padding:5px 0;word-break:break-all"><a href="${liveUrl}" style="color:#00c27a">${liveUrl}</a></td></tr>
           <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Your Backlink</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0;word-break:break-all">${targetUrl}</td></tr>
-          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a202c;padding:5px 0">${anchorText}</td></tr>
+          <tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b;padding:5px 0">Anchor Text</td><td align="right" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#4f7cff;padding:5px 0">${truncate(anchorText,25)}</td></tr>
         </table>
       </td></tr>
     </table>` +

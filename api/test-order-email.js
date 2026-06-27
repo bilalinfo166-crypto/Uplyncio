@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const r1 = await sendPublisherNewOrder({
       to,
       name: 'Uplyncio Team',
-      orderId: 'OR72910',
+      orderId: '#OR72910',
       siteUrl: 'techbullion.com',
       buyerName: 'Ahmed Khan',
       price: '120',
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const r2 = await sendBuyerOrderPlaced({
       to,
       name: 'Ahmed Khan',
-      orderId: 'OR72910',
+      orderId: '#OR72910',
       siteUrl: 'techbullion.com',
       siteDA: 72, siteDR: 68,
       price: '120',

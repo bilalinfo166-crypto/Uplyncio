@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     // ── CREATE ORDER ──
     if (req.method === 'POST') {
       const body = req.body;
-      const orderId = 'OR' + Math.floor(10000 + Math.random() * 90000);
+      const orderId = '#OR' + Math.floor(10000 + Math.random() * 90000);
       const order = { ...body, order_id: orderId, status: 'Pending', created_at: new Date().toISOString() };
 
       const r = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
