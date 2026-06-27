@@ -77,6 +77,15 @@ export default async function handler(req, res) {
       const emailLow = email.toLowerCase().trim();
       const isTeam = emailLow === 'info@uplyncio.com';
 
+      // Validate strong password (server-side)
+      if (!isTeam) {
+        if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+        if (!/[A-Z]/.test(password)) return res.status(400).json({ error: 'Password must contain at least one uppercase letter (A-Z)' });
+        if (!/[a-z]/.test(password)) return res.status(400).json({ error: 'Password must contain at least one lowercase letter (a-z)' });
+        if (!/[0-9]/.test(password)) return res.status(400).json({ error: 'Password must contain at least one number (0-9)' });
+        if (!/[^A-Za-z0-9]/.test(password)) return res.status(400).json({ error: 'Password must contain at least one special character (!@#$%^&*)' });
+      }
+
       // Check duplicate
       const existing = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
       if (existing?.length > 0)
