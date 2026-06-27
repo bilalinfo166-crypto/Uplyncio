@@ -394,10 +394,16 @@ function _startOtpTimer(){
 function openVerifyModal(email, isNew){
   window._verifyingEmail = email;
   window._verifyIsNew    = isNew;
+
+  // Try localStorage first, fallback to just email
   var user = findUser(email);
-  if(!user){ return; }
+  // If user not in localStorage (e.g. signed up via Supabase), create minimal object
+  if(!user){
+    user = { email: email, verifyCode: '', uid: localStorage.getItem('uplyncio_currentUid')||'' };
+  }
+
   var emailShow = document.getElementById('verifyEmailShow');
-  if(emailShow) emailShow.textContent = user.email;
+  if(emailShow) emailShow.textContent = email;
   var err = document.getElementById('verifyError');
   if(err){ err.style.display='none'; err.textContent=''; }
   var modal = document.getElementById('verifyModal');
@@ -405,10 +411,7 @@ function openVerifyModal(email, isNew){
   _initOtpBoxes();
   setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); },200);
   _startOtpTimer();
-  // Send verification email — user must enter OTP manually
-  _sendVerifyEmail(user.email, user.verifyCode||'', function(sent){
-    // Email sent or not — user types manually
-  });
+  // Email is sent by api/auth during signup — user checks inbox
 }
 
 function closeVerifyModal(){
