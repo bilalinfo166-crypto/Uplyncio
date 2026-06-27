@@ -3529,15 +3529,26 @@ function sendChatMsg(){
   var inp = document.getElementById('chatInput');
   var text = inp.value.trim();
   if(!text) return;
-  var o = sampleOrders.find(function(x){return x.id===currentChatOrderId;});
-  if(!o) return;
-  if(!o.chat) o.chat=[];
-  o.chat.push({sender:'publisher', text:text, timestamp:new Date().toISOString(), read:false});
-  inp.value='';
-  OrderManager.save(sampleOrders);
-  renderChatMessages(o);
-  var msgs = document.getElementById('chatMessages');
-  if(msgs) msgs.scrollTop = msgs.scrollHeight;
+
+  // Check message against filter BEFORE sending
+  checkChatFilter(text, currentChatOrderId).then(function(result) {
+    if(result.blocked) {
+      showChatError(result.message, result.tip);
+      return; // Block message
+    }
+    if(result.warning) {
+      showChatError(result.message, result.tip);
+      // Warning only - still allow send
+    }
+    var o = sampleOrders.find(function(x){return x.id===currentChatOrderId;});
+    if(!o) return;
+    if(!o.chat) o.chat=[];
+    o.chat.push({sender:'publisher', text:text, timestamp:new Date().toISOString(), read:false});
+    inp.value='';
+    OrderManager.save(sampleOrders);
+    renderChatMessages(o);
+    var msgs = document.getElementById('chatMessages');
+    if(msgs) msgs.scrollTop = msgs.scrollHeight;
   // Simulate client reply after 2 seconds
   setTimeout(function(){
     var replies = [
@@ -6745,5 +6756,38 @@ async function submitNewEmail(){
     </div>
   </div>
 </div>
+
+// ── CHAT FILTER ──
+async function checkChatFilter(text, orderId) {
+  try {
+    var uid = localStorage.getItem('uplyncio_currentUid') || '';
+    var r = await fetch('/api/chat-filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, senderId: uid, orderId: orderId })
+    });
+    return await r.json();
+  } catch(e) {
+    return { blocked: false };
+  }
+}
+
+function showChatError(msg, tip) {
+  var errEl = document.getElementById('chatFilterErr');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'chatFilterErr';
+    errEl.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#1a0505;border:1.5px solid #ef4444;border-radius:12px;padding:14px 20px;max-width:400px;width:90%;z-index:99999;animation:fadeIn .2s ease';
+    document.body.appendChild(errEl);
+  }
+  errEl.innerHTML = '<div style="font-size:14px;font-weight:700;color:#ef4444;margin-bottom:6px">' + msg + '</div>'
+    + (tip ? '<div style="font-size:12px;color:rgba(255,255,255,.6)">' + tip + '</div>' : '');
+  errEl.style.display = 'block';
+  clearTimeout(window._chatErrTimer);
+  window._chatErrTimer = setTimeout(function() {
+    if(errEl) errEl.style.display = 'none';
+  }, 4000);
+}
+
 </body>
 </html>

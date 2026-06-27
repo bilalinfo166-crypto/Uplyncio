@@ -4160,7 +4160,56 @@ function downloadInvoice(){
     + '<div class="footer"><p>Uplyncio · info@uplyncio.com · uplyncio.com</p><p>Thank you for your business!</p></div>'
     + '</div>'
     + '<scr'+'ipt>window.onload=function(){window.print()}<\/scr'+'ipt>'
-    + '</body></html>';
+    + '
+// ── CHAT FILTER ──
+async function checkChatFilter(text, orderId) {
+  try {
+    var uid = localStorage.getItem('uplyncio_currentUid') || '';
+    var r = await fetch('/api/chat-filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, senderId: uid, orderId: orderId })
+    });
+    return await r.json();
+  } catch(e) { return { blocked: false }; }
+}
+
+function showChatError(msg, tip) {
+  var errEl = document.getElementById('chatFilterErr');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'chatFilterErr';
+    errEl.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a0505;border:1.5px solid #ef4444;border-radius:12px;padding:14px 20px;max-width:420px;width:92%;z-index:99999;box-shadow:0 8px 32px rgba(239,68,68,.3)';
+    document.body.appendChild(errEl);
+  }
+  errEl.innerHTML = '<div style="font-size:14px;font-weight:700;color:#ef4444;margin-bottom:4px">' + msg + '</div>'
+    + (tip ? '<div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:4px">' + tip + '</div>' : '');
+  errEl.style.display = 'block';
+  clearTimeout(window._chatErrTimer);
+  window._chatErrTimer = setTimeout(function(){ if(errEl) errEl.style.display='none'; }, 5000);
+}
+
+// Intercept all chat sends in buyer
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    var inp = e.target;
+    if (inp && (inp.id === 'buyerChatInput' || inp.classList.contains('chat-input') || inp.closest('.chat-area'))) {
+      var text = inp.value.trim();
+      if (!text) return;
+      e.preventDefault();
+      checkChatFilter(text).then(function(result) {
+        if (result.blocked) {
+          showChatError(result.message, result.tip);
+          return;
+        }
+        // Allow send - trigger normal send
+        inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: false }));
+      });
+    }
+  }
+});
+
+</body></html>';
 
   var blob = new Blob([html], {type:'text/html'});
   var url = URL.createObjectURL(blob);

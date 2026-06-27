@@ -29,6 +29,9 @@
     },
     "api/google-auth.js": {
       "maxDuration": 15
+    },
+    "api/chat-filter.js": {
+      "maxDuration": 10
     }
   }
 }
