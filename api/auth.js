@@ -1,10 +1,10 @@
 import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './email.js';
 
-const SUPABASE_URL = 'https://ridafwpazwqjhimecyyl.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const RESEND_KEY = process.env.RESEND_API_KEY;
 
 function sbHeaders() {
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   return {
     'apikey': key,
     'Authorization': `Bearer ${key}`,
@@ -56,12 +56,37 @@ async function sendEmail(to, subject, html) {
   return { ok: r.ok, data: await r.json() };
 }
 
+// ── Rate limit store (in-memory, resets on deploy — use Upstash Redis for production) ──
+const rateLimitStore = new Map();
+function rateLimit(key, max, windowMs) {
+  const now = Date.now();
+  const record = rateLimitStore.get(key) || { count: 0, reset: now + windowMs };
+  if (now > record.reset) { record.count = 0; record.reset = now + windowMs; }
+  record.count++;
+  rateLimitStore.set(key, record);
+  return record.count > max;
+}
+
+// ── Input validators ──
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||'').trim()); }
+function isValidPassword(p) { return typeof p === 'string' && p.length >= 8; }
+function sanitize(str, maxLen=200) { return String(str||'').trim().substring(0, maxLen).replace(/[<>]/g, ''); }
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Access-Control-Allow-Origin', 'https://uplyncio.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  
+  // Rate limiting by IP
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.headers['x-real-ip'] || 'unknown';
+  if (rateLimit(`auth:${ip}`, 20, 60000)) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
+  }
 
   const body = req.body || {};
   const { action } = body;
@@ -73,6 +98,11 @@ export default async function handler(req, res) {
       const { email, password, name, role } = body;
       if (!email || !password || !name || !role)
         return res.status(400).json({ error: 'Missing required fields' });
+      if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email address' });
+      if (!isValidPassword(password)) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      if (typeof name !== 'string' || name.trim().length < 2) return res.status(400).json({ error: 'Name too short' });
+      if (!['buyer','publisher'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+      if (rateLimit(`signup:${ip}`, 5, 3600000)) return res.status(429).json({ error: 'Too many signup attempts. Try again in 1 hour.' });
 
       const emailLow = email.toLowerCase().trim();
       const isTeam = emailLow === 'info@uplyncio.com';
@@ -165,6 +195,11 @@ export default async function handler(req, res) {
     if (action === 'login') {
       const { email, password } = body;
       if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
+      if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email address' });
+      // Rate limit login attempts per email (brute force protection)
+      if (rateLimit(`login:${email.toLowerCase()}`, 10, 900000)) {
+        return res.status(429).json({ error: 'Too many login attempts. Please wait 15 minutes.' });
+      }
 
       const emailLow = email.toLowerCase().trim();
       const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
@@ -239,6 +274,8 @@ export default async function handler(req, res) {
     if (action === 'forgot_password') {
       const { email } = body;
       if (!email) return res.status(400).json({ error: 'Missing email' });
+      if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email' });
+      if (rateLimit(`forgot:${email.toLowerCase()}`, 3, 900000)) return res.status(429).json({ error: 'Too many reset attempts. Please wait 15 minutes.' });
       const emailLow = email.toLowerCase().trim();
 
       // Always return success (don't reveal if email exists)

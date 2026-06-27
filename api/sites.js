@@ -1,7 +1,7 @@
 // Publisher Sites API
 import { sendPublisherSitesApproved, sendPublisherSiteRejected } from './email.js';
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
 function headers() {
   return {

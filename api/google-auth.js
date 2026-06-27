@@ -1,10 +1,10 @@
 // Google OAuth Handler
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const SUPABASE_URL = 'https://ridafwpazwqjhimecyyl.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL;
 
 function sbHeaders() {
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY;
   return { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' };
 }
 

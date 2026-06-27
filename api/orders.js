@@ -7,8 +7,8 @@ import {
   sendPublisherOrderCancelled, sendPublisherSiteRejected
 } from './email.js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
 function hdrs() {
   return {
@@ -38,11 +38,17 @@ function invNum() {
   return 'INV-' + Date.now().toString().slice(-8);
 }
 
+const _rlOrders = new Map();
+function rlOrders(k,max,ms){ const n=Date.now(),r=_rlOrders.get(k)||{c:0,t:n+ms}; if(n>r.t){r.c=0;r.t=n+ms;} r.c++; _rlOrders.set(k,r); return r.c>max; }
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Access-Control-Allow-Origin', 'https://uplyncio.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
+  if (rlOrders(`ord:${ip}`, 30, 60000)) return res.status(429).json({ error: 'Too many requests.' });
 
   try {
 

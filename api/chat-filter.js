@@ -1,7 +1,7 @@
 // ── Uplyncio Chat Filter — Contact Detection & Auto-Restrict System ──
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
-const SB_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SB_KEY = process.env.SUPABASE_SECRET_KEY;
 
 function sbHeaders() {
   return { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
