@@ -753,7 +753,10 @@ function completeSignupSocial(pr){
   var params = new URLSearchParams(window.location.search);
   if(params.get('oauth_success')==='1'){
     try{
-      var user = JSON.parse(decodeURIComponent(params.get('user')||'{}'));
+      var rawUser = params.get('user')||'{}';
+      console.log('OAuth raw user param:', rawUser.substring(0,200));
+      var user = JSON.parse(decodeURIComponent(rawUser));
+      console.log('OAuth user parsed:', JSON.stringify(user));
       if(user && user.email){
         var uid = user.id || ('google_'+Date.now());
         user.uid = uid;
