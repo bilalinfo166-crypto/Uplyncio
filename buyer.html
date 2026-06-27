@@ -4262,25 +4262,74 @@ function formatExpiry(el){
   if(v.length >= 2) v = v.substring(0,2)+' / '+v.substring(2);
   el.value = v;
 }
-function placeOrderSuccess(price, payMethod){
+async function placeOrderSuccess(price, payMethod){
   setTimeout(checkBuyerBadge, 500);
   var site = selectedSite;
   var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
   var orderId = '#OR' + Math.floor(10000+Math.random()*90000);
-  
+  var now = new Date().toISOString();
+
+  var oUrl = document.getElementById('oUrl');
+  var oAnchor = document.getElementById('oAnchor');
+  var oKw = document.getElementById('oKeywords');
+  var oNote = document.getElementById('oInstructions');
+
+  var orderData = {
+    id: orderId,
+    order_id: orderId,
+    buyer_id: uid,
+    buyer_email: userData.email||'',
+    buyer_name: userData.name||'',
+    publisher_id: site.publisher_id||site.uid||'',
+    site_url: site.url||site.n||'',
+    site_da: site.da||0,
+    site_dr: site.dr||0,
+    service_type: _placementType==='write' ? 'Write + Publish' : 'Publish Only',
+    price: price,
+    publisher_price: Math.round(price * 0.8),
+    pay_method: payMethod,
+    target_url: oUrl ? oUrl.value.trim() : '',
+    anchor_text: oAnchor ? oAnchor.value.trim() : '',
+    keywords: oKw ? oKw.value.trim() : '',
+    requirements: oNote ? oNote.value.trim() : '',
+    status: 'Pending',
+    created_at: now,
+    updated_at: now
+  };
+
+  // 1. Save locally
   var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
-  orders.unshift({
-    id: orderId, site: site.url||site.n||'', domain: site.url||'',
-    type: _placementType==='write'?'Write + Publish':'Publish Only',
-    status: 'Pending', price: price, payMethod: payMethod,
-    date: new Date().toISOString(), uid: uid,
-    buyerVerified: !!(JSON.parse(localStorage.getItem('uplyncio_user')||'{}').buyerVerified)
-  });
+  orders.unshift({...orderData, domain: site.url||''});
   localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
-  
+
+  // 2. Save to Supabase via API
+  try {
+    var r = await fetch('/api/orders', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({...orderData, wallet_balance_after: parseFloat(localStorage.getItem('uplyncio_balance')||'0')})
+    });
+    var res = await r.json();
+    if (res.success) {
+      console.log('Order saved to Supabase:', res.order?.id);
+      // Update local order with Supabase ID
+      if (res.order?.id) {
+        orders[0].supabase_id = res.order.id;
+        localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
+      }
+    }
+  } catch(e) {
+    console.log('Order API error:', e.message);
+  }
+
+  // 3. Add notification
+  addBuyerNotification('order_placed', 'Order Placed! ' + orderId,
+    'Your order on ' + (site.url||site.n||'') + ' is now pending publisher acceptance.', 'orders');
+
   closePaymentModal();
   closeModal();
-  showToast('✅ Order '+orderId+' placed! We will contact you within 24 hours.');
+  showToast('✅ Order ' + orderId + ' placed! Publisher will respond within 24 hours.');
   updateCartNav();
 }
 

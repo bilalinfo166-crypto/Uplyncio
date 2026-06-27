@@ -322,6 +322,76 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // ── 2FA: ENABLE / SETUP ──
+    if (action === 'enable_2fa') {
+      const { userId } = body;
+      if (!userId) return res.status(400).json({ error: 'Missing userId' });
+      // Generate 6-digit backup codes
+      const codes = Array.from({length: 6}, () => Math.floor(100000 + Math.random() * 900000).toString());
+      const code2fa = Math.floor(100000 + Math.random() * 900000).toString();
+      // Store pending 2FA code (expires in 10 min)
+      const expiry = Date.now() + 10 * 60 * 1000;
+      await sbUpdate('users', `id=eq.${userId}`, {
+        twofa_pending: `${code2fa}:${expiry}`,
+        twofa_backup: codes.join(',')
+      });
+      // Send code via email
+      const users = await sbGet('users', `id=eq.${userId}`);
+      const user = users?.[0];
+      if (user) {
+        const { sendOtpEmail } = await import('./email.js');
+        sendOtpEmail({ to: user.email, name: user.name, code: code2fa, expiresIn: '10 minutes' }).catch(()=>{});
+      }
+      return res.status(200).json({ success: true, message: 'Verification code sent to your email' });
+    }
+
+    if (action === 'verify_2fa_setup') {
+      const { userId, code } = body;
+      if (!userId || !code) return res.status(400).json({ error: 'Missing fields' });
+      const users = await sbGet('users', `id=eq.${userId}`);
+      const user = users?.[0];
+      if (!user?.twofa_pending) return res.status(400).json({ error: 'No pending 2FA setup' });
+      const [storedCode, expiry] = (user.twofa_pending || '').split(':');
+      if (Date.now() > parseInt(expiry)) return res.status(400).json({ error: 'Code expired. Please request a new one.' });
+      if (code.trim() !== storedCode) return res.status(400).json({ error: 'Invalid code' });
+      await sbUpdate('users', `id=eq.${userId}`, { twofa_enabled: true, twofa_pending: null });
+      return res.status(200).json({ success: true, backupCodes: user.twofa_backup?.split(',') || [] });
+    }
+
+    if (action === 'disable_2fa') {
+      const { userId, password } = body;
+      if (!userId || !password) return res.status(400).json({ error: 'Missing fields' });
+      const users = await sbGet('users', `id=eq.${userId}`);
+      const user = users?.[0];
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      const hash = await hashPass(password);
+      if (hash !== user.password_hash) return res.status(401).json({ error: 'Incorrect password' });
+      await sbUpdate('users', `id=eq.${userId}`, { twofa_enabled: false, twofa_pending: null, twofa_backup: null });
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'check_2fa') {
+      const { userId, code } = body;
+      if (!userId || !code) return res.status(400).json({ error: 'Missing fields' });
+      const users = await sbGet('users', `id=eq.${userId}`);
+      const user = users?.[0];
+      if (!user?.twofa_enabled) return res.status(200).json({ required: false });
+      // Check login code
+      const [storedCode, expiry] = (user.twofa_pending || '').split(':');
+      if (code.trim() === storedCode && Date.now() < parseInt(expiry)) {
+        await sbUpdate('users', `id=eq.${userId}`, { twofa_pending: null });
+        return res.status(200).json({ success: true, verified: true });
+      }
+      // Check backup codes
+      const backups = (user.twofa_backup || '').split(',');
+      if (backups.includes(code.trim())) {
+        const newBackups = backups.filter(c => c !== code.trim());
+        await sbUpdate('users', `id=eq.${userId}`, { twofa_backup: newBackups.join(','), twofa_pending: null });
+        return res.status(200).json({ success: true, verified: true, usedBackup: true });
+      }
+      return res.status(401).json({ error: 'Invalid 2FA code' });
+    }
+
     // ── CHANGE PASSWORD ──
     if (action === 'change_password') {
       const { userId, newPassword } = body;

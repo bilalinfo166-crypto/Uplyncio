@@ -4534,28 +4534,28 @@ function editField(id){
 // ── REAL 2FA TOTP SYSTEM ──
 var _2faSecret = '';
 
-function toggleTwoFa(){
+async function toggleTwoFa(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
   var toggle = document.getElementById('twoFaToggle');
-  var isOn = toggle && toggle.style.background === 'rgb(34, 197, 94)' || 
-             (toggle && toggle.getAttribute('data-on') === '1');
-  
+  var isOn = toggle && toggle.getAttribute('data-on') === '1';
+
   if(isOn){
-    // Turn OFF - confirm first
-    if(!confirm('Disable Two-Factor Authentication? This will make your account less secure.')) return;
-    toggle.style.background = '#e2e8f0';
-    toggle.style.setProperty('--tw', '3px');
-    toggle.setAttribute('data-on','0');
-    if(toggle.firstElementChild) toggle.firstElementChild.style.left = '3px';
-    // Save disabled state
-    try{
-      var uid = localStorage.getItem('uplyncio_currentUid')||'';
-      var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
-      ud.twoFaEnabled = false; ud.twoFaSecret = '';
-      localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
-    }catch(e){}
-    showToast('🔓 Two-Factor Authentication disabled');
+    // Disable 2FA - require password
+    var pwd = prompt('Enter your password to disable Two-Factor Authentication:');
+    if(!pwd) return;
+    try {
+      var r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({action:'disable_2fa', userId:uid, password:pwd})});
+      var res = await r.json();
+      if(res.success) {
+        toggle.style.background='#e2e8f0'; toggle.setAttribute('data-on','0');
+        if(toggle.firstElementChild) toggle.firstElementChild.style.left='3px';
+        ud.twoFaEnabled=false; localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
+        showToast('🔓 Two-Factor Authentication disabled');
+      } else { showToast('⚠️ '+( res.error||'Failed')); }
+    } catch(e) { showToast('⚠️ Error disabling 2FA'); }
   } else {
-    // Start 2FA setup
     open2FASetup();
   }
 }
@@ -5252,6 +5252,7 @@ var OrderManager = {
   updateStatus: function(orders, orderId, newStatus, note){
     var order = orders.find(function(o){return o.id===orderId;});
     if(!order) return orders;
+    var prevStatus = order.status;
     order.status = newStatus;
     order.updatedAt = new Date().toISOString();
     if(!order.statusHistory) order.statusHistory=[];
@@ -5261,6 +5262,21 @@ var OrderManager = {
       note: note||''
     });
     this.save(orders);
+
+    // Sync status to Supabase
+    var statusMap = {
+      'acceptance':'Pending','progress':'In Progress','approval':'Delivered',
+      'completed':'Completed','cancelled':'Cancelled','rejected':'Rejected','improvement':'In Progress'
+    };
+    var supaStatus = statusMap[newStatus] || newStatus;
+    if(order.supabase_id) {
+      fetch('/api/orders?id=' + encodeURIComponent(order.supabase_id), {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({status: supaStatus, notes: note||'', live_url: order.publishedUrl||''})
+      }).catch(function(){});
+    }
+
     return orders;
   },
 
@@ -5393,18 +5409,72 @@ var statusConfig={
   archived:  {label:'Archived',       bg:'#f1f5f9',color:'#64748b',icon:'📦'},
 };
 
-function showOrders(){
+async function showOrders(){
   var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
   saveState("orders");
   hideAllPages();
   var op=document.getElementById('ordersPage');
   if(op){ op.style.display='block'; }
   setActiveSidebar('Orders');
-  renderOrders();
-  if(Array.isArray(sampleOrders)){
-    var newOrders=sampleOrders.filter(function(o){return o.status==='acceptance';});
-    if(newOrders.length>0) sendOrderNotification(newOrders[0]);
+
+  // Load real orders from Supabase
+  try {
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    var r = await fetch('/api/orders?publisher_id=' + encodeURIComponent(uid));
+    var res = await r.json();
+    if(res.success && Array.isArray(res.orders) && res.orders.length > 0) {
+      // Merge Supabase orders with local
+      var supaOrders = res.orders.map(function(o) {
+        return {
+          id: o.order_id || o.id,
+          supabase_id: o.id,
+          site: o.site_url||'',
+          siteUrl: o.site_url||'',
+          buyerName: o.buyer_name||'Buyer',
+          buyerEmail: o.buyer_email||'',
+          price: o.price||0,
+          publisherPrice: o.publisher_price||0,
+          targetUrl: o.target_url||'',
+          anchorText: o.anchor_text||'',
+          requirements: o.requirements||'',
+          serviceType: o.service_type||'Guest Post',
+          status: mapStatus(o.status),
+          date: o.created_at||new Date().toISOString(),
+          da: o.site_da||0,
+          dr: o.site_dr||0,
+          chat: []
+        };
+      });
+      // Merge with local orders (local takes priority for chat/content)
+      var localOrders = sampleOrders || [];
+      supaOrders.forEach(function(so) {
+        var exists = localOrders.find(function(lo){ return lo.id === so.id; });
+        if(!exists) localOrders.push(so);
+        else {
+          // Update status from Supabase
+          exists.status = so.status;
+          exists.supabase_id = so.supabase_id;
+        }
+      });
+      sampleOrders = localOrders;
+      OrderManager.save(sampleOrders);
+      // Notify for new pending orders
+      var newPending = supaOrders.filter(function(o){ return o.status==='acceptance'; });
+      if(newPending.length > 0) {
+        notifyNewOrder(newPending[0].id, newPending[0].site, newPending[0].publisherPrice);
+      }
+    }
+  } catch(e) {
+    console.log('Orders sync error:', e.message);
   }
+
+  renderOrders();
+}
+
+function mapStatus(s) {
+  var map = {'Pending':'acceptance','In Progress':'inprogress','Delivered':'approval',
+    'Completed':'completed','Cancelled':'cancelled','Rejected':'cancelled'};
+  return map[s] || s || 'acceptance';
 }
 
 function showMain(){
@@ -6690,6 +6760,121 @@ loadNotifs();
     }, 1000);
   }
 })();
+
+
+<!-- 2FA SETUP MODAL -->
+<div id="twoFaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)close2FAModal()">
+  <div style="background:#fff;border-radius:16px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.2)">
+    <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#fff">🔐 Two-Factor Authentication</div>
+        <div id="tfaStepLabel" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:2px">Step 1 of 2 — Send verification code</div>
+      </div>
+      <button onclick="close2FAModal()" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;width:30px;height:30px;color:#fff;cursor:pointer;font-size:16px">✕</button>
+    </div>
+
+    <!-- Step 1: Send code -->
+    <div id="tfaStep1" style="padding:24px">
+      <div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:10px;padding:14px;margin-bottom:16px">
+        <p style="font-family:Arial,sans-serif;font-size:13px;color:#1e40af;margin:0;line-height:1.6">🔒 When enabled, you will be asked for a 6-digit code sent to your email every time you log in from a new device.</p>
+      </div>
+      <button onclick="send2FACode()" id="tfaSendBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Verification Code →</button>
+      <div id="tfaStatus" style="font-size:12px;color:#64748b;text-align:center;margin-top:10px;min-height:16px"></div>
+    </div>
+
+    <!-- Step 2: Verify code -->
+    <div id="tfaStep2" style="display:none;padding:24px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;margin-bottom:16px;text-align:center">
+        <p style="font-size:13px;color:#15803d;margin:0">✅ Code sent! Check your email inbox.</p>
+      </div>
+      <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:6px">ENTER 6-DIGIT CODE</label>
+      <input id="tfaCodeInput" type="text" maxlength="6" placeholder="000000" style="width:100%;padding:13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:24px;font-family:monospace;letter-spacing:10px;text-align:center;outline:none;box-sizing:border-box;margin-bottom:6px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+      <div id="tfaCodeErr" style="font-size:12px;color:#ef4444;min-height:16px;margin-bottom:12px"></div>
+      <button onclick="verify2FACode()" style="width:100%;padding:13px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Enable 2FA ✓</button>
+      <div style="text-align:center;margin-top:10px">
+        <a onclick="send2FACode()" style="font-size:12px;color:#4f7cff;cursor:pointer">Resend code</a>
+      </div>
+    </div>
+
+    <!-- Step 3: Backup codes -->
+    <div id="tfaStep3" style="display:none;padding:24px">
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:14px;margin-bottom:16px">
+        <p style="font-size:13px;color:#92400e;margin:0;font-weight:600">⚠️ Save these backup codes! Each can be used once if you lose email access.</p>
+      </div>
+      <div id="tfaBackupCodes" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px"></div>
+      <button onclick="close2FAModal()" style="width:100%;padding:13px;background:#1a202c;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Done — I saved my backup codes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function open2FASetup(){
+  document.getElementById('twoFaModal').style.display='flex';
+  document.getElementById('tfaStep1').style.display='block';
+  document.getElementById('tfaStep2').style.display='none';
+  document.getElementById('tfaStep3').style.display='none';
+  document.getElementById('tfaStepLabel').textContent='Step 1 of 2 — Send verification code';
+  document.getElementById('tfaStatus').textContent='';
+}
+function close2FAModal(){
+  document.getElementById('twoFaModal').style.display='none';
+}
+async function send2FACode(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var btn = document.getElementById('tfaSendBtn');
+  var st = document.getElementById('tfaStatus');
+  if(btn){ btn.textContent='Sending...'; btn.disabled=true; }
+  try {
+    var r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'enable_2fa', userId:uid})});
+    var res = await r.json();
+    if(res.success){
+      if(btn){ btn.textContent='Resend Code'; btn.disabled=false; }
+      document.getElementById('tfaStep1').style.display='none';
+      document.getElementById('tfaStep2').style.display='block';
+      document.getElementById('tfaStepLabel').textContent='Step 2 of 2 — Enter verification code';
+      setTimeout(function(){ document.getElementById('tfaCodeInput').focus(); }, 200);
+    } else {
+      if(btn){ btn.textContent='Send Verification Code →'; btn.disabled=false; }
+      st.textContent='Error: '+(res.error||'Failed to send code');
+    }
+  } catch(e){
+    if(btn){ btn.textContent='Send Verification Code →'; btn.disabled=false; }
+    st.textContent='Connection error. Try again.';
+  }
+}
+async function verify2FACode(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  var code = document.getElementById('tfaCodeInput').value.trim();
+  var errEl = document.getElementById('tfaCodeErr');
+  if(code.length<6){ errEl.textContent='Please enter the 6-digit code'; return; }
+  errEl.textContent='Verifying...'; errEl.style.color='#64748b';
+  try {
+    var r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'verify_2fa_setup', userId:uid, code:code})});
+    var res = await r.json();
+    if(res.success){
+      // Update local user
+      var ud = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      ud.twoFaEnabled=true; localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(ud));
+      // Show toggle as ON
+      var toggle = document.getElementById('twoFaToggle');
+      if(toggle){ toggle.style.background='#22c55e'; toggle.setAttribute('data-on','1');
+        if(toggle.firstElementChild) toggle.firstElementChild.style.left='22px'; }
+      // Show backup codes
+      document.getElementById('tfaStep2').style.display='none';
+      document.getElementById('tfaStep3').style.display='block';
+      document.getElementById('tfaStepLabel').textContent='2FA Enabled ✓';
+      var codes = res.backupCodes||[];
+      document.getElementById('tfaBackupCodes').innerHTML = codes.map(function(c){
+        return '<div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:8px;text-align:center;font-family:monospace;font-size:13px;font-weight:600;color:#1a202c">'+c+'</div>';
+      }).join('');
+    } else {
+      errEl.textContent='⚠️ '+(res.error||'Invalid code'); errEl.style.color='#ef4444';
+    }
+  } catch(e){ errEl.textContent='Connection error'; errEl.style.color='#ef4444'; }
+}
+</script>
 
 </body>
 </html>
