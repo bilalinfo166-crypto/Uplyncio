@@ -174,7 +174,7 @@ export async function sendVerifyEmail({ to, name, code }) {
       `Hi <strong style="color:#1a202c">${name}</strong>, use the 6-digit code below to verify your Uplyncio account. Do not share this code with anyone.`) +
     codeBox(code, '#f0f4ff', '#c7d7ff', '#4f7cff', 'Your verification code') +
     alertBox('#fef3c7', '#fde68a', '#92400e',
-      '⏰ This code expires in <strong>10 minutes</strong>. If you did not create an Uplyncio account, please ignore this email.') +
+      '⏰ This code expires in <strong>5 minutes</strong>. If you did not create an Uplyncio account, please ignore this email.') +
     sign() + footer()
   );
   return send(to, `Your Uplyncio verification code: ${code}`, html);

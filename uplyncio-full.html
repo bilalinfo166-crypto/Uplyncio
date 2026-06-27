@@ -363,7 +363,7 @@ function _syncOtpInput(){
 function _startOtpTimer(){
   clearInterval(_otpTimerInterval);
   _otpExpired=false;
-  var totalSecs=600;
+  var totalSecs=300;
   var timerEl=document.getElementById('verifyTimer');
   var timerWrap=document.getElementById('verifyTimerWrap');
   var expiredEl=document.getElementById('verifyExpiredMsg');
