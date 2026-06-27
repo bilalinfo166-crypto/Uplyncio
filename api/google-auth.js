@@ -39,12 +39,18 @@ export default async function handler(req, res) {
 
   const { code, state, action } = req.method === 'GET' ? req.query : (req.body || {});
 
+  // Dynamic redirect URI based on host
+  const host = req.headers.host || 'uplyncio.vercel.app';
+  const dynamicRedirectURI = host.includes('uplyncio.com')
+    ? 'https://uplyncio.com/api/google-auth'
+    : 'https://uplyncio.vercel.app/api/google-auth';
+
   // Step 1: Generate Google OAuth URL
   if (action === 'get_url' || req.method === 'POST') {
     const role = req.body?.role || 'buyer';
     const params = new URLSearchParams({
       client_id: GOOGLE_CLIENT_ID,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: dynamicRedirectURI,
       response_type: 'code',
       scope: 'openid email profile',
       state: role,
@@ -67,7 +73,7 @@ export default async function handler(req, res) {
           code,
           client_id: GOOGLE_CLIENT_ID,
           client_secret: GOOGLE_CLIENT_SECRET,
-          redirect_uri: REDIRECT_URI,
+          redirect_uri: dynamicRedirectURI,
           grant_type: 'authorization_code'
         })
       });
