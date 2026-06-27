@@ -1,214 +1,299 @@
-// ── Uplyncio Chat Filter — Contact Detection & Blocking System ──
+// ── Uplyncio Chat Filter — Contact Detection & Auto-Restrict System ──
+
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
+const SB_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+
+function sbHeaders() {
+  return { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+}
+
+async function sbGet(table, filter) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}&select=*`, { headers: sbHeaders() });
+  return r.json();
+}
+
+async function sbInsert(table, data) {
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: sbHeaders(), body: JSON.stringify(data)
+  });
+}
+
+async function sbUpdate(table, filter, data) {
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH', headers: sbHeaders(), body: JSON.stringify(data)
+  });
+}
+
+async function sbRpc(fn, params) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST', headers: sbHeaders(), body: JSON.stringify(params)
+  });
+  return r.json();
+}
+
+// ── VIOLATION THRESHOLDS ──
+const THRESHOLDS = {
+  WARNING_1: 2,    // 2 violations → first warning email
+  WARNING_2: 4,    // 4 violations → second warning + temporary restrict
+  BAN: 6           // 6 violations → permanent ban
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // ── ADMIN: Get all violations ──
+  if (req.method === 'GET') {
+    const action = req.query.action;
+    if (action === 'violations') {
+      try {
+        const data = await sbGet('chat_violations', 'order=detected_at.desc&limit=100');
+        return res.status(200).json({ success: true, violations: data });
+      } catch(e) {
+        return res.status(500).json({ error: e.message });
+      }
+    }
+    if (action === 'flagged_users') {
+      try {
+        const data = await sbGet('chat_violations', 'select=sender_id,violation_type,severity,detected_at&order=detected_at.desc');
+        // Count violations per user
+        const counts = {};
+        (data || []).forEach(v => {
+          if (!counts[v.sender_id]) counts[v.sender_id] = { count: 0, types: [], last: v.detected_at };
+          counts[v.sender_id].count++;
+          if (!counts[v.sender_id].types.includes(v.violation_type)) counts[v.sender_id].types.push(v.violation_type);
+        });
+        return res.status(200).json({ success: true, flagged: counts });
+      } catch(e) {
+        return res.status(500).json({ error: e.message });
+      }
+    }
+  }
+
+  // ── ADMIN: Manual ban ──
+  if (req.method === 'POST' && req.body?.action === 'ban_user') {
+    const { userId, reason } = req.body;
+    try {
+      await sbUpdate('users', `id=eq.${userId}`, {
+        account_status: 'banned',
+        ban_reason: reason || 'Policy violation',
+        banned_at: new Date().toISOString()
+      });
+      const { sendAccountSuspended } = await import('./email.js');
+      const users = await sbGet('users', `id=eq.${userId}`);
+      if (users?.[0]) {
+        sendAccountSuspended({ to: users[0].email, name: users[0].name, role: users[0].role,
+          reason: reason || 'Multiple policy violations', suspendedAt: new Date().toLocaleDateString() }).catch(()=>{});
+      }
+      return res.status(200).json({ success: true, message: 'User banned' });
+    } catch(e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
+  // ── MAIN: Analyze message ──
   const { message, senderId, receiverId, orderId } = req.body || {};
-  if (!message) return res.status(400).json({ error: 'No message provided' });
+  if (!message) return res.status(400).json({ error: 'No message' });
 
   const result = analyzeMessage(message);
 
-  // Log violation to Supabase
-  if (result.blocked || result.warning) {
+  // Log violation and check auto-restrict
+  if (result.blocked && senderId) {
     try {
-      const SB = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
-      const KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
-      await fetch(`${SB}/rest/v1/chat_violations`, {
-        method: 'POST',
-        headers: { 'apikey': KEY, 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sender_id: senderId,
-          receiver_id: receiverId,
-          order_id: orderId,
-          message_preview: message.substring(0, 100),
-          violation_type: result.type,
-          severity: result.severity,
-          detected_at: new Date().toISOString()
-        })
-      }).catch(() => {});
-    } catch(e) {}
+      // Save violation
+      await sbInsert('chat_violations', {
+        sender_id: senderId,
+        receiver_id: receiverId || null,
+        order_id: orderId || null,
+        message_preview: message.substring(0, 120),
+        violation_type: result.type,
+        severity: result.severity,
+        detected_at: new Date().toISOString()
+      });
+
+      // Count total violations for this user
+      const violations = await sbGet('chat_violations', `sender_id=eq.${senderId}`);
+      const count = violations?.length || 0;
+
+      // Auto-restrict based on threshold
+      const users = await sbGet('users', `id=eq.${senderId}`);
+      const user = users?.[0];
+
+      if (user) {
+        if (count >= THRESHOLDS.BAN && user.account_status !== 'banned') {
+          // Permanent ban
+          await sbUpdate('users', `id=eq.${senderId}`, {
+            account_status: 'banned',
+            ban_reason: 'Repeated policy violations — off-platform solicitation',
+            banned_at: new Date().toISOString()
+          });
+          const { sendAccountPermanentlyBanned } = await import('./email.js');
+          sendAccountPermanentlyBanned({
+            to: user.email, name: user.name, role: user.role,
+            reason: 'You have repeatedly attempted to take communication and payments off the Uplyncio platform.',
+            bannedAt: new Date().toLocaleDateString(),
+            violationCount: count
+          }).catch(()=>{});
+          result.accountAction = 'banned';
+          result.accountMessage = '🚫 Your account has been permanently banned due to repeated policy violations.';
+
+        } else if (count >= THRESHOLDS.WARNING_2 && user.account_status !== 'restricted') {
+          // Temporary restrict
+          await sbUpdate('users', `id=eq.${senderId}`, {
+            account_status: 'restricted',
+            restriction_reason: 'Multiple policy violations',
+            restricted_at: new Date().toISOString()
+          });
+          const { sendAccountSuspended } = await import('./email.js');
+          sendAccountSuspended({
+            to: user.email, name: user.name, role: user.role,
+            reason: `You have ${count} policy violations. Account is now restricted pending review.`,
+            suspendedAt: new Date().toLocaleDateString()
+          }).catch(()=>{});
+          result.accountAction = 'restricted';
+          result.accountMessage = '⚠️ Your account has been temporarily restricted. Please contact support.';
+
+        } else if (count >= THRESHOLDS.WARNING_1) {
+          // Warning email
+          const { sendPolicyViolationWarning } = await import('./email.js');
+          sendPolicyViolationWarning({
+            to: user.email, name: user.name, role: user.role,
+            violation: result.type,
+            warningNum: count,
+            details: `You attempted to share: ${result.type.replace(/_/g,' ')}`,
+            consequenceNext: count >= THRESHOLDS.WARNING_2 - 1
+              ? 'Your account will be restricted on the next violation.'
+              : `You have ${THRESHOLDS.BAN - count} violations remaining before a permanent ban.`
+          }).catch(()=>{});
+          result.warningCount = count;
+        }
+      }
+    } catch(e) {
+      console.log('Violation log error:', e.message);
+    }
   }
 
   return res.status(200).json(result);
 }
 
+// ── MESSAGE ANALYZER ──
 function analyzeMessage(msg) {
   const text = msg.toLowerCase().trim();
-  const original = msg.trim();
 
-  // ── OBFUSCATION DETECTION ──
-  // People try to hide: "w h a t s a p p", "wh@tsapp", "tele-gram"
-  const deobfuscated = text
-    .replace(/[\s\.\-_]+/g, '')   // remove spaces/dots/dashes
-    .replace(/@/g, 'a')
+  // Deobfuscate: remove spaces/symbols people use to bypass filters
+  const clean = text
+    .replace(/[\s.\-_*|\\\/]+/g, '')
+    .replace(/@|＠/g, 'a')
     .replace(/0/g, 'o')
     .replace(/3/g, 'e')
     .replace(/1/g, 'i')
-    .replace(/5/g, 's')
-    .replace(/\$/g, 's')
-    .replace(/\|/g, 'i');
+    .replace(/5|\$/g, 's')
+    .replace(/4/g, 'a')
+    .replace(/7/g, 't');
 
   // ── PHONE NUMBERS ──
   const phonePatterns = [
-    /(\+?92|0)[\s\-]?3\d{2}[\s\-]?\d{7}/,           // Pakistan
-    /(\+?1)?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}/, // US/Canada
-    /(\+?44)?[\s\-]?07\d{3}[\s\-]?\d{6}/,            // UK
-    /(\+?91)?[\s\-]?[6-9]\d{9}/,                      // India
-    /\b\d{4,5}[\s\-]\d{5,6}\b/,                       // Generic
-    /\b\d{10,12}\b/,                                   // Plain numbers
-    /\(\d{3}\)\s*\d{3}[-\s]\d{4}/,                   // (xxx) xxx-xxxx
+    /(\+?92|0)[\s\-]?3\d{2}[\s\-]?\d{7}/,
+    /(\+?1)?[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}/,
+    /(\+?44)?[\s\-]?07\d{3}[\s\-]?\d{6}/,
+    /(\+?91)?[\s\-]?[6-9]\d{9}/,
+    /\b\d{4,5}[\s\-]\d{5,6}\b/,
+    /\b\d{11,12}\b/,
+    /\(\d{3}\)\s*\d{3}[-\s]\d{4}/,
   ];
+  for (const p of phonePatterns) {
+    if (p.test(text)) return blocked('phone_number', 'high',
+      '🚫 Message blocked: Phone numbers cannot be shared on Uplyncio.',
+      'Use our built-in chat for all order communication.');
+  }
 
   // ── EMAILS ──
   const emailPatterns = [
-    /[a-zA-Z0-9._%+\-]+\s*[@＠at]\s*[a-zA-Z0-9.\-]+\s*[.]\s*[a-zA-Z]{2,}/,
-    /[a-zA-Z0-9]+\s+at\s+[a-zA-Z0-9]+\s+dot\s+com/i,
-    /[a-zA-Z0-9]+\[at\][a-zA-Z0-9]/i,
-    /[a-zA-Z0-9]+\(at\)[a-zA-Z0-9]/i,
-    /gmail|yahoo|hotmail|outlook|protonmail/i,
+    /[a-z0-9._%+\-]+\s*[@＠]\s*[a-z0-9.\-]+\.[a-z]{2,}/,
+    /[a-z0-9]+\s+at\s+[a-z0-9]+\s+dot\s+(com|net|org|io)/,
+    /[a-z0-9]+\[at\][a-z0-9]/,
+    /[a-z0-9]+\(at\)[a-z0-9]/,
   ];
+  const emailDomains = /gmail|yahoo|hotmail|outlook|protonmail|icloud/;
+  for (const p of emailPatterns) {
+    if (p.test(text)) return blocked('email_address', 'high',
+      '🚫 Message blocked: Email addresses cannot be shared. Keep all communication on Uplyncio.',
+      'Use our messaging system to communicate.');
+  }
+  if (emailDomains.test(clean)) return blocked('email_domain', 'high',
+    '🚫 Message blocked: Email service mentions are not allowed.',
+    'All communication must stay on Uplyncio.');
 
-  // ── SOCIAL MEDIA / MESSAGING ──
-  const socialPatterns = [
-    /\bwhatsapp\b|\bwhats app\b|\bwatsapp\b|\bwhtsp\b|\bwa number\b/i,
-    /\btelegram\b|\bt\.me\b|\btelegr\.am\b/i,
-    /\binstagram\b|\binsta\b|\big:\s*/i,
-    /\bfacebook\b|\bfb\.com\b|\bfb:\s*/i,
-    /\bskype\b/i,
-    /\blinkedin\b/i,
-    /\bsignal\b/i,
-    /\bviber\b/i,
-    /\bwechat\b|\bwe chat\b/i,
-    /\bline app\b/i,
-    /\bdiscord\b/i,
-    /\bslack\b/i,
-    /\bzoom\b|\bmeet\.google\b|\bteams\b/i,
+  // ── SOCIAL MEDIA ──
+  const social = [
+    { p: /whatsapp|whatsap|watsapp|whtsp|wa\.me/,   name: 'WhatsApp' },
+    { p: /telegram|t\.me|telegram/,                  name: 'Telegram' },
+    { p: /\binstagram\b|\binsta\b/,                  name: 'Instagram' },
+    { p: /\bfacebook\b|\bfb\.com\b/,                name: 'Facebook' },
+    { p: /\bskype\b/,                                name: 'Skype' },
+    { p: /\bsignal\b/,                               name: 'Signal' },
+    { p: /\bviber\b/,                                name: 'Viber' },
+    { p: /\bdiscord\b/,                              name: 'Discord' },
+    { p: /\bwechat\b|we chat/,                       name: 'WeChat' },
+    { p: /\bzoom\b/,                                 name: 'Zoom' },
   ];
-
-  // ── EXTERNAL PLATFORMS ──
-  const platformPatterns = [
-    /\bfiverr\b/i,
-    /\bupwork\b/i,
-    /\bfreelancer\b/i,
-    /\bpeopleperh(our)?\b/i,
-    /\btoptal\b/i,
-    /\bguru\.com\b/i,
-    /\b99designs\b/i,
-  ];
+  for (const s of social) {
+    if (s.p.test(text) || s.p.test(clean)) return blocked('social_media_contact', 'high',
+      `🚫 Message blocked: ${s.name} handles cannot be shared on Uplyncio.`,
+      'Use our built-in messaging system for all communication.');
+  }
 
   // ── OFF-PLATFORM PAYMENT ──
   const paymentPatterns = [
-    /\bpaypal\b/i,
-    /\bbank transfer\b|\baccount number\b|\biban\b/i,
-    /\bcrypto\b|\bbitcoin\b|\busdt\b|\bethererum\b/i,
-    /\bease paisa\b|\beasypaisa\b|\bjazzcash\b|\bsadapay\b/i,
-    /\bpay.*outside\b|\bpay.*direct\b|\bdirect.*pay/i,
-    /\bsend money\b|\btransfer money\b/i,
+    /\bpaypal\b|\bpayoneer\b/,
+    /bank.?transfer|account.?number|\biban\b|\bswift\b/,
+    /\bbitcoin\b|\bcrypto\b|\busdt\b|\bethereum\b|\bbnb\b/,
+    /easypaisa|jazzcash|sadapay|nayapay/,
+    /pay.*outside|pay.*direct|direct.*pay|pay.*separately/,
+    /send.*money|transfer.*money|money.*transfer/,
   ];
-
-  // ── AVOIDANCE KEYWORDS ──
-  const avoidancePatterns = [
-    /\bcontact me\b|\breach me\b|\bmessage me\b/i,
-    /\blet.s talk.*outside\b|\btalk.*privately\b/i,
-    /\boff.*platform\b|\boutside.*platform\b/i,
-    /\bdirect.*deal\b|\bdeal.*direct\b/i,
-    /\bsave.*commission\b|\bavoid.*fee\b|\bno.*fee\b/i,
-    /\bmy.*number is\b|\bcall me\b|\btext me\b/i,
-    /\badd me on\b|\bfind me on\b|\bfollow me on\b/i,
-  ];
-
-  // ── URLS ──
-  const urlPattern = /https?:\/\/[^\s]+|www\.[^\s]+|\b\w+\.(com|net|org|io|co)\b/i;
-
-  // Check each category
-  for (const p of phonePatterns) {
-    if (p.test(text) || p.test(deobfuscated)) {
-      return {
-        blocked: true,
-        type: 'phone_number',
-        severity: 'high',
-        message: '🚫 Message blocked: Phone numbers cannot be shared on Uplyncio. Please communicate only through the platform.',
-        tip: 'For faster communication, use our built-in messaging system.'
-      };
-    }
-  }
-
-  for (const p of emailPatterns) {
-    if (p.test(text)) {
-      return {
-        blocked: true,
-        type: 'email_address',
-        severity: 'high',
-        message: '🚫 Message blocked: Email addresses cannot be shared. All communication must stay on Uplyncio.',
-        tip: 'Use our messaging system to communicate with your order partner.'
-      };
-    }
-  }
-
   for (const p of paymentPatterns) {
-    if (p.test(text)) {
-      return {
-        blocked: true,
-        type: 'off_platform_payment',
-        severity: 'critical',
-        message: '🚫 Message blocked: Off-platform payments are strictly prohibited and may result in account suspension.',
-        tip: 'All payments are processed securely through Uplyncio wallet.'
-      };
-    }
+    if (p.test(text) || p.test(clean)) return blocked('off_platform_payment', 'critical',
+      '🚫 Message blocked: Off-platform payments are strictly prohibited and may result in account suspension.',
+      'All payments are processed securely through Uplyncio wallet.');
   }
 
-  for (const p of platformPatterns) {
-    if (p.test(text)) {
-      return {
-        blocked: true,
-        type: 'competitor_platform',
-        severity: 'high',
-        message: '🚫 Message blocked: Mentioning competitor platforms is not allowed on Uplyncio.',
-        tip: 'Stay on Uplyncio for the best experience and buyer protection.'
-      };
-    }
+  // ── COMPETITOR PLATFORMS ──
+  const competitors = [/\bfiverr\b/, /\bupwork\b/, /\bfreelancer\b/, /\bpeopleperh/, /\btoptal\b/, /\bguru\.com\b/];
+  for (const p of competitors) {
+    if (p.test(text) || p.test(clean)) return blocked('competitor_platform', 'medium',
+      '🚫 Message blocked: Competitor platform mentions are not allowed.',
+      'Stay on Uplyncio for the best experience and buyer protection.');
   }
 
-  for (const p of avoidancePatterns) {
-    if (p.test(text) || p.test(deobfuscated)) {
-      return {
-        blocked: true,
-        type: 'off_platform_solicitation',
-        severity: 'critical',
-        message: '🚫 Message blocked: Attempting to take communication or payments off-platform violates our Terms of Service and may result in permanent account ban.',
-        tip: 'All deals must be completed through Uplyncio for your protection.'
-      };
-    }
+  // ── OFF-PLATFORM SOLICITATION ──
+  const avoidance = [
+    /contact.*outside|outside.*platform|off.*platform/,
+    /direct.*deal|deal.*direct|work.*directly/,
+    /save.*commission|avoid.*fee|no.*platform.*fee|bypass.*uplyncio/,
+    /call me|text me|reach me at|message me on|find me on|add me on/,
+    /let.s talk.*privately|talk.*outside|continue.*elsewhere/,
+    /my.*handle|my.*username|my.*id is/,
+  ];
+  for (const p of avoidance) {
+    if (p.test(text)) return blocked('off_platform_solicitation', 'critical',
+      '🚫 Message blocked: Attempting to take communication or payments off-platform violates our Terms of Service and may result in a permanent ban.',
+      'All deals must be completed through Uplyncio for your protection and theirs.');
   }
 
-  for (const p of socialPatterns) {
-    if (p.test(text) || p.test(deobfuscated)) {
-      return {
-        blocked: true,
-        type: 'social_media_contact',
-        severity: 'medium',
-        message: '🚫 Message blocked: Social media handles and messaging apps cannot be shared on Uplyncio.',
-        tip: 'Use our built-in chat for all order-related communication.'
-      };
-    }
+  // ── EXTERNAL URLS (warning only) ──
+  const urlPattern = /https?:\/\/[^\s]+|www\.[^\s]+|\b\w+\.(com|net|org|io|co)\b/;
+  const safeUrls = /uplyncio\.com|google\.com\/drive|docs\.google|dropbox\.com/;
+  if (urlPattern.test(text) && !safeUrls.test(text)) {
+    return { blocked: false, warning: true, type: 'external_url', severity: 'low',
+      message: '⚠️ Warning: Only share links directly related to your order (e.g. published article URL).' };
   }
 
-  if (urlPattern.test(text)) {
-    // Allow certain safe URLs (e.g. live post links)
-    const safeUrls = /uplyncio\.com|google\.com\/drive|docs\.google|dropbox\.com/i;
-    if (!safeUrls.test(text)) {
-      return {
-        blocked: false,
-        warning: true,
-        type: 'external_url',
-        severity: 'low',
-        message: '⚠️ Warning: External links detected. Only share links related to your order (e.g. live post URL).',
-      };
-    }
-  }
+  return { blocked: false, warning: false };
+}
 
-  return { blocked: false, warning: false, type: null, message: null };
+function blocked(type, severity, message, tip) {
+  return { blocked: true, type, severity, message, tip };
 }

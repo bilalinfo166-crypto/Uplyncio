@@ -279,6 +279,15 @@ setTimeout(applyVerifiedBadges, 500);
       window.location.replace('uplyncio-full.html');
       return;
     }
+    // Check account status
+    if(user.account_status==='banned'){
+      document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#07090f;font-family:Arial,sans-serif"><div style="text-align:center;color:#fff"><div style="font-size:48px;margin-bottom:16px">🚫</div><h2 style="color:#ef4444;margin:0 0 8px">Account Banned</h2><p style="color:rgba(255,255,255,.5);margin:0 0 16px">'+(user.ban_reason||'Repeated policy violations')+'</p><p style="color:rgba(255,255,255,.3);font-size:13px">Contact support@uplyncio.com to appeal</p></div></div>';
+      return;
+    }
+    if(user.account_status==='restricted'){
+      document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#07090f;font-family:Arial,sans-serif"><div style="text-align:center;color:#fff"><div style="font-size:48px;margin-bottom:16px">⚠️</div><h2 style="color:#f59e0b;margin:0 0 8px">Account Restricted</h2><p style="color:rgba(255,255,255,.5);margin:0 0 16px">Your account is under review due to policy violations.</p><p style="color:rgba(255,255,255,.3);font-size:13px">Contact support@uplyncio.com to appeal</p></div></div>';
+      return;
+    }
   }catch(e){
     window.location.replace('uplyncio-full.html?openPublisher=1');
   }
