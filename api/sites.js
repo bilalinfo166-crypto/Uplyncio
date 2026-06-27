@@ -1,4 +1,5 @@
 // Publisher Sites API
+import { sendPublisherSitesApproved, sendPublisherSiteRejected } from './email.js';
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ridafwpazwqjhimecyyl.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
 
@@ -61,7 +62,33 @@ export default async function handler(req, res) {
         body: JSON.stringify({ ...req.body, updated_at: new Date().toISOString() })
       });
       const data = await r.json();
-      return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data });
+      const site = Array.isArray(data) ? data[0] : data;
+
+      // Email on approve/reject
+      try {
+        const newStatus = (req.body.status||'').toLowerCase();
+        if (site && (newStatus==='live'||newStatus==='approved'||newStatus==='rejected')) {
+          const pRes = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${site.publisher_id}&select=*`, { headers: headers() });
+          const pubs = await pRes.json();
+          const pub = Array.isArray(pubs) ? pubs[0] : null;
+          if (pub) {
+            if (newStatus==='live'||newStatus==='approved') {
+              const { sendPublisherSitesApproved } = await import('./email.js');
+              sendPublisherSitesApproved({ to: pub.email, name: pub.name,
+                sites:[{ siteUrl: site.url||site.domain, da: site.da, dr: site.dr, price: site.price }]
+              }).catch(()=>{});
+            } else {
+              const { sendPublisherSiteRejected } = await import('./email.js');
+              sendPublisherSiteRejected({ to: pub.email, name: pub.name,
+                siteUrl: site.url||site.domain,
+                reason: site.rejection_reason||req.body.rejection_reason||'Does not meet quality standards'
+              }).catch(()=>{});
+            }
+          }
+        }
+      } catch(e) { console.log('Site email err:', e.message); }
+
+      return res.status(200).json({ success: true, site });
     }
 
     // DELETE

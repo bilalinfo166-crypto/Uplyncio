@@ -8,14 +8,19 @@ function header(category, accent = '#4f7cff') {
   return `
   <tr><td style="background:#07090f;padding:18px 28px;text-align:center;border-bottom:3px solid ${accent}">
     <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
-      <table cellpadding="0" cellspacing="0" border="0"><tr>
-        <td style="padding-right:8px;vertical-align:middle">
-          <div style="width:26px;height:26px;background:#4f7cff;border-radius:6px;text-align:center;line-height:26px;display:inline-block">
-            <span style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#fff">U</span>
-          </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:6px"><tr>
+        <td style="background:#0f1628;border-radius:10px;padding:7px 10px">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="padding-right:3px">
+              <div style="width:22px;height:15px;border:4px solid #4f7cff;border-radius:6px;display:inline-block"></div>
+            </td>
+            <td>
+              <div style="width:22px;height:15px;border:4px solid #00d4aa;border-radius:6px;display:inline-block"></div>
+            </td>
+          </tr></table>
         </td>
-        <td style="vertical-align:middle">
-          <span style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#ffffff">Uplyncio</span>
+        <td style="padding-left:10px;vertical-align:middle">
+          <span style="font-family:Arial,sans-serif;font-size:22px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Uply<span style="color:#4f7cff">ncio</span></span>
         </td>
       </tr></table>
       <br>
@@ -28,7 +33,17 @@ function header(category, accent = '#4f7cff') {
 function footer() {
   return `
   <tr><td style="background:#07090f;padding:24px 28px">
-    <p style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff;margin:0 0 4px">Uplyncio</p>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:8px"><tr>
+      <td style="background:#0f1628;border-radius:8px;padding:5px 8px">
+        <table cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="padding-right:3px"><div style="width:18px;height:12px;border:3px solid #4f7cff;border-radius:5px;display:inline-block"></div></td>
+          <td><div style="width:18px;height:12px;border:3px solid #00d4aa;border-radius:5px;display:inline-block"></div></td>
+        </tr></table>
+      </td>
+      <td style="padding-left:8px;vertical-align:middle">
+        <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:900;color:#ffffff;letter-spacing:-0.5px">Uply<span style="color:#4f7cff">ncio</span></span>
+      </td>
+    </tr></table>
     <p style="font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 14px;line-height:1.6">
       Premium guest posting &amp; link building marketplace.<br>20,000+ verified publisher sites across 30+ niches.
     </p>

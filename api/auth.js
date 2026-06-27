@@ -51,7 +51,7 @@ async function sendEmail(to, subject, html) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: 'Uplyncio <onboarding@resend.dev>', to: [to], subject, html })
+    body: JSON.stringify({ from: 'Uplyncio <info@uplyncio.com>', to: [to], subject, html })
   });
   return { ok: r.ok, data: await r.json() };
 }
@@ -180,6 +180,19 @@ export default async function handler(req, res) {
       if (!user.email_verified && !isTeam)
         return res.status(403).json({ error: 'Please verify your email first', needsVerify: true, email: emailLow });
 
+      // Send new device login alert
+      try {
+        const ua = req.headers['user-agent'] || 'Unknown device';
+        const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'Unknown';
+        const now2 = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        const { sendNewDeviceLoginEmail } = await import('./email.js');
+        sendNewDeviceLoginEmail({
+          to: emailLow, name: user.name,
+          device: ua.substring(0, 80),
+          location: 'Unknown', ipAddress: ip, loginTime: now2
+        }).catch(() => {});
+      } catch(e) {}
+
       return res.status(200).json({
         success: true,
         user: {
@@ -267,7 +280,7 @@ export default async function handler(req, res) {
       if (!/[^A-Za-z0-9]/.test(newPassword)) return res.status(400).json({ error: 'Add special character' });
       const hash = await hashPass(newPassword);
       await sbUpdate('users', `id=eq.${userId}`, { password_hash: hash });
-      const { sendPasswordChangedEmail } = await import('./email.js');
+      const { sendPasswordChangedEmail, sendPasswordResetSuccessEmail } = await import('./email.js');
       const users2 = await sbGet('users', `id=eq.${userId}`);
       if (users2?.length) {
         const u = users2[0];
