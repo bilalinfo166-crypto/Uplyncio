@@ -44,13 +44,15 @@ export default async function handler(req, res) {
 
     for (const user of (users || [])) {
       try {
+        const isTest = req.query.test === '1';
         if (user.role === 'publisher') {
           const pubOrders = orders.filter(o => o.publisher_id === user.id);
           const completed = pubOrders.filter(o => o.status === 'Completed');
           const earnings = completed.reduce((s, o) => s + (o.publisher_price || 0), 0);
           const pending = pubOrders.filter(o => o.status === 'Pending').length;
 
-          if (pubOrders.length > 0 || completed.length > 0) {
+          // Send if has orders OR in test mode
+          if (pubOrders.length > 0 || completed.length > 0 || isTest) {
             await sendPublisherMonthlyReport({
               to: user.email,
               name: user.name,
@@ -60,7 +62,7 @@ export default async function handler(req, res) {
               pendingOrders: pending,
               totalEarnings: earnings.toFixed(2),
               avgRating: '4.8',
-              topSite: pubOrders[0]?.site_url || 'N/A'
+              topSite: pubOrders[0]?.site_url || 'Your first site'
             });
             sent++;
             results.push({ email: user.email, role: 'publisher', orders: pubOrders.length });
@@ -70,7 +72,8 @@ export default async function handler(req, res) {
           const completed = buyOrders.filter(o => o.status === 'Completed');
           const spent = buyOrders.reduce((s, o) => s + (o.price || 0), 0);
 
-          if (buyOrders.length > 0) {
+          // Send if has orders OR in test mode
+          if (buyOrders.length > 0 || isTest) {
             await sendBuyerMonthlyReport({
               to: user.email,
               name: user.name,
@@ -79,7 +82,7 @@ export default async function handler(req, res) {
               completedOrders: completed.length,
               totalSpent: spent.toFixed(2),
               avgDA: '45',
-              topDomain: buyOrders[0]?.site_url || 'N/A'
+              topDomain: buyOrders[0]?.site_url || 'Browse the marketplace'
             });
             sent++;
             results.push({ email: user.email, role: 'buyer', orders: buyOrders.length });
