@@ -1,6 +1,6 @@
 // Uplyncio Email Service — All 9 templates
 const RESEND_KEY = process.env.RESEND_API_KEY;
-const FROM = 'Uplyncio <onboarding@resend.dev>';
+const FROM = 'Uplyncio <info@uplyncio.com>';
 const SITE = 'https://uplyncio.vercel.app';
 
 // ── SHARED: Header ──
