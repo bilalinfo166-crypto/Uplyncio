@@ -3082,7 +3082,7 @@ function submitForgotPassword(){
       <!-- Login form (hidden) -->
       <div id="pub-login-form" style="display:none">
         <div style="margin-bottom:12px">
-          <input id="pubLoginEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="pubLoginEmail" type="email" placeholder="Email Address" autocomplete="email" onblur="try{if(this.value)localStorage.setItem('uplyncio_last_email',this.value);}catch(e){}" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:6px;position:relative">
           <input id="pubLoginPass" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
@@ -3189,7 +3189,7 @@ function submitForgotPassword(){
 
       <div id="buyer-login-form" style="display:none">
         <div style="margin-bottom:12px">
-          <input id="buyerLoginEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+          <input id="buyerLoginEmail" type="email" placeholder="Email Address" autocomplete="email" onblur="try{if(this.value)localStorage.setItem('uplyncio_last_email',this.value);}catch(e){}" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
         </div>
         <div style="margin-bottom:6px">
           <div style="position:relative">
@@ -3266,6 +3266,7 @@ var _selectedRole = 'publisher';
 function openPublisherSignup(){
   document.getElementById('publisherModal').style.display='flex';
   document.body.style.overflow='hidden';
+  setTimeout(preFillEmail, 100);
   switchPubForm('signup');
 }
 function closePublisherModal(){
@@ -3282,6 +3283,7 @@ function switchPubForm(mode){
 function openBuyerSignup(){
   document.getElementById('buyerModal').style.display='flex';
   document.body.style.overflow='hidden';
+  setTimeout(preFillEmail, 100);
   switchBuyerForm('signup');
 }
 function closeBuyerModal(){
@@ -3302,6 +3304,39 @@ function handleSocialAuth(provider, role){
   completeAuth(role, email, name);
 }
 
+
+
+function preFillEmail(){
+  try{
+    // Get last used email from localStorage
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+    var settings = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+    var lastEmail = (user && user.email) || settings.settEmail || localStorage.getItem('uplyncio_last_email') || '';
+    var lastName = (user && user.name) || settings.settName || '';
+
+    // Publisher fields
+    var pe = document.getElementById('pubLoginEmail');
+    if(pe && !pe.value && lastEmail) pe.value = lastEmail;
+    var pne = document.getElementById('pubEmail');
+    if(pne && !pne.value && lastEmail) pne.value = lastEmail;
+    var pnn = document.getElementById('pubName');
+    if(pnn && !pnn.value && lastName) pnn.value = lastName;
+
+    // Buyer fields
+    var be = document.getElementById('buyerLoginEmail');
+    if(be && !be.value && lastEmail) be.value = lastEmail;
+    var bne = document.getElementById('buyerEmail');
+    if(bne && !bne.value && lastEmail) bne.value = lastEmail;
+    var bnn = document.getElementById('buyerName');
+    if(bnn && !bnn.value && lastName) bnn.value = lastName;
+
+    // Step 2 signup
+    var s2e = document.getElementById('su2Email');
+    if(s2e && !s2e.value && lastEmail) s2e.value = lastEmail;
+    var s2n = document.getElementById('su2Name');
+    if(s2n && !s2n.value && lastName) s2n.value = lastName;
+  }catch(e){}
+}
 
 function validateStrongPassword(pass) {
   if (!pass || pass.length < 8) return 'Password must be at least 8 characters long';
