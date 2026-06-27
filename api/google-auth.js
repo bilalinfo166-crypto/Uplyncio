@@ -130,26 +130,22 @@ export default async function handler(req, res) {
         return res.redirect(`${BASE}/uplyncio-full.html?oauth_error=user_create_failed`);
       }
 
-      // Build small user object - keep URL short
+      const finalRole = user.role || role || 'buyer';
       const userPayload = {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role || role,
+        role: finalRole,
         verified: true,
+        email_verified: true,
+        publisher_verified: user.publisher_verified || false,
         google: true
       };
 
-      // Set cookie for session
-      const cookieVal = encodeURIComponent(JSON.stringify(userPayload));
-      res.setHeader('Set-Cookie', `uplyncio_google_user=${cookieVal}; Path=/; Max-Age=60; SameSite=Lax`);
-
-      // Redirect directly to dashboard based on role
-      const dashboard = (user.role || role) === 'publisher' ? 'publisher.html' : 'buyer.html';
-      
-      // Pass user data in URL for localStorage setup
+      // Redirect to an auto-login bridge page that sets localStorage then goes to dashboard
       const u = encodeURIComponent(JSON.stringify(userPayload));
-      return res.redirect(`${BASE}/uplyncio-full.html?oauth_success=1&u=${u}`);
+      const dashboard = finalRole === 'publisher' ? 'publisher.html' : 'buyer.html';
+      return res.redirect(`${BASE}/oauth-bridge.html?u=${u}&dest=${dashboard}`);
 
     } catch(e) {
       console.error('Google OAuth error:', e.message);
