@@ -548,17 +548,42 @@ function closeForgotModal(){
 function sendForgotCode(){
   var em = document.getElementById('forgotEmail');
   if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
-  var user = findUser(em.value.trim());
-  if(!user){ alert('No account found with this email.'); return; }
-  var code = genCode();
-  var users = getUsers();
-  var idx = users.findIndex(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
-  if(idx>-1){ users[idx].resetCode=code; saveUsers(users); }
-  window._resetEmail = em.value.trim().toLowerCase();
-  var box = document.getElementById('forgotCodeBox');
-  if(box) box.innerHTML='<div style="background:rgba(79,124,255,.12);border:2px dashed #4f7cff;border-radius:10px;padding:14px;text-align:center;margin:12px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">📧 info@uplyncio.com</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px">Password reset code:</div><div style="font-family:monospace;font-size:30px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+code+'</div></div>';
-  document.getElementById('forgotStep1').style.display='none';
-  document.getElementById('forgotStep2').style.display='block';
+  var email = em.value.trim().toLowerCase();
+  window._resetEmail = email;
+
+  // Show loading
+  var sendBtn = document.getElementById('forgotSendBtn');
+  if(sendBtn){ sendBtn.textContent='Sending...'; sendBtn.disabled=true; }
+
+  // Call API
+  fetch('/api/auth',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'forgot_password', email:email})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result){
+    if(sendBtn){ sendBtn.textContent='Send Code'; sendBtn.disabled=false; }
+    // Show step 2 — tell user to check email (NO code shown on screen)
+    var box = document.getElementById('forgotCodeBox');
+    if(box) box.innerHTML = '<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:14px;text-align:center;margin:12px 0"><div style="font-size:20px;margin-bottom:6px">📧</div><div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6">We sent a 6-digit code to<br><strong style="color:#fff">'+email+'</strong><br><span style="font-size:12px;color:rgba(255,255,255,.4)">Check your inbox and spam folder</span></div></div>';
+    document.getElementById('forgotStep1').style.display='none';
+    document.getElementById('forgotStep2').style.display='block';
+  })
+  .catch(function(){
+    if(sendBtn){ sendBtn.textContent='Send Code'; sendBtn.disabled=false; }
+    // Fallback: localStorage
+    var user = findUser(email);
+    if(!user){ alert('No account found with this email.'); return; }
+    var code = genCode();
+    var users = getUsers();
+    var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email; });
+    if(idx>-1){ users[idx].resetCode=code; saveUsers(users); }
+    var box = document.getElementById('forgotCodeBox');
+    if(box) box.innerHTML = '<div style="background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:14px;text-align:center;margin:12px 0"><div style="font-size:20px;margin-bottom:6px">📧</div><div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.6">We sent a 6-digit code to<br><strong style="color:#fff">'+email+'</strong><br><span style="font-size:12px;color:rgba(255,255,255,.4)">Check your inbox and spam folder</span></div></div>';
+    document.getElementById('forgotStep1').style.display='none';
+    document.getElementById('forgotStep2').style.display='block';
+  });
 }
 function verifyResetCode(){
   var inp = document.getElementById('resetCodeInput');
@@ -2695,7 +2720,7 @@ document.addEventListener('click',function(e){
     <div id="forgotStep1">
       <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;text-align:center">Enter your email and we will send you a reset code</div>
       <input id="forgotEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendForgotCode()" style="width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 14px;font-size:14px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box;margin-bottom:14px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
-      <button onclick="sendForgotCode()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Reset Code →</button>
+      <button id="forgotSendBtn" onclick="sendForgotCode()" style="width:100%;background:#4f7cff;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Reset Code →</button>
     </div>
 
     <!-- Step 2: Enter code -->
