@@ -433,28 +433,24 @@ export async function sendPublisherOrderComplete({ to, name, orderId, siteUrl, p
 }
 
 // P4: New Message from Buyer (Publisher)
-export async function sendPublisherNewMessage({ to, name, buyerName, orderId, message, siteUrl }) {
+export async function sendPublisherNewMessage({ to, name, buyerName, orderId, siteUrl }) {
   const html = wrap(
     header('New Message', '#6366f1') +
-    bodyStart(`Message from ${buyerName}`,
-      `Hi <strong style="color:#1a202c">${name}</strong>, you have received a new message from the buyer regarding order <strong style="color:#1a202c">${orderId}</strong>.`) +
-    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
-      <tr><td style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px">
-        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px"><tr>
-          <td style="width:36px;height:36px;background:#6366f1;border-radius:50%;text-align:center;line-height:36px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff">${buyerName.charAt(0).toUpperCase()}</td>
-          <td style="padding-left:10px"><p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0">${buyerName}</p><p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0">Order ${orderId} · ${siteUrl}</p></td>
-        </tr></table>
-        <div style="background:#fff;border-radius:8px;padding:12px 14px;border-left:3px solid #6366f1">
-          <p style="font-family:Arial,sans-serif;font-size:14px;color:#1a202c;margin:0;line-height:1.7">${message}</p>
-        </div>
-      </td></tr>
-    </table>` +
-    ctaBtn(`${SITE}/publisher.html`, 'Reply to Message →', '#6366f1') +
-    alertBox('#fef3c7','#fde68a','#92400e',
-      '⏰ Please reply within <strong>12 hours</strong> to maintain your publisher response rating.') +
-    sign() + footer()
+    `<tr><td style="padding:28px 28px 20px;text-align:center">
+      <div style="width:52px;height:52px;background:#f5f3ff;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:52px">💬</div>
+      <h2 style="font-family:Arial,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin:0 0 8px">You have a new message!</h2>
+      <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0 0 6px">
+        <strong style="color:#1a202c">${buyerName}</strong> sent you a message about your order
+      </p>
+      <p style="font-family:Arial,sans-serif;font-size:13px;color:#94a3b8;margin:0">${orderId} &nbsp;·&nbsp; ${siteUrl}</p>
+    </td></tr>` +
+    `<tr><td style="padding:0 28px 24px">` +
+    ctaBtn(SITE+'/publisher.html', 'Go to Dashboard to Reply →', '#6366f1') +
+    `<p style="font-family:Arial,sans-serif;font-size:12px;color:#94a3b8;text-align:center;margin:12px 0 0">Please reply within 12 hours to maintain your response rating.</p>` +
+    `</td></tr>` +
+    footer()
   );
-  return send(to, `💬 New message from ${buyerName} — Order ${orderId}`, html);
+  return send(to, '💬 New message from ' + buyerName + ' — ' + orderId, html);
 }
 
 // P5: Order Cancelled by Buyer (Publisher)
@@ -665,29 +661,26 @@ export async function sendBuyerOrderDelivered({ to, name, orderId, siteUrl, live
 }
 
 // B4: New Message from Publisher (Buyer)
-export async function sendBuyerNewMessage({ to, name, publisherName, orderId, message, siteUrl }) {
+export async function sendBuyerNewMessage({ to, name, publisherName, orderId, siteUrl }) {
   const html = wrap(
     header('New Message', '#6366f1') +
-    bodyStart(`Message from ${publisherName}`,
-      `Hi <strong style="color:#1a202c">${name}</strong>, you have received a new message from the publisher regarding your order <strong style="color:#1a202c">${orderId}</strong>.`) +
-    `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
-      <tr><td style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:16px">
-        <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:10px"><tr>
-          <td style="width:36px;height:36px;background:#6366f1;border-radius:50%;text-align:center;line-height:36px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff">${publisherName.charAt(0).toUpperCase()}</td>
-          <td style="padding-left:10px"><p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0">${publisherName}</p><p style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;margin:0">Order ${orderId} · ${siteUrl}</p></td>
-        </tr></table>
-        <div style="background:#fff;border-radius:8px;padding:12px 14px;border-left:3px solid #6366f1">
-          <p style="font-family:Arial,sans-serif;font-size:14px;color:#1a202c;margin:0;line-height:1.7">${message}</p>
-        </div>
-      </td></tr>
-    </table>` +
-    ctaBtn(`${SITE}/buyer.html`, 'Reply to Message →', '#6366f1') +
-    sign() + footer()
+    `<tr><td style="padding:28px 28px 20px;text-align:center">
+      <div style="width:52px;height:52px;background:#f5f3ff;border-radius:50%;margin:0 auto 14px;font-size:22px;line-height:52px;text-align:center">💬</div>
+      <h2 style="font-family:Arial,sans-serif;font-size:20px;font-weight:800;color:#1a202c;margin:0 0 8px">You have a new message!</h2>
+      <p style="font-family:Arial,sans-serif;font-size:14px;color:#64748b;margin:0 0 6px">
+        <strong style="color:#1a202c">${publisherName}</strong> sent you a message about your order
+      </p>
+      <p style="font-family:Arial,sans-serif;font-size:13px;color:#94a3b8;margin:0">${orderId} &nbsp;·&nbsp; ${siteUrl}</p>
+    </td></tr>` +
+    `<tr><td style="padding:0 28px 24px">` +
+    ctaBtn(SITE+'/buyer.html', 'Go to Dashboard to Reply →', '#6366f1') +
+    `<p style="font-family:Arial,sans-serif;font-size:12px;color:#94a3b8;text-align:center;margin:12px 0 0">Log in to your dashboard to view and reply to this message.</p>` +
+    `</td></tr>` +
+    footer()
   );
-  return send(to, `💬 New message from ${publisherName} — Order ${orderId}`, html);
+  return send(to, '💬 New message from ' + publisherName + ' — ' + orderId, html);
 }
 
-// B5: Order Cancelled (Buyer)
 export async function sendBuyerOrderCancelled({ to, name, orderId, siteUrl, reason, price, refundStatus }) {
   const html = wrap(
     header('Order Cancelled', '#ef4444') +
