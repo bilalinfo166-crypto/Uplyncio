@@ -1319,93 +1319,32 @@ export async function sendFundsAddedReceipt({ to, name, invoiceNum, date, amount
 }
 
 // ─────────────────────────────────────────
-// F8: Buyer — Order Payment Invoice (matches buyer page design)
+// F8: Buyer — Order Payment Invoice
 export async function sendOrderPaymentInvoice({ to, name, invoiceNum, date, orderId, siteUrl, siteDA, siteDR, serviceType, anchorText, targetUrl, subtotal, platformFee, total, walletBalanceAfter }) {
+  const rows =
+    invoiceRow('Invoice Number', invoiceNum) +
+    invoiceRow('Order ID', orderId) +
+    invoiceRow('Date', date) +
+    invoiceRow('Publisher Site', siteUrl) +
+    invoiceRow('Domain Authority / Rating', 'DA ' + siteDA + ' / DR ' + siteDR) +
+    invoiceRow('Service', serviceType || 'Guest Post with Dofollow Link') +
+    invoiceRow('Subtotal', '$' + subtotal) +
+    invoiceRow('Platform Fee', platformFee > 0 ? '$' + platformFee : 'Included') +
+    invoiceRow('Total Charged', '$' + total, { bold: true, color: '#4f7cff', borderTop: true, large: true });
+
   const html = wrap(
     header('Order Invoice', '#4f7cff') +
-    `<tr><td style="padding:24px 28px">
-      <!-- Bill To / From -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #f1f5f9">
-        <tr>
-          <td style="vertical-align:top;width:50%">
-            <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin:0 0 6px">Bill To</p>
-            <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0 0 2px">${name}</p>
-            <p style="font-family:Arial,sans-serif;font-size:12px;color:#64748b;margin:0">${to}</p>
-          </td>
-          <td style="vertical-align:top;width:50%" align="right">
-            <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin:0 0 6px">Invoice</p>
-            <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0 0 2px">${invoiceNum}</p>
-            <p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0">${date}</p>
-          </td>
-        </tr>
-      </table>
-
-      <!-- Service Table Header -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border-radius:8px;margin-bottom:6px">
-        <tr>
-          <td style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;padding:8px 12px;width:50%">Service</td>
-          <td style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;padding:8px 12px">Order ID</td>
-          <td style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;padding:8px 12px" align="right">Amount</td>
-        </tr>
-      </table>
-
-      <!-- Service Row -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #f1f5f9;border-radius:8px;margin-bottom:16px">
-        <tr>
-          <td style="padding:12px;vertical-align:top;width:50%">
-            <p style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1a202c;margin:0 0 2px">${siteUrl}</p>
-            <p style="font-family:Arial,sans-serif;font-size:11px;color:#64748b;margin:0 0 6px">DA ${siteDA} / DR ${siteDR}</p>
-            <span style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;background:#e0f2fe;color:#0369a1;border-radius:4px;padding:2px 8px">Dofollow</span>
-            <span style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 8px;margin-left:4px">12-Month Guarantee</span>
-          </td>
-          <td style="padding:12px;vertical-align:middle">
-            <p style="font-family:Arial,sans-serif;font-size:12px;color:#64748b;margin:0">${serviceType||'Guest Post'}</p>
-            <p style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#4f7cff;margin:4px 0 0">${orderId}</p>
-          </td>
-          <td style="padding:12px;vertical-align:middle" align="right">
-            <p style="font-family:Arial,sans-serif;font-size:16px;font-weight:800;color:#1a202c;margin:0">$${total}</p>
-          </td>
-        </tr>
-      </table>
-
-      <!-- Totals Box -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f8faff;border-radius:10px;padding:0;margin-bottom:16px">
-        <tr><td style="padding:14px 16px">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0">
-            <tr>
-              <td style="font-family:Arial,sans-serif;font-size:12.5px;color:#64748b;padding-bottom:8px">Subtotal</td>
-              <td align="right" style="font-family:Arial,sans-serif;font-size:12.5px;font-weight:600;color:#1a202c;padding-bottom:8px">$${subtotal}</td>
-            </tr>
-            <tr>
-              <td style="font-family:Arial,sans-serif;font-size:12.5px;color:#64748b;padding-bottom:10px">Platform Fee</td>
-              <td align="right" style="font-family:Arial,sans-serif;font-size:12.5px;font-weight:600;color:#16a34a;padding-bottom:10px">Included</td>
-            </tr>
-            <tr style="border-top:1.5px solid #e2e8f0">
-              <td style="font-family:Arial,sans-serif;font-size:16px;font-weight:800;color:#1a202c;padding-top:10px">Total</td>
-              <td align="right" style="font-family:Arial,sans-serif;font-size:16px;font-weight:800;color:#4f7cff;padding-top:10px">$${total}</td>
-            </tr>
-          </table>
-        </td></tr>
-      </table>
-
-      <!-- Footer note -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
-        <tr>
-          <td style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8">✓ Dofollow link guaranteed · 12-month link lifetime</td>
-          <td align="right" style="font-family:Arial,sans-serif;font-size:11px;color:#64748b">Wallet balance after: <strong style="color:#1a202c">$${walletBalanceAfter}</strong></td>
-        </tr>
-      </table>
-
-    </td></tr>` +
-    `<tr><td style="padding:0 28px 28px">` +
-    ctaBtn(\`${SITE}/buyer.html\`, 'View Order in Dashboard →', '#4f7cff') +
-    sign() +
-    `</td></tr>` +
-    footer()
+    bodyStart('Your order payment invoice',
+      'Hi <strong style="color:#1a202c">' + name + '</strong>, thank you for your order on Uplyncio. Your payment invoice is below — keep this for your records.') +
+    invoiceBox(invoiceNum, date, rows, '#f0f4ff', '#c7d7ff', '#4f7cff') +
+    (walletBalanceAfter !== undefined ? '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px"><tr><td style="background:#f8faff;border:1px solid #e0e7ff;border-radius:8px;padding:14px"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="font-family:Arial,sans-serif;font-size:13px;color:#64748b">Remaining wallet balance after this order</td><td align="right" style="font-family:Arial,sans-serif;font-size:16px;font-weight:800;color:#1a202c">$' + walletBalanceAfter + '</td></tr></table></td></tr></table>' : '') +
+    alertBox('#f0fdf4', '#bbf7d0', '#15803d',
+      '\u2714 Dofollow link guaranteed &middot; 12-month link lifetime &middot; Payment held in escrow until you confirm delivery') +
+    ctaBtn(SITE + '/buyer.html', 'View Order in Dashboard →', '#4f7cff') +
+    sign() + footer()
   );
-  return send(to, \`Invoice \${invoiceNum} — Order \${orderId} on \${siteUrl}\`, html);
+  return send(to, 'Invoice ' + invoiceNum + ' — Order ' + orderId + ' on ' + siteUrl, html);
 }
-
 // F9: Buyer — Refund Invoice
 // ─────────────────────────────────────────
 export async function sendRefundInvoice({ to, name, refundId, date, orderId, siteUrl, originalAmount, refundAmount, refundMethod, transactionId, reason, arrivalDays = '3–5' }) {
