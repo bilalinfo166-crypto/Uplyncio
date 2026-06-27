@@ -744,28 +744,48 @@ function completeSignupSocial(pr){
   if(params.get('oauth_success')==='1'){
     try{
       var user = JSON.parse(decodeURIComponent(params.get('user')||'{}'));
-      if(user.email){
-        // Save to localStorage
+      if(user && user.email){
+        var uid = user.id || ('google_'+Date.now());
+        user.uid = uid;
+        user.verified = true;
+        user.email_verified = true;
+
+        // Full localStorage setup
         localStorage.setItem('uplyncio_loggedIn','1');
-        localStorage.setItem('uplyncio_currentUid', user.id||'google_'+Date.now());
+        localStorage.setItem('uplyncio_currentUid', uid);
         localStorage.setItem('uplyncio_user', JSON.stringify(user));
-        var uid = user.id||'google_'+Date.now();
         localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(user));
+        localStorage.setItem('uplyncio_last_email', user.email);
+
+        // Settings
+        localStorage.setItem('uplyncio_settings', JSON.stringify({
+          settName: user.name,
+          settEmail: user.email
+        }));
+
         // Clean URL
         window.history.replaceState({}, '', window.location.pathname);
-        // Redirect to dashboard
-        if(user.role==='publisher'){
-          window.location.href='publisher.html';
-        } else {
-          window.location.href='buyer.html';
-        }
+
+        // Redirect based on role
+        setTimeout(function(){
+          if(user.role === 'publisher'){
+            window.location.replace('publisher.html');
+          } else {
+            window.location.replace('buyer.html');
+          }
+        }, 100);
       }
-    }catch(e){ console.log('OAuth callback error:', e); }
+    }catch(e){
+      console.log('OAuth callback error:', e);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }
   if(params.get('oauth_error')){
-    var err = decodeURIComponent(params.get('oauth_error')||'');
+    var err = decodeURIComponent(params.get('oauth_error')||'unknown error');
     window.history.replaceState({}, '', window.location.pathname);
-    alert('Google login failed: ' + err + '. Please use Email/Password.');
+    setTimeout(function(){
+      alert('Google sign in failed: ' + err + '. Please use Email/Password instead.');
+    }, 500);
   }
 })();
 </script>

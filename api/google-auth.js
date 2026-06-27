@@ -80,7 +80,7 @@ export default async function handler(req, res) {
       const tokens = await tokenRes.json();
 
       if (!tokens.access_token) {
-        return res.redirect(`https://uplyncio.vercel.app/uplyncio-full.html?oauth_error=token_failed`);
+        return res.redirect(`https://uplyncio.vercel.app/uplyncio-full.html?oauth_error=token_failed&detail=${JSON.stringify(tokens)}`);
       }
 
       // Get user info from Google
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
         // New user — create account
         const result = await sbInsert('users', {
           email, name,
-          role,
+          role: role || 'buyer',
           google_id: googleUser.id,
           verified: true,
           email_verified: true,
@@ -120,11 +120,13 @@ export default async function handler(req, res) {
         });
         user = Array.isArray(result.data) ? result.data[0] : result.data;
 
-        // Send welcome email
+        // Send welcome email + verified email (Google users are auto-verified)
         try {
-          const { sendWelcomeEmail } = await import('./email.js');
+          const { sendWelcomeEmail, sendEmailVerifiedEmail } = await import('./email.js');
+          const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
           await sendWelcomeEmail({ to: email, name, role });
-        } catch(e) {}
+          await sendEmailVerifiedEmail({ to: email, name, role, email, verifiedAt: now });
+        } catch(e) { console.log('Welcome email error:', e.message); }
       }
 
       // Redirect with user data encoded
@@ -139,7 +141,8 @@ export default async function handler(req, res) {
         google: true
       }));
 
-      return res.redirect(`https://uplyncio.vercel.app/uplyncio-full.html?oauth_success=1&user=${userData}`);
+      const callbackBase = host.includes('uplyncio.com') ? 'https://uplyncio.com' : 'https://uplyncio.vercel.app';
+      return res.redirect(`${callbackBase}/uplyncio-full.html?oauth_success=1&user=${userData}`);
 
     } catch(e) {
       console.error('Google OAuth error:', e);
