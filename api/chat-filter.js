@@ -37,6 +37,19 @@ export default async function handler(req, res) {
 
 function analyzeMessage(msg) {
   const text = msg.toLowerCase().trim();
+  const original = msg.trim();
+
+  // ── OBFUSCATION DETECTION ──
+  // People try to hide: "w h a t s a p p", "wh@tsapp", "tele-gram"
+  const deobfuscated = text
+    .replace(/[\s\.\-_]+/g, '')   // remove spaces/dots/dashes
+    .replace(/@/g, 'a')
+    .replace(/0/g, 'o')
+    .replace(/3/g, 'e')
+    .replace(/1/g, 'i')
+    .replace(/5/g, 's')
+    .replace(/\$/g, 's')
+    .replace(/\|/g, 'i');
 
   // ── PHONE NUMBERS ──
   const phonePatterns = [
@@ -60,7 +73,7 @@ function analyzeMessage(msg) {
 
   // ── SOCIAL MEDIA / MESSAGING ──
   const socialPatterns = [
-    /\bwhatsapp\b|\bwhats app\b|\bwatsapp\b/i,
+    /\bwhatsapp\b|\bwhats app\b|\bwatsapp\b|\bwhtsp\b|\bwa number\b/i,
     /\btelegram\b|\bt\.me\b|\btelegr\.am\b/i,
     /\binstagram\b|\binsta\b|\big:\s*/i,
     /\bfacebook\b|\bfb\.com\b|\bfb:\s*/i,
@@ -112,7 +125,7 @@ function analyzeMessage(msg) {
 
   // Check each category
   for (const p of phonePatterns) {
-    if (p.test(text)) {
+    if (p.test(text) || p.test(deobfuscated)) {
       return {
         blocked: true,
         type: 'phone_number',
@@ -160,7 +173,7 @@ function analyzeMessage(msg) {
   }
 
   for (const p of avoidancePatterns) {
-    if (p.test(text)) {
+    if (p.test(text) || p.test(deobfuscated)) {
       return {
         blocked: true,
         type: 'off_platform_solicitation',
@@ -172,7 +185,7 @@ function analyzeMessage(msg) {
   }
 
   for (const p of socialPatterns) {
-    if (p.test(text)) {
+    if (p.test(text) || p.test(deobfuscated)) {
       return {
         blocked: true,
         type: 'social_media_contact',
