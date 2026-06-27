@@ -1,13 +1,36 @@
 {
   "functions": {
-    "api/send-verification.js": { "memory": 128, "maxDuration": 10 },
-    "api/auth.js": { "memory": 256, "maxDuration": 15 },
-    "api/sites.js": { "memory": 256, "maxDuration": 15 },
-    "api/orders.js": { "memory": 256, "maxDuration": 15 },
-    "api/inquiry.js": { "memory": 128, "maxDuration": 10 },
-    "api/email.js": { "memory": 256, "maxDuration": 15 },
-    "api/test-email.js": { "memory": 256, "maxDuration": 15 },
-    "api/test-order-email.js": { "memory": 256, "maxDuration": 15 },
-    "api/test-invoice-email.js": { "memory": 256, "maxDuration": 15 }
+    "api/send-verification.js": {
+      "memory": 128,
+      "maxDuration": 10
+    },
+    "api/auth.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/sites.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/orders.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/inquiry.js": {
+      "memory": 128,
+      "maxDuration": 10
+    },
+    "api/test-email.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/test-order-email.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/test-invoice-email.js": {
+      "memory": 256,
+      "maxDuration": 15
+    }
   }
 }
