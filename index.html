@@ -1,45 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
-<link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="shortcut icon" href="favicon.svg">
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=uplyncio-full.html">
-<title>Uplyncio</title>
-  <link rel="stylesheet" href="/shared.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0; url=uplyncio-full.html">
+  <link rel="canonical" href="https://uplyncio.com/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <title>Uplyncio — Guest Posting & Link Building Marketplace</title>
+  <meta name="description" content="Buy guest posts from 20,000+ verified publisher sites. Filter by DA, niche, country and price.">
+  <script>
+    var u = null;
+    try { u = JSON.parse(localStorage.getItem('uplyncio_user')||'null'); } catch(e){}
+    var li = localStorage.getItem('uplyncio_loggedIn')==='1';
+    if(u && li) {
+      window.location.replace(u.role==='publisher' ? 'publisher.html' : 'buyer.html');
+    } else {
+      window.location.replace('uplyncio-full.html');
+    }
+  </script>
 </head>
 <body>
-<script>window.location.href='uplyncio-full.html';
-function browseSites(){
-  try{
-    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
-    if(u&&li){ window.location.href='buyer.html'; return; }
-  }catch(e){}
-  showBpsPopup();
-}
-function browsePublisherSites(){ browseSites(); }
-function showBpsPopup(){
-  var m=document.getElementById('bpsModal');
-  if(!m) return;
-  m.style.display='flex';
-  m.style.position='fixed';
-  m.style.inset='0';
-  m.style.zIndex='99999';
-  m.style.alignItems='center';
-  m.style.justifyContent='center';
-  m.style.padding='20px';
-  document.body.style.overflow='hidden';
-}
-function closeBpsModal(){ closeBps(); }
-function closeBps(){
-  var m=document.getElementById('bpsModal');
-  if(m) m.style.display='none';
-  document.body.style.overflow='';
-}
-</script>
+  <h1>Uplyncio — Guest Posting Marketplace</h1>
+  <p>Redirecting to <a href="uplyncio-full.html">Uplyncio</a>...</p>
 </body>
 </html>

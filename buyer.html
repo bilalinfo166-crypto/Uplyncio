@@ -14,6 +14,8 @@
   <meta property="og:url" content="https://uplyncio.com">
   <meta name="twitter:card" content="summary_large_image">
   <meta charset="UTF-8">
+  <link rel="canonical" href="https://uplyncio.com/buyer.html">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Browse Publisher Sites — Uplyncio</title>
 <script src="/supabase-client.js"></script>
@@ -3998,7 +4000,7 @@ function downloadInvoice(){
   var instructions = document.getElementById('oInstructions') ? document.getElementById('oInstructions').value : '';
   var dueDate = new Date(Date.now() + 10*24*60*60*1000).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
 
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice '+inv.id+' — Uplyncio</title><style>'
+  var html = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Invoice '+inv.id+' — Uplyncio</title><style>'
     + 'body{font-family:Plus Jakarta Sans,Arial,sans-serif;background:#f0f2f7;margin:0;padding:30px;color:#1a202c}'
     + '.page{background:#fff;max-width:750px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.12)}'
     + '.header{background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:32px 40px;display:flex;justify-content:space-between;align-items:flex-start}'
