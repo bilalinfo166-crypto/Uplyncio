@@ -831,7 +831,7 @@ function completeSignupSocial(pr){
 <link href="https://fonts.googleapis.com/css2?display=swap&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
+:root{--dark:#07090f;
   --bg:#07090f;
   --bg2:#0b0f1c;
   --surface:#0f1628;
@@ -894,7 +894,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .btn-xl{padding:15px 38px;font-size:16px;border-radius:11px}
 
 /* ── HERO ── */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;background:var(--dark)}
 .hero-bg-glow{position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse at center,rgba(79,124,255,.13) 0%,transparent 65%);pointer-events:none}
 .hero-bg-glow2{position:absolute;bottom:-200px;right:10%;width:600px;height:500px;background:radial-gradient(ellipse at center,rgba(0,212,170,.07) 0%,transparent 65%);pointer-events:none}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.28);border-radius:100px;padding:6px 18px;font-size:11.5px;font-weight:700;color:var(--accent);margin-bottom:32px;text-transform:uppercase;letter-spacing:1px}
@@ -1157,7 +1157,33 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 
 /* ── RESPONSIVE ── */
 @media(max-width:960px){.svc-grid,.pricing-grid,.testi-grid{grid-template-columns:1fr 1fr}.how-grid{grid-template-columns:1fr 1fr}.niche-grid{grid-template-columns:repeat(4,1fr)}.footer-g{grid-template-columns:1fr 1fr}.stats-bar{grid-template-columns:repeat(3,1fr)}.filter-row-1{grid-template-columns:repeat(4,1fr)}.filter-row-2{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:600px){.nav{padding:0 18px}.nav-links{display:none}.hero{padding:100px 18px 56px}.sec{padding:60px 18px}.svc-grid,.pricing-grid,.testi-grid,.how-grid{grid-template-columns:1fr}.niche-grid{grid-template-columns:repeat(2,1fr)}.footer-g{grid-template-columns:1fr}.stats-bar{grid-template-columns:1fr 1fr}.filter-row-1,.filter-row-2{grid-template-columns:1fr 1fr}footer{padding:44px 18px 0}.stats-wrap{padding:52px 18px 0}}
+@media(max-width:768px){
+  body{background:#07090f !important}
+  .nav{padding:0 14px}
+  .nav-links{display:none !important}
+  .hero{padding:72px 18px 36px !important;min-height:auto !important;background:#07090f !important}
+  .stats-wrap,.featured-outer,.sec,.how-sec{background:#07090f !important}
+  .hero h1{font-size:28px !important;letter-spacing:-1px !important;line-height:1.2 !important}
+  .hero-sub{font-size:14px !important;margin-bottom:28px !important}
+  .hero-cta{gap:10px !important;margin-bottom:28px !important}
+  .hero-cta a,.hero-cta button{width:100%;justify-content:center}
+  .hero-trust{gap:12px !important;font-size:11px}
+  .hero-badge{font-size:10px;padding:5px 14px;margin-bottom:20px}
+  .sec{padding:40px 16px !important}
+  .svc-grid,.pricing-grid,.testi-grid,.how-grid{grid-template-columns:1fr !important}
+  .niche-grid{grid-template-columns:repeat(2,1fr) !important}
+  .footer-g{grid-template-columns:1fr !important}
+  .stats-bar{grid-template-columns:repeat(2,1fr) !important;gap:12px}
+  .filter-row-1,.filter-row-2{grid-template-columns:1fr 1fr !important}
+  footer{padding:36px 16px 0 !important}
+  .stats-wrap{padding:36px 16px 0 !important}
+  .trust-logos{gap:16px !important;flex-wrap:wrap;justify-content:center}
+  .trust-logos img{height:20px !important}
+}
+@media(max-width:600px){
+  .hero{padding:66px 16px 28px !important}
+  .hero h1{font-size:24px !important}
+}
 </style>
   <link rel="stylesheet" href="/shared.css">
 <script type="application/ld+json">
@@ -1285,76 +1311,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 }
 </script>
 
-<style>
-/* ── MOBILE — Landing Page ── */
-@media(max-width:768px){
-  /* Navbar */
-  nav,.nav-wrap,[class*="navbar"]{
-    padding:10px 16px !important;
-    flex-wrap:wrap;
-    gap:8px;
-  }
 
-  /* Hero section */
-  [class*="hero"],[class*="hero-wrap"]{
-    padding:80px 20px 40px !important;
-    text-align:center;
-  }
-
-  /* Hide desktop nav links, show menu */
-  .nav-links,.nav-desktop{display:none !important}
-
-  /* Grid 2-col → 1-col */
-  [class*="grid"],[style*="grid-template-columns"]{
-    grid-template-columns:1fr !important;
-  }
-
-  /* Stats row */
-  [class*="stats"],[class*="stat-grid"]{
-    grid-template-columns:repeat(2,1fr) !important;
-    gap:12px !important;
-  }
-
-  /* Buttons full width on mobile */
-  .hero-btns,[class*="cta-wrap"]{
-    flex-direction:column;
-    gap:10px;
-  }
-
-  /* Modal full width */
-  .publisher-modal-inner,.buyer-modal-inner,
-  [class*="modal-wrap"],[class*="auth-modal"]{
-    width:95vw !important;
-    max-width:95vw !important;
-    margin:20px auto !important;
-    border-radius:12px !important;
-  }
-
-  /* Pricing cards */
-  [class*="pricing"],[class*="price-card"]{
-    width:100% !important;
-    margin:0 !important;
-  }
-
-  /* Features grid */
-  [class*="features"]{
-    grid-template-columns:1fr !important;
-  }
-
-  /* Typography */
-  h1{font-size:28px !important;line-height:1.25 !important}
-  h2{font-size:22px !important}
-
-  /* OTP inputs */
-  .otp-box{width:44px !important;height:48px !important;font-size:20px !important}
-}
-
-@media(max-width:480px){
-  h1{font-size:24px !important}
-  h2{font-size:19px !important}
-  .stats,[class*="stat-grid"]{grid-template-columns:repeat(2,1fr) !important}
-}
-</style>
 
 </head>
 <body>
@@ -1504,7 +1461,7 @@ document.addEventListener('click', function(e){
   if(pm && ab && !ab.contains(e.target) && !pm.contains(e.target)) pm.style.display='none';
 });
 </script>
-<section class="hero" style="position:relative">
+<section class="hero" style="position:relative;background:#07090f">
 <div class="hero-bg-glow"></div>
 <div class="hero-bg-glow2"></div>
 <div class="hero-badge"><span class="live-dot"></span>20,000+ Live Publisher Sites</div>
