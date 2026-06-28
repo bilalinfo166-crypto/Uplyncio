@@ -21,12 +21,6 @@
     "api/test-order-email.js": {
       "maxDuration": 15
     },
-    "api/test-invoice-email.js": {
-      "maxDuration": 15
-    },
-    "api/test-inquiry-email.js": {
-      "maxDuration": 15
-    },
     "api/chat-filter.js": {
       "maxDuration": 10
     },
