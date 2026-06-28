@@ -32,7 +32,7 @@
 <style>
     *{margin:0;padding:0;box-sizing:border-box}
     :root{--bg:#07090f;--surface:#0d1117;--text:#e6edf3;--text2:#c9d1d9;--muted:#8892a4;--border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);--accent:#4f7cff;--green:#00c27a;--teal:#00d4aa}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh;display:flex;flex-direction:column}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:unset;display:flex;flex-direction:column}
     a{text-decoration:none;color:inherit}
     @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
     /* NAV */
@@ -146,6 +146,27 @@
   nav{padding:0 12px !important}
   [class*="hero"] h1{font-size:22px !important}
   [style*="grid-template-columns:repeat(auto-fill"]{grid-template-columns:1fr !important}
+}
+
+
+/* ── MOBILE SPACE FIXES ── */
+@media(max-width:1280px){
+  .hero,section.hero,[class*="hero-sec"],div.hero{
+    min-height:unset !important;
+    height:auto !important;
+  }
+  .hero-inner,.hero-content,.hero-wrap{
+    padding-top:80px !important;
+    padding-bottom:50px !important;
+  }
+  [style*="min-height:100vh"],[style*="min-height: 100vh"]{
+    min-height:unset !important;
+    height:auto !important;
+  }
+  /* Remove bg gradients causing light areas */
+  .hero-bg,.hero-glow,.bg-glow,[class*="bg-blur"],[class*="glow"]{
+    opacity:0.3 !important;
+  }
 }
 
 </style>

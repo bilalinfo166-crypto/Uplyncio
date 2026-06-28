@@ -32,7 +32,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 a,a:hover,a:visited{text-decoration:none}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:unset;display:flex;flex-direction:column}
 
 /* NAV */
 nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04)}
@@ -377,6 +377,27 @@ nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;height:58px;d
   nav{padding:0 12px !important}
   [class*="hero"] h1{font-size:22px !important}
   [style*="grid-template-columns:repeat(auto-fill"]{grid-template-columns:1fr !important}
+}
+
+
+/* ── MOBILE SPACE FIXES ── */
+@media(max-width:1280px){
+  .hero,section.hero,[class*="hero-sec"],div.hero{
+    min-height:unset !important;
+    height:auto !important;
+  }
+  .hero-inner,.hero-content,.hero-wrap{
+    padding-top:80px !important;
+    padding-bottom:50px !important;
+  }
+  [style*="min-height:100vh"],[style*="min-height: 100vh"]{
+    min-height:unset !important;
+    height:auto !important;
+  }
+  /* Remove bg gradients causing light areas */
+  .hero-bg,.hero-glow,.bg-glow,[class*="bg-blur"],[class*="glow"]{
+    opacity:0.3 !important;
+  }
 }
 
 </style>

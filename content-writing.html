@@ -611,6 +611,27 @@ document.addEventListener('change', function(e){
   [style*="grid-template-columns:repeat(auto-fill"]{grid-template-columns:1fr !important}
 }
 
+
+/* ── MOBILE SPACE FIXES ── */
+@media(max-width:1280px){
+  .hero,section.hero,[class*="hero-sec"],div.hero{
+    min-height:unset !important;
+    height:auto !important;
+  }
+  .hero-inner,.hero-content,.hero-wrap{
+    padding-top:80px !important;
+    padding-bottom:50px !important;
+  }
+  [style*="min-height:100vh"],[style*="min-height: 100vh"]{
+    min-height:unset !important;
+    height:auto !important;
+  }
+  /* Remove bg gradients causing light areas */
+  .hero-bg,.hero-glow,.bg-glow,[class*="bg-blur"],[class*="glow"]{
+    opacity:0.3 !important;
+  }
+}
+
 </style>
 <div id="cpWarningModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:10000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeCPForm()">
 <div style="background:#f8faff;border-radius:16px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 16px 50px rgba(0,0,0,.2);animation:menuFade .22s ease">
