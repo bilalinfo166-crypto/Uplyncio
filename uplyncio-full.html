@@ -894,7 +894,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .btn-xl{padding:15px 38px;font-size:16px;border-radius:11px}
 
 /* ── HERO ── */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;background:var(--dark)}
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;background:var(--dark)}
 .hero-bg-glow{position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse at center,rgba(79,124,255,.13) 0%,transparent 65%);pointer-events:none}
 .hero-bg-glow2{position:absolute;bottom:-200px;right:10%;width:600px;height:500px;background:radial-gradient(ellipse at center,rgba(0,212,170,.07) 0%,transparent 65%);pointer-events:none}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.28);border-radius:100px;padding:6px 18px;font-size:11.5px;font-weight:700;color:var(--accent);margin-bottom:32px;text-transform:uppercase;letter-spacing:1px}
@@ -1159,10 +1159,17 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:64px 48px
 @media(max-width:960px){.svc-grid,.pricing-grid,.testi-grid{grid-template-columns:1fr 1fr}.how-grid{grid-template-columns:1fr 1fr}.niche-grid{grid-template-columns:repeat(4,1fr)}.footer-g{grid-template-columns:1fr 1fr}.stats-bar{grid-template-columns:repeat(3,1fr)}.filter-row-1{grid-template-columns:repeat(4,1fr)}.filter-row-2{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){
   body{background:#07090f !important}
+  html,body{min-height:unset !important}
   .nav{padding:0 14px}
   .nav-links{display:none !important}
-  .hero{padding:72px 18px 36px !important;min-height:auto !important;background:#07090f !important}
-  .stats-wrap,.featured-outer,.sec,.how-sec{background:#07090f !important}
+  /* Kill the 100vh min-height causing huge empty space */
+  .hero{
+    padding:72px 18px 36px !important;
+    min-height:unset !important;
+    height:auto !important;
+    background:#07090f !important;
+  }
+  .stats-wrap,.featured-outer,.sec,.how-sec,.mp-outer{background:#07090f !important}
   .hero h1{font-size:28px !important;letter-spacing:-1px !important;line-height:1.2 !important}
   .hero-sub{font-size:14px !important;margin-bottom:28px !important}
   .hero-cta{gap:10px !important;margin-bottom:28px !important}
