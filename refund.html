@@ -62,7 +62,76 @@
     .footer-bot p{font-size:12.5px;color:#8892a4}
     .pay-badges{display:flex;gap:8px}
     .pay-b{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 11px;font-size:11px;font-weight:700;color:#8892a4}
-  </style>
+  
+/* ═══════════ MOBILE RESPONSIVE ═══════════ */
+.mob-ham{display:none;background:none;border:none;cursor:pointer;padding:8px;color:#fff;font-size:22px;line-height:1}
+.mob-nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199;backdrop-filter:blur(4px)}
+.mob-nav-overlay.open{display:block}
+.mob-nav-drawer{display:none;position:fixed;top:0;left:0;bottom:0;width:270px;background:#07090f;z-index:210;padding:70px 0 30px;overflow-y:auto;border-right:1px solid rgba(255,255,255,.08);transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.mob-nav-drawer.open{display:block;transform:translateX(0)}
+.mob-nav-drawer a{display:block;padding:13px 24px;color:#8892a4;font-size:14px;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.05);transition:color .15s}
+.mob-nav-drawer a:hover{color:#fff}
+.mob-nav-drawer .mob-nav-cta{margin:16px 20px 0;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;text-align:center;border-radius:10px;font-weight:700;border:none;display:block}
+.mob-close-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+
+@media(max-width:768px){
+  .mob-ham{display:block}
+
+  /* Hide desktop nav */
+  .nl,.nr{display:none !important}
+
+  /* Nav compact */
+  nav{padding:0 16px !important;height:58px !important;justify-content:space-between}
+
+  /* Hero */
+  [class*="hero"]{padding:90px 20px 50px !important;text-align:center}
+  [class*="hero"] h1{font-size:26px !important;line-height:1.25 !important}
+  [class*="hero"] p{font-size:14px !important}
+
+  /* Grid → 1 col */
+  .fg{grid-template-columns:1fr !important;gap:28px !important}
+  [style*="grid-template-columns:repeat(3"],[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr !important}
+  [style*="display:grid"]{grid-template-columns:1fr !important}
+
+  /* Stats 2-col */
+  [class*="stats-grid"],[class*="stat-row"]{grid-template-columns:repeat(2,1fr) !important}
+
+  /* Padding fixes */
+  section,[class*="section"]{padding-left:18px !important;padding-right:18px !important}
+  footer{padding:40px 18px 0 !important}
+  .fbot{flex-direction:column;gap:10px;text-align:center}
+
+  /* Form full width */
+  form,[class*="form-wrap"]{width:100% !important;max-width:100% !important}
+  input,textarea,select{font-size:16px !important}
+
+  /* Modal */
+  .modal-box{max-width:96vw !important;width:96vw !important;border-radius:16px !important;margin:10px !important}
+
+  /* Buttons */
+  [class*="btn-wrap"],[class*="cta-btns"]{flex-direction:column;gap:10px}
+  .btn-a{width:100%;text-align:center}
+
+  /* Topic cluster links */
+  [style*="grid-template-columns:repeat(auto-fill"]{grid-template-columns:repeat(2,1fr) !important}
+
+  /* Tables */
+  table{display:block;overflow-x:auto}
+
+  /* Pricing cards */
+  [class*="pricing"],[class*="price-wrap"]{flex-direction:column;align-items:center}
+
+  /* FAQ */
+  [class*="faq"],[class*="accordion"]{font-size:14px}
+}
+
+@media(max-width:480px){
+  nav{padding:0 12px !important}
+  [class*="hero"] h1{font-size:22px !important}
+  [style*="grid-template-columns:repeat(auto-fill"]{grid-template-columns:1fr !important}
+}
+
+</style>
   <link rel="stylesheet" href="/shared.css">
 </head>
 <body>
@@ -266,5 +335,19 @@ function closeBps(){
 </div>
 </div>
 </footer>
+<script>
+function openMobNav(){
+  document.getElementById('mobNavDrawer').classList.add('open');
+  document.getElementById('mobNavOv').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeMobNav(){
+  document.getElementById('mobNavDrawer').classList.remove('open');
+  document.getElementById('mobNavOv').classList.remove('open');
+  document.body.style.overflow='';
+}
+// Close on resize
+window.addEventListener('resize',function(){ if(window.innerWidth>768) closeMobNav(); });
+</script>
 </body>
 </html>
