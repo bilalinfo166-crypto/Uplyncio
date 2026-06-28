@@ -541,7 +541,12 @@ window.addEventListener('DOMContentLoaded', function(){
   })();
 });
 </script>
-<div class="sb">
+
+<!-- MOBILE HAMBURGER + OVERLAY -->
+<button class="mob-menu-btn" id="mobMenuBtn" onclick="toggleMobMenu()" aria-label="Menu">☰</button>
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobMenu()"></div>
+
+<div class="sb" id="mainSidebar">
 <div class="sb-lg">
 <a href="uplyncio-full.html" style="text-decoration:none;display:flex;align-items:center;gap:9px">
 <svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
@@ -635,6 +640,28 @@ window.addEventListener('DOMContentLoaded', function(){
 .ticker-inner{display:flex;width:max-content;animation:tickerMove 30s linear infinite}
 .ticker-txt{font-size:12px;color:#92400e;font-weight:700;padding:0 40px;white-space:nowrap;flex-shrink:0}
 @keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ═══════════ MOBILE ═══════════ */
+.mob-menu-btn{display:none;position:fixed;top:10px;left:10px;z-index:9999;background:var(--wh);border:1.5px solid var(--br);border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.1);font-size:18px;color:var(--tx)}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:350;backdrop-filter:blur(3px)}
+.mob-overlay.active{display:block}
+@media(max-width:768px){
+  .mob-menu-btn{display:flex}
+  body{overflow-x:hidden}
+  .sb{transform:translateX(-220px);transition:transform .25s ease;z-index:400;box-shadow:6px 0 30px rgba(0,0,0,.2);width:240px}
+  .sb.mob-open{transform:translateX(0)}
+  .tb{left:0 !important;padding:0 14px 0 58px;height:52px}
+  .main-content,.main-area,.content-wrap,.page-wrap{margin-left:0 !important;padding-top:52px}
+  .content{padding:12px 14px 16px}
+  .card-stats{grid-template-columns:repeat(2,1fr) !important;gap:8px;padding:10px 12px}
+  .m-opts{grid-template-columns:1fr}
+  .site-cards-wrap,.sc-grid{grid-template-columns:1fr !important}
+}
+@media(max-width:480px){
+  .card-stats{grid-template-columns:repeat(2,1fr) !important}
+  .tb{padding:0 10px 0 54px}
+}
+
 </style>
 <div class="main" id="mainContainer" style="opacity:0;transition:opacity 0.1s">
 <div id="s1">
@@ -6876,6 +6903,36 @@ async function verify2FACode(){
     }
   } catch(e){ errEl.textContent='Connection error'; errEl.style.color='#ef4444'; }
 }
+</script>
+
+
+<script>
+// ── MOBILE SIDEBAR ──
+function toggleMobMenu(){
+  var sb = document.querySelector('.sb');
+  var ov = document.getElementById('mobOverlay');
+  if(!sb) return;
+  var isOpen = sb.classList.contains('mob-open');
+  if(isOpen){ closeMobMenu(); }
+  else { sb.classList.add('mob-open'); if(ov) ov.classList.add('active'); document.body.style.overflow='hidden'; }
+}
+function closeMobMenu(){
+  var sb = document.querySelector('.sb');
+  var ov = document.getElementById('mobOverlay');
+  if(sb) sb.classList.remove('mob-open');
+  if(ov) ov.classList.remove('active');
+  document.body.style.overflow='';
+}
+// Close on sidebar link click (mobile)
+document.querySelectorAll('.si').forEach(function(el){
+  el.addEventListener('click', function(){
+    if(window.innerWidth <= 768) closeMobMenu();
+  });
+});
+// Close on resize
+window.addEventListener('resize', function(){
+  if(window.innerWidth > 768) closeMobMenu();
+});
 </script>
 
 </body>
