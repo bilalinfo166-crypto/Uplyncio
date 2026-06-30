@@ -1469,11 +1469,9 @@ function loadAllSites(){
   function processSite(s, uid){
     if(!s.url) return;
     var st = (s.status||'').toLowerCase();
-    // Skip only explicitly bad statuses
     if(st==='rejected') return;
     if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
-    // Allow: Live, live, Active, approved, pending→skip, hold→skip, empty→allow
-    if(st==='pending'||st==='hold') return;
+    if(st==='pending'||st==='hold'||st==='pending review'||st==='on hold') return;
 
     var entry = {
       url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
@@ -1488,26 +1486,27 @@ function loadAllSites(){
       })(s.traffic),
       semT:0, refD:0,
       cats: s.category?[s.category]:(s.cat?[s.cat]:['General']),
-      linkType: s.linkType||s.lt||'Dofollow',
-      gP: _mkup(parseFloat((s.guestPostPrice||s.p1||s.price||'50').toString().replace('$',''))||50),
-      wP: _mkup(parseFloat((s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0),
-      liOk: s.liAccepted==='Yes'||s.liAccepted===true,
-      liP: _mkup(parseFloat((s.liPrice||s.p5||'0').toString().replace('$',''))||0),
+      linkType: s.link_type||s.linkType||s.lt||'Dofollow',
+      gP: _mkup(parseFloat((s.price||s.guestPostPrice||s.p1||'50').toString().replace('$',''))||50),
+      wP: _mkup(parseFloat((s.write_publish_price||s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0),
+      liOk: s.li_accepted===true||s.li_accepted==='Yes'||s.liAccepted==='Yes'||s.liAccepted===true,
+      liP: _mkup(parseFloat((s.link_insertion_price||s.liPrice||s.p5||'0').toString().replace('$',''))||0),
       extraWordPrice: _mkup(parseFloat((s.p3||'0').toString().replace('$',''))||0),
       specialTopicPrice: _mkup(parseFloat((s.p4||'0').toString().replace('$',''))||0),
       country: s.country||'USA',
       lang: s.language||s.lang||'English',
       tat: parseInt(s.tat)||7,
       comp:100, pub:s.role||'Owner',
-      maxL: s.maxLinks||2,
+      maxL: s.max_links||s.maxLinks||2,
       req: s.requirements||s.req||'',
       spam: parseInt(s.spam)||3,
-      minWords: Math.max(500,parseInt(s.minWords)||500),
-      indexed:true, domainAge:s.domainAge||'N/A',
-      _uid:uid, _status:s.status||'Live',
-      publisherUid:uid, publisherName:s.publisherName||'',
+      minWords: Math.max(500,parseInt(s.min_words||s.minWords)||500),
+      indexed:true, domainAge:s.domain_age||s.domainAge||'N/A',
+      _uid:uid||s.publisher_id||'', _status:s.status||'Live',
+      publisherUid:uid||s.publisher_id||'',
+      publisherName:s.publisher_name||s.publisherName||'',
       role:s.role||'Owner',
-      isTeamSite:(s.role==='Uplyncio Team'||uid==='uplyncio_team_official')
+      isTeamSite:(s.role==='Uplyncio Team'||(uid||s.publisher_id)==='uplyncio_team_official')
     };
     var key = entry.url;
     if(!urlMap[key]){ urlMap[key]=entry; }
@@ -1515,14 +1514,14 @@ function loadAllSites(){
   }
 
   try{
-    // Method 1: Read from shared registry (written by publisher on save)
+    // Method 1: registry (same-browser, fast)
     var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
     Object.keys(registry).forEach(function(uid){
       var sites = registry[uid];
       if(Array.isArray(sites)) sites.forEach(function(s){ processSite(s,uid); });
     });
 
-    // Method 2: Read from all uplyncio_data_ keys (same browser)
+    // Method 2: all uplyncio_data_ keys (same browser)
     Object.keys(localStorage)
       .filter(function(k){ return k.startsWith('uplyncio_data_'); })
       .forEach(function(key){
@@ -1531,34 +1530,37 @@ function loadAllSites(){
         if(!d.sites || !Array.isArray(d.sites)) return;
         d.sites.forEach(function(s){ processSite(s, uid); });
     });
-  }catch(e){ console.warn('loadAllSites error:', e); }
+  }catch(e){ console.warn('loadAllSites local error:', e); }
 
-  // Merge publisher sites with sample sites
-  // Publisher sites take priority; sample fills in the rest
+  // Build result from urlMap + SAMPLE
   SAMPLE.forEach(function(s){
     var url = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
-    if(!urlMap[url]){
-      // Apply markup to sample sites too
-      var ms = Object.assign({}, s);
-      ms.gP = _mkup(s.gP);
-      ms.wP = s.wP ? _mkup(s.wP) : 0;
-      ms.liP = s.liOk ? _mkup(s.liP) : 0;
-      ms.extraWordPrice = s.extraWordPrice ? _mkup(s.extraWordPrice) : 0;
-      ms.specialTopicPrice = s.specialTopicPrice ? _mkup(s.specialTopicPrice) : 0;
-      urlMap[url] = ms;
-    }
+    if(!urlMap[url]){ urlMap[url]=s; }
   });
 
-  // Add Uplyncio Team sites
-  try{
-    var teamSites = JSON.parse(localStorage.getItem('uplyncio_team_sites')||'[]');
-    teamSites.forEach(function(s){
-      if(s.url && !urlMap[s.url]){
-        urlMap[s.url] = Object.assign({}, s, {publisherUid:'uplyncio_team_official', isTeamSite:true, pub:'Team'});
-      }
-    });
-  }catch(e){}
-  return Object.values(urlMap);
+  allSites = Object.values(urlMap);
+  allSites.sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); });
+
+  // Method 3 (async): Fetch from Supabase — real cross-device data
+  // This runs in background and refreshes once done
+  fetch('/api/sites?status=Live&limit=1000')
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(!res.success || !Array.isArray(res.sites) || !res.sites.length) return;
+      var sbMap = {};
+      res.sites.forEach(function(s){ processSite(s, s.publisher_id); });
+      // Rebuild allSites including Supabase data
+      SAMPLE.forEach(function(s){
+        var url = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
+        if(!urlMap[url]) urlMap[url]=s;
+      });
+      allSites = Object.values(urlMap);
+      allSites.sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); });
+      applyFilters();
+      updateSiteCounter();
+    }).catch(function(){});
+
+  return allSites;
 }
 
 // ── LIVE COUNTER: total sites across platform ──

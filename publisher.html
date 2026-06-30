@@ -2379,12 +2379,100 @@ function loadSites(){
 function saveSites(){
   try{
     var uid = localStorage.getItem('uplyncio_currentUid')||'';
-    if(!uid) return; // Don't save if not logged in
+    if(!uid) return;
     var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
     userData.sites = mySites;
     localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
     localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
+
+    // ── Sync registry for same-browser buyer page ──
+    try{
+      var reg = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
+      reg[uid] = mySites.filter(function(s){
+        var st=(s.status||'').toLowerCase();
+        return st==='live'||st==='active'||st==='approved'||st==='';
+      });
+      localStorage.setItem('uplyncio_pub_registry', JSON.stringify(reg));
+      localStorage.setItem('uplyncio_pub_lastchange', Date.now().toString());
+    }catch(e){}
+
+    // ── Push to Supabase (background, non-blocking) ──
+    syncSitesToSupabase(uid, mySites);
   }catch(e){ console.warn('saveSites error:', e); }
+}
+
+function syncSitesToSupabase(uid, sites){
+  if(!uid || !Array.isArray(sites)) return;
+  var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  var publisherName = userData.name || '';
+  var publisherEmail = userData.email || '';
+
+  sites.forEach(function(s){
+    var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
+    if(!domain) return;
+    var payload = {
+      publisher_id: uid,
+      publisher_name: publisherName,
+      publisher_email: publisherEmail,
+      url: s.url||'', domain: domain,
+      da: parseInt(s.da)||0, dr: parseInt(s.dr)||0,
+      traffic: parseInt(s.traffic)||0,
+      category: s.category||s.cat||'General',
+      link_type: s.linkType||s.lt||'Dofollow',
+      price: parseFloat((s.guestPostPrice||s.p1||s.price||'50').toString().replace('$',''))||50,
+      write_publish_price: parseFloat((s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0,
+      link_insertion_price: parseFloat((s.liPrice||s.p5||'0').toString().replace('$',''))||0,
+      li_accepted: s.liAccepted==='Yes'||s.liAccepted===true,
+      language: s.language||s.lang||'English',
+      country: s.country||'USA',
+      tat: parseInt(s.tat)||7,
+      requirements: s.requirements||s.req||'',
+      role: s.role||'Owner',
+      status: s.status==='Live'?'Live':(s.status==='pending'?'Pending Review':(s.status==='hold'?'On Hold':(s.status==='rejected'?'Rejected':'Pending Review'))),
+      site_id_local: s.id ? s.id.toString() : ''
+    };
+    fetch('/api/sites?upsert=1', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).catch(function(){});
+  });
+}
+
+function loadSitesFromSupabase(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  if(!uid) return;
+  fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=500')
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if(!res.success || !Array.isArray(res.sites) || !res.sites.length) return;
+      var merged = mySites.slice();
+      res.sites.forEach(function(sb){
+        var localId = sb.site_id_local;
+        var exists = merged.some(function(m){ return m.id && m.id.toString()===localId; });
+        if(!exists){
+          merged.push({
+            id: sb.site_id_local || sb.id,
+            url: sb.url, da: sb.da, dr: sb.dr, traffic: sb.traffic,
+            category: sb.category, cat: sb.category,
+            linkType: sb.link_type, lt: sb.link_type,
+            guestPostPrice: sb.price, p1: sb.price,
+            writePublishPrice: sb.write_publish_price, p2: sb.write_publish_price,
+            liAccepted: sb.li_accepted?'Yes':'No', liPrice: sb.link_insertion_price, p5: sb.link_insertion_price,
+            language: sb.language, lang: sb.language,
+            country: sb.country, tat: sb.tat,
+            requirements: sb.requirements, req: sb.requirements,
+            role: sb.role, status: sb.status==='Live'?'Live':(sb.status==='Pending Review'?'pending':(sb.status==='On Hold'?'hold':(sb.status==='Rejected'?'rejected':'pending'))),
+            publisherName: sb.publisher_name
+          });
+        }
+      });
+      if(merged.length !== mySites.length){
+        mySites = merged;
+        saveSites();
+        applyFilters();
+      }
+    }).catch(function(){});
 }
 
 // Reload sites when UID becomes available (after login)
@@ -2396,6 +2484,8 @@ function reloadSitesForUser(){
 }
 
 var mySites = loadSites();
+// Pull any sites from Supabase that aren't in localStorage yet (cross-device sync)
+setTimeout(loadSitesFromSupabase, 1500);
 
 function submit(){
   var url = document.getElementById('urlIn').value.trim();
@@ -2902,6 +2992,8 @@ function deactivateSite(id){
 
 function delSite(id){
   if(!confirm('Remove this site from your listings?')) return;
+  // Delete from Supabase first (by local site_id)
+  fetch('/api/sites?site_id_local='+encodeURIComponent(id.toString()), { method:'DELETE' }).catch(function(){});
   mySites = mySites.filter(function(s){ return s.id !== id; });
   saveSites();
   applyFilters();

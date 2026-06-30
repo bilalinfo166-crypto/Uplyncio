@@ -30,23 +30,42 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, sites: data });
     }
 
-    // POST - add site
+    // POST - add site (or upsert if ?upsert=1)
     if (req.method === 'POST') {
       const body = req.body;
       if (!body.url || !body.publisher_id) return res.status(400).json({ error: 'Missing url or publisher_id' });
-
       const domain = body.url.replace(/^https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
-      
-      // Check duplicate
-      const existing = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${domain}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() });
-      const ex = await existing.json();
-      if (ex?.length > 0) return res.status(409).json({ error: 'Site already added' });
 
-      const site = { ...body, domain, status: 'Pending Review' };
+      if (req.query.upsert === '1') {
+        const localId = body.site_id_local ? body.site_id_local.toString() : null;
+        let existingRes = localId
+          ? await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?site_id_local=eq.${encodeURIComponent(localId)}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() })
+          : await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${domain}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() });
+        const existing = await existingRes.json();
+        const siteData = { ...body, domain, updated_at: new Date().toISOString() };
+        if (Array.isArray(existing) && existing.length > 0) {
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`, {
+            method: 'PATCH', headers: { ...headers(), 'Prefer': 'return=representation' }, body: JSON.stringify(siteData)
+          });
+          const data = await r.json();
+          return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data, action: 'updated' });
+        } else {
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, {
+            method: 'POST', headers: { ...headers(), 'Prefer': 'return=representation' },
+            body: JSON.stringify({ ...siteData, created_at: new Date().toISOString() })
+          });
+          const data = await r.json();
+          return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data, action: 'inserted' });
+        }
+      }
+
+      // Normal insert with duplicate check
+      const existing2 = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${domain}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() });
+      const ex = await existing2.json();
+      if (ex?.length > 0) return res.status(409).json({ error: 'Site already added' });
+      const site = { ...body, domain, status: 'Pending Review', created_at: new Date().toISOString() };
       const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, {
-        method: 'POST',
-        headers: { ...headers(), 'Prefer': 'return=representation' },
-        body: JSON.stringify(site)
+        method: 'POST', headers: { ...headers(), 'Prefer': 'return=representation' }, body: JSON.stringify(site)
       });
       const data = await r.json();
       return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data });
@@ -93,9 +112,14 @@ export default async function handler(req, res) {
 
     // DELETE
     if (req.method === 'DELETE') {
-      const { id } = req.query;
-      if (!id) return res.status(400).json({ error: 'Missing site id' });
-      await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`, { method: 'DELETE', headers: headers() });
+      const { id, site_id_local, publisher_id } = req.query;
+      if (site_id_local && publisher_id) {
+        await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?site_id_local=eq.${encodeURIComponent(site_id_local)}&publisher_id=eq.${publisher_id}`, { method: 'DELETE', headers: headers() });
+      } else if (id) {
+        await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`, { method: 'DELETE', headers: headers() });
+      } else {
+        return res.status(400).json({ error: 'Missing id or site_id_local' });
+      }
       return res.status(200).json({ success: true });
     }
 
