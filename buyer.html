@@ -4508,7 +4508,7 @@ function openCampaigns(){
               id: sc.campaign_id, name: sc.name, accountType: sc.account_type, companyName: sc.company_name,
               category: sc.category, minDA: sc.min_da, minDR: sc.min_dr, monthlyBudget: sc.monthly_budget,
               linksPerMonth: sc.links_per_month, mode: sc.mode, contentSource: sc.content_source,
-              articleContent: sc.article_content, specialRequirements: sc.special_requirements,
+              articleInputType: sc.article_input_type||'paste', articleContent: sc.article_content, articleLink: sc.article_link, specialRequirements: sc.special_requirements,
               topicBrief: sc.topic_brief, targetAudience: sc.target_audience, tone: sc.tone,
               targetUrl: sc.target_url,
               anchorTexts: sc.anchor_texts ? sc.anchor_texts.split('|||') : [],
@@ -4693,8 +4693,19 @@ function openNewCampaignForm(){
     +'</div></div>'
 
     +'<div id="contentBuyerFields" style="margin-bottom:14px">'
+    +'<label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Article</label>'
+    +'<div style="display:flex;gap:10px;margin-bottom:10px">'
+    +'<div id="artmode-paste" onclick="selCampArtMode(this,\'paste\')" style="flex:1;padding:9px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:#1a202c">📝 Paste the article</div>'
+    +'<div id="artmode-link" onclick="selCampArtMode(this,\'link\')" style="flex:1;padding:9px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:#1a202c">🔗 Share a link instead</div>'
+    +'</div>'
+    +'<div id="artPasteField">'
     +'<label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Article Content <span style="color:#94a3b8;font-weight:500">(min 500 words, used for every site in this campaign)</span></label>'
     +'<textarea id="cArticleContent" class="fi2" rows="6" placeholder="Paste your article here..." style="font-size:13px;padding:10px;resize:vertical"></textarea>'
+    +'</div>'
+    +'<div id="artLinkField" style="display:none">'
+    +'<label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Link to your article <span style="color:#94a3b8;font-weight:500">(Google Docs, Dropbox, Notion etc — must be set to "Anyone with the link can view")</span></label>'
+    +'<input id="cArticleLink" class="fi2" type="url" placeholder="https://docs.google.com/document/d/..." style="font-size:13px;padding:10px">'
+    +'</div>'
     +'<div style="margin-top:10px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Special Requirements</label>'
     +'<textarea id="cSpecialReq" class="fi2" rows="3" placeholder="Formatting, tone, internal links, anything publishers should know..." style="font-size:13px;padding:10px;resize:vertical"></textarea></div>'
     +'</div>'
@@ -4729,6 +4740,15 @@ function openNewCampaignForm(){
   window._campMode = 'manual';
   window._campSrc = 'buyer';
   window._campNiche = 'same';
+  window._campArtMode = 'paste';
+}
+
+function selCampArtMode(el,val){
+  window._campArtMode = val;
+  document.getElementById('artmode-paste').style.cssText = val==='paste' ? 'flex:1;padding:9px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:#1a202c' : 'flex:1;padding:9px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:#1a202c';
+  document.getElementById('artmode-link').style.cssText = val==='link' ? 'flex:1;padding:9px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:#1a202c' : 'flex:1;padding:9px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12px;font-weight:700;color:#1a202c';
+  document.getElementById('artPasteField').style.display = val==='paste' ? 'block' : 'none';
+  document.getElementById('artLinkField').style.display = val==='link' ? 'block' : 'none';
 }
 
 function selCampAcct(el,val){
@@ -4778,10 +4798,16 @@ function saveCampaignSubmit(){
   if(!targetUrl){ showToast('⚠️ Please enter your target URL.'); return; }
 
   var src = window._campSrc||'buyer';
+  var artMode = window._campArtMode||'paste';
   if(src==='buyer'){
-    var article = document.getElementById('cArticleContent').value.trim();
-    var wc = article ? article.split(/\s+/).filter(function(w){return w.length>0;}).length : 0;
-    if(wc < 500){ showToast('⚠️ Article must be at least 500 words ('+wc+' currently).'); return; }
+    if(artMode==='paste'){
+      var article = document.getElementById('cArticleContent').value.trim();
+      var wc = article ? article.split(/\s+/).filter(function(w){return w.length>0;}).length : 0;
+      if(wc < 500){ showToast('⚠️ Article must be at least 500 words ('+wc+' currently), or switch to "Share a link instead".'); return; }
+    } else {
+      var link = document.getElementById('cArticleLink').value.trim();
+      if(!link || !/^https?:\/\//i.test(link)){ showToast('⚠️ Please enter a valid link to your article (starting with https://).'); return; }
+    }
   }
 
   var anchors = [];
@@ -4800,7 +4826,9 @@ function saveCampaignSubmit(){
     linksPerMonth: linksMonth,
     mode: window._campMode||'manual',
     contentSource: src,
-    articleContent: src==='buyer' ? document.getElementById('cArticleContent').value.trim() : '',
+    articleInputType: artMode,
+    articleContent: (src==='buyer' && artMode==='paste') ? document.getElementById('cArticleContent').value.trim() : '',
+    articleLink: (src==='buyer' && artMode==='link') ? document.getElementById('cArticleLink').value.trim() : '',
     specialRequirements: src==='buyer' ? document.getElementById('cSpecialReq').value.trim() : '',
     topicBrief: src==='publisher' ? document.getElementById('cTopicBrief').value.trim() : '',
     targetAudience: src==='publisher' ? document.getElementById('cAudience').value.trim() : '',
@@ -4825,7 +4853,8 @@ function saveCampaignSubmit(){
     campaign_id: c.id, name:c.name, account_type:c.accountType, company_name:c.companyName,
     category:c.category, min_da:c.minDA, min_dr:c.minDR, monthly_budget:c.monthlyBudget,
     links_per_month:c.linksPerMonth, mode:c.mode, content_source:c.contentSource,
-    article_content:c.articleContent, special_requirements:c.specialRequirements,
+    article_input_type:c.articleInputType, article_content:c.articleContent, article_link:c.articleLink,
+    special_requirements:c.specialRequirements,
     topic_brief:c.topicBrief, target_audience:c.targetAudience, tone:c.tone,
     target_url:c.targetUrl, anchor_texts:c.anchorTexts.join('|||'),
     exclude_domains:c.excludeDomains.join(','), used_domains:'',
@@ -4898,9 +4927,10 @@ function openCampaignMatches(id){
 
   var body = document.getElementById('campModalBody');
   var total = matches.reduce(function(s,m){return s+m._orderPrice;},0);
+  var balance = parseFloat(localStorage.getItem('uplyncio_balance')||'0');
   var rows = matches.map(function(m,i){
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9">'
-      +'<input type="checkbox" checked id="mchk'+i+'" onchange="toggleMatchSite('+i+')" style="width:16px;height:16px;flex-shrink:0">'
+      +'<input type="checkbox" checked id="mchk'+i+'" onchange="toggleMatchSite()" style="width:16px;height:16px;flex-shrink:0">'
       +'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1a202c">'+m.url+'</div>'
       +'<div style="font-size:11px;color:#64748b">DA '+m.da+' • DR '+m.dr+' • '+(m.pub||'Publisher')+'</div></div>'
       +'<div style="font-size:13px;font-weight:800;color:#1a202c" id="mprice'+i+'">$'+m._orderPrice+'</div>'
@@ -4911,24 +4941,45 @@ function openCampaignMatches(id){
     +'<button onclick="renderCampaignsList()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px">←</button>'
     +'<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">Review Matches — '+c.name+'</div></div>'
     +'<div style="font-size:12.5px;color:#475569;margin-bottom:12px">'+matches.length+' sites matched your criteria. The same content and target link will be sent to every site — anchor text rotates automatically.</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;margin-bottom:10px">'
+    +'<div style="font-size:12.5px;color:#475569">💰 Available balance</div>'
+    +'<div style="font-size:14px;font-weight:800;color:#1a202c">$'+balance.toFixed(2)+'</div>'
+    +'</div>'
     +'<div id="matchRows">'+rows+'</div>'
+    +'<div id="matchBalanceWarning" style="display:none;margin-top:14px;padding:12px 14px;background:#fff7ed;border:1px solid #fdba74;border-radius:10px;align-items:center;justify-content:space-between;gap:10px">'
+    +'<div style="font-size:12.5px;color:#9a3412">⚠️ Your balance isn\'t enough to place these orders.</div>'
+    +'<button onclick="closeCampaigns();openAddFunds();" style="padding:8px 16px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0">+ Add Funds</button>'
+    +'</div>'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0">'
     +'<div style="font-size:14px;font-weight:800;color:#1a202c">Total: $<span id="matchTotal">'+total+'</span></div>'
-    +'<button onclick="confirmCampaignBatchOrder(\''+id+'\')" style="padding:11px 22px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit">Place Orders →</button>'
+    +'<button id="matchPlaceBtn" onclick="confirmCampaignBatchOrder(\''+id+'\')" style="padding:11px 22px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit">Place Orders →</button>'
     +'</div>';
+
+  toggleMatchSite();
 }
 
-function toggleMatchSite(i){
-  var chk = document.getElementById('mchk'+i);
-  var priceEl = document.getElementById('mprice'+i);
-  if(priceEl) priceEl.style.opacity = chk.checked ? '1' : '.3';
+function toggleMatchSite(){
+  var balance = parseFloat(localStorage.getItem('uplyncio_balance')||'0');
   var total = 0;
   _campReviewMatches.forEach(function(m,idx){
-    var c = document.getElementById('mchk'+idx);
-    if(c && c.checked) total += m._orderPrice;
+    var chk = document.getElementById('mchk'+idx);
+    var priceEl = document.getElementById('mprice'+idx);
+    var checked = chk && chk.checked;
+    if(priceEl) priceEl.style.opacity = checked ? '1' : '.3';
+    if(checked) total += m._orderPrice;
   });
   var t = document.getElementById('matchTotal');
   if(t) t.textContent = total;
+
+  var warn = document.getElementById('matchBalanceWarning');
+  var btn = document.getElementById('matchPlaceBtn');
+  var insufficient = balance < total;
+  if(warn) warn.style.display = insufficient ? 'flex' : 'none';
+  if(btn){
+    btn.disabled = insufficient;
+    btn.style.opacity = insufficient ? '.5' : '1';
+    btn.style.cursor = insufficient ? 'not-allowed' : 'pointer';
+  }
 }
 
 async function confirmCampaignBatchOrder(id){
@@ -4966,7 +5017,9 @@ async function confirmCampaignBatchOrder(id){
     var orderId = '#OR'+Math.floor(10000+Math.random()*90000);
     var now = new Date().toISOString();
     var requirements = c.contentSource==='buyer'
-      ? 'Campaign article (provided by buyer):\n\n'+c.articleContent+(c.specialRequirements?'\n\nSpecial requirements:\n'+c.specialRequirements:'')
+      ? (c.articleInputType==='link'
+          ? 'Campaign article (link provided by buyer):\n\n'+c.articleLink+(c.specialRequirements?'\n\nSpecial requirements:\n'+c.specialRequirements:'')
+          : 'Campaign article (provided by buyer):\n\n'+c.articleContent+(c.specialRequirements?'\n\nSpecial requirements:\n'+c.specialRequirements:''))
       : 'Campaign brief for publisher to write:\n\nTopic: '+c.topicBrief+'\nAudience: '+c.targetAudience+'\nTone: '+c.tone;
 
     var orderData = {
