@@ -4514,6 +4514,7 @@ function openCampaigns(){
               anchorTexts: sc.anchor_texts ? sc.anchor_texts.split('|||') : [],
               excludeDomains: sc.exclude_domains ? sc.exclude_domains.split(',') : [],
               usedDomains: sc.used_domains ? sc.used_domains.split(',') : [],
+              orderHistory: (function(){ try{ return JSON.parse(sc.order_history||'[]'); }catch(e){ return []; } })(),
               nicheDiversity: sc.niche_diversity, status: sc.status,
               linksPlacedThisMonth: sc.links_placed_this_month||0, spentThisMonth: sc.spent_this_month||0,
               totalLinks: sc.total_links||0, totalSpent: sc.total_spent||0, currentMonth: sc.current_month,
@@ -4566,6 +4567,13 @@ function renderCampaignsList(){
     +'<div><div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">4. Manual or Auto</div><div style="font-size:12px;color:#475569;line-height:1.7">Manual mode shows you the matches first — you approve before anything is ordered. Auto mode places matching orders immediately once you click "Run Campaign".</div></div>'
     +'</div></div></div>';
 
+  var balance = parseFloat(localStorage.getItem('uplyncio_balance')||'0');
+  var balanceHTML = '<div style="display:flex;align-items:center;justify-content:space-between;background:#f8faff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:16px">'
+    +'<div><div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Available balance</div>'
+    +'<div style="font-size:18px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">$'+balance.toFixed(2)+'</div></div>'
+    +'<button onclick="closeCampaigns();openAddFunds();" style="padding:9px 16px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">+ Add Funds</button>'
+    +'</div>';
+
   var listHTML = '';
   if(!campaigns.length){
     listHTML = '<div style="text-align:center;padding:50px 20px;color:#94a3b8"><div style="font-size:44px;margin-bottom:14px;opacity:.3">📊</div><div style="font-size:15px;font-weight:700;color:#374151;margin-bottom:6px">No campaigns yet</div><div style="font-size:13px">Set your link building goal once, and let it run on autopilot.</div></div>';
@@ -4574,6 +4582,7 @@ function renderCampaignsList(){
   }
 
   body.innerHTML = helpHTML
+    + balanceHTML
     + '<div style="display:flex;justify-content:flex-end;margin-bottom:14px">'
     + '<button onclick="openNewCampaignForm()" style="padding:9px 18px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ New Campaign</button>'
     + '</div>'
@@ -4603,7 +4612,8 @@ function campaignCardHTML(c){
         +'</div>'
         +'<div style="font-size:11.5px;color:#64748b">'+(c.accountType||'Individual')+' &nbsp;•&nbsp; '+(c.category||'Any niche')+' &nbsp;•&nbsp; '+modeLabel+' &nbsp;•&nbsp; '+srcLabel+'</div>'
       +'</div>'
-      +'<div style="display:flex;gap:6px;flex-shrink:0">'
+      +'<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">'
+        +'<button onclick="viewCampaignDetails(\''+c.id+'\')" style="padding:7px 11px;background:#f8faff;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">👁 View</button>'
         +'<button onclick="openCampaignMatches(\''+c.id+'\')" style="padding:7px 13px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+(c.mode==='auto'?'Run Now':'Find Matches')+'</button>'
         +'<button onclick="pauseResumeCampaign(\''+c.id+'\')" style="padding:7px 11px;background:#f8faff;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+(c.status==='Paused'?'Resume':'Pause')+'</button>'
         +'<button onclick="deleteCampaignConfirm(\''+c.id+'\')" style="padding:7px 9px;background:#fff5f5;color:#ef4444;border:1px solid #fee2e2;border-radius:8px;font-size:12px;cursor:pointer">🗑</button>'
@@ -4639,10 +4649,112 @@ function deleteCampaignConfirm(id){
   showToast('Campaign deleted');
 }
 
-// ── NEW CAMPAIGN FORM ──
-function openNewCampaignForm(){
+// ── VIEW CAMPAIGN DETAILS ──
+function viewCampaignDetails(id){
+  var campaigns = getCampaigns();
+  var c = campaigns.find(function(x){return x.id===id;});
+  if(!c) return;
+
   var body = document.getElementById('campModalBody');
   if(!body) return;
+
+  function row(label,val){
+    if(val===undefined||val===null||val==='') return '';
+    return '<div style="display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid #f8faff"><span style="font-size:12px;color:#94a3b8;font-weight:600;flex-shrink:0">'+label+'</span><span style="font-size:12.5px;color:#1a202c;font-weight:600;text-align:right">'+val+'</span></div>';
+  }
+
+  var contentBlock = '';
+  if(c.contentSource==='buyer'){
+    if(c.articleInputType==='link'){
+      contentBlock = '<div style="margin-top:8px"><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">Article link</div><a href="'+c.articleLink+'" target="_blank" style="font-size:12.5px;color:#4f7cff;word-break:break-all">'+c.articleLink+'</a></div>';
+    } else {
+      var preview = (c.articleContent||'').slice(0,300);
+      contentBlock = '<div style="margin-top:8px"><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">Article (preview)</div><div style="font-size:12px;color:#475569;line-height:1.6;background:#f8faff;border-radius:8px;padding:10px">'+preview+((c.articleContent||'').length>300?'…':'')+'</div></div>';
+    }
+    if(c.specialRequirements) contentBlock += '<div style="margin-top:8px"><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">Special requirements</div><div style="font-size:12px;color:#475569;line-height:1.6">'+c.specialRequirements+'</div></div>';
+  } else {
+    contentBlock = '<div style="margin-top:8px;font-size:12px;color:#475569;line-height:1.7">'
+      +'<strong style="color:#1a202c">Topic:</strong> '+(c.topicBrief||'—')+'<br>'
+      +'<strong style="color:#1a202c">Audience:</strong> '+(c.targetAudience||'—')+'<br>'
+      +'<strong style="color:#1a202c">Tone:</strong> '+(c.tone||'—')+'</div>';
+  }
+
+  var anchorsHTML = (c.anchorTexts||[]).map(function(a){
+    return '<span style="display:inline-block;background:#eff6ff;color:#4f7cff;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;margin:0 6px 6px 0">'+a+'</span>';
+  }).join('');
+
+  var history = c.orderHistory||[];
+  var historyHTML;
+  if(!history.length){
+    historyHTML = '<div style="text-align:center;padding:24px;color:#94a3b8;font-size:12.5px">No orders placed yet from this campaign.</div>';
+  } else {
+    historyHTML = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">'
+      + '<thead><tr style="text-align:left;border-bottom:1px solid #e2e8f0">'
+      + '<th style="padding:8px 10px;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase">Site</th>'
+      + '<th style="padding:8px 10px;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase">DA/DR</th>'
+      + '<th style="padding:8px 10px;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase">Anchor used</th>'
+      + '<th style="padding:8px 10px;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase">Price</th>'
+      + '<th style="padding:8px 10px;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase">Date</th>'
+      + '</tr></thead><tbody>'
+      + history.slice().reverse().map(function(h){
+          var d = h.date ? new Date(h.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+          return '<tr style="border-bottom:1px solid #f8faff">'
+            + '<td style="padding:9px 10px;font-size:12.5px;font-weight:700;color:#1a202c">'+h.url+'</td>'
+            + '<td style="padding:9px 10px;font-size:12px;color:#475569">DA '+h.da+' • DR '+h.dr+'</td>'
+            + '<td style="padding:9px 10px;font-size:12px;color:#475569">'+h.anchor+'</td>'
+            + '<td style="padding:9px 10px;font-size:12.5px;font-weight:700;color:#1a202c">$'+h.price+'</td>'
+            + '<td style="padding:9px 10px;font-size:12px;color:#94a3b8">'+d+'</td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table></div>';
+  }
+
+  body.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">'
+    + '<div style="display:flex;align-items:center;gap:10px">'
+    + '<button onclick="renderCampaignsList()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px">←</button>'
+    + '<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">'+c.name+'</div>'
+    + '</div>'
+    + '<button onclick="openNewCampaignForm(\''+c.id+'\')" style="padding:8px 16px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">✏️ Edit Campaign</button>'
+    + '</div>'
+
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">'
+    + '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px">'
+    + '<div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">Campaign Settings</div>'
+    + row('Status', c.status)
+    + row('Account type', (c.accountType||'Individual')+(c.companyName?' — '+c.companyName:''))
+    + row('Category / niche', c.category||'Any')
+    + row('Niche diversity', c.nicheDiversity==='mixed'?'Mixed niches':'Same niche only')
+    + row('Min DA / Min DR', (c.minDA||0)+' / '+(c.minDR||0))
+    + row('Monthly budget', '$'+(c.monthlyBudget||0))
+    + row('Links per month', c.linksPerMonth||0)
+    + row('Mode', c.mode==='auto'?'⚡ Auto':'👆 Manual')
+    + row('Content source', c.contentSource==='publisher'?'Publisher writes':'Buyer provides article')
+    + row('Target URL', '<a href="'+c.targetUrl+'" target="_blank" style="color:#4f7cff">'+c.targetUrl+'</a>')
+    + row('Exclude domains', (c.excludeDomains||[]).join(', ')||'None')
+    + '</div>'
+    + '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px">'
+    + '<div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">Content & Anchors</div>'
+    + contentBlock
+    + '<div style="margin-top:12px"><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:6px">Anchor texts</div>'+anchorsHTML+'</div>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+    + '<div style="font-size:12px;font-weight:700;color:#0f172a">Sites & Orders Placed (' + history.length + ')</div>'
+    + '<div style="font-size:11.5px;color:#94a3b8">All time: <strong style="color:#475569">'+(c.totalLinks||0)+' links</strong> • <strong style="color:#475569">$'+(c.totalSpent||0)+'</strong></div>'
+    + '</div>'
+    + historyHTML
+    + '</div>';
+}
+
+// ── NEW CAMPAIGN FORM ──
+function openNewCampaignForm(editId){
+  var body = document.getElementById('campModalBody');
+  if(!body) return;
+
+  window._campFormEditId = editId || null;
+  var editC = editId ? getCampaigns().find(function(x){return x.id===editId;}) : null;
 
   var allSites = loadAllSites();
   var catSet = {};
@@ -4653,7 +4765,7 @@ function openNewCampaignForm(){
   body.innerHTML =
     '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">'
     +'<button onclick="renderCampaignsList()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px">←</button>'
-    +'<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">New Campaign</div>'
+    +'<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">'+(editC?'Edit Campaign':'New Campaign')+'</div>'
     +'</div>'
 
     +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Campaign Name</label>'
@@ -4736,13 +4848,46 @@ function openNewCampaignForm(){
     +'<div style="margin-bottom:18px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Exclude Domains <span style="color:#94a3b8;font-weight:500">(optional, comma separated)</span></label>'
     +'<textarea id="cExclude" class="fi2" rows="2" placeholder="competitor.com, alreadyused.com" style="font-size:13px;padding:10px;resize:vertical"></textarea></div>'
 
-    +'<button onclick="saveCampaignSubmit()" style="width:100%;padding:13px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Create Campaign</button>';
+    +'<button onclick="saveCampaignSubmit()" style="width:100%;padding:13px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">'+(editC?'Save Changes':'Create Campaign')+'</button>';
 
-  window._campAcct = 'Individual';
-  window._campMode = 'manual';
-  window._campSrc = 'buyer';
-  window._campNiche = 'same';
-  window._campArtMode = 'paste';
+  window._campAcct = editC ? (editC.accountType||'Individual') : 'Individual';
+  window._campMode = editC ? (editC.mode||'manual') : 'manual';
+  window._campSrc = editC ? (editC.contentSource||'buyer') : 'buyer';
+  window._campNiche = editC ? (editC.nicheDiversity||'same') : 'same';
+  window._campArtMode = editC ? (editC.articleInputType||'paste') : 'paste';
+
+  if(editC){
+    document.getElementById('cName').value = editC.name||'';
+    selCampAcct(document.getElementById('acct-'+window._campAcct), window._campAcct);
+    if(document.getElementById('cCompany')) document.getElementById('cCompany').value = editC.companyName||'';
+    document.getElementById('cCategory').value = editC.category||'';
+    document.getElementById('cBudget').value = editC.monthlyBudget||'';
+    document.getElementById('cMinDA').value = editC.minDA||'';
+    document.getElementById('cMinDR').value = editC.minDR||'';
+    document.getElementById('cLinksMonth').value = editC.linksPerMonth||'';
+    selCampMode(document.getElementById('mode-'+window._campMode), window._campMode);
+    selCampContent(document.getElementById('src-'+window._campSrc), window._campSrc);
+    selCampArtMode(document.getElementById('artmode-'+window._campArtMode), window._campArtMode);
+    if(editC.contentSource==='buyer'){
+      if(editC.articleInputType==='link'){ document.getElementById('cArticleLink').value = editC.articleLink||''; }
+      else { document.getElementById('cArticleContent').value = editC.articleContent||''; }
+      document.getElementById('cSpecialReq').value = editC.specialRequirements||'';
+    } else {
+      document.getElementById('cTopicBrief').value = editC.topicBrief||'';
+      document.getElementById('cAudience').value = editC.targetAudience||'';
+      if(editC.tone) document.getElementById('cTone').value = editC.tone;
+    }
+    document.getElementById('cTargetUrl').value = editC.targetUrl||'';
+    var anchorsList = document.getElementById('cAnchorsList');
+    if(anchorsList && editC.anchorTexts && editC.anchorTexts.length){
+      anchorsList.innerHTML = editC.anchorTexts.map(function(a,idx){
+        var closeBtn = idx===0 ? '' : '<button onclick="this.parentElement.remove()" style="width:36px;border:1.5px solid #fee2e2;background:#fff5f5;border-radius:8px;cursor:pointer;color:#ef4444;font-size:16px;flex-shrink:0">×</button>';
+        return '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="fi2" type="text" value="'+a.replace(/"/g,'&quot;')+'" style="flex:1;font-size:13px;padding:10px">'+closeBtn+'</div>';
+      }).join('');
+    }
+    selCampNiche(document.getElementById('niche-'+window._campNiche), window._campNiche);
+    document.getElementById('cExclude').value = (editC.excludeDomains||[]).join(', ');
+  }
 }
 
 function selCampArtMode(el,val){
@@ -4816,8 +4961,12 @@ function saveCampaignSubmit(){
   document.querySelectorAll('#cAnchorsList input').forEach(function(i){ if(i.value.trim()) anchors.push(i.value.trim()); });
   if(!anchors.length){ showToast('⚠️ Please add at least one anchor text.'); return; }
 
+  var editId = window._campFormEditId || null;
+  var campaigns = getCampaigns();
+  var existing = editId ? campaigns.find(function(x){return x.id===editId;}) : null;
+
   var c = {
-    id: 'CMP'+Math.floor(10000+Math.random()*90000),
+    id: existing ? existing.id : ('CMP'+Math.floor(10000+Math.random()*90000)),
     name: name,
     accountType: window._campAcct||'Individual',
     companyName: document.getElementById('cCompany') ? document.getElementById('cCompany').value.trim() : '',
@@ -4839,33 +4988,42 @@ function saveCampaignSubmit(){
     anchorTexts: anchors,
     nicheDiversity: window._campNiche||'same',
     excludeDomains: document.getElementById('cExclude').value.split(',').map(function(s){return s.trim();}).filter(Boolean),
-    usedDomains: [],
-    status: 'Active',
-    linksPlacedThisMonth: 0, spentThisMonth: 0,
-    totalLinks: 0, totalSpent: 0,
-    currentMonth: monthKey(),
-    createdAt: new Date().toISOString()
+    usedDomains: existing ? (existing.usedDomains||[]) : [],
+    orderHistory: existing ? (existing.orderHistory||[]) : [],
+    status: existing ? existing.status : 'Active',
+    linksPlacedThisMonth: existing ? (existing.linksPlacedThisMonth||0) : 0,
+    spentThisMonth: existing ? (existing.spentThisMonth||0) : 0,
+    totalLinks: existing ? (existing.totalLinks||0) : 0,
+    totalSpent: existing ? (existing.totalSpent||0) : 0,
+    currentMonth: existing ? (existing.currentMonth||monthKey()) : monthKey(),
+    createdAt: existing ? existing.createdAt : new Date().toISOString()
   };
 
-  var campaigns = getCampaigns();
-  campaigns.unshift(c);
+  if(existing){
+    campaigns = campaigns.map(function(x){ return x.id===c.id ? c : x; });
+  } else {
+    campaigns.unshift(c);
+  }
   saveCampaignsLocal(campaigns);
 
-  campSyncRemote('POST', {
-    campaign_id: c.id, name:c.name, account_type:c.accountType, company_name:c.companyName,
-    category:c.category, min_da:c.minDA, min_dr:c.minDR, monthly_budget:c.monthlyBudget,
-    links_per_month:c.linksPerMonth, mode:c.mode, content_source:c.contentSource,
-    article_input_type:c.articleInputType, article_content:c.articleContent, article_link:c.articleLink,
-    special_requirements:c.specialRequirements,
-    topic_brief:c.topicBrief, target_audience:c.targetAudience, tone:c.tone,
-    target_url:c.targetUrl, anchor_texts:c.anchorTexts.join('|||'),
-    exclude_domains:c.excludeDomains.join(','), used_domains:'',
-    niche_diversity:c.nicheDiversity, status:c.status,
-    links_placed_this_month:0, spent_this_month:0, total_links:0, total_spent:0,
-    current_month:c.currentMonth
-  });
+  campSyncRemote(existing ? 'PATCH' : 'POST', Object.assign(
+    existing ? {} : {campaign_id: c.id},
+    {
+      name:c.name, account_type:c.accountType, company_name:c.companyName,
+      category:c.category, min_da:c.minDA, min_dr:c.minDR, monthly_budget:c.monthlyBudget,
+      links_per_month:c.linksPerMonth, mode:c.mode, content_source:c.contentSource,
+      article_input_type:c.articleInputType, article_content:c.articleContent, article_link:c.articleLink,
+      special_requirements:c.specialRequirements,
+      topic_brief:c.topicBrief, target_audience:c.targetAudience, tone:c.tone,
+      target_url:c.targetUrl, anchor_texts:c.anchorTexts.join('|||'),
+      exclude_domains:c.excludeDomains.join(','),
+      niche_diversity:c.nicheDiversity, status:c.status,
+      current_month:c.currentMonth
+    }
+  ), existing ? c.id : null);
 
-  showToast('✅ Campaign "'+name+'" created!');
+  window._campFormEditId = null;
+  showToast(existing ? '✅ Campaign "'+name+'" updated!' : '✅ Campaign "'+name+'" created!');
   renderCampaignsList();
 }
 
@@ -4905,6 +5063,20 @@ function matchCampaignSites(c){
   return picked;
 }
 
+function showCampaignNoBalanceError(c){
+  var body = document.getElementById('campModalBody');
+  if(!body) return;
+  body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">'
+    +'<button onclick="renderCampaignsList()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px">←</button>'
+    +'<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">'+c.name+'</div></div>'
+    +'<div style="text-align:center;padding:40px 20px">'
+    +'<div style="font-size:42px;margin-bottom:14px">💰</div>'
+    +'<div style="font-size:15px;font-weight:800;color:#1a202c;margin-bottom:8px">Your wallet balance is $0.00</div>'
+    +'<div style="font-size:13px;color:#64748b;margin-bottom:22px;max-width:360px;margin-left:auto;margin-right:auto">This campaign needs at least $'+(c.monthlyBudget||0)+' to run. Add funds to your wallet and try again.</div>'
+    +'<button onclick="closeCampaigns();openAddFunds();" style="padding:12px 26px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit">+ Add Funds</button>'
+    +'</div>';
+}
+
 function openCampaignMatches(id){
   var campaigns = getCampaigns();
   var c = campaigns.find(function(x){return x.id===id;});
@@ -4912,6 +5084,12 @@ function openCampaignMatches(id){
   resetMonthlyIfNeeded(c);
 
   if(c.status==='Paused'){ showToast('⚠️ This campaign is paused. Resume it first.'); return; }
+
+  var walletBalance = parseFloat(localStorage.getItem('uplyncio_balance')||'0');
+  if(walletBalance <= 0){
+    showCampaignNoBalanceError(c);
+    return;
+  }
 
   var matches = matchCampaignSites(c);
   _campReviewMatches = matches;
@@ -5010,6 +5188,7 @@ async function confirmCampaignBatchOrder(id){
   var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
   var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
   var usedDomains = (c.usedDomains||[]).slice();
+  var orderHistory = (c.orderHistory||[]).slice();
   var placedCount = 0, placedSpend = 0;
 
   for(var i=0;i<picked.length;i++){
@@ -5048,12 +5227,14 @@ async function confirmCampaignBatchOrder(id){
     }catch(e){}
 
     usedDomains.push(site.url);
+    orderHistory.push({orderId:orderId, url:site.url, da:site.da||0, dr:site.dr||0, anchor:anchor, price:price, date:now});
     placedCount++; placedSpend += price;
   }
 
   localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
 
   c.usedDomains = usedDomains;
+  c.orderHistory = orderHistory;
   c.linksPlacedThisMonth = (c.linksPlacedThisMonth||0) + placedCount;
   c.spentThisMonth = (c.spentThisMonth||0) + placedSpend;
   c.totalLinks = (c.totalLinks||0) + placedCount;
@@ -5064,6 +5245,7 @@ async function confirmCampaignBatchOrder(id){
   saveCampaignsLocal(campaigns);
   campSyncRemote('PATCH', {
     used_domains: usedDomains.join(','),
+    order_history: JSON.stringify(orderHistory),
     links_placed_this_month: c.linksPlacedThisMonth, spent_this_month: c.spentThisMonth,
     total_links: c.totalLinks, total_spent: c.totalSpent
   }, c.id);
