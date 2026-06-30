@@ -52,6 +52,46 @@ export default async function handler(req, res) {
 
   try {
 
+    // ── CAMPAIGNS (Campaign Mode) ──
+    if (req.query.resource === 'campaigns') {
+
+      if (req.method === 'GET') {
+        const { buyer_id } = req.query;
+        let url = `${SUPABASE_URL}/rest/v1/campaigns?select=*&order=created_at.desc`;
+        if (buyer_id) url += `&buyer_id=eq.${buyer_id}`;
+        const r = await fetch(url, { headers: hdrs() });
+        const data = await r.json();
+        return res.status(200).json({ success: true, campaigns: Array.isArray(data) ? data : [] });
+      }
+
+      if (req.method === 'POST') {
+        const body = req.body || {};
+        const campaignId = body.campaign_id || ('CMP' + Math.floor(10000 + Math.random() * 90000));
+        const row = { ...body, campaign_id: campaignId, created_at: new Date().toISOString() };
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/campaigns`, {
+          method: 'POST',
+          headers: { ...hdrs(), 'Prefer': 'return=representation' },
+          body: JSON.stringify(row)
+        });
+        const data = await r.json();
+        return res.status(200).json({ success: true, campaign: Array.isArray(data) ? data[0] : data });
+      }
+
+      if (req.method === 'PATCH') {
+        const { campaign_id } = req.query;
+        const updates = { ...req.body, updated_at: new Date().toISOString() };
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/campaigns?campaign_id=eq.${encodeURIComponent(campaign_id)}`, {
+          method: 'PATCH',
+          headers: { ...hdrs(), 'Prefer': 'return=representation' },
+          body: JSON.stringify(updates)
+        });
+        const data = await r.json();
+        return res.status(200).json({ success: true, campaign: Array.isArray(data) ? data[0] : data });
+      }
+
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     // ── GET ORDERS ──
     if (req.method === 'GET') {
       const { buyer_id, publisher_id, status } = req.query;

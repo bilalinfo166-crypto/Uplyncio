@@ -1087,6 +1087,9 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <button class="sb-link" onclick="openContentPurchase()">
 <div class="sb-icon">✍️</div> Order Content
       </button>
+<button class="sb-link" onclick="openCampaigns()">
+<div class="sb-icon">📊</div> Campaigns
+      </button>
 </div>
 <div class="sb-divider"></div>
 <div class="sb-section">
@@ -2658,10 +2661,10 @@ function openOrdersPage(){
       + '<button onclick="closeOrdersPage()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px">✕</button>'
       + '</div>'
       + '<div style="display:flex;gap:0;border-bottom:1px solid #e2e8f0;padding:0 24px">'
-      + '<button class="ord-tab" onclick="filterOrders(this,'all')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#4f7cff;border:none;background:none;cursor:pointer;border-bottom:2px solid #4f7cff;font-family:inherit">All</button>'
-      + '<button class="ord-tab" onclick="filterOrders(this,'Pending')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">Pending</button>'
-      + '<button class="ord-tab" onclick="filterOrders(this,'In Progress')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">In Progress</button>'
-      + '<button class="ord-tab" onclick="filterOrders(this,'Completed')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">Completed</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,\'all\')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#4f7cff;border:none;background:none;cursor:pointer;border-bottom:2px solid #4f7cff;font-family:inherit">All</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,\'Pending\')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">Pending</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,\'In Progress\')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">In Progress</button>'
+      + '<button class="ord-tab" onclick="filterOrders(this,\'Completed\')" style="padding:12px 16px;font-size:13px;font-weight:700;color:#94a3b8;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit">Completed</button>'
       + '</div>'
       + '<div id="ordersList" style="padding:20px 24px;min-height:200px"></div>'
       + '</div>';
@@ -4154,8 +4157,17 @@ function downloadInvoice(){
     + '<div class="footer"><p>Uplyncio · info@uplyncio.com · uplyncio.com</p><p>Thank you for your business!</p></div>'
     + '</div>'
     + '<scr'+'ipt>window.onload=function(){window.print()}<\/scr'+'ipt>'
-    + '
-// ── CHAT FILTER ──
+    + '</body></html>';
+
+  var blob = new Blob([html], {type:'text/html'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'Uplyncio-Invoice-'+inv.id+'.html';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 async function checkChatFilter(text, orderId) {
   try {
     var uid = localStorage.getItem('uplyncio_currentUid') || '';
@@ -4253,7 +4265,7 @@ function renderBuyerNotifList() {
   list.innerHTML = _buyerNotifs.map(function(n) {
     var diff = (Date.now()-new Date(n.time).getTime())/1000;
     var ago = diff<60?'Just now':diff<3600?Math.floor(diff/60)+'m ago':diff<86400?Math.floor(diff/3600)+'h ago':Math.floor(diff/86400)+'d ago';
-    return '<div onclick="clickBuyerNotif(''+n.id+'')" style="padding:12px 16px;border-bottom:1px solid #f8faff;cursor:pointer;background:'+(n.read?'#fff':'#f0f4ff')+';display:flex;gap:12px;align-items:flex-start" onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background=''+(n.read?'#fff':'#f0f4ff')+''">'+
+    return '<div onclick="clickBuyerNotif(\''+n.id+'\')" style="padding:12px 16px;border-bottom:1px solid #f8faff;cursor:pointer;background:'+(n.read?'#fff':'#f0f4ff')+';display:flex;gap:12px;align-items:flex-start" onmouseover="this.style.background=\'#f8faff\'" onmouseout="this.style.background=\''+(n.read?'#fff':'#f0f4ff')+'\'">'+
       '<div style="font-size:20px;flex-shrink:0;line-height:1.3">'+getBuyerNotifIcon(n.type)+'</div>'+
       '<div style="flex:1;min-width:0">'+
       '<div style="font-size:13px;font-weight:'+(n.read?'600':'700')+';color:#0f172a;margin-bottom:2px">'+n.title+'</div>'+
@@ -4306,8 +4318,6 @@ document.addEventListener('click', function(e) {
   loadBuyerNotifs();
 })();
 
-
-<script>
 // ── MOBILE SIDEBAR — BUYER ──
 function toggleBuyerMobMenu(){
   var sb = document.querySelector('.sidebar');
@@ -4336,20 +4346,6 @@ function closeBuyerMobMenu(){
     el.addEventListener('click', function(){ if(window.innerWidth<=768) closeBuyerMobMenu(); });
   });
 })();
-</script>
-
-
-<script src="/chatbot.js" defer></script>
-</body></html>';
-
-  var blob = new Blob([html], {type:'text/html'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'Uplyncio-Invoice-'+inv.id+'.html';
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 function formatCard(el){
   var v = el.value.replace(/\D/g,'').substring(0,16);
@@ -4453,6 +4449,575 @@ function checkBuyerBadge(){
       showToast('🎉 You earned the ✅ Verified Buyer badge! It now shows on your profile.');
     }
   }catch(e){}
+}
+
+// ═══════════════════════════════════
+// CAMPAIGN MODE
+// ═══════════════════════════════════
+var _campReviewMatches = [];
+var _campEditingId = null;
+
+function campKey(){ return 'uplyncio_campaigns_'+(localStorage.getItem('uplyncio_currentUid')||'guest'); }
+function getCampaigns(){ try{ return JSON.parse(localStorage.getItem(campKey())||'[]'); }catch(e){ return []; } }
+function saveCampaignsLocal(arr){ localStorage.setItem(campKey(), JSON.stringify(arr)); }
+function monthKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1); }
+
+function resetMonthlyIfNeeded(c){
+  var mk = monthKey();
+  if(c.currentMonth !== mk){
+    c.currentMonth = mk;
+    c.linksPlacedThisMonth = 0;
+    c.spentThisMonth = 0;
+  }
+  return c;
+}
+
+function ensureCampaignsModal(){
+  if(document.getElementById('campaignsModal')) return;
+  var modal = document.createElement('div');
+  modal.id = 'campaignsModal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(5px);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px';
+  modal.innerHTML = '<div class="modal" style="max-width:760px">'
+    + '<div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2">'
+    + '<div style="font-size:18px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">📊 Campaigns</div>'
+    + '<button onclick="closeCampaigns()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px">✕</button>'
+    + '</div>'
+    + '<div id="campModalBody" style="padding:20px 24px"></div>'
+    + '</div>';
+  document.body.appendChild(modal);
+}
+
+function openCampaigns(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
+  ensureCampaignsModal();
+  document.getElementById('campaignsModal').style.display='flex';
+  document.body.style.overflow='hidden';
+  renderCampaignsList();
+  // Background sync from Supabase (non-blocking)
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    fetch('/api/orders?resource=campaigns&buyer_id='+encodeURIComponent(uid))
+      .then(function(r){return r.json();})
+      .then(function(res){
+        if(res && res.success && Array.isArray(res.campaigns) && res.campaigns.length){
+          // Merge: server is source of truth for fields, keep local-only campaigns too
+          var local = getCampaigns();
+          var serverIds = res.campaigns.map(function(c){return c.campaign_id;});
+          var merged = res.campaigns.map(function(sc){
+            return {
+              id: sc.campaign_id, name: sc.name, accountType: sc.account_type, companyName: sc.company_name,
+              category: sc.category, minDA: sc.min_da, minDR: sc.min_dr, monthlyBudget: sc.monthly_budget,
+              linksPerMonth: sc.links_per_month, mode: sc.mode, contentSource: sc.content_source,
+              articleContent: sc.article_content, specialRequirements: sc.special_requirements,
+              topicBrief: sc.topic_brief, targetAudience: sc.target_audience, tone: sc.tone,
+              targetUrl: sc.target_url,
+              anchorTexts: sc.anchor_texts ? sc.anchor_texts.split('|||') : [],
+              excludeDomains: sc.exclude_domains ? sc.exclude_domains.split(',') : [],
+              usedDomains: sc.used_domains ? sc.used_domains.split(',') : [],
+              nicheDiversity: sc.niche_diversity, status: sc.status,
+              linksPlacedThisMonth: sc.links_placed_this_month||0, spentThisMonth: sc.spent_this_month||0,
+              totalLinks: sc.total_links||0, totalSpent: sc.total_spent||0, currentMonth: sc.current_month,
+              createdAt: sc.created_at
+            };
+          });
+          local.forEach(function(lc){ if(serverIds.indexOf(lc.id)===-1) merged.push(lc); });
+          saveCampaignsLocal(merged);
+          renderCampaignsList();
+        }
+      }).catch(function(){});
+  }catch(e){}
+}
+
+function closeCampaigns(){
+  var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='block';
+  var modal=document.getElementById('campaignsModal');
+  if(modal) modal.style.display='none';
+  document.body.style.overflow='';
+}
+
+function campSyncRemote(method, payload, idForPatch){
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    var url = '/api/orders?resource=campaigns';
+    if(method==='PATCH') url += '&campaign_id='+encodeURIComponent(idForPatch);
+    var body = Object.assign({}, payload, { buyer_id: uid, buyer_email: user.email||'' });
+    fetch(url, { method: method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }).catch(function(){});
+  }catch(e){}
+}
+
+function renderCampaignsList(){
+  var body = document.getElementById('campModalBody');
+  if(!body) return;
+  var campaigns = getCampaigns().map(resetMonthlyIfNeeded);
+  saveCampaignsLocal(campaigns);
+
+  var helpHTML = '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:16px;overflow:hidden">'
+    +'<div onclick="toggleCampHelp()" style="padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8faff">'
+    +'<div style="display:flex;align-items:center;gap:10px"><span style="width:22px;height:22px;border-radius:50%;background:#4f7cff;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">?</span>'
+    +'<span style="font-size:13px;font-weight:700;color:#1a202c">How does Campaign Mode work?</span></div>'
+    +'<span id="campHelpIcon" style="font-size:18px;color:#4f7cff;font-weight:300">+</span></div>'
+    +'<div id="campHelpBody" style="display:none;padding:18px 20px;border-top:1px solid #e2e8f0;background:#fff">'
+    +'<div style="font-size:12.5px;color:#475569;line-height:1.8;margin-bottom:14px">Campaign Mode lets you set your link building goals once — niche, budget, and content — and Uplyncio keeps placing orders across matching publisher sites for you, instead of you ordering site by site every time.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
+    +'<div><div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">1. Set up once</div><div style="font-size:12px;color:#475569;line-height:1.7">Choose your niche, minimum DA/DR, monthly budget and how many links you want — and tell us if you\'ll send the article or want our publishers to write it.</div></div>'
+    +'<div><div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">2. We match sites</div><div style="font-size:12px;color:#475569;line-height:1.7">We scan all matching publisher sites and pick the best options within your budget — cheapest qualifying sites first.</div></div>'
+    +'<div><div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">3. One order per site</div><div style="font-size:12px;color:#475569;line-height:1.7">If a campaign matches sites from different publishers, each one gets its own order with the same content and target link — your anchor text rotates automatically so it stays natural.</div></div>'
+    +'<div><div style="font-size:12px;font-weight:700;color:#0f172a;margin-bottom:6px">4. Manual or Auto</div><div style="font-size:12px;color:#475569;line-height:1.7">Manual mode shows you the matches first — you approve before anything is ordered. Auto mode places matching orders immediately once you click "Run Campaign".</div></div>'
+    +'</div></div></div>';
+
+  var listHTML = '';
+  if(!campaigns.length){
+    listHTML = '<div style="text-align:center;padding:50px 20px;color:#94a3b8"><div style="font-size:44px;margin-bottom:14px;opacity:.3">📊</div><div style="font-size:15px;font-weight:700;color:#374151;margin-bottom:6px">No campaigns yet</div><div style="font-size:13px">Set your link building goal once, and let it run on autopilot.</div></div>';
+  } else {
+    campaigns.forEach(function(c){ listHTML += campaignCardHTML(c); });
+  }
+
+  body.innerHTML = helpHTML
+    + '<div style="display:flex;justify-content:flex-end;margin-bottom:14px">'
+    + '<button onclick="openNewCampaignForm()" style="padding:9px 18px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ New Campaign</button>'
+    + '</div>'
+    + listHTML;
+}
+
+function toggleCampHelp(){
+  var b=document.getElementById('campHelpBody'), i=document.getElementById('campHelpIcon');
+  if(!b) return;
+  if(b.style.display==='none'){ b.style.display='block'; i.textContent='−'; }
+  else { b.style.display='none'; i.textContent='+'; }
+}
+
+function campaignCardHTML(c){
+  var statusColors = {'Active':'#16a34a','Paused':'#f59e0b','Completed':'#94a3b8'};
+  var sc = statusColors[c.status]||'#94a3b8';
+  var budgetPct = c.monthlyBudget>0 ? Math.min(100, Math.round((c.spentThisMonth/c.monthlyBudget)*100)) : 0;
+  var linksPct = c.linksPerMonth>0 ? Math.min(100, Math.round((c.linksPlacedThisMonth/c.linksPerMonth)*100)) : 0;
+  var modeLabel = c.mode==='auto' ? '⚡ Auto' : '👆 Manual';
+  var srcLabel = c.contentSource==='publisher' ? '✍️ Publisher writes' : '📝 You provide article';
+  return '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;margin-bottom:14px">'
+    +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px">'
+      +'<div>'
+        +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">'
+          +'<div style="font-family:Manrope,sans-serif;font-size:15px;font-weight:800;color:#1a202c">'+c.name+'</div>'
+          +'<span style="padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:700;background:'+sc+'22;color:'+sc+'">'+c.status+'</span>'
+        +'</div>'
+        +'<div style="font-size:11.5px;color:#64748b">'+(c.accountType||'Individual')+' &nbsp;•&nbsp; '+(c.category||'Any niche')+' &nbsp;•&nbsp; '+modeLabel+' &nbsp;•&nbsp; '+srcLabel+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0">'
+        +'<button onclick="openCampaignMatches(\''+c.id+'\')" style="padding:7px 13px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+(c.mode==='auto'?'Run Now':'Find Matches')+'</button>'
+        +'<button onclick="pauseResumeCampaign(\''+c.id+'\')" style="padding:7px 11px;background:#f8faff;color:#475569;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">'+(c.status==='Paused'?'Resume':'Pause')+'</button>'
+        +'<button onclick="deleteCampaignConfirm(\''+c.id+'\')" style="padding:7px 9px;background:#fff5f5;color:#ef4444;border:1px solid #fee2e2;border-radius:8px;font-size:12px;cursor:pointer">🗑</button>'
+      +'</div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'
+      +'<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:#94a3b8;font-weight:600">Budget this month</span><span style="font-size:11px;color:#1a202c;font-weight:700">$'+(c.spentThisMonth||0)+' / $'+(c.monthlyBudget||0)+'</span></div>'
+        +'<div style="height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="height:100%;background:#4f7cff;width:'+budgetPct+'%"></div></div></div>'
+      +'<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:11px;color:#94a3b8;font-weight:600">Links this month</span><span style="font-size:11px;color:#1a202c;font-weight:700">'+(c.linksPlacedThisMonth||0)+' / '+(c.linksPerMonth||0)+'</span></div>'
+        +'<div style="height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden"><div style="height:100%;background:#16a34a;width:'+linksPct+'%"></div></div></div>'
+    +'</div>'
+    +'<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:11.5px;color:#94a3b8">All time: <strong style="color:#475569">'+(c.totalLinks||0)+' links placed</strong> &nbsp;•&nbsp; <strong style="color:#475569">$'+(c.totalSpent||0)+' spent</strong></div>'
+  +'</div>';
+}
+
+function pauseResumeCampaign(id){
+  var campaigns = getCampaigns();
+  var c = campaigns.find(function(x){return x.id===id;});
+  if(!c) return;
+  c.status = c.status==='Paused' ? 'Active' : 'Paused';
+  saveCampaignsLocal(campaigns);
+  campSyncRemote('PATCH', {status:c.status}, id);
+  renderCampaignsList();
+  showToast(c.status==='Paused' ? '⏸ Campaign paused' : '▶️ Campaign resumed');
+}
+
+function deleteCampaignConfirm(id){
+  if(!confirm('Delete this campaign? This will not cancel orders already placed.')) return;
+  var campaigns = getCampaigns().filter(function(x){return x.id!==id;});
+  saveCampaignsLocal(campaigns);
+  campSyncRemote('PATCH', {status:'Deleted'}, id);
+  renderCampaignsList();
+  showToast('Campaign deleted');
+}
+
+// ── NEW CAMPAIGN FORM ──
+function openNewCampaignForm(){
+  var body = document.getElementById('campModalBody');
+  if(!body) return;
+
+  var allSites = loadAllSites();
+  var catSet = {};
+  allSites.forEach(function(s){ (s.cats||[]).forEach(function(c){ catSet[c]=1; }); });
+  var catOptions = Object.keys(catSet).sort();
+  var catList = '<datalist id="campCatList">'+catOptions.map(function(c){return '<option value="'+c+'">';}).join('')+'</datalist>';
+
+  body.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">'
+    +'<button onclick="renderCampaignsList()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px">←</button>'
+    +'<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">New Campaign</div>'
+    +'</div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Campaign Name</label>'
+    +'<input id="cName" class="fi2" type="text" placeholder="e.g. Finance Niche Push" style="font-size:13px;padding:10px"></div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Account Type</label>'
+    +'<div style="display:flex;gap:10px">'
+    +'<div id="acct-Individual" onclick="selCampAcct(this,\'Individual\')" style="flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">👤 Individual</div>'
+    +'<div id="acct-Agency" onclick="selCampAcct(this,\'Agency\')" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">🏢 Agency</div>'
+    +'</div></div>'
+    +'<div id="companyNameField" style="display:none;margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Company Name</label>'
+    +'<input id="cCompany" class="fi2" type="text" placeholder="Your agency name" style="font-size:13px;padding:10px"></div>'
+
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Category / Niche</label>'
+    +'<input id="cCategory" class="fi2" list="campCatList" placeholder="e.g. Finance" style="font-size:13px;padding:10px">'+catList+'</div>'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Monthly Budget ($)</label>'
+    +'<input id="cBudget" class="fi2" type="number" placeholder="500" style="font-size:13px;padding:10px"></div>'
+    +'</div>'
+
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Min DA</label><input id="cMinDA" class="fi2" type="number" placeholder="20" style="font-size:13px;padding:10px"></div>'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Min DR</label><input id="cMinDR" class="fi2" type="number" placeholder="20" style="font-size:13px;padding:10px"></div>'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Links / Month</label><input id="cLinksMonth" class="fi2" type="number" placeholder="4" style="font-size:13px;padding:10px"></div>'
+    +'</div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Mode</label>'
+    +'<div style="display:flex;gap:10px">'
+    +'<div id="mode-manual" onclick="selCampMode(this,\'manual\')" style="flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">👆 Manual — review before ordering</div>'
+    +'<div id="mode-auto" onclick="selCampMode(this,\'auto\')" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">⚡ Auto — order immediately on run</div>'
+    +'</div></div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Who writes the content?</label>'
+    +'<div style="display:flex;gap:10px">'
+    +'<div id="src-buyer" onclick="selCampContent(this,\'buyer\')" style="flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">📝 I will provide the article</div>'
+    +'<div id="src-publisher" onclick="selCampContent(this,\'publisher\')" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">✍️ Publisher will write it</div>'
+    +'</div></div>'
+
+    +'<div id="contentBuyerFields" style="margin-bottom:14px">'
+    +'<label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Article Content <span style="color:#94a3b8;font-weight:500">(min 500 words, used for every site in this campaign)</span></label>'
+    +'<textarea id="cArticleContent" class="fi2" rows="6" placeholder="Paste your article here..." style="font-size:13px;padding:10px;resize:vertical"></textarea>'
+    +'<div style="margin-top:10px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Special Requirements</label>'
+    +'<textarea id="cSpecialReq" class="fi2" rows="3" placeholder="Formatting, tone, internal links, anything publishers should know..." style="font-size:13px;padding:10px;resize:vertical"></textarea></div>'
+    +'</div>'
+
+    +'<div id="contentPublisherFields" style="display:none;margin-bottom:14px">'
+    +'<label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Topic / Brief</label>'
+    +'<textarea id="cTopicBrief" class="fi2" rows="3" placeholder="What should the article be about?" style="font-size:13px;padding:10px;resize:vertical"></textarea>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Target Audience</label><input id="cAudience" class="fi2" type="text" placeholder="e.g. small business owners" style="font-size:13px;padding:10px"></div>'
+    +'<div><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Tone</label><select id="cTone" class="fi2" style="font-size:13px;padding:10px"><option>Professional</option><option>Conversational</option><option>Persuasive</option><option>Informative</option></select></div>'
+    +'</div></div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Target URL</label>'
+    +'<input id="cTargetUrl" class="fi2" type="url" placeholder="https://yoursite.com/page" style="font-size:13px;padding:10px"></div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Anchor Texts <span style="color:#94a3b8;font-weight:500">(rotated across sites so it stays natural)</span></label>'
+    +'<div id="cAnchorsList"><div style="display:flex;gap:8px;margin-bottom:8px"><input class="fi2" type="text" placeholder="e.g. best accounting software" style="flex:1;font-size:13px;padding:10px"></div></div>'
+    +'<button type="button" onclick="addCampAnchorField()" style="font-size:12px;color:#4f7cff;background:none;border:none;cursor:pointer;font-weight:700;font-family:inherit">+ Add another anchor</button></div>'
+
+    +'<div style="margin-bottom:14px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Niche Diversity</label>'
+    +'<div style="display:flex;gap:10px">'
+    +'<div id="niche-same" onclick="selCampNiche(this,\'same\')" style="flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">Same niche only</div>'
+    +'<div id="niche-mixed" onclick="selCampNiche(this,\'mixed\')" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c">Mixed niches</div>'
+    +'</div></div>'
+
+    +'<div style="margin-bottom:18px"><label style="font-size:11.5px;font-weight:700;color:#475569;display:block;margin-bottom:6px">Exclude Domains <span style="color:#94a3b8;font-weight:500">(optional, comma separated)</span></label>'
+    +'<textarea id="cExclude" class="fi2" rows="2" placeholder="competitor.com, alreadyused.com" style="font-size:13px;padding:10px;resize:vertical"></textarea></div>'
+
+    +'<button onclick="saveCampaignSubmit()" style="width:100%;padding:13px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Create Campaign</button>';
+
+  window._campAcct = 'Individual';
+  window._campMode = 'manual';
+  window._campSrc = 'buyer';
+  window._campNiche = 'same';
+}
+
+function selCampAcct(el,val){
+  window._campAcct = val;
+  document.getElementById('acct-Individual').style.cssText = el===document.getElementById('acct-Individual') ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+  document.getElementById('acct-Agency').style.cssText = el===document.getElementById('acct-Agency') ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+  document.getElementById('companyNameField').style.display = val==='Agency' ? 'block' : 'none';
+}
+
+function selCampMode(el,val){
+  window._campMode = val;
+  document.getElementById('mode-manual').style.cssText = val==='manual' ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+  document.getElementById('mode-auto').style.cssText = val==='auto' ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+}
+
+function selCampContent(el,val){
+  window._campSrc = val;
+  document.getElementById('src-buyer').style.cssText = val==='buyer' ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+  document.getElementById('src-publisher').style.cssText = val==='publisher' ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+  document.getElementById('contentBuyerFields').style.display = val==='buyer' ? 'block' : 'none';
+  document.getElementById('contentPublisherFields').style.display = val==='publisher' ? 'block' : 'none';
+}
+
+function selCampNiche(el,val){
+  window._campNiche = val;
+  document.getElementById('niche-same').style.cssText = val==='same' ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+  document.getElementById('niche-mixed').style.cssText = val==='mixed' ? 'flex:1;padding:10px;border:1.5px solid #4f7cff;background:#eff6ff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c' : 'flex:1;padding:10px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;cursor:pointer;text-align:center;font-size:12.5px;font-weight:700;color:#1a202c';
+}
+
+function addCampAnchorField(){
+  var list = document.getElementById('cAnchorsList');
+  var div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px';
+  div.innerHTML = '<input class="fi2" type="text" placeholder="another anchor text" style="flex:1;font-size:13px;padding:10px"><button onclick="this.parentElement.remove()" style="width:36px;border:1.5px solid #fee2e2;background:#fff5f5;border-radius:8px;cursor:pointer;color:#ef4444;font-size:16px;flex-shrink:0">×</button>';
+  list.appendChild(div);
+}
+
+function saveCampaignSubmit(){
+  var name = document.getElementById('cName').value.trim();
+  var budget = parseFloat(document.getElementById('cBudget').value)||0;
+  var linksMonth = parseInt(document.getElementById('cLinksMonth').value)||0;
+  var targetUrl = document.getElementById('cTargetUrl').value.trim();
+
+  if(!name){ showToast('⚠️ Please enter a campaign name.'); return; }
+  if(budget<=0){ showToast('⚠️ Please enter a monthly budget.'); return; }
+  if(linksMonth<=0){ showToast('⚠️ Please enter how many links per month.'); return; }
+  if(!targetUrl){ showToast('⚠️ Please enter your target URL.'); return; }
+
+  var src = window._campSrc||'buyer';
+  if(src==='buyer'){
+    var article = document.getElementById('cArticleContent').value.trim();
+    var wc = article ? article.split(/\s+/).filter(function(w){return w.length>0;}).length : 0;
+    if(wc < 500){ showToast('⚠️ Article must be at least 500 words ('+wc+' currently).'); return; }
+  }
+
+  var anchors = [];
+  document.querySelectorAll('#cAnchorsList input').forEach(function(i){ if(i.value.trim()) anchors.push(i.value.trim()); });
+  if(!anchors.length){ showToast('⚠️ Please add at least one anchor text.'); return; }
+
+  var c = {
+    id: 'CMP'+Math.floor(10000+Math.random()*90000),
+    name: name,
+    accountType: window._campAcct||'Individual',
+    companyName: document.getElementById('cCompany') ? document.getElementById('cCompany').value.trim() : '',
+    category: document.getElementById('cCategory').value.trim(),
+    monthlyBudget: budget,
+    minDA: parseInt(document.getElementById('cMinDA').value)||0,
+    minDR: parseInt(document.getElementById('cMinDR').value)||0,
+    linksPerMonth: linksMonth,
+    mode: window._campMode||'manual',
+    contentSource: src,
+    articleContent: src==='buyer' ? document.getElementById('cArticleContent').value.trim() : '',
+    specialRequirements: src==='buyer' ? document.getElementById('cSpecialReq').value.trim() : '',
+    topicBrief: src==='publisher' ? document.getElementById('cTopicBrief').value.trim() : '',
+    targetAudience: src==='publisher' ? document.getElementById('cAudience').value.trim() : '',
+    tone: src==='publisher' ? document.getElementById('cTone').value : '',
+    targetUrl: targetUrl,
+    anchorTexts: anchors,
+    nicheDiversity: window._campNiche||'same',
+    excludeDomains: document.getElementById('cExclude').value.split(',').map(function(s){return s.trim();}).filter(Boolean),
+    usedDomains: [],
+    status: 'Active',
+    linksPlacedThisMonth: 0, spentThisMonth: 0,
+    totalLinks: 0, totalSpent: 0,
+    currentMonth: monthKey(),
+    createdAt: new Date().toISOString()
+  };
+
+  var campaigns = getCampaigns();
+  campaigns.unshift(c);
+  saveCampaignsLocal(campaigns);
+
+  campSyncRemote('POST', {
+    campaign_id: c.id, name:c.name, account_type:c.accountType, company_name:c.companyName,
+    category:c.category, min_da:c.minDA, min_dr:c.minDR, monthly_budget:c.monthlyBudget,
+    links_per_month:c.linksPerMonth, mode:c.mode, content_source:c.contentSource,
+    article_content:c.articleContent, special_requirements:c.specialRequirements,
+    topic_brief:c.topicBrief, target_audience:c.targetAudience, tone:c.tone,
+    target_url:c.targetUrl, anchor_texts:c.anchorTexts.join('|||'),
+    exclude_domains:c.excludeDomains.join(','), used_domains:'',
+    niche_diversity:c.nicheDiversity, status:c.status,
+    links_placed_this_month:0, spent_this_month:0, total_links:0, total_spent:0,
+    current_month:c.currentMonth
+  });
+
+  showToast('✅ Campaign "'+name+'" created!');
+  renderCampaignsList();
+}
+
+// ── MATCHING ──
+function matchCampaignSites(c){
+  var all = loadAllSites();
+  var excl = (c.excludeDomains||[]).concat(c.usedDomains||[]).map(function(d){return d.toLowerCase();});
+  var cat = (c.category||'').toLowerCase();
+
+  var matches = all.filter(function(s){
+    if(excl.indexOf(s.url.toLowerCase())>=0) return false;
+    if((s.da||0) < (c.minDA||0)) return false;
+    if((s.dr||0) < (c.minDR||0)) return false;
+    if(c.nicheDiversity==='same' && cat){
+      var hasCat = (s.cats||[]).some(function(sc){ return sc.toLowerCase().indexOf(cat)>=0 || cat.indexOf(sc.toLowerCase())>=0; });
+      if(!hasCat) return false;
+    }
+    var price = c.contentSource==='publisher' ? (s.wP>0?s.wP:Math.round(s.gP*1.35)) : s.gP;
+    if(!price || price<=0) return false;
+    return true;
+  });
+
+  matches.sort(function(a,b){ return a.gP - b.gP; });
+
+  var remainingBudget = Math.max(0, (c.monthlyBudget||0) - (c.spentThisMonth||0));
+  var remainingLinks = Math.max(0, (c.linksPerMonth||0) - (c.linksPlacedThisMonth||0));
+
+  var picked = [];
+  var spend = 0;
+  for(var i=0;i<matches.length && picked.length<remainingLinks;i++){
+    var s = matches[i];
+    var price = c.contentSource==='publisher' ? (s.wP>0?s.wP:Math.round(s.gP*1.35)) : s.gP;
+    if(spend + price > remainingBudget) continue;
+    picked.push(Object.assign({}, s, {_orderPrice:price}));
+    spend += price;
+  }
+  return picked;
+}
+
+function openCampaignMatches(id){
+  var campaigns = getCampaigns();
+  var c = campaigns.find(function(x){return x.id===id;});
+  if(!c) return;
+  resetMonthlyIfNeeded(c);
+
+  if(c.status==='Paused'){ showToast('⚠️ This campaign is paused. Resume it first.'); return; }
+
+  var matches = matchCampaignSites(c);
+  _campReviewMatches = matches;
+  _campEditingId = id;
+
+  if(!matches.length){
+    showToast('No matching sites available right now within your budget/criteria. Try increasing your budget or relaxing DA/DR requirements.');
+    return;
+  }
+
+  if(c.mode==='auto'){
+    confirmCampaignBatchOrder(id);
+    return;
+  }
+
+  var body = document.getElementById('campModalBody');
+  var total = matches.reduce(function(s,m){return s+m._orderPrice;},0);
+  var rows = matches.map(function(m,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9">'
+      +'<input type="checkbox" checked id="mchk'+i+'" onchange="toggleMatchSite('+i+')" style="width:16px;height:16px;flex-shrink:0">'
+      +'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#1a202c">'+m.url+'</div>'
+      +'<div style="font-size:11px;color:#64748b">DA '+m.da+' • DR '+m.dr+' • '+(m.pub||'Publisher')+'</div></div>'
+      +'<div style="font-size:13px;font-weight:800;color:#1a202c" id="mprice'+i+'">$'+m._orderPrice+'</div>'
+      +'</div>';
+  }).join('');
+
+  body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'
+    +'<button onclick="renderCampaignsList()" style="width:30px;height:30px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:14px">←</button>'
+    +'<div style="font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">Review Matches — '+c.name+'</div></div>'
+    +'<div style="font-size:12.5px;color:#475569;margin-bottom:12px">'+matches.length+' sites matched your criteria. The same content and target link will be sent to every site — anchor text rotates automatically.</div>'
+    +'<div id="matchRows">'+rows+'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0">'
+    +'<div style="font-size:14px;font-weight:800;color:#1a202c">Total: $<span id="matchTotal">'+total+'</span></div>'
+    +'<button onclick="confirmCampaignBatchOrder(\''+id+'\')" style="padding:11px 22px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit">Place Orders →</button>'
+    +'</div>';
+}
+
+function toggleMatchSite(i){
+  var chk = document.getElementById('mchk'+i);
+  var priceEl = document.getElementById('mprice'+i);
+  if(priceEl) priceEl.style.opacity = chk.checked ? '1' : '.3';
+  var total = 0;
+  _campReviewMatches.forEach(function(m,idx){
+    var c = document.getElementById('mchk'+idx);
+    if(c && c.checked) total += m._orderPrice;
+  });
+  var t = document.getElementById('matchTotal');
+  if(t) t.textContent = total;
+}
+
+async function confirmCampaignBatchOrder(id){
+  var campaigns = getCampaigns();
+  var c = campaigns.find(function(x){return x.id===id;});
+  if(!c) return;
+
+  var picked = _campReviewMatches.length ? _campReviewMatches.filter(function(m,idx){
+    var chk = document.getElementById('mchk'+idx);
+    return !chk || chk.checked; // if review UI wasn't shown (auto mode), take all
+  }) : [];
+
+  if(!picked.length) picked = matchCampaignSites(c);
+  if(!picked.length){ showToast('No sites to order.'); return; }
+
+  var total = picked.reduce(function(s,m){return s+(m._orderPrice||0);},0);
+  var balance = parseFloat(localStorage.getItem('uplyncio_balance')||'0');
+  if(balance < total){
+    showToast('⚠️ Insufficient balance ($'+balance.toFixed(2)+'). Add funds to run this campaign.');
+    return;
+  }
+
+  localStorage.setItem('uplyncio_balance', (balance-total).toFixed(2));
+
+  var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  var orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]');
+  var usedDomains = (c.usedDomains||[]).slice();
+  var placedCount = 0, placedSpend = 0;
+
+  for(var i=0;i<picked.length;i++){
+    var site = picked[i];
+    var anchor = c.anchorTexts[i % c.anchorTexts.length];
+    var price = site._orderPrice;
+    var orderId = '#OR'+Math.floor(10000+Math.random()*90000);
+    var now = new Date().toISOString();
+    var requirements = c.contentSource==='buyer'
+      ? 'Campaign article (provided by buyer):\n\n'+c.articleContent+(c.specialRequirements?'\n\nSpecial requirements:\n'+c.specialRequirements:'')
+      : 'Campaign brief for publisher to write:\n\nTopic: '+c.topicBrief+'\nAudience: '+c.targetAudience+'\nTone: '+c.tone;
+
+    var orderData = {
+      id: orderId, order_id: orderId,
+      buyer_id: uid, buyer_email: userData.email||'', buyer_name: userData.name||'',
+      publisher_id: site.publisherUid||'',
+      site_url: site.url, site_da: site.da||0, site_dr: site.dr||0,
+      service_type: c.contentSource==='publisher' ? 'Write + Publish' : 'Publish Only',
+      price: price, publisher_price: Math.round(price*0.8),
+      pay_method: 'Balance',
+      target_url: c.targetUrl, anchor_text: anchor,
+      keywords: '', requirements: requirements,
+      campaign_id: c.id,
+      status: 'Pending', created_at: now, updated_at: now
+    };
+
+    orders.unshift(Object.assign({}, orderData, {domain: site.url}));
+
+    try{
+      fetch('/api/orders', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(Object.assign({}, orderData, {wallet_balance_after: parseFloat(localStorage.getItem('uplyncio_balance')||'0')}))
+      }).catch(function(){});
+    }catch(e){}
+
+    usedDomains.push(site.url);
+    placedCount++; placedSpend += price;
+  }
+
+  localStorage.setItem('uplyncio_buyer_orders', JSON.stringify(orders));
+
+  c.usedDomains = usedDomains;
+  c.linksPlacedThisMonth = (c.linksPlacedThisMonth||0) + placedCount;
+  c.spentThisMonth = (c.spentThisMonth||0) + placedSpend;
+  c.totalLinks = (c.totalLinks||0) + placedCount;
+  c.totalSpent = (c.totalSpent||0) + placedSpend;
+  if(c.spentThisMonth >= c.monthlyBudget || c.linksPlacedThisMonth >= c.linksPerMonth){
+    // keep Active so it can resume next month automatically — counters reset via resetMonthlyIfNeeded
+  }
+  saveCampaignsLocal(campaigns);
+  campSyncRemote('PATCH', {
+    used_domains: usedDomains.join(','),
+    links_placed_this_month: c.linksPlacedThisMonth, spent_this_month: c.spentThisMonth,
+    total_links: c.totalLinks, total_spent: c.totalSpent
+  }, c.id);
+
+  addBuyerNotification('campaign', 'Campaign order placed', 'Campaign "'+c.name+'": '+placedCount+' order(s) placed for $'+placedSpend+'.', 'orders');
+
+  showToast('✅ '+placedCount+' order(s) placed for "'+c.name+'" — $'+placedSpend+' total.');
+  renderCampaignsList();
+  updateCartNav();
 }
 
 // ── REAL-TIME SYNC: Listen for publisher changes ──
@@ -5601,3 +6166,6 @@ function showBuyerSwitchModal(){
   if(m){ m.style.display='flex'; m.onclick=function(e){if(e.target===m)m.style.display='none';}; }
 }
 </script>
+<script src="/chatbot.js" defer></script>
+</body>
+</html>
