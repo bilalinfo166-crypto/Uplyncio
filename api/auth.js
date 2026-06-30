@@ -270,6 +270,18 @@ export default async function handler(req, res) {
       }
     }
 
+    // ── UPDATE WHATSAPP NUMBER ──
+    if (action === 'update_whatsapp') {
+      const { userId, email, whatsapp } = body;
+      if (!userId && !email) return res.status(400).json({ error: 'Missing userId or email' });
+      const filter = userId ? `id=eq.${userId}` : `email=eq.${encodeURIComponent(email.toLowerCase().trim())}`;
+      await sbUpdate('users', filter, {
+        whatsapp_number: whatsapp || null,
+        updated_at: new Date().toISOString()
+      });
+      return res.status(200).json({ success: true });
+    }
+
     // ── FORGOT PASSWORD ──
     if (action === 'forgot_password') {
       const { email } = body;
@@ -311,12 +323,16 @@ export default async function handler(req, res) {
       const { to, name, from: fromName, role, orderId, siteUrl } = body;
       if (!to || !name || !fromName) return res.status(400).json({ error: 'Missing fields' });
       try {
+        const recipient = await sbGet('users', `email=eq.${encodeURIComponent(to)}`);
+        const waNumber = Array.isArray(recipient) && recipient[0] ? recipient[0].whatsapp_number : null;
         if (role === 'buyer') {
-          const { sendBuyerNewMessage } = await import('./email.js');
+          const { sendBuyerNewMessage, sendWA_BuyerNewMessage } = await import('./email.js');
           sendBuyerNewMessage({ to, name, publisherName: fromName, orderId, siteUrl }).catch(()=>{});
+          if (waNumber) sendWA_BuyerNewMessage({ to: waNumber, senderName: fromName, orderId }).catch(()=>{});
         } else {
-          const { sendPublisherNewMessage } = await import('./email.js');
+          const { sendPublisherNewMessage, sendWA_PublisherNewMessage } = await import('./email.js');
           sendPublisherNewMessage({ to, name, buyerName: fromName, orderId, siteUrl }).catch(()=>{});
+          if (waNumber) sendWA_PublisherNewMessage({ to: waNumber, senderName: fromName, orderId }).catch(()=>{});
         }
       } catch(e) {}
       return res.status(200).json({ success: true });

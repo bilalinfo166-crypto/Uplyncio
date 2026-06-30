@@ -1,10 +1,13 @@
-// Orders API — with full email notifications
+// Orders API — with full email + WhatsApp notifications
 import {
   sendBuyerOrderPlaced, sendBuyerOrderAccepted, sendBuyerOrderDelivered,
   sendBuyerOrderCancelled, sendBuyerOrderRejected, sendBuyerFirstOrderCongrats,
   sendBuyerOrderInvoice,
   sendPublisherNewOrder, sendPublisherOrderAccepted, sendPublisherOrderComplete,
-  sendPublisherOrderCancelled, sendPublisherSiteRejected
+  sendPublisherOrderCancelled, sendPublisherSiteRejected,
+  sendWA_BuyerOrderPlaced, sendWA_BuyerOrderAccepted, sendWA_BuyerOrderDelivered,
+  sendWA_BuyerOrderCancelled, sendWA_BuyerOrderRejected,
+  sendWA_PublisherNewOrder, sendWA_PublisherOrderAccepted, sendWA_PublisherOrderComplete
 } from './email.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -149,6 +152,10 @@ export default async function handler(req, res) {
             targetUrl: body.target_url || 'N/A', deadline
           }).catch(() => {});
 
+          if (buyer.whatsapp_number) {
+            sendWA_BuyerOrderPlaced({ to: buyer.whatsapp_number, name: buyer.name, orderId, siteUrl: body.site_url, price: body.price }).catch(() => {});
+          }
+
           // Order invoice
           sendBuyerOrderInvoice({
             to: buyer.email, name: buyer.name,
@@ -175,6 +182,10 @@ export default async function handler(req, res) {
             deadline, content: body.content,
             requirements: body.requirements
           }).catch(() => {});
+
+          if (publisher.whatsapp_number) {
+            sendWA_PublisherNewOrder({ to: publisher.whatsapp_number, name: publisher.name, orderId, siteUrl: body.site_url, buyerName: buyer?.name || 'A buyer', price: body.publisher_price || body.price, deadline }).catch(() => {});
+          }
         }
       } catch(e) { console.log('Order email error:', e.message); }
 
@@ -212,6 +223,7 @@ export default async function handler(req, res) {
               publisherName: publisher?.name || 'Publisher',
               deadline
             }).catch(() => {});
+            if (buyer.whatsapp_number) sendWA_BuyerOrderAccepted({ to: buyer.whatsapp_number, name: buyer.name, orderId: o.order_id, siteUrl: o.site_url, deadline }).catch(() => {});
           }
           if (publisher) {
             sendPublisherOrderAccepted({
@@ -220,6 +232,7 @@ export default async function handler(req, res) {
               price: o.price,
               deadline
             }).catch(() => {});
+            if (publisher.whatsapp_number) sendWA_PublisherOrderAccepted({ to: publisher.whatsapp_number, name: publisher.name, orderId: o.order_id, siteUrl: o.site_url, deadline }).catch(() => {});
           }
         }
 
@@ -234,6 +247,7 @@ export default async function handler(req, res) {
               targetUrl: o.target_url || 'N/A',
               siteDA: o.da || 'N/A'
             }).catch(() => {});
+            if (buyer.whatsapp_number) sendWA_BuyerOrderDelivered({ to: buyer.whatsapp_number, name: buyer.name, orderId: o.order_id, siteUrl: o.site_url, liveUrl: o.live_url || 'N/A' }).catch(() => {});
           }
         }
 
@@ -247,6 +261,7 @@ export default async function handler(req, res) {
               liveUrl: o.live_url || 'N/A',
               totalEarnings: 'N/A'
             }).catch(() => {});
+            if (publisher.whatsapp_number) sendWA_PublisherOrderComplete({ to: publisher.whatsapp_number, name: publisher.name, orderId: o.order_id, siteUrl: o.site_url, price: o.publisher_price || o.price }).catch(() => {});
           }
         }
 
@@ -260,6 +275,7 @@ export default async function handler(req, res) {
               price: o.price,
               refundStatus: 'Full refund within 3-5 business days'
             }).catch(() => {});
+            if (buyer.whatsapp_number) sendWA_BuyerOrderCancelled({ to: buyer.whatsapp_number, name: buyer.name, orderId: o.order_id, siteUrl: o.site_url, reason: updates.notes || 'Order cancelled' }).catch(() => {});
           }
           if (publisher) {
             sendPublisherOrderCancelled({
@@ -280,6 +296,7 @@ export default async function handler(req, res) {
               reason: updates.notes || 'Publisher unable to fulfill',
               price: o.price
             }).catch(() => {});
+            if (buyer.whatsapp_number) sendWA_BuyerOrderRejected({ to: buyer.whatsapp_number, name: buyer.name, orderId: o.order_id, siteUrl: o.site_url, reason: updates.notes || 'Publisher unable to fulfill' }).catch(() => {});
           }
         }
 

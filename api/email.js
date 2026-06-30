@@ -102,6 +102,40 @@ async function send(to, subject, html) {
   return { ok: r.ok, data };
 }
 
+// ── WHATSAPP (Twilio) ──
+const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_WA_FROM = process.env.TWILIO_WHATSAPP_NUMBER; // e.g. +14155238886, no "whatsapp:" prefix
+
+async function sendWA(to, message) {
+  if (!TWILIO_SID || !TWILIO_TOKEN || !TWILIO_WA_FROM) return { ok: false, error: 'Twilio not configured' };
+  if (!to) return { ok: false, error: 'No recipient number' };
+  let num = to.toString().trim().replace(/[\s\-()]/g, '');
+  if (!num.startsWith('+')) num = '+' + num.replace(/^0+/, '');
+  try {
+    const auth = Buffer.from(`${TWILIO_SID}:${TWILIO_TOKEN}`).toString('base64');
+    const body = new URLSearchParams({
+      From: `whatsapp:${TWILIO_WA_FROM}`,
+      To: `whatsapp:${num}`,
+      Body: message
+    });
+    const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: body.toString()
+    });
+    const data = await r.json();
+    console.log(`WhatsApp to ${num}: status=${r.status}`, data.sid || data.message);
+    return { ok: r.ok, data };
+  } catch (e) {
+    console.log('WhatsApp send error:', e.message);
+    return { ok: false, error: e.message };
+  }
+}
+
 // ── BOX helpers ──
 function codeBox(code, bg, border, labelColor, label) {
   return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px">
@@ -1859,4 +1893,67 @@ export async function sendAccountDeletionConfirm({ to, name, role, deletionCode,
     sign() + footer()
   );
   return send(to, `Account Deletion Request — Confirmation Code Inside`, html);
+}
+
+// ═══════════════════════════════════
+// WHATSAPP TEMPLATES (short text, Twilio)
+// ═══════════════════════════════════
+
+// ── Buyer side ──
+export async function sendWA_BuyerOrderPlaced({ to, name, orderId, siteUrl, price }) {
+  return sendWA(to, `🛒 *Uplyncio* — Order Placed\n\nHi ${name}, your order ${orderId} on *${siteUrl}* ($${price}) has been placed and is awaiting publisher acceptance.\n\nTrack it in your dashboard.`);
+}
+
+export async function sendWA_BuyerOrderAccepted({ to, name, orderId, siteUrl, deadline }) {
+  return sendWA(to, `✅ *Uplyncio* — Order Accepted\n\nHi ${name}, your order ${orderId} on *${siteUrl}* has been accepted by the publisher. Expected delivery by ${deadline}.`);
+}
+
+export async function sendWA_BuyerOrderDelivered({ to, name, orderId, siteUrl, liveUrl }) {
+  return sendWA(to, `📦 *Uplyncio* — Link Is Live!\n\nHi ${name}, your order ${orderId} on *${siteUrl}* has been delivered.\n\nLive URL: ${liveUrl}\n\nPlease review and confirm in your dashboard.`);
+}
+
+export async function sendWA_BuyerOrderCancelled({ to, name, orderId, siteUrl, reason }) {
+  return sendWA(to, `❌ *Uplyncio* — Order Cancelled\n\nHi ${name}, order ${orderId} on *${siteUrl}* was cancelled.\nReason: ${reason || 'Not specified'}\n\nYour balance has been refunded.`);
+}
+
+export async function sendWA_BuyerOrderRejected({ to, name, orderId, siteUrl, reason }) {
+  return sendWA(to, `⚠️ *Uplyncio* — Order Rejected\n\nHi ${name}, the publisher was unable to fulfill order ${orderId} on *${siteUrl}*.\nReason: ${reason || 'Not specified'}\n\nYour balance has been refunded — feel free to choose another site.`);
+}
+
+export async function sendWA_BuyerNewMessage({ to, senderName, orderId }) {
+  return sendWA(to, `💬 *Uplyncio* — New Message\n\n${senderName} sent you a message regarding order ${orderId}.\n\nOpen your dashboard to reply.`);
+}
+
+// ── Publisher side ──
+export async function sendWA_PublisherNewOrder({ to, name, orderId, siteUrl, buyerName, price, deadline }) {
+  return sendWA(to, `🆕 *Uplyncio* — New Order!\n\nHi ${name}, ${buyerName} placed an order on *${siteUrl}* for $${price}.\n\nOrder: ${orderId}\nAccept within 3 days, deliver by ${deadline}.\n\nOpen your dashboard to respond.`);
+}
+
+export async function sendWA_PublisherOrderAccepted({ to, name, orderId, siteUrl, deadline }) {
+  return sendWA(to, `✅ *Uplyncio* — Order Confirmed\n\nHi ${name}, you accepted order ${orderId} on *${siteUrl}*. Deliver by ${deadline}.`);
+}
+
+export async function sendWA_PublisherOrderComplete({ to, name, orderId, siteUrl, price }) {
+  return sendWA(to, `💰 *Uplyncio* — Payment Released\n\nHi ${name}, order ${orderId} on *${siteUrl}* was confirmed by the buyer. $${price} has been added to your balance.`);
+}
+
+export async function sendWA_PublisherNewMessage({ to, senderName, orderId }) {
+  return sendWA(to, `💬 *Uplyncio* — New Message\n\n${senderName} sent you a message regarding order ${orderId}.\n\nOpen your dashboard to reply.`);
+}
+
+export async function sendWA_PublisherSitesApproved({ to, name, count }) {
+  return sendWA(to, `✅ *Uplyncio* — Site${count > 1 ? 's' : ''} Approved\n\nHi ${name}, ${count} of your site${count > 1 ? 's are' : ' is'} now live on the marketplace and visible to buyers.`);
+}
+
+export async function sendWA_PublisherSiteRejected({ to, name, siteUrl, reason }) {
+  return sendWA(to, `❌ *Uplyncio* — Site Rejected\n\nHi ${name}, *${siteUrl}* could not be approved.\nReason: ${reason || 'Did not meet our requirements'}`);
+}
+
+// ── Monthly report (short summary) ──
+export async function sendWA_MonthlyReportBuyer({ to, name, month, totalOrders, totalSpent }) {
+  return sendWA(to, `📊 *Uplyncio* — ${month} Summary\n\nHi ${name}, this month you placed ${totalOrders} order(s) totaling $${totalSpent}.\n\nFull report in your email & dashboard.`);
+}
+
+export async function sendWA_MonthlyReportPublisher({ to, name, month, totalOrders, totalEarnings }) {
+  return sendWA(to, `📊 *Uplyncio* — ${month} Summary\n\nHi ${name}, this month you completed ${totalOrders} order(s) and earned $${totalEarnings}.\n\nFull report in your email & dashboard.`);
 }

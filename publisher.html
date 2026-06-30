@@ -3431,6 +3431,7 @@ function sendChatMsg(){
     var msgs2 = document.getElementById('chatMessages');
     if(msgs2) msgs2.scrollTop = msgs2.scrollHeight;
   }, 2000);
+  });
 }
 
 // ── IMPROVEMENT ──
@@ -3885,14 +3886,36 @@ function sendChatMsg(){
   var inp=document.getElementById('chatInput');
   var text=inp.value.trim();
   if(!text) return;
-  if(!o.chat) o.chat=[];
-  o.chat.push({sender:'publisher',text:text,timestamp:new Date().toISOString(),read:false});
-  inp.value='';
-  OrderManager.save(sampleOrders);
-  renderChatMessages(o);
-  updateInboxDot();
-  var msgs=document.getElementById('chatMessages');
-  if(msgs) msgs.scrollTop=msgs.scrollHeight;
+
+  checkChatFilter(text, currentChatOrderId).then(function(result){
+    if(result.blocked){ showChatError(result.message, result.tip); return; }
+    if(result.warning){ showChatError(result.message, result.tip); }
+
+    if(!o.chat) o.chat=[];
+    o.chat.push({sender:'publisher',text:text,timestamp:new Date().toISOString(),read:false});
+    inp.value='';
+    OrderManager.save(sampleOrders);
+    renderChatMessages(o);
+    updateInboxDot();
+    var msgs=document.getElementById('chatMessages');
+    if(msgs) msgs.scrollTop=msgs.scrollHeight;
+
+    // Notify buyer (email + WhatsApp)
+    try {
+      var uid = localStorage.getItem('uplyncio_currentUid')||'';
+      var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+      var sett = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+      var publisherName = userData.name || sett.settName || 'Publisher';
+      if(o.buyerEmail){
+        fetch('/api/auth', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            action:'send_message_notif', to:o.buyerEmail, name:o.buyerName||'Buyer',
+            from:publisherName, role:'buyer', orderId:o.id, siteUrl:o.site||o.siteUrl||''
+          })
+        }).catch(function(){});
+      }
+    } catch(e) {}
 
   // Simulate client reply
   setTimeout(function(){
@@ -3914,6 +3937,7 @@ function sendChatMsg(){
     var msgs2=document.getElementById('chatMessages');
     if(msgs2) msgs2.scrollTop=msgs2.scrollHeight;
   },2000);
+  });
 }
 
 // ── PROFILE MENU ──
@@ -4347,6 +4371,15 @@ function saveNotifSettings(){
   try{
     var ns = {whatsapp: wa, email: em};
     localStorage.setItem('uplyncio_notif', JSON.stringify(ns));
+  }catch(e){}
+  try{
+    var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    if(userData.email){
+      fetch('/api/auth', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'update_whatsapp', email: userData.email, whatsapp: wa })
+      }).catch(function(){});
+    }
   }catch(e){}
   toast('✅ Notification settings saved! You will receive alerts on new orders.','#16a34a');
 }
