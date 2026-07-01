@@ -1524,7 +1524,7 @@ var selectedPrice = 0;
 // ═══════════════════════════════════
 // UPLYNCIO MARGIN SYSTEM (Internal Only)
 // ═══════════════════════════════════
-var _MARGIN = 0.20; // 20% commission - never expose this
+var _MARGIN = 0.28; // 28% markup for prices above $20 — never expose this
 
 function _parseTraffic(t){
   if(!t) return 0;
@@ -1534,9 +1534,14 @@ function _parseTraffic(t){
   return parseInt(s.replace(/[^0-9.]/g,''))||0;
 }
 
-function _mkup(price){
-  if(!price || price <= 0) return 0;
-  return Math.ceil(price * (1 + _MARGIN)); // Round up to nearest dollar
+function _mkup(publisherPrice){
+  if(!publisherPrice || publisherPrice <= 0) return 0;
+  var p = parseFloat(publisherPrice);
+  // Tiered pricing — small prices get fixed buyer minimums
+  if(p <= 5)  return 20;   // $0–$5 publisher  → $20 buyer
+  if(p <= 10) return 30;   // $6–$10 publisher  → $30 buyer
+  if(p <= 20) return 50;   // $11–$20 publisher → $50 buyer
+  return Math.ceil(p * (1 + _MARGIN)); // $21+ → 28% markup, rounded up
 }
 
 // ═══════════════════════════════════
@@ -1930,16 +1935,42 @@ function applyFilters(){
     return true;
   });
 
-  // Sort
+  // Sort — default: verified/team first, then price ascending
   filteredSites.sort(function(a,b){
-    if(sort==='price-asc') return a.gP-b.gP;
-    if(sort==='price-desc') return b.gP-a.gP;
-    if(sort==='da-desc') return b.da-a.da;
-    if(sort==='dr-desc') return b.dr-a.dr;
-    if(sort==='traffic-desc') return b.traffic-a.traffic;
-    if(sort==='completion') return b.comp-a.comp;
-    // Default: DA desc
-    return b.da-a.da;
+    // Always put team/official (info@uplyncio.com) sites first
+    var aTeam = a.isTeamSite || a._uid==='uplyncio_team_official' ? 1 : 0;
+    var bTeam = b.isTeamSite || b._uid==='uplyncio_team_official' ? 1 : 0;
+
+    if(sort==='price-asc'){
+      if(aTeam !== bTeam) return bTeam - aTeam; // team first
+      return (a.gP||0) - (b.gP||0);
+    }
+    if(sort==='price-desc'){
+      if(aTeam !== bTeam) return bTeam - aTeam;
+      return (b.gP||0) - (a.gP||0);
+    }
+    if(sort==='da-desc'){
+      if(aTeam !== bTeam) return bTeam - aTeam;
+      return b.da - a.da;
+    }
+    if(sort==='dr-desc'){
+      if(aTeam !== bTeam) return bTeam - aTeam;
+      return b.dr - a.dr;
+    }
+    if(sort==='traffic-desc'){
+      if(aTeam !== bTeam) return bTeam - aTeam;
+      return b.traffic - a.traffic;
+    }
+    if(sort==='completion'){
+      if(aTeam !== bTeam) return bTeam - aTeam;
+      return b.comp - a.comp;
+    }
+    // Default: team first → verified/badged first → price ascending
+    if(aTeam !== bTeam) return bTeam - aTeam;
+    var aVerified = a.publisherName && (a.isTeamSite || a.pub==='Uplyncio Team') ? 1 : 0;
+    var bVerified = b.publisherName && (b.isTeamSite || b.pub==='Uplyncio Team') ? 1 : 0;
+    if(aVerified !== bVerified) return bVerified - aVerified;
+    return (a.gP||0) - (b.gP||0);
   });
 
   currentPage=1;

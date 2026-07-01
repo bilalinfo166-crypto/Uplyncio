@@ -2522,6 +2522,40 @@ function submit(){
     return;
   }
 
+  // ── OFFICIAL PRICE FLOOR CHECK ──
+  // If info@uplyncio.com has listed this domain with a set price,
+  // other publishers cannot list it below that floor price
+  var currentUser = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+  var isOfficialAcc = (currentUser.email||'').toLowerCase() === 'info@uplyncio.com';
+  if(!isOfficialAcc){
+    // Get price about to be entered (before form data collection)
+    var priceInpsCheck = document.querySelectorAll('.pi-w input');
+    var enteredPrice = parseFloat(priceInpsCheck[0]?priceInpsCheck[0].value:0)||0;
+
+    // Check all loaded sites for official floor price on same domain
+    var allSitesLoaded = window.allSites || [];
+    var officialListing = allSitesLoaded.find(function(s){
+      var sUrl = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase().trim();
+      return sUrl === cleanUrl && (s.isTeamSite || s._uid === 'uplyncio_team_official' || s.publisherName === 'Uplyncio' || (s.pub||'') === 'Uplyncio Team');
+    });
+
+    if(officialListing && enteredPrice > 0){
+      var floorPrice = officialListing.gP || officialListing.guestPostPrice || 0;
+      // Convert buyer floor price back to publisher minimum (reverse of tiered pricing)
+      // Floor is the buyer-visible price the official set — publisher must price at or above it
+      var publisherFloor = floorPrice; // compare in publisher price space
+      if(floorPrice <= 20) publisherFloor = 5;
+      else if(floorPrice <= 30) publisherFloor = 10;
+      else if(floorPrice <= 50) publisherFloor = 20;
+      else publisherFloor = Math.ceil(floorPrice / 1.28);
+
+      if(enteredPrice < publisherFloor){
+        toast('⚠️ Uplyncio has listed this site at a minimum of $' + publisherFloor + '. You can list it from $' + publisherFloor + ' or higher.', '#d97706');
+        return;
+      }
+    }
+  }
+
   // Collect form data
   var da = document.querySelector('.ic2 input[type=number]') ? document.querySelector('.ic2 .two input:nth-child(1)') : null;
   var allInputs = document.querySelectorAll('.ic2 .fi');
