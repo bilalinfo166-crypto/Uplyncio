@@ -1090,185 +1090,6 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <button class="sb-link" onclick="openCampaigns()">
 <div class="sb-icon">📊</div> Campaigns
       </button>
-<button class="sb-link" onclick="openHowToUse()" style="margin-top:4px;background:#f0f4ff;color:#4f7cff">
-<div class="sb-icon">📖</div> How to Use
-      </button>
-</div>
-
-<!-- HOW TO USE MODAL -->
-<div id="howToUseModal" style="display:none;position:fixed;inset:0;background:rgba(15,22,40,.7);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(6px)" onclick="if(event.target===this)closeHowToUse()">
-<div style="background:#fff;border-radius:20px;width:680px;max-width:95vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.25)">
-  <!-- Header -->
-  <div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:22px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-    <div>
-      <div style="font-size:18px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">📖 How to Use Uplyncio</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:3px">Your complete guide to buying backlinks</div>
-    </div>
-    <button onclick="closeHowToUse()" style="background:rgba(255,255,255,.1);border:none;border-radius:10px;width:34px;height:34px;color:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">✕</button>
-  </div>
-  <!-- Tabs -->
-  <div style="display:flex;border-bottom:1px solid #e2e8f0;background:#f8faff;flex-shrink:0">
-    <button onclick="htuTab(this,'htu-start')" class="htu-tab htu-active" style="padding:12px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid #4f7cff;color:#4f7cff;background:transparent">🚀 Getting Started</button>
-    <button onclick="htuTab(this,'htu-order')" class="htu-tab" style="padding:12px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;color:#64748b;background:transparent">📦 Placing Orders</button>
-    <button onclick="htuTab(this,'htu-campaign')" class="htu-tab" style="padding:12px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;color:#64748b;background:transparent">📊 Campaigns</button>
-    <button onclick="htuTab(this,'htu-tips')" class="htu-tab" style="padding:12px 20px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;color:#64748b;background:transparent">💡 Tips & FAQ</button>
-  </div>
-  <!-- Content -->
-  <div style="overflow-y:auto;padding:28px;flex:1">
-
-    <!-- Getting Started -->
-    <div id="htu-start">
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div style="background:#f0f4ff;border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
-          <div style="width:36px;height:36px;background:#4f7cff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">1</div>
-          <div><div style="font-size:14px;font-weight:800;color:#1a202c;margin-bottom:4px">Add Funds to Your Wallet</div>
-          <div style="font-size:13px;color:#475569;line-height:1.6">Click your profile (top right) → <strong>Add Funds</strong>. We accept PayPal, USDT TRC20, Wise, and Bank Transfer. Minimum top-up is <strong>$20</strong>. Funds appear in your wallet instantly (crypto) or within a few hours (bank).</div></div>
-        </div>
-        <div style="background:#f0fdf4;border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
-          <div style="width:36px;height:36px;background:#22c55e;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">2</div>
-          <div><div style="font-size:14px;font-weight:800;color:#1a202c;margin-bottom:4px">Browse Publisher Sites</div>
-          <div style="font-size:13px;color:#475569;line-height:1.6">Use the left sidebar categories or the filter bar to narrow down by <strong>DA, DR, niche, country, price, language</strong>, and turnaround time. Over 20,000+ verified sites available.</div></div>
-        </div>
-        <div style="background:#fff7ed;border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
-          <div style="width:36px;height:36px;background:#f59e0b;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">3</div>
-          <div><div style="font-size:14px;font-weight:800;color:#1a202c;margin-bottom:4px">Place Your Order</div>
-          <div style="font-size:13px;color:#475569;line-height:1.6">Click <strong>Buy Post</strong> on any site. Enter your target URL and anchor text. Pay from wallet. Publisher has 3 days to accept and 3–10 days to deliver. You get a <strong>12-month link guarantee</strong> — if removed, we replace it free.</div></div>
-        </div>
-        <div style="background:#fdf4ff;border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:flex-start">
-          <div style="width:36px;height:36px;background:#a855f7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">4</div>
-          <div><div style="font-size:14px;font-weight:800;color:#1a202c;margin-bottom:4px">Review & Approve</div>
-          <div style="font-size:13px;color:#475569;line-height:1.6">Once publisher marks it delivered, check the live URL. If satisfied, click <strong>Confirm Delivery</strong>. Payment is released to the publisher. If there's an issue, request a revision from the order chat.</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Placing Orders -->
-    <div id="htu-order" style="display:none">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div style="background:#f8faff;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:8px">🎯 Choosing the Right Site</div>
-          <ul style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.9">
-            <li><strong>DA (Domain Authority)</strong> — Moz score. Higher = more link value. Aim for DA 30+ for most niches.</li>
-            <li><strong>DR (Domain Rating)</strong> — Ahrefs score. Similar to DA but based on backlink profile.</li>
-            <li><strong>Traffic</strong> — Real monthly visitors. Sites with real traffic give better results.</li>
-            <li><strong>TAT (Turnaround Time)</strong> — Days publisher takes to deliver. Lower = faster.</li>
-            <li><strong>Niche relevance</strong> — Always pick sites in your niche or a closely related one.</li>
-          </ul>
-        </div>
-        <div style="background:#f8faff;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:8px">✍️ What to Enter in an Order</div>
-          <ul style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.9">
-            <li><strong>Target URL</strong> — The exact page on your site you want the backlink to point to.</li>
-            <li><strong>Anchor Text</strong> — The clickable link text. Use natural phrases — avoid exact-match spam.</li>
-            <li><strong>Article</strong> — You can provide your own article OR let the publisher write one (at extra cost).</li>
-            <li><strong>Requirements</strong> — Any specific instructions: word count, tone, topics to avoid, etc.</li>
-          </ul>
-        </div>
-        <div style="background:#f0fdf4;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:8px">💰 Payment & Refunds</div>
-          <ul style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.9">
-            <li>Payment is held in <strong>escrow</strong> — publisher gets paid only when you confirm delivery.</li>
-            <li>If publisher rejects or cancels, full amount is <strong>refunded to your wallet</strong> instantly.</li>
-            <li>If you're unhappy with delivery, request a revision before confirming.</li>
-            <li>12-month guarantee — if any link is removed, we replace it at no extra charge.</li>
-          </ul>
-        </div>
-        <div style="background:#fff7ed;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:8px">💬 Order Chat</div>
-          <div style="font-size:13px;color:#475569;line-height:1.7">Each order has a private chat between you and the publisher. Use it to share your article, give instructions, ask for revisions. <strong>Note:</strong> For security, phone numbers, emails, and links to competitor platforms are blocked in chat.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Campaigns -->
-    <div id="htu-campaign" style="display:none">
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div style="background:#f0f4ff;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:6px">📊 What is Campaign Mode?</div>
-          <div style="font-size:13px;color:#475569;line-height:1.7">Campaigns let you set a monthly link building goal once and let the system handle the rest. Instead of placing orders one by one, you define your budget, niche, and DA requirements — then click <strong>Find Matches</strong> to see qualifying sites, or use <strong>Auto mode</strong> to run automatically every month.</div>
-        </div>
-        <div style="background:#f8faff;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:8px">⚙️ Campaign Settings Explained</div>
-          <ul style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.9">
-            <li><strong>Monthly Budget</strong> — Max spend per month. No upper limit — enter any amount.</li>
-            <li><strong>Links per month</strong> — How many guest posts/links you want placed each month.</li>
-            <li><strong>Min DA / Min DR</strong> — Minimum quality threshold for sites to qualify.</li>
-            <li><strong>Anchor Texts</strong> — Add multiple anchors. System rotates them naturally across orders.</li>
-            <li><strong>Target URLs</strong> — Add multiple pages. Each link can go to a different page.</li>
-            <li><strong>Manual mode</strong> — You review and confirm matches before orders are placed.</li>
-            <li><strong>Auto mode</strong> — System places orders automatically when matches are found.</li>
-          </ul>
-        </div>
-        <div style="background:#f0fdf4;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:8px">📝 Content Options in Campaigns</div>
-          <ul style="margin:0;padding-left:20px;font-size:13px;color:#475569;line-height:1.9">
-            <li><strong>Paste article</strong> — Write your article (min 500 words) and paste it. Same article used across all sites in the campaign.</li>
-            <li><strong>Share a link</strong> — Have a Google Doc, Dropbox, or Notion link? Paste the URL instead — no word count limit.</li>
-            <li><strong>Publisher writes</strong> — Let publishers write the article. Provide a topic brief, target audience, and tone.</li>
-          </ul>
-        </div>
-        <div style="background:#fff7ed;border-radius:12px;padding:16px 18px">
-          <div style="font-size:13.5px;font-weight:800;color:#1a202c;margin-bottom:6px">🔁 View & Edit Campaigns</div>
-          <div style="font-size:13px;color:#475569;line-height:1.7">Click <strong>👁 View</strong> on any campaign to see all sites ordered, which anchors were used, prices paid, and dates. Click <strong>✏️ Edit Campaign</strong> to update settings — your order history and totals are preserved.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tips & FAQ -->
-    <div id="htu-tips" style="display:none">
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-          <div onclick="htuToggleFaq(this)" style="padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
-            <span style="font-size:13px;font-weight:700;color:#1a202c">Are the links dofollow?</span>
-            <span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
-          </div>
-          <div style="display:none;padding:14px 18px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #e2e8f0">Yes — all Uplyncio links are <strong>dofollow</strong> by default. You can filter to see only dofollow sites in the filter bar.</div>
-        </div>
-        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-          <div onclick="htuToggleFaq(this)" style="padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
-            <span style="font-size:13px;font-weight:700;color:#1a202c">How long does delivery take?</span>
-            <span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
-          </div>
-          <div style="display:none;padding:14px 18px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #e2e8f0">Publishers have <strong>3 days</strong> to accept your order, then <strong>3–10 days</strong> to publish. Most deliver within 5 days. Each site shows its turnaround time (TAT) on the listing.</div>
-        </div>
-        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-          <div onclick="htuToggleFaq(this)" style="padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
-            <span style="font-size:13px;font-weight:700;color:#1a202c">What if the publisher doesn't deliver?</span>
-            <span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
-          </div>
-          <div style="display:none;padding:14px 18px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #e2e8f0">If a publisher misses the deadline or rejects your order, the full amount is <strong>refunded to your wallet</strong> immediately. You can then place the order with another site.</div>
-        </div>
-        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-          <div onclick="htuToggleFaq(this)" style="padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
-            <span style="font-size:13px;font-weight:700;color:#1a202c">What is the 12-month link guarantee?</span>
-            <span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
-          </div>
-          <div style="display:none;padding:14px 18px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #e2e8f0">If any published link is removed within 12 months of delivery, we <strong>replace it for free</strong> on a site with similar or better metrics. Email info@uplyncio.com with your order ID to claim.</div>
-        </div>
-        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-          <div onclick="htuToggleFaq(this)" style="padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
-            <span style="font-size:13px;font-weight:700;color:#1a202c">Can I get a refund to my original payment method?</span>
-            <span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
-          </div>
-          <div style="display:none;padding:14px 18px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #e2e8f0">Wallet refunds are instant. For refunds to your original payment method (PayPal, bank, etc.), contact <strong>info@uplyncio.com</strong> within 14 days — processed within 3–5 business days.</div>
-        </div>
-        <div style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
-          <div onclick="htuToggleFaq(this)" style="padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
-            <span style="font-size:13px;font-weight:700;color:#1a202c">How do I know the site metrics are real?</span>
-            <span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
-          </div>
-          <div style="display:none;padding:14px 18px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #e2e8f0">All publisher sites go through our automated quality check — DNS, HTTP liveness, domain age, and Google Safe Browsing verification. We recommend also verifying DA/DR using <a href="https://moz.com/link-explorer" target="_blank" style="color:#4f7cff">Moz</a> or <a href="https://ahrefs.com/backlink-checker" target="_blank" style="color:#4f7cff">Ahrefs</a> before ordering.</div>
-        </div>
-        <div style="background:#f0f4ff;border-radius:12px;padding:16px 18px;text-align:center;margin-top:4px">
-          <div style="font-size:13.5px;font-weight:700;color:#1a202c;margin-bottom:6px">Still have questions?</div>
-          <div style="font-size:13px;color:#475569;margin-bottom:12px">Our team responds within 24 hours</div>
-          <a href="mailto:info@uplyncio.com" style="display:inline-block;padding:10px 22px;background:#4f7cff;color:#fff;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none">📧 Email info@uplyncio.com</a>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
 </div>
 <div class="sb-divider"></div>
 <div class="sb-section">
@@ -1278,6 +1099,107 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 </aside>
 <div class="main-wrap">
+
+<!-- HOW TO USE ACCORDION -->
+<div style="padding:14px 18px 0">
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:14px;overflow:hidden">
+<div onclick="toggleBuyerHelp()" style="padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8faff" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='#f8faff'">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="width:24px;height:24px;border-radius:50%;background:#4f7cff;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">?</span>
+<span style="font-size:13.5px;font-weight:600;color:#1a202c">How to work with this page</span>
+</div>
+<span id="buyerHelpIcon" style="font-size:18px;color:#4f7cff;font-weight:300;transition:transform .2s">+</span>
+</div>
+<div id="buyerHelpBody" style="display:none;padding:20px 24px;border-top:1px solid #e2e8f0;background:#fff">
+
+<!-- Step grid -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 40px;margin-bottom:22px">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#4f7cff;font-weight:500;padding:4px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0"></span>Browse 20,000+ verified publisher sites</div>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Filter by DA, DR, niche, country, price and language</div>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Place guest post orders and track delivery</div>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#475569;padding:4px 0"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>Run bulk campaigns to automate link building</div>
+</div>
+
+<div style="height:1px;background:#e2e8f0;margin-bottom:20px"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;margin-bottom:22px">
+
+<div>
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">1. Add Funds</div>
+<p style="font-size:12.5px;color:#475569;line-height:1.7;margin:0 0 10px">Click your profile (top right) → <strong>Add Funds</strong>. We accept PayPal, USDT TRC20, Wise, and Bank Transfer. Minimum top-up is <strong>$20</strong>. Balance appears instantly (crypto) or within a few hours (bank).</p>
+</div>
+
+<div>
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">2. Browse & Filter Sites</div>
+<p style="font-size:12.5px;color:#475569;line-height:1.7;margin:0 0 8px">Use the filter bar or left sidebar to narrow down by:</p>
+<ul style="padding-left:16px;margin:0;font-size:12.5px;color:#475569;line-height:1.9">
+<li><strong>DA / DR</strong> — domain authority scores</li>
+<li><strong>Niche</strong> — pick your industry</li>
+<li><strong>Price</strong> — set your budget range</li>
+<li><strong>Country / Language</strong> — geo targeting</li>
+</ul>
+</div>
+
+<div>
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px">3. Place an Order</div>
+<ul style="padding-left:0;margin:0;list-style:none;font-size:12.5px;color:#475569;line-height:1">
+<li style="display:flex;align-items:flex-start;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#4f7cff;flex-shrink:0;margin-top:6px"></span><span>Click <strong>Buy Post</strong> on any site</span></li>
+<li style="display:flex;align-items:flex-start;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0;margin-top:6px"></span><span>Enter your <strong>Target URL</strong> + <strong>Anchor Text</strong></span></li>
+<li style="display:flex;align-items:flex-start;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0;margin-top:6px"></span><span>Provide article or let publisher write it</span></li>
+<li style="display:flex;align-items:flex-start;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;flex-shrink:0;margin-top:6px"></span><span>Publisher delivers in <strong>3–10 days</strong></span></li>
+<li style="display:flex;align-items:flex-start;gap:8px;padding:5px 0"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;margin-top:6px"></span><span><strong>12-month link guarantee</strong> — if removed, we replace it free</span></li>
+</ul>
+</div>
+</div>
+
+<div style="height:1px;background:#e2e8f0;margin-bottom:20px"></div>
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:14px">Frequently Asked Questions</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+
+<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+<div onclick="htuToggleFaq(this)" style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
+<span style="font-size:13px;font-weight:600;color:#1a202c">Are the backlinks dofollow?</span>
+<span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
+</div>
+<div style="display:none;padding:12px 16px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #f1f5f9">Yes — all Uplyncio links are <strong>dofollow</strong> by default. You can also filter the marketplace to show only dofollow sites.</div>
+</div>
+
+<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+<div onclick="htuToggleFaq(this)" style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
+<span style="font-size:13px;font-weight:600;color:#1a202c">How long does delivery take?</span>
+<span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
+</div>
+<div style="display:none;padding:12px 16px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #f1f5f9">Publishers have <strong>3 days</strong> to accept, then <strong>3–10 days</strong> to publish. Most deliver within 5 days. Each site's TAT (turnaround time) is shown on its listing card.</div>
+</div>
+
+<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+<div onclick="htuToggleFaq(this)" style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
+<span style="font-size:13px;font-weight:600;color:#1a202c">What if I'm not satisfied with delivery?</span>
+<span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
+</div>
+<div style="display:none;padding:12px 16px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #f1f5f9">Use the order chat to request a <strong>revision</strong> before confirming delivery. Payment is held in escrow — publisher only gets paid when you approve. If publisher cancels or fails to deliver, your balance is refunded in full.</div>
+</div>
+
+<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+<div onclick="htuToggleFaq(this)" style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
+<span style="font-size:13px;font-weight:600;color:#1a202c">What is Campaign Mode?</span>
+<span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
+</div>
+<div style="display:none;padding:12px 16px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #f1f5f9">Campaign Mode lets you set your link building goals once (niche, budget, DA/DR minimum, anchor texts) and the system finds matching sites and places orders automatically — instead of ordering one by one. Access it from the sidebar → <strong>📊 Campaigns</strong>.</div>
+</div>
+
+<div style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+<div onclick="htuToggleFaq(this)" style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#f8faff">
+<span style="font-size:13px;font-weight:600;color:#1a202c">Need help? Contact us</span>
+<span style="font-size:18px;color:#94a3b8;transition:transform .2s">+</span>
+</div>
+<div style="display:none;padding:12px 16px;font-size:13px;color:#475569;line-height:1.7;border-top:1px solid #f1f5f9">Email us at <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:600">info@uplyncio.com</a> — we respond within 24 hours. You can also use the <strong>💬 Ace</strong> chat button (bottom right) for instant answers.</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
 <div class="filter-bar">
 <div style="display:flex;align-items:center;justify-content:space-between">
 <div style="display:flex;align-items:center;gap:8px">
@@ -4677,28 +4599,13 @@ function ensureCampaignsModal(){
   document.body.appendChild(modal);
 }
 
-// ── HOW TO USE MODAL ──
-function openHowToUse(){
-  document.getElementById('howToUseModal').style.display='flex';
-  document.body.style.overflow='hidden';
-}
-function closeHowToUse(){
-  document.getElementById('howToUseModal').style.display='none';
-  document.body.style.overflow='';
-}
-function htuTab(el, tabId){
-  document.querySelectorAll('.htu-tab').forEach(function(t){
-    t.style.borderBottomColor='transparent';
-    t.style.color='#64748b';
-  });
-  el.style.borderBottomColor='#4f7cff';
-  el.style.color='#4f7cff';
-  ['htu-start','htu-order','htu-campaign','htu-tips'].forEach(function(id){
-    var el2=document.getElementById(id);
-    if(el2) el2.style.display='none';
-  });
-  var active=document.getElementById(tabId);
-  if(active) active.style.display='block';
+// ── HOW TO USE ACCORDION ──
+function toggleBuyerHelp(){
+  var b=document.getElementById('buyerHelpBody');
+  var i=document.getElementById('buyerHelpIcon');
+  if(!b) return;
+  if(b.style.display==='none'){ b.style.display='block'; i.textContent='−'; }
+  else { b.style.display='none'; i.textContent='+'; }
 }
 function htuToggleFaq(header){
   var content=header.nextElementSibling;
