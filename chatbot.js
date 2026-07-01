@@ -55,7 +55,7 @@
 
     // Chatbot button
     document.body.insertAdjacentHTML('beforeend', `
-      <button id="uply-btn" onclick="uplyToggle()" title="Chat with Uply AI">
+      <button id="uply-btn" onclick="uplyToggle()" title="Chat with Ace AI">
         <span id="uply-icon">💬</span>
         <span id="uply-badge" style="display:none">1</span>
       </button>
@@ -63,7 +63,7 @@
         <div id="uply-head">
           <div id="uply-avatar">🤖</div>
           <div id="uply-title">
-            <h4>Uply — AI Assistant</h4>
+            <h4>Ace — AI Assistant</h4>
             <p>● Online — Instant replies</p>
           </div>
           <button id="uply-close" onclick="uplyToggle()">✕</button>
@@ -71,7 +71,7 @@
         <div id="uply-msgs"></div>
         <div id="uply-quick"></div>
         <div id="uply-input-wrap">
-          <textarea id="uply-input" placeholder="Ask anything about Uplyncio..." rows="1" onkeydown="uplyKey(event)" oninput="uplyResize(this)"></textarea>
+          <textarea id="uply-input" placeholder="Ask Ace anything..." rows="1" onkeydown="uplyKey(event)" oninput="uplyResize(this)"></textarea>
           <button id="uply-send" onclick="ulySend()">➤</button>
         </div>
       </div>
@@ -79,9 +79,9 @@
 
     // Show welcome message after 3s
     setTimeout(function() {
-      if (!IS_OPEN && !localStorage.getItem('uply_welcomed')) {
+      if (!IS_OPEN && !localStorage.getItem('ace_welcomed')) {
         document.getElementById('uply-badge').style.display = 'flex';
-        localStorage.setItem('uply_welcomed', '1');
+        localStorage.setItem('ace_welcomed', '1');
       }
     }, 3000);
 
@@ -98,7 +98,7 @@
       badge.style.display = 'none';
       document.getElementById('uply-input').focus();
       if (MESSAGES.length === 0) {
-        uplyBotMsg("👋 Hi! I'm **Uply**, Uplyncio's AI assistant.\n\nI can help you with:\n• Guest posting pricing & orders\n• Becoming a publisher\n• Link building services\n• Any question about our platform\n\nWhat can I help you with today?");
+        uplyBotMsg("👋 Hi! I'm **Ace**, Uplyncio's AI assistant.\n\nI can help you with:\n• Guest posting pricing & orders\n• Becoming a publisher\n• Link building services\n• Any question about our platform\n\nWhat can I help you with today?");
       }
     } else {
       box.classList.remove('open');
