@@ -184,17 +184,74 @@ function getFallback(text) {
   return FALLBACKS.default;
 }
 
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SB_KEY;
+
+function sbHeaders() {
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json'
+  };
+}
+
+async function saveChatHistory(userId, messages) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !userId) return;
+  const payload = {
+    user_id: userId,
+    messages: JSON.stringify(messages),
+    updated_at: new Date().toISOString()
+  };
+  // Upsert by user_id
+  const existing = await fetch(`${SUPABASE_URL}/rest/v1/chat_history?user_id=eq.${encodeURIComponent(userId)}&select=id`, { headers: sbHeaders() });
+  const rows = await existing.json().catch(() => []);
+  if (Array.isArray(rows) && rows.length > 0) {
+    await fetch(`${SUPABASE_URL}/rest/v1/chat_history?user_id=eq.${encodeURIComponent(userId)}`, {
+      method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ messages: payload.messages, updated_at: payload.updated_at })
+    });
+  } else {
+    await fetch(`${SUPABASE_URL}/rest/v1/chat_history`, {
+      method: 'POST', headers: { ...sbHeaders(), 'Prefer': 'return=minimal' }, body: JSON.stringify(payload)
+    });
+  }
+}
+
+async function loadChatHistory(userId) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !userId) return null;
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/chat_history?user_id=eq.${encodeURIComponent(userId)}&select=messages,updated_at&limit=1`, { headers: sbHeaders() });
+  const rows = await r.json().catch(() => []);
+  if (!Array.isArray(rows) || !rows.length) return null;
+  try { return JSON.parse(rows[0].messages); } catch(e) { return null; }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // ── GET: load chat history ──
+  if (req.method === 'GET') {
+    const { user_id } = req.query;
+    if (!user_id) return res.status(400).json({ error: 'user_id required' });
+    const history = await loadChatHistory(user_id);
+    return res.status(200).json({ success: true, messages: history || [] });
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
   if (rateLimit(ip)) return res.status(429).json({ error: 'Too many messages. Please wait a moment.' });
 
-  const { messages, userType } = req.body || {};
+  const { messages, userType, action, userId } = req.body || {};
+
+  // ── POST action=save_history: save chat history ──
+  if (action === 'save_history') {
+    if (!userId || !Array.isArray(messages)) return res.status(400).json({ error: 'userId and messages required' });
+    await saveChatHistory(userId, messages);
+    return res.status(200).json({ success: true });
+  }
+
   if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Messages required' });
 
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
@@ -236,6 +293,12 @@ export default async function handler(req, res) {
     if (!reply) {
       const lastMsg = messages[messages.length - 1]?.content || '';
       return res.status(200).json({ reply: getFallback(lastMsg) });
+    }
+
+    // Auto-save full conversation to Supabase (non-blocking)
+    if (userId) {
+      const fullHistory = [...history, { role: 'assistant', content: reply }];
+      saveChatHistory(userId, fullHistory).catch(() => {});
     }
 
     return res.status(200).json({ reply });

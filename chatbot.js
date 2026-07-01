@@ -3,6 +3,35 @@
   var MESSAGES = [];
   var IS_OPEN = false;
   var IS_TYPING = false;
+  var HISTORY_LOADED = false;
+
+  function getCurrentUserId() {
+    try {
+      return localStorage.getItem('uplyncio_currentUid') || null;
+    } catch(e) { return null; }
+  }
+
+  function loadHistoryFromSupabase() {
+    var uid = getCurrentUserId();
+    if (!uid || HISTORY_LOADED) return;
+    HISTORY_LOADED = true;
+    fetch('/api/chatbot?user_id=' + encodeURIComponent(uid))
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.success && Array.isArray(res.messages) && res.messages.length > 0) {
+          MESSAGES = res.messages;
+          var msgs = document.getElementById('uply-msgs');
+          if (msgs) {
+            msgs.innerHTML = '';
+            MESSAGES.forEach(function(m) {
+              var t = '';
+              if (m.role === 'user') appendMsg('user', m.content, t);
+              else if (m.role === 'assistant') appendMsg('bot', m.content, t);
+            });
+          }
+        }
+      }).catch(function() {});
+  }
 
   var STYLE = `
     #uply-btn{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);border:none;cursor:pointer;z-index:99998;box-shadow:0 4px 20px rgba(79,124,255,.5);display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;font-size:24px}
@@ -66,6 +95,7 @@
             <h4>Ace — AI Assistant</h4>
             <p>● Online — Instant replies</p>
           </div>
+          <button onclick="ulyClearChat()" title="Clear chat history" style="background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center" title="Clear history">🗑</button>
           <button id="uply-close" onclick="uplyToggle()">✕</button>
         </div>
         <div id="uply-msgs"></div>
@@ -98,11 +128,38 @@
       badge.style.display = 'none';
       document.getElementById('uply-input').focus();
       if (MESSAGES.length === 0) {
-        uplyBotMsg("👋 Hi! I'm **Ace**, Uplyncio's AI assistant.\n\nI can help you with:\n• Guest posting pricing & orders\n• Becoming a publisher\n• Link building services\n• Any question about our platform\n\nWhat can I help you with today?");
+        // Try loading from Supabase first
+        loadHistoryFromSupabase();
+        // Show welcome only after small delay (if no history found)
+        setTimeout(function() {
+          if (MESSAGES.length === 0) {
+            uplyBotMsg("👋 Hi! I'm **Ace**, Uplyncio's AI assistant.\n\nI can help you with:\n• Guest posting pricing & orders\n• Becoming a publisher\n• Link building services\n• Any question about our platform\n\nWhat can I help you with today?");
+          }
+        }, 800);
       }
     } else {
       box.classList.remove('open');
     }
+  };
+
+  window.ulyClearChat = function() {
+    if (!confirm('Clear your entire chat history with Ace?')) return;
+    MESSAGES = [];
+    HISTORY_LOADED = false;
+    var msgs = document.getElementById('uply-msgs');
+    if (msgs) msgs.innerHTML = '';
+    // Delete from Supabase
+    var uid = getCurrentUserId();
+    if (uid) {
+      fetch('/api/chatbot', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save_history', userId: uid, messages: [] })
+      }).catch(function(){});
+    }
+    // Show fresh greeting
+    setTimeout(function() {
+      uplyBotMsg("Chat cleared! 🗑 Starting fresh — what can I help you with? 😊");
+    }, 200);
   };
 
   window.uplyKey = function(e) {
@@ -198,8 +255,9 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: MESSAGES.slice(-16),
-          userType: userType
+          messages: MESSAGES.slice(-20),
+          userType: userType,
+          userId: getCurrentUserId()
         })
       });
       var data = await r.json();
