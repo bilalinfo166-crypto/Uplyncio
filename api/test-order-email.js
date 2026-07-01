@@ -1,102 +1,132 @@
-import {
-  sendWelcomeEmail,
-  sendVerifyEmail,
-  sendEmailVerifiedEmail,
-  sendOtpEmail,
-  sendForgotPasswordEmail,
-  sendPasswordResetSuccessEmail,
-  sendNewDeviceLoginEmail,
-  sendPublisherNewOrder,
-  sendPublisherNewMessage,
-  sendBuyerOrderPlaced,
-  sendBuyerOrderDelivered,
-  sendBuyerNewMessage,
-  sendPublisherSitesApproved,
-  sendPublisherBadgeEarned,
-  sendDisputeRaised,
-  sendAccountSuspended,
-  sendPolicyViolationWarning
-} from './email.js';
+// ── Uplyncio Site Checker API ──
+// Checks sites: DNS, HTTP, Google Safe Browsing, domain age, spam TLDs
+// Processes up to 8 sites per call — called by publisher frontend in a queue
+
+const SAFE_BROWSING_KEY = process.env.GOOGLE_SAFE_BROWSING_KEY;
+
+const SPAM_TLDS = new Set(['.tk','.ml','.ga','.cf','.gq','.xyz','.top','.click',
+  '.download','.link','.work','.date','.faith','.racing','.win','.stream',
+  '.party','.loan','.bid','.trade','.review','.accountant','.cricket']);
+
+const PBN_RE = /\b(buy.?link|cheap.?link|seo.?link|pbn\d|linkfarm|link.?farm)\b/i;
+
+function getDomain(url) {
+  return (url||'').replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
+}
+
+async function checkDNS(domain) {
+  try {
+    const r = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`,
+      { headers:{'Accept':'application/dns-json'} });
+    const d = await r.json();
+    return d.Status === 0 && Array.isArray(d.Answer) && d.Answer.length > 0;
+  } catch(e) { return null; }
+}
+
+async function checkHTTP(domain) {
+  for (const scheme of ['https','http']) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 8000);
+      const r = await fetch(`${scheme}://${domain}`, { method:'HEAD', signal:ctrl.signal, redirect:'follow' });
+      clearTimeout(t);
+      return { ok: r.status < 500, status: r.status };
+    } catch(e) { continue; }
+  }
+  return { ok: false, status: 0 };
+}
+
+async function checkSafeBrowsing(domain) {
+  if (!SAFE_BROWSING_KEY) return null;
+  try {
+    const r = await fetch(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${SAFE_BROWSING_KEY}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        client:{ clientId:'uplyncio', clientVersion:'1.0' },
+        threatInfo:{
+          threatTypes:['MALWARE','SOCIAL_ENGINEERING','UNWANTED_SOFTWARE'],
+          platformTypes:['ANY_PLATFORM'], threatEntryTypes:['URL'],
+          threatEntries:[{ url:`https://${domain}` }]
+        }
+      })
+    });
+    const d = await r.json();
+    return Array.isArray(d.matches) && d.matches.length > 0;
+  } catch(e) { return null; }
+}
+
+async function checkDomainAge(domain) {
+  try {
+    const r = await fetch(`https://rdap.org/domain/${domain}`,
+      { headers:{'Accept':'application/rdap+json'} });
+    if (!r.ok) return null;
+    const d = await r.json();
+    const reg = (d.events||[]).find(e => e.eventAction === 'registration');
+    if (!reg) return null;
+    return Math.round((Date.now() - new Date(reg.eventDate).getTime()) / (1000*60*60*24*30));
+  } catch(e) { return null; }
+}
+
+async function checkSite(url) {
+  const domain = getDomain(url);
+  if (!domain || !domain.includes('.') || domain.length < 4)
+    return { status:'rejected', reason:'Invalid domain format', domain };
+
+  const tld = '.' + domain.split('.').pop();
+  if (SPAM_TLDS.has(tld))
+    return { status:'rejected', reason:`Spam TLD not accepted (${tld})`, domain };
+
+  if (PBN_RE.test(domain))
+    return { status:'rejected', reason:'Domain name suggests link farm or PBN', domain };
+
+  const dns = await checkDNS(domain);
+  if (dns === false)
+    return { status:'rejected', reason:'Domain does not resolve — site may not exist', domain };
+
+  const http = await checkHTTP(domain);
+  if (!http.ok) {
+    if (http.status === 0)
+      return { status:'hold', reason:'Site unreachable — will recheck automatically', domain };
+    if (http.status === 404 || http.status === 410)
+      return { status:'rejected', reason:`Site returns ${http.status} — page not found`, domain };
+    if (http.status >= 500)
+      return { status:'hold', reason:`Server error (${http.status}) — will recheck automatically`, domain };
+  }
+
+  const threat = await checkSafeBrowsing(domain);
+  if (threat === true)
+    return { status:'rejected', reason:'Flagged by Google Safe Browsing (malware/phishing)', domain };
+
+  const ageMo = await checkDomainAge(domain);
+  if (ageMo !== null && ageMo < 3)
+    return { status:'hold', reason:`Domain too new (${ageMo} month${ageMo===1?'':'s'} old) — minimum 3 months`, domain };
+
+  return { status:'approved', domain, ageMonths: ageMo };
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  const to = req.query.to || 'info@uplyncio.com';
-  const type = req.query.type || 'all';
-  const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
-  const results = {};
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  try {
+  const { sites } = req.body || {};
+  if (!Array.isArray(sites) || !sites.length)
+    return res.status(400).json({ error: 'sites array required' });
 
-    if (type === 'all' || type === 'welcome') {
-      results.welcome = await sendWelcomeEmail({ to, name: 'Ahmed Khan', role: 'publisher' });
+  const batch = sites.slice(0, 8);
+  const results = [];
+
+  for (const s of batch) {
+    const url = (typeof s === 'string' ? s : s.url || '').trim();
+    try {
+      results.push({ url, ...(await checkSite(url)) });
+    } catch(e) {
+      results.push({ url, status:'hold', reason:'Check timed out — will retry', domain: getDomain(url) });
     }
-
-    if (type === 'all' || type === 'otp') {
-      results.verifyOtp = await sendVerifyEmail({ to, name: 'Ahmed Khan', code: '483921' });
-    }
-
-    if (type === 'all' || type === 'verified') {
-      results.emailVerified = await sendEmailVerifiedEmail({ to, name: 'Ahmed Khan', role: 'publisher', email: to, verifiedAt: now });
-    }
-
-    if (type === 'all' || type === 'newdevice') {
-      results.newDevice = await sendNewDeviceLoginEmail({ to, name: 'Ahmed Khan', device: 'Chrome on MacOS', location: 'Lahore, Pakistan', ipAddress: '103.47.12.88', loginTime: now });
-    }
-
-    if (type === 'all' || type === 'forgot') {
-      results.forgotPassword = await sendForgotPasswordEmail({ to, name: 'Ahmed Khan', resetLink: 'https://uplyncio.com/reset?token=abc123', expiresIn: '5 minutes' });
-    }
-
-    if (type === 'all' || type === 'resetdone') {
-      results.resetSuccess = await sendPasswordResetSuccessEmail({ to, name: 'Ahmed Khan', email: to, changedAt: now, ipAddress: '103.47.12.88' });
-    }
-
-    if (type === 'all' || type === 'message') {
-      results.publisherMsg = await sendPublisherNewMessage({
-        to, name: 'Br Advertisers',
-        buyerName: 'Ahmed Khan',
-        orderId: '#OR72910',
-        siteUrl: 'techbullion.com'
-      });
-      results.buyerMsg = await sendBuyerNewMessage({
-        to, name: 'Ahmed Khan',
-        publisherName: 'Br Advertisers',
-        orderId: '#OR72910',
-        siteUrl: 'techbullion.com'
-      });
-    }
-
-    if (type === 'all' || type === 'neworder') {
-      results.publisherOrder = await sendPublisherNewOrder({ to, name: 'Br Advertisers', orderId: '#OR72910', siteUrl: 'techbullion.com', buyerName: 'Ahmed Khan', price: '120', anchorText: 'best link building service', targetUrl: 'https://example.com/seo', deadline: 'July 10, 2026', requirements: 'No gambling content.' });
-    }
-
-    if (type === 'all' || type === 'orderplaced') {
-      results.buyerOrder = await sendBuyerOrderPlaced({ to, name: 'Ahmed Khan', orderId: '#OR72910', siteUrl: 'techbullion.com', siteDA: 72, siteDR: 68, price: '120', anchorText: 'best link building', targetUrl: 'https://example.com', deadline: 'July 10, 2026' });
-    }
-
-    if (type === 'all' || type === 'delivered') {
-      results.delivered = await sendBuyerOrderDelivered({ to, name: 'Ahmed Khan', orderId: '#OR72910', siteUrl: 'techbullion.com', liveUrl: 'https://techbullion.com/best-seo-tips', anchorText: 'best link building', targetUrl: 'https://example.com', siteDA: 72 });
-    }
-
-    if (type === 'all' || type === 'siteapproved') {
-      results.siteApproved = await sendPublisherSitesApproved({ to, name: 'Br Advertisers', sites: [{ siteUrl: 'myblog.com', da: 45, dr: 40, price: 80 }, { siteUrl: 'techsite.com', da: 62, dr: 55, price: 150 }] });
-    }
-
-    if (type === 'all' || type === 'badge') {
-      results.badge = await sendPublisherBadgeEarned({ to, name: 'Br Advertisers', completedOrders: 10, earnedAt: now, totalEarnings: '1200', nextMilestone: 'Complete 25 orders to earn the Gold Publisher badge' });
-    }
-
-    if (type === 'all' || type === 'dispute') {
-      results.dispute = await sendDisputeRaised({ to, name: 'Ahmed Khan', role: 'buyer', disputeId: 'DIS-001', orderId: '#OR72910', siteUrl: 'techbullion.com', raisedBy: 'buyer', reason: 'Link was removed within 30 days of delivery', raisedAt: now });
-    }
-
-    if (type === 'all' || type === 'warning') {
-      results.warning = await sendPolicyViolationWarning({ to, name: 'Ahmed Khan', role: 'publisher', violation: 'Submitting fake live URLs', warningNum: 1, details: 'Submitted a URL that does not contain the agreed backlink', consequenceNext: 'Account will be suspended on second violation.' });
-    }
-
-    return res.status(200).json({ success: true, sentTo: to, type, results });
-
-  } catch(e) {
-    return res.status(500).json({ error: e.message, stack: e.stack });
+    await new Promise(r => setTimeout(r, 400));
   }
+
+  return res.status(200).json({ success:true, results });
 }

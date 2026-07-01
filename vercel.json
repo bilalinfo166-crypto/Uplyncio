@@ -19,6 +19,8 @@
       "maxDuration": 15
     },
     "api/test-order-email.js": {
+      "maxDuration": 30
+    },
       "maxDuration": 15
     },
     "api/chat-filter.js": {

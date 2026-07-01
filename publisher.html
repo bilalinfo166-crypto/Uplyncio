@@ -3316,36 +3316,90 @@ function showStatus(type,msg){
 }
 
 // ── APPROVAL SYSTEM ──
-function scheduleApproval(siteId, delay){
-  setTimeout(function(){
-    var idx = mySites.findIndex(function(x){ return x.id===siteId; });
-    if(idx>-1 && mySites[idx].status==='pending'){
-      mySites[idx].status = 'Live';
-      saveSites();
-      applyFilters();
-      toast('✅ Your site "'+mySites[idx].url+'" has been approved and is now live on the marketplace!', '#16a34a');
+// ── REAL SITE CHECKER QUEUE ──
+var _checkQueue = [];   // pending site IDs to check
+var _checkRunning = false;
+
+function queueSiteCheck(siteId){
+  if(_checkQueue.indexOf(siteId)===-1) _checkQueue.push(siteId);
+  if(!_checkRunning) runCheckQueue();
+}
+
+function runCheckQueue(){
+  if(!_checkQueue.length){ _checkRunning=false; return; }
+  _checkRunning = true;
+
+  // Take up to 8 sites from queue
+  var batch = _checkQueue.splice(0, 8);
+  var urls = [];
+  batch.forEach(function(id){
+    var s = mySites.find(function(x){ return x.id===id; });
+    if(s && (s.status==='pending'||s.status==='hold')) urls.push({ id:id, url: s.url });
+  });
+
+  if(!urls.length){
+    // Nothing to check in this batch — schedule next run
+    setTimeout(runCheckQueue, 60000);
+    return;
+  }
+
+  fetch('/api/test-order-email', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ sites: urls.map(function(u){ return u.url; }) })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if(!res.success || !Array.isArray(res.results)) return;
+    var changed = false;
+    res.results.forEach(function(result, i){
+      var siteId = urls[i] ? urls[i].id : null;
+      if(!siteId) return;
+      var idx = mySites.findIndex(function(x){ return x.id===siteId; });
+      if(idx===-1) return;
+      var s = mySites[idx];
+      if(result.status === 'approved'){
+        s.status = 'Live';
+        s.checkReason = null;
+        toast('✅ "'+s.url+'" passed review — now live on marketplace!', '#16a34a');
+      } else if(result.status === 'rejected'){
+        s.status = 'rejected';
+        s.rejectReason = result.reason || 'Did not pass quality check';
+        toast('❌ "'+s.url+'" rejected: '+s.rejectReason, '#ef4444');
+      } else { // hold
+        s.status = 'hold';
+        s.holdReason = result.reason || 'Will recheck automatically';
+        // Re-queue for next run
+        _checkQueue.push(siteId);
+      }
+      changed = true;
+    });
+    if(changed){ saveSites(); applyFilters(); }
+  })
+  .catch(function(){
+    // Network error — re-queue all for next round
+    urls.forEach(function(u){ _checkQueue.push(u.id); });
+  })
+  .finally(function(){
+    // Wait ~60 seconds before next batch (5-8 sites/minute rate)
+    var delay = _checkQueue.length > 0 ? 62000 : 0;
+    if(_checkQueue.length > 0){
+      setTimeout(runCheckQueue, delay);
+    } else {
+      _checkRunning = false;
     }
-  }, delay);
+  });
+}
+
+function scheduleApproval(siteId, delay){
+  // Use real checker — delay param kept for compatibility but ignored
+  // Small stagger so first site gets checked after ~5s
+  setTimeout(function(){ queueSiteCheck(siteId); }, Math.min(delay, 5000));
 }
 
 function startHoldMonitor(siteId){
-  // Check every 60 seconds if DA/DR improved
-  var interval = setInterval(function(){
-    var idx = mySites.findIndex(function(x){ return x.id===siteId; });
-    if(idx === -1){ clearInterval(interval); return; }
-    var s = mySites[idx];
-    if(s.status !== 'hold'){ clearInterval(interval); return; }
-    var daNum = parseFloat(s.da)||0;
-    var drNum = parseFloat(s.dr)||0;
-    if(daNum >= 10 && drNum >= 10){
-      mySites[idx].status = 'pending';
-      saveSites();
-      applyFilters();
-      clearInterval(interval);
-      toast('🎉 Site "'+s.url+'" metrics improved! Now pending final approval...', '#d97706');
-      scheduleApproval(siteId, (120 + Math.floor(Math.random()*60))*1000);
-    }
-  }, 60000);
+  // Re-queue held sites — checker will recheck and approve if now passing
+  setTimeout(function(){ queueSiteCheck(siteId); }, 60000);
 }
 
 // On page load — clean bad domains + resume pending approvals
