@@ -759,6 +759,9 @@ window.addEventListener('DOMContentLoaded', function(){
 <div class="stab" onclick="filterTab(this,'rejected')" style="padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:7px">
             ❌ Rejected <span id="tabRejCount" style="background:#fee2e2;color:#ef4444;font-size:11px;font-weight:800;padding:2px 8px;border-radius:100px">0</span>
 </div>
+<div class="stab" onclick="filterTab(this,'duplicate')" style="padding:12px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:7px">
+            🔁 Duplicates <span id="tabDupCount" style="background:#fef3c7;color:#d97706;font-size:11px;font-weight:800;padding:2px 8px;border-radius:100px">0</span>
+</div>
 </div>
 <div style="padding:16px 20px;border-bottom:1px solid var(--br);background:#fafbff;border-top:3px solid var(--ac)">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -2680,6 +2683,7 @@ function applyFilters(){
     if(currentTab==='hold' && s.status!=='hold') return false;
     if(currentTab==='rejected' && s.status!=='rejected') return false;
     if(currentTab==='issues' && s.status!=='Issues') return false;
+    if(currentTab==='duplicate' && s.status!=='duplicate') return false;
     return true;
   });
 
@@ -2738,8 +2742,10 @@ function updateTabCounts(){
   document.getElementById('tabPendCount').textContent = mySites.filter(function(s){return s.status==='pending';}).length;
   var holdEl = document.getElementById('tabHoldCount');
   var rejEl  = document.getElementById('tabRejCount');
+  var dupEl  = document.getElementById('tabDupCount');
   if(holdEl) holdEl.textContent = mySites.filter(function(s){return s.status==='hold';}).length;
   if(rejEl)  rejEl.textContent  = mySites.filter(function(s){return s.status==='rejected';}).length;
+  if(dupEl)  dupEl.textContent  = mySites.filter(function(s){return s.status==='duplicate';}).length;
   document.getElementById('tabIssCount').textContent = mySites.filter(function(s){return s.status==='Issues';}).length;
   saveSites(); // Always persist current state
 }
@@ -3201,6 +3207,17 @@ function parseCSV(text, fname){
   }
 
   if(parsedSites.length===0){showStatus('error','❌ No valid sites found in the file');return;}
+
+  // Save raw sheet data to localStorage for smart re-upload comparison
+  try{
+    var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+    localStorage.setItem('uplyncio_sheet_'+uid, JSON.stringify({
+      fname: fname,
+      uploadedAt: new Date().toISOString(),
+      data: parsedSites.map(function(s){ return {url:s.url, p1:s.p1, p2:s.p2, liPrice:s.liPrice, da:s.da, dr:s.dr}; })
+    }));
+  }catch(e){}
+
   showStatus('success','✅ Found '+parsedSites.length+' sites'+(errors?' ('+errors+' rows skipped)':'')+' from '+fname);
   showPreview();
 }
@@ -3233,51 +3250,94 @@ function importSites(){
   var isTeam = _cu.email === 'info@uplyncio.com';
   var uid = localStorage.getItem('uplyncio_currentUid')||'';
 
-  var approved=0, pending=0, held=0, rejected=0;
+  var approved=0, pending=0, held=0, rejected=0, duplicates=0, priceUpdated=0;
   var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
   var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
 
-  var validSites = [];
+  var newSites = [];
   parsedSites.forEach(function(s){
     var cleanUrl = (s.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
-    var daNum = parseFloat(s.da)||0;
-    var drNum = parseFloat(s.dr)||0;
 
     if(isTeam){ s.role='Uplyncio Team'; s.isTeamSite=true; s.publisherUid=uid; }
 
-    // Check duplicate against existing sites
-    var alreadyExists = mySites.some(function(ex){
+    // Check if site already exists
+    var existingIdx = mySites.findIndex(function(ex){
       var exUrl = (ex.url||'').replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
       return exUrl === cleanUrl;
     });
 
-    // Reject bad domain format
+    // Bad domain format — reject outright
     if(invalidPattern.test(cleanUrl) || !domainPattern.test(cleanUrl)){
       s.status = 'rejected';
       s.rejectReason = 'Invalid domain format';
       rejected++;
-    } else if(alreadyExists){
-      s.status = 'rejected';
-      s.rejectReason = 'Duplicate — already in your dashboard';
-      rejected++;
-    } else if(daNum < 10 || drNum < 10){
-      // Low metrics — hold
-      s.status = 'hold';
-      held++;
-      startHoldMonitor(s.id);
-    } else {
-      // Pending approval
-      s.status = isTeam ? 'Live' : 'pending';
-      if(!isTeam){
-        pending++;
-        var delay = (120 + Math.floor(Math.random()*60)) * 1000;
-        scheduleApproval(s.id, delay);
-      } else { approved++; }
+      newSites.push(s);
+      return;
     }
-    validSites.push(s);
+
+    if(existingIdx > -1){
+      // ── DUPLICATE: update prices if changed, don't re-approve ──
+      var ex = mySites[existingIdx];
+      var changed = false;
+      var changes = [];
+
+      if(s.p1 && s.p1 !== '0' && s.p1 !== ex.p1){
+        ex.p1 = s.p1; ex.price = '$'+s.p1; ex.guestPostPrice = s.p1;
+        changed = true; changes.push('guest post price → $'+s.p1);
+      }
+      if(s.p2 && s.p2 !== '0' && s.p2 !== ex.p2){
+        ex.p2 = s.p2; ex.writePublishPrice = s.p2;
+        changed = true; changes.push('write+publish price → $'+s.p2);
+      }
+      if(s.liPrice && s.liPrice !== '0' && s.liPrice !== ex.liPrice){
+        ex.liPrice = s.liPrice; ex.p3 = s.liPrice;
+        changed = true; changes.push('link insertion price → $'+s.liPrice);
+      }
+      if(s.da && s.da !== '—' && s.da !== ex.da){ ex.da = s.da; changed = true; }
+      if(s.dr && s.dr !== '—' && s.dr !== ex.dr){ ex.dr = s.dr; changed = true; }
+
+      if(changed){ priceUpdated++; }
+
+      // Mark as duplicate (shows in duplicates tab, doesn't re-enter approval queue)
+      s.status = 'duplicate';
+      s.dupReason = changed
+        ? 'Prices updated: ' + changes.join(', ')
+        : 'Already in your dashboard — no changes detected';
+      duplicates++;
+      newSites.push(s);
+
+    } else {
+      // Brand new site — queue for checking
+      var daNum = parseFloat(s.da)||0;
+      var drNum = parseFloat(s.dr)||0;
+
+      if(daNum < 10 || drNum < 10){
+        s.status = 'hold';
+        held++;
+        startHoldMonitor(s.id);
+      } else {
+        s.status = isTeam ? 'Live' : 'pending';
+        if(!isTeam){
+          pending++;
+          scheduleApproval(s.id, 5000);
+        } else { approved++; }
+      }
+      newSites.push(s);
+    }
   });
 
-  mySites = mySites.concat(validSites);
+  // Save the uploaded sheet data for smart re-upload detection
+  try{
+    var sheetKey = 'uplyncio_last_sheet_'+uid;
+    localStorage.setItem(sheetKey, JSON.stringify({
+      sites: parsedSites.map(function(s){ return { url:s.url, p1:s.p1, p2:s.p2, liPrice:s.liPrice, da:s.da, dr:s.dr }; }),
+      uploadedAt: new Date().toISOString()
+    }));
+  }catch(e){}
+
+  mySites = mySites.concat(newSites.filter(function(s){ return s.status !== 'duplicate'; }));
+  // Duplicates are tracked separately (not re-added to mySites)
+
   parsedSites=[];
   saveSites();
   clearUpload();
@@ -3288,10 +3348,12 @@ function importSites(){
     var parts = [];
     if(approved) parts.push('✅ '+approved+' approved');
     if(pending) parts.push('⏳ '+pending+' pending review');
-    if(held) parts.push('⏸ '+held+' on hold (low DA/DR)');
-    if(rejected) parts.push('❌ '+rejected+' rejected (invalid domain)');
+    if(held) parts.push('⏸ '+held+' on hold');
+    if(priceUpdated) parts.push('💰 '+priceUpdated+' prices updated');
+    if(duplicates - priceUpdated > 0) parts.push('🔁 '+(duplicates-priceUpdated)+' duplicates skipped');
+    if(rejected) parts.push('❌ '+rejected+' invalid domains');
     toast(parts.join(' · '), '#4f7cff');
-  },300);
+  }, 300);
 }
 
 function clearUpload(){
@@ -3329,20 +3391,17 @@ function queueSiteCheck(siteId){
 }
 
 function scheduleHoldRecheck(siteId, attemptsSoFar){
-  // Exponential backoff: 5min → 15min → 30min → 1hr → 2hr → 6hr → 24hr
-  var intervals = [5,15,30,60,120,360,1440]; // minutes
-  var minWait = (intervals[Math.min(attemptsSoFar, intervals.length-1)] || 1440) * 60 * 1000;
-  // Add ±10% jitter so all hold sites don't pile up at once
-  var jitter = minWait * 0.1 * (Math.random() * 2 - 1);
-  var wait = Math.round(minWait + jitter);
+  // Fixed 24-hour recheck interval
+  var wait = 24 * 60 * 60 * 1000;
+  // ±5% jitter so sites don't all pile up at same time
+  var jitter = wait * 0.05 * (Math.random() * 2 - 1);
+  wait = Math.round(wait + jitter);
 
   _holdQueue[siteId] = {
     attempts: attemptsSoFar + 1,
     nextCheck: Date.now() + wait
   };
-  console.log('[Uplyncio] Hold site', siteId, 'will recheck in', Math.round(wait/60000), 'min (attempt', attemptsSoFar+1, ')');
-
-  // Persist hold queue so page refresh doesn't lose it
+  console.log('[Uplyncio] Hold site', siteId, 'will recheck in 24h (attempt', attemptsSoFar+1, ')');
   try { localStorage.setItem('uplyncio_hold_queue', JSON.stringify(_holdQueue)); } catch(e){}
   ensureHoldMonitor();
 }
