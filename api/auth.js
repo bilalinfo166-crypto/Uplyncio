@@ -116,10 +116,20 @@ export default async function handler(req, res) {
         if (!/[^A-Za-z0-9]/.test(password)) return res.status(400).json({ error: 'Password must contain at least one special character (!@#$%^&*)' });
       }
 
-      // Check duplicate
+      // Check duplicate — team email allowed to have both roles (buyer + publisher)
       const existing = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
-      if (existing?.length > 0)
-        return res.status(409).json({ error: 'Email already registered' });
+      if (existing?.length > 0) {
+        if (isTeam) {
+          // Allow team email to create second account with different role
+          const existingRoles = existing.map(u => u.role);
+          if (existingRoles.includes(role)) {
+            return res.status(409).json({ error: `info@uplyncio.com already has a ${role} account` });
+          }
+          // Fall through to create second role account
+        } else {
+          return res.status(409).json({ error: 'Email already registered' });
+        }
+      }
 
       const hash = await hashPass(password);
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -131,7 +141,10 @@ export default async function handler(req, res) {
         verify_code: isTeam ? null : code,
         verified: isTeam,
         email_verified: isTeam,
-        publisher_verified: isTeam
+        publisher_verified: isTeam,
+        buyer_verified: isTeam,
+        orders_completed: isTeam ? 10 : 0,
+        badge: isTeam ? 'verified' : null
       });
 
       if (!result.ok) {
@@ -159,7 +172,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         success: true,
-        user: { id: user.id, email: user.email, name: user.name, role: user.role, verified: isTeam }
+        user: { id: user.id, email: user.email, name: user.name, role: user.role, verified: isTeam, badge: 'verified' }
       });
     }
 
@@ -193,25 +206,30 @@ export default async function handler(req, res) {
 
     // ── LOGIN ──
     if (action === 'login') {
-      const { email, password } = body;
+      const { email, password, role: loginRole } = body;
       if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
       if (!isValidEmail(email)) return res.status(400).json({ error: 'Invalid email address' });
-      // Rate limit login attempts per email (brute force protection)
       if (rateLimit(`login:${email.toLowerCase()}`, 10, 900000)) {
         return res.status(429).json({ error: 'Too many login attempts. Please wait 15 minutes.' });
       }
 
       const emailLow = email.toLowerCase().trim();
-      const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
-      if (!users?.length) return res.status(401).json({ error: 'No account found with this email' });
+      const isTeam = emailLow === 'info@uplyncio.com';
+      const allUsers = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
+      if (!allUsers?.length) return res.status(401).json({ error: 'No account found with this email' });
 
-      const user = users[0];
+      // For team email with multiple roles, pick the right one
+      let user;
+      if (isTeam && allUsers.length > 1 && loginRole) {
+        user = allUsers.find(u => u.role === loginRole) || allUsers[0];
+      } else {
+        user = allUsers[0];
+      }
+
       const hash = await hashPass(password);
-
       if (user.password_hash !== hash)
         return res.status(401).json({ error: 'Incorrect password' });
 
-      const isTeam = emailLow === 'info@uplyncio.com';
       if (!user.email_verified && !isTeam)
         return res.status(403).json({ error: 'Please verify your email first', needsVerify: true, email: emailLow });
 
@@ -228,12 +246,17 @@ export default async function handler(req, res) {
         }).catch(() => {});
       } catch(e) {}
 
+      // If team email has both roles, tell frontend so it can show role selector
+      const teamRoles = isTeam && allUsers.length > 1 ? allUsers.map(u => u.role) : null;
       return res.status(200).json({
         success: true,
+        teamRoles,
         user: {
           id: user.id, email: user.email, name: user.name, role: user.role,
-          verified: user.verified, email_verified: user.email_verified,
-          publisher_verified: user.publisher_verified || isTeam
+          verified: user.verified || isTeam, email_verified: user.email_verified || isTeam,
+          publisher_verified: user.publisher_verified || isTeam,
+          buyer_verified: user.buyer_verified || isTeam,
+          badge: isTeam ? 'verified' : (user.badge || null)
         }
       });
     }

@@ -195,17 +195,23 @@ function completeSignup(){
   if(existingUser){
     var emailInp = document.getElementById('su2Email');
     var emailErr = document.getElementById('su2EmailErr');
-    if(emailInp){ emailInp.style.borderColor='#ef4444'; emailInp.style.background='rgba(239,68,68,.1)'; }
     var selectedRole = window._selectedRole||'publisher';
     var existingRole = existingUser.role||'publisher';
-    var errMsg = '';
-    if(existingRole !== selectedRole){
-      errMsg = '⚠ This email is registered as a <strong>'+existingRole+'</strong>. You cannot create a '+selectedRole+' account with the same email. Please use a different email.';
+    // Team email can have both roles
+    var isTeamEmail = (existingUser.email||'').toLowerCase() === 'info@uplyncio.com';
+    if(isTeamEmail && existingRole !== selectedRole){
+      // Allow — team email creating second role, fall through to signup
     } else {
-      errMsg = '⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>';
+      if(emailInp){ emailInp.style.borderColor='#ef4444'; emailInp.style.background='rgba(239,68,68,.1)'; }
+      var errMsg = '';
+      if(existingRole !== selectedRole){
+        errMsg = '⚠ This email is registered as a <strong>'+existingRole+'</strong>. You cannot create a '+selectedRole+' account with the same email. Please use a different email.';
+      } else {
+        errMsg = '⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>';
+      }
+      if(emailErr){ emailErr.innerHTML=errMsg; emailErr.style.display='block'; }
+      return;
     }
-    if(emailErr){ emailErr.innerHTML=errMsg; emailErr.style.display='block'; }
-    return;
   }
 
   // Strong password validation for step 2
@@ -710,6 +716,7 @@ function pushHomeNotif(icon, title, message){
 
 function _loginSuccess(user){
   try{
+    var isTeam = (user.email||'').toLowerCase() === 'info@uplyncio.com';
     var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
     s['settName']  = user.name||'';
     s['settEmail'] = user.email||'';
@@ -721,7 +728,10 @@ function _loginSuccess(user){
       name: user.name, email: user.email,
       role: user.role||'publisher',
       verified: true, email_verified: true,
-      publisher_verified: user.publisher_verified||user.email==='info@uplyncio.com'
+      publisher_verified: user.publisher_verified||isTeam,
+      buyer_verified: user.buyer_verified||isTeam,
+      badge: isTeam ? 'verified' : (user.badge||null),
+      orders_completed: isTeam ? 10 : (user.orders_completed||0)
     }));
     var userData = getUserData(user.uid||user.id);
     localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
@@ -751,6 +761,43 @@ function _loginSuccess(user){
   } else {
     window.location.replace('buyer.html');
   }
+}
+
+// ── TEAM ROLE SELECTOR (for info@uplyncio.com with both roles) ──
+function showTeamRoleSelector(email, pass, roles){
+  // Remove any existing selector
+  var old = document.getElementById('teamRoleSelector');
+  if(old) old.remove();
+
+  var el = document.createElement('div');
+  el.id = 'teamRoleSelector';
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(7,9,15,.85);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+  el.innerHTML = '<div style="background:#0f1628;border:1px solid #1c2a45;border-radius:20px;padding:36px 40px;width:380px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5)">'
+    +'<div style="font-size:28px;margin-bottom:12px">👑</div>'
+    +'<div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#eef2ff;margin-bottom:6px">Uplyncio Official Account</div>'
+    +'<div style="font-size:13px;color:#8fa3c8;margin-bottom:28px">Which dashboard would you like to open?</div>'
+    +(roles.includes('publisher') ? '<button onclick="teamLoginAs(\'publisher\',\''+email+'\',\''+pass+'\')" style="width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#7c5cfc);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px"><span>🌐</span><span>Publisher Dashboard</span></button>' : '')
+    +(roles.includes('buyer') ? '<button onclick="teamLoginAs(\'buyer\',\''+email+'\',\''+pass+'\')" style="width:100%;padding:14px;background:linear-gradient(135deg,#00d4aa,#4f7cff);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px"><span>🛒</span><span>Buyer Dashboard</span></button>' : '')
+    +'</div>';
+  document.body.appendChild(el);
+}
+
+function teamLoginAs(role, email, pass){
+  fetch('/api/auth',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action:'login', email:email, password:pass, role:role})
+  })
+  .then(function(r){return r.json();})
+  .then(function(result){
+    if(result.success){
+      var u = result.user;
+      var el = document.getElementById('teamRoleSelector');
+      if(el) el.remove();
+      completeAuth(role, u.email, u.name, u.id, u);
+    }
+  })
+  .catch(function(){});
 }
 
 async function googleLogin(role){
@@ -3544,8 +3591,13 @@ function submitBuyerAuth(mode){
     .then(function(result){
       if(result.success){
         var u=result.user;
+        // Team email with both roles - show selector
+        if(result.teamRoles && result.teamRoles.length > 1){
+          showTeamRoleSelector(email, pass, result.teamRoles);
+          return;
+        }
         if(u.role!=='buyer'){errEl.textContent='This email is registered as a '+u.role+'. Please use the correct login.';errEl.style.color='#ef4444';return;}
-        completeAuth('buyer',u.email,u.name,u.id);
+        completeAuth('buyer',u.email,u.name,u.id, u);
       } else {
         // Fallback localStorage
         var lu=getUsers().find(function(x){return x.email===email.toLowerCase();});
@@ -3560,7 +3612,8 @@ function submitBuyerAuth(mode){
   }
 }
 
-function completeAuth(role, email, name, userId){
+function completeAuth(role, email, name, userId, userObj){
+  var isTeam = email === 'info@uplyncio.com';
   var uid = userId || 'uid_'+Date.now();
   // Save locally
   var users = JSON.parse(localStorage.getItem('uplyncio_users')||'{}');
@@ -3572,7 +3625,14 @@ function completeAuth(role, email, name, userId){
   }
   localStorage.setItem('uplyncio_loggedIn','1');
   localStorage.setItem('uplyncio_currentUid', uid);
-  localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,name:name,email:email,role:role,verified:true}));
+  localStorage.setItem('uplyncio_user', JSON.stringify({
+    uid:uid, id:uid, name:name, email:email, role:role,
+    verified:true, email_verified:true,
+    publisher_verified: isTeam || (userObj && userObj.publisher_verified) || false,
+    buyer_verified: isTeam || (userObj && userObj.buyer_verified) || false,
+    badge: isTeam ? 'verified' : (userObj && userObj.badge || null),
+    orders_completed: isTeam ? 10 : (userObj && userObj.orders_completed || 0)
+  }));
   
   // Sync to Supabase
   fetch('/api/auth', {
