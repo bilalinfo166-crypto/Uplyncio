@@ -518,6 +518,7 @@ window.addEventListener('DOMContentLoaded', function(){
   updateBalance();
   updateInboxDot();
   resumeApprovals();
+  restoreHoldQueue();
 
   // Set profile name/email from login data
   (function(){
@@ -3317,12 +3318,71 @@ function showStatus(type,msg){
 
 // ── APPROVAL SYSTEM ──
 // ── REAL SITE CHECKER QUEUE ──
-var _checkQueue = [];   // pending site IDs to check
+var _checkQueue = [];     // pending/new sites to check
+var _holdQueue  = {};     // hold sites: { siteId: { attempts, nextCheck } }
 var _checkRunning = false;
+var _holdTimer = null;
 
 function queueSiteCheck(siteId){
   if(_checkQueue.indexOf(siteId)===-1) _checkQueue.push(siteId);
   if(!_checkRunning) runCheckQueue();
+}
+
+function scheduleHoldRecheck(siteId, attemptsSoFar){
+  // Exponential backoff: 5min → 15min → 30min → 1hr → 2hr → 6hr → 24hr
+  var intervals = [5,15,30,60,120,360,1440]; // minutes
+  var minWait = (intervals[Math.min(attemptsSoFar, intervals.length-1)] || 1440) * 60 * 1000;
+  // Add ±10% jitter so all hold sites don't pile up at once
+  var jitter = minWait * 0.1 * (Math.random() * 2 - 1);
+  var wait = Math.round(minWait + jitter);
+
+  _holdQueue[siteId] = {
+    attempts: attemptsSoFar + 1,
+    nextCheck: Date.now() + wait
+  };
+  console.log('[Uplyncio] Hold site', siteId, 'will recheck in', Math.round(wait/60000), 'min (attempt', attemptsSoFar+1, ')');
+
+  // Persist hold queue so page refresh doesn't lose it
+  try { localStorage.setItem('uplyncio_hold_queue', JSON.stringify(_holdQueue)); } catch(e){}
+  ensureHoldMonitor();
+}
+
+function ensureHoldMonitor(){
+  if(_holdTimer) return;
+  _holdTimer = setInterval(function(){
+    var now = Date.now();
+    var due = Object.keys(_holdQueue).filter(function(id){
+      return _holdQueue[id].nextCheck <= now;
+    });
+    if(!due.length) return;
+    due.forEach(function(id){
+      // Only recheck if site is still in hold status
+      var s = mySites.find(function(x){ return x.id == id; });
+      if(!s || s.status !== 'hold'){
+        delete _holdQueue[id];
+        return;
+      }
+      // Move from holdQueue to main check queue
+      delete _holdQueue[id];
+      _checkQueue.push(id);
+    });
+    try { localStorage.setItem('uplyncio_hold_queue', JSON.stringify(_holdQueue)); } catch(e){}
+    if(!_checkRunning && _checkQueue.length) runCheckQueue();
+  }, 60000); // poll every minute
+}
+
+function restoreHoldQueue(){
+  // On page load, restore any pending hold rechecks
+  try{
+    var saved = JSON.parse(localStorage.getItem('uplyncio_hold_queue')||'{}');
+    Object.keys(saved).forEach(function(id){
+      var s = mySites.find(function(x){ return x.id == id; });
+      if(s && s.status === 'hold'){
+        _holdQueue[id] = saved[id];
+      }
+    });
+    if(Object.keys(_holdQueue).length) ensureHoldMonitor();
+  }catch(e){}
 }
 
 function runCheckQueue(){
@@ -3334,12 +3394,11 @@ function runCheckQueue(){
   var urls = [];
   batch.forEach(function(id){
     var s = mySites.find(function(x){ return x.id===id; });
-    if(s && (s.status==='pending'||s.status==='hold')) urls.push({ id:id, url: s.url });
+    if(s && (s.status==='pending'||s.status==='hold')) urls.push({ id:id, url:s.url });
   });
 
   if(!urls.length){
-    // Nothing to check in this batch — schedule next run
-    setTimeout(runCheckQueue, 60000);
+    _checkRunning = false;
     return;
   }
 
@@ -3358,33 +3417,54 @@ function runCheckQueue(){
       var idx = mySites.findIndex(function(x){ return x.id===siteId; });
       if(idx===-1) return;
       var s = mySites[idx];
+      var prevStatus = s.status;
+
       if(result.status === 'approved'){
+        // ✅ Entered safe zone
         s.status = 'Live';
         s.checkReason = null;
-        toast('✅ "'+s.url+'" passed review — now live on marketplace!', '#16a34a');
+        s.holdReason = null;
+        s.badScore = result.badScore||0;
+        delete _holdQueue[siteId];
+        try{ localStorage.setItem('uplyncio_hold_queue', JSON.stringify(_holdQueue)); }catch(e){}
+        if(prevStatus === 'hold'){
+          toast('🎉 "'+s.url+'" passed re-check — now live on marketplace!', '#16a34a');
+        } else {
+          toast('✅ "'+s.url+'" approved and live on marketplace!', '#16a34a');
+        }
+
       } else if(result.status === 'rejected'){
+        // ❌ Left safe zone into reject territory
         s.status = 'rejected';
         s.rejectReason = result.reason || 'Did not pass quality check';
-        toast('❌ "'+s.url+'" rejected: '+s.rejectReason, '#ef4444');
-      } else { // hold
+        s.badScore = result.badScore||100;
+        delete _holdQueue[siteId];
+        try{ localStorage.setItem('uplyncio_hold_queue', JSON.stringify(_holdQueue)); }catch(e){}
+        if(prevStatus === 'hold'){
+          toast('❌ "'+s.url+'" failed re-check and was rejected: '+s.rejectReason, '#ef4444');
+        } else {
+          toast('❌ "'+s.url+'" rejected: '+s.rejectReason, '#ef4444');
+        }
+
+      } else {
+        // ⏸ Still in hold zone — schedule next recheck with backoff
         s.status = 'hold';
-        s.holdReason = result.reason || 'Will recheck automatically';
-        // Re-queue for next run
-        _checkQueue.push(siteId);
+        s.holdReason = result.reason || 'Will re-check automatically';
+        s.badScore = result.badScore||0;
+        var attempts = (_holdQueue[siteId]||{}).attempts || 0;
+        scheduleHoldRecheck(siteId, attempts);
       }
       changed = true;
     });
     if(changed){ saveSites(); applyFilters(); }
   })
   .catch(function(){
-    // Network error — re-queue all for next round
+    // Network error — re-queue without incrementing attempt count
     urls.forEach(function(u){ _checkQueue.push(u.id); });
   })
   .finally(function(){
-    // Wait ~60 seconds before next batch (5-8 sites/minute rate)
-    var delay = _checkQueue.length > 0 ? 62000 : 0;
     if(_checkQueue.length > 0){
-      setTimeout(runCheckQueue, delay);
+      setTimeout(runCheckQueue, 62000);
     } else {
       _checkRunning = false;
     }
@@ -3392,14 +3472,13 @@ function runCheckQueue(){
 }
 
 function scheduleApproval(siteId, delay){
-  // Use real checker — delay param kept for compatibility but ignored
-  // Small stagger so first site gets checked after ~5s
   setTimeout(function(){ queueSiteCheck(siteId); }, Math.min(delay, 5000));
 }
 
 function startHoldMonitor(siteId){
-  // Re-queue held sites — checker will recheck and approve if now passing
-  setTimeout(function(){ queueSiteCheck(siteId); }, 60000);
+  // Called for sites that are already in hold on page load
+  var attempts = (_holdQueue[siteId]||{}).attempts || 0;
+  scheduleHoldRecheck(siteId, attempts);
 }
 
 // On page load — clean bad domains + resume pending approvals
