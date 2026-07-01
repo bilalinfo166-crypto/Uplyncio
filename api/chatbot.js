@@ -13,7 +13,7 @@ function rateLimit(ip) {
 
 const SYSTEM_PROMPT = `You are Uply, the official AI assistant for Uplyncio — a premium guest posting and link building marketplace based in Pakistan, serving clients globally.
 
-Your personality: Friendly, knowledgeable, professional, concise. You speak naturally — not robotic. You respond in the same language the user writes in (if they write in Urdu, reply in Urdu; if English, reply in English; if mixed, use mixed).
+Your personality: Friendly, knowledgeable, professional, concise. You speak naturally — not robotic. Always respond in English only, regardless of what language the user writes in.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GREETINGS & SMALL TALK
@@ -166,26 +166,21 @@ RESPONSE GUIDELINES
 
 // Fallback responses when API is unavailable
 const FALLBACKS = {
-  greeting: "Heyy! 😊 Kya haal hai? Main hoon Uply — Uplyncio ka AI assistant, hamesha haazir!\n\nBatao, aaj main aapki kya help kar sakta hoon? Guest posting chahiye, publisher banna hai, ya kuch aur? Sab poochh sakte ho — seedha, bina jhijhak ke! 🚀",
-  greeting_en: "Hey there! 😊 Great to see you! I'm Uply, Uplyncio's AI assistant — always happy to help!\n\nWhat can I do for you today? Whether it's about buying guest posts, becoming a publisher, or anything in between — just ask! 🚀",
-  pricing: "Acha sawaal hai! 💰 Prices kuch is tarah hain:\n\n• DA 20–30 sites: $20 se $50 tak\n• DA 30–50 sites: $50 se $150 tak\n• DA 50–70 sites: $100 se $300 tak\n• DA 70–90+ sites: $300 se $800+ tak\n\nSahi prices dekhne ke liye buyer account se login karo aur marketplace browse karo — wahan actual live prices dikh jaengi! Koi specific DA range chahiye? 😊",
-  publisher: "Waah, publisher banna chahte ho — bilkul sahi decision! 🎉\n\nYeh kaisa hota hai:\n1️⃣ Publisher account banao (free hai, alag email chahiye buyer se)\n2️⃣ Dashboard mein jaake apni website add karo\n3️⃣ Price, niche, TAT set karo\n4️⃣ Site review hogi — 2-3 minute mein approve\n5️⃣ Orders aana shuru! 💸\n\nDA 20+ chahiye approve hone ke liye. Koi aur sawal? 😊",
-  order: "Order karna bohat easy hai! Yeh steps hain:\n\n1️⃣ Wallet mein funds add karo (PayPal/USDT/Wise se)\n2️⃣ 20,000+ sites browse karo — DA, niche, price se filter karo\n3️⃣ 'Buy Post' click karo jis site pe order karna ho\n4️⃣ Target URL aur anchor text dalo\n5️⃣ Publisher 3 din mein accept karta hai, deliver karta hai 3-10 din mein\n6️⃣ 12 mahine ki link guarantee — link hata to hum free replace karein ge! ✅\n\nKuch aur jaanna hai? 😊",
-  withdraw: "Paise nikalna bilkul simple hai! 💰\n\n1️⃣ Publisher dashboard mein Balance section mein jao\n2️⃣ Pehle Account Settings mein payment method add karo:\n   • PayPal email (fee: 7.5%)\n   • USDT TRC20 wallet (fee: 9.5%)\n   • Wise ya Bank transfer\n3️⃣ Withdraw button dabao, amount enter karo\n4️⃣ 1-3 business days mein account mein aa jaata hai\n\nMinimum withdrawal $20 hai. Kuch aur poochna? 😊",
-  default: "Hmm, yeh sawaal thoda specific hai — main poori koshish karta hoon! 😊\n\nAgar main seedha help nahi kar paya, toh email karo: **info@uplyncio.com** — team 24 ghante mein jawab deti hai. Warna batao, kya jaanna chahte ho? Guest posting, publishing, pricing, orders — kuch bhi poochho! 🙌"
+  greeting: "Hey there! 😊 I'm Uply, Uplyncio's AI assistant — always happy to chat!\n\nWhat can I help you with today? Whether it's buying guest posts, becoming a publisher, pricing, orders, or anything else — just ask! 🚀",
+  pricing: "Great question! 💰 Here's a quick overview of our pricing:\n\n• DA 20–30 sites: $20 – $50\n• DA 30–50 sites: $50 – $150\n• DA 50–70 sites: $100 – $300\n• DA 70–90+ sites: $300 – $800+\n\nFor exact live prices, log in as a buyer and browse the marketplace. Want help with a specific DA range? 😊",
+  publisher: "Great choice! Becoming a publisher on Uplyncio is free and easy 🎉\n\n1️⃣ Sign up with a publisher account (use a different email than your buyer account)\n2️⃣ Go to your dashboard and add your website\n3️⃣ Set your price, niche, and turnaround time\n4️⃣ Your site gets reviewed — approved in about 2–3 minutes\n5️⃣ Start receiving orders and earning! 💸\n\nYou need DA 20+ to get approved. Any other questions? 😊",
+  order: "Placing an order is super easy! Here's how:\n\n1️⃣ Add funds to your wallet (PayPal, USDT, Wise, or Bank Transfer)\n2️⃣ Browse 20,000+ publisher sites — filter by DA, niche, price, country\n3️⃣ Click **Buy Post** on the site you like\n4️⃣ Enter your Target URL and Anchor Text\n5️⃣ Publisher accepts within 3 days and delivers in 3–10 days\n6️⃣ 12-month link guarantee — if removed, we replace it free! ✅\n\nAnything else you'd like to know? 😊",
+  withdraw: "Withdrawing your earnings is straightforward! 💰\n\n1️⃣ Go to your Publisher Dashboard → Balance section\n2️⃣ First, add your payment method in Account Settings:\n   • PayPal (7.5% fee)\n   • USDT TRC20 (9.5% fee)\n   • Wise or Bank Transfer\n3️⃣ Click Withdraw, enter amount, and submit\n4️⃣ Processed within 1–3 business days\n\nMinimum withdrawal is $20. Need more help? 😊",
+  default: "Hmm, that's a great question! 😊\n\nI want to make sure I give you the right answer — for anything specific, feel free to email **info@uplyncio.com** and our team will get back to you within 24 hours.\n\nOr just tell me more about what you need — guest posting, publishing, pricing, orders — I'm here! 🙌"
 };
 
 function getFallback(text) {
   const t = (text || '').toLowerCase();
-  const isUrdu = /[\u0600-\u06FF]/.test(text) || t.match(/\b(kaise|kya|muje|mujhe|chahiye|ha|hai|hain|bhi|aur|ki|ke|ka|ko|se|per|py|nh|nhi|tha|thi|the)\b/);
-
-  if (t.match(/\b(hi|hello|hey|salam|assalam|helo|good|hiya|howdy)\b/)) {
-    return isUrdu ? FALLBACKS.greeting : FALLBACKS.greeting_en;
-  }
-  if (t.match(/\b(price|cost|how much|kitna|rate|pricing|mahnga|sasta|cheap|expensive)\b/)) return FALLBACKS.pricing;
-  if (t.match(/\b(publisher|publish|list|add site|sell|site add|apni site|website add)\b/)) return FALLBACKS.publisher;
-  if (t.match(/\b(order|buy|purchase|kaise kare|how to|karna|lagwana|guest post lena)\b/)) return FALLBACKS.order;
-  if (t.match(/\b(withdraw|withdrawal|earn|paise|money|nikalna|payment receive|payment lena|paisay)\b/)) return FALLBACKS.withdraw;
+  if (t.match(/\b(hi|hello|hey|salam|assalam|helo|good|hiya|howdy)\b/)) return FALLBACKS.greeting;
+  if (t.match(/\b(price|cost|how much|rate|pricing|cheap|expensive|kitna)\b/)) return FALLBACKS.pricing;
+  if (t.match(/\b(publisher|publish|list|add site|sell|become|my site|my website)\b/)) return FALLBACKS.publisher;
+  if (t.match(/\b(order|buy|purchase|how to order|place|guest post|backlink)\b/)) return FALLBACKS.order;
+  if (t.match(/\b(withdraw|withdrawal|earn|money|payment|payout|cash out)\b/)) return FALLBACKS.withdraw;
   return FALLBACKS.default;
 }
 
