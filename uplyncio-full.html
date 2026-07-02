@@ -2474,28 +2474,7 @@ document.addEventListener('click', function(e){
 </div>
 <div class="toast" id="toast">✅ Order received! We'll reach out within 24 hours.</div>
 <script>
-const sites=[
-  {n:"TechBullion",u:"https://techbullion.com",da:72,dr:68,tr:48000,trD:"48K",niche:"Tech, Finance, Business",price:120,ahrefs:"48K",sw:"180K",semrush:41},
-  {n:"Business2Community",u:"https://business2community.com",da:84,dr:79,tr:210000,trD:"210K",niche:"Business, Marketing",price:250,ahrefs:"210K",sw:"520K",semrush:58},
-  {n:"Startup Bonsai",u:"https://startupbonsai.com",da:61,dr:58,tr:32000,trD:"32K",niche:"SaaS, Startups",price:90,ahrefs:"32K",sw:"95K",semrush:38},
-  {n:"SaaS Mag",u:"https://saasmag.com",da:55,dr:52,tr:18000,trD:"18K",niche:"SaaS, Technology",price:80,ahrefs:"18K",sw:"54K",semrush:32},
-  {n:"Finextra",u:"https://finextra.com",da:78,dr:74,tr:95000,trD:"95K",niche:"Finance, Banking, Fintech",price:200,ahrefs:"95K",sw:"310K",semrush:52},
-  {n:"Hackernoon",u:"https://hackernoon.com",da:88,dr:85,tr:320000,trD:"320K",niche:"Tech, Crypto, Dev",price:300,ahrefs:"320K",sw:"890K",semrush:67},
-  {n:"Dataconomy",u:"https://dataconomy.com",da:64,dr:60,tr:41000,trD:"41K",niche:"Tech, Data, AI",price:100,ahrefs:"41K",sw:"120K",semrush:40},
-  {n:"MarTech Series",u:"https://martechseries.com",da:67,dr:63,tr:55000,trD:"55K",niche:"Marketing, SaaS",price:130,ahrefs:"55K",sw:"160K",semrush:43},
-  {n:"CoinTelegraph",u:"https://cointelegraph.com",da:91,dr:88,tr:2100000,trD:"2.1M",niche:"Crypto, Blockchain, Finance",price:500,ahrefs:"2.1M",sw:"5.8M",semrush:75},
-  {n:"Noupe",u:"https://noupe.com",da:58,dr:54,tr:22000,trD:"22K",niche:"Design, Tech, Dev",price:70,ahrefs:"22K",sw:"65K",semrush:35},
-  {n:"ReadWrite",u:"https://readwrite.com",da:82,dr:77,tr:180000,trD:"180K",niche:"Tech, IoT, Business",price:220,ahrefs:"180K",sw:"470K",semrush:55},
-  {n:"SaaSworthy Blog",u:"https://saasworthy.com",da:52,dr:48,tr:14000,trD:"14K",niche:"SaaS, Software",price:65,ahrefs:"14K",sw:"42K",semrush:30},
-  {n:"G2 Learning Hub",u:"https://learn.g2.com",da:76,dr:72,tr:88000,trD:"88K",niche:"SaaS, B2B, Software",price:170,ahrefs:"88K",sw:"260K",semrush:50},
-  {n:"FinancesOnline",u:"https://financesonline.com",da:71,dr:67,tr:62000,trD:"62K",niche:"Finance, Software",price:140,ahrefs:"62K",sw:"185K",semrush:46},
-  {n:"Dev.to",u:"https://dev.to",da:87,dr:83,tr:450000,trD:"450K",niche:"Dev, Tech, Programming",price:280,ahrefs:"450K",sw:"1.2M",semrush:64},
-  {n:"Influencer Mktg Hub",u:"https://influencermarketinghub.com",da:79,dr:75,tr:120000,trD:"120K",niche:"Marketing, Social Media",price:190,ahrefs:"120K",sw:"350K",semrush:53},
-  {n:"Entrepreneur",u:"https://entrepreneur.com",da:92,dr:89,tr:3200000,trD:"3.2M",niche:"Business, Startups, Finance",price:600,ahrefs:"3.2M",sw:"8.1M",semrush:78},
-  {n:"Thenextweb",u:"https://thenextweb.com",da:93,dr:90,tr:1400000,trD:"1.4M",niche:"Tech, Business, Science",price:450,ahrefs:"1.4M",sw:"3.9M",semrush:72},
-  {n:"Healthline",u:"https://healthline.com",da:94,dr:91,tr:20000000,trD:"8.5M",niche:"Health, Wellness, Medical",price:700,ahrefs:"8.5M",sw:"22M",semrush:82},
-  {n:"Yourstory",u:"https://yourstory.com",da:69,dr:65,tr:72000,trD:"72K",niche:"Business, Startups, India",price:110,ahrefs:"72K",sw:"210K",semrush:45},
-];
+const sites=[];
 
 function render(data){
   var mpEl = document.getElementById('mpTable');
@@ -2654,15 +2633,19 @@ document.getElementById('orderModal').addEventListener('click',function(e){if(e.
 function toggleFaq(el){const i=el.parentElement;document.querySelectorAll('.faq-i.open').forEach(x=>{if(x!==i)x.classList.remove('open')});i.classList.toggle('open')}
 
 // Ticker
-const td=[
-  {n:'TechBullion',da:'DA 72',p:'$120'},{n:'Hackernoon',da:'DA 88',p:'$300'},
-  {n:'ReadWrite',da:'DA 82',p:'$220'},{n:'G2 Hub',da:'DA 76',p:'$170'},
-  {n:'Finextra',da:'DA 78',p:'$200'},{n:'Dev.to',da:'DA 87',p:'$280'},
-  {n:'Business2Community',da:'DA 84',p:'$250'},{n:'MarTech Series',da:'DA 67',p:'$130'},
-  {n:'SaaS Mag',da:'DA 55',p:'$80'},{n:'CoinTelegraph',da:'DA 91',p:'$500'},
-];
 const t=document.getElementById('ticker');
-if(t) t.innerHTML=[...td,...td].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <em>${x.da}</em> · ${x.p}</div>`).join('');
+if(t){
+  fetch('/api/sites?status=Live&limit=20')
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.success && Array.isArray(res.sites) && res.sites.length){
+        var items = res.sites.slice(0,10).map(function(s){
+          return {n:(s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,''), da:'DA '+(s.da||'N/A'), p:'$'+(s.price||s.write_publish_price||'—')};
+        });
+        t.innerHTML=[...items,...items].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <em>${x.da}</em> · ${x.p}</div>`).join('');
+      }
+    }).catch(function(){t.innerHTML='';});
+}
 
 (function(){
   try{

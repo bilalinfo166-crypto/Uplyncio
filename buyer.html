@@ -1461,53 +1461,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 // ═══════════════════════════════════
 // SAMPLE SITES (merged with publisher localStorage sites)
 // ═══════════════════════════════════
-var SAMPLE = [
-  {url:'techbullion.com',da:72,dr:68,traffic:23640,semT:284399,refD:40392,cats:['Finance','Technology'],linkType:'Dofollow',gP:120,wP:150,liOk:true,liP:80,liReq:'Finance topics only',country:'USA',lang:'English',tat:7,comp:100,pub:'Contributor',maxL:2,req:'No gambling, no adult content. Article must be related to finance or technology. Minimum 500 words required.',topCountry:'USA',linkLifetime:'Up to 100%',spam:2,minWords:500,indexed:true,domainAge:'8 years'},
-  {url:'hackernoon.com',da:88,dr:85,traffic:320000,semT:1200000,refD:95000,cats:['Tech','Internet'],linkType:'Dofollow',gP:300,wP:380,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:98,pub:'Contributor',maxL:2,req:'No promotional content',spam:3,minWords:600,indexed:true,domainAge:'12 years'},
-  {url:'entrepreneur.com',da:92,dr:90,traffic:2100000,semT:8000000,refD:650000,cats:['Business','Finance'],linkType:'Dofollow',gP:600,wP:750,liOk:true,liP:400,liReq:'Business topics only',country:'USA',lang:'English',tat:14,comp:95,pub:'Contributor',maxL:1,req:'',spam:1,minWords:800,indexed:true,domainAge:'25 years'},
-  {url:'finextra.com',da:78,dr:74,traffic:95000,semT:380000,refD:28000,cats:['Finance','Crypto'],linkType:'Dofollow',gP:200,wP:260,liOk:true,liP:120,liReq:'Finance only',country:'UK',lang:'English',tat:7,comp:100,pub:'Owner',maxL:2,req:'',spam:2,minWords:600,indexed:true,domainAge:'15 years'},
-  {url:'dev.to',da:87,dr:83,traffic:280000,semT:1100000,refD:72000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:280,wP:340,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:5,comp:99,pub:'Contributor',maxL:2,req:'',spam:4,minWords:500,indexed:true,domainAge:'7 years'},
-  {url:'startupbonsai.com',da:61,dr:58,traffic:32000,semT:120000,refD:8000,cats:['SaaS','Marketing'],linkType:'Dofollow',gP:90,wP:120,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:5,comp:100,pub:'Owner',maxL:1,req:'SaaS topics only',spam:5,minWords:500,indexed:true,domainAge:'5 years'},
-  {url:'metapress.com',da:76,dr:79,traffic:45000,semT:126347,refD:28035,cats:['Business','Technology'],linkType:'Dofollow',gP:45,wP:55,liOk:true,liP:30,liReq:'',country:'USA',lang:'English',tat:10,comp:100,pub:'Owner',maxL:2,req:'',spam:6,minWords:500,indexed:true,domainAge:'4 years'},
-  {url:'urbansplatter.com',da:47,dr:62,traffic:31726,semT:123945,refD:8339,cats:['Real Estate','Travel'],linkType:'Dofollow',gP:33,wP:36,liOk:true,liP:20,liReq:'',country:'USA',lang:'English',tat:8,comp:100,pub:'Contributor',maxL:2,req:'',spam:8,minWords:500,indexed:true,domainAge:'6 years'},
-  {url:'mirrorreview.com',da:64,dr:65,traffic:3260,semT:52388,refD:5200,cats:['Tech','Business'],linkType:'Dofollow',gP:72,wP:79,liOk:true,liP:45,liReq:'',country:'India',lang:'English',tat:5,comp:100,pub:'Owner',maxL:2,req:'',spam:7,minWords:500,indexed:true,domainAge:'5 years'},
-  {url:'thedatascientist.com',da:39,dr:65,traffic:17366,semT:83931,refD:4727,cats:['Tech','SaaS'],linkType:'Dofollow',gP:52,wP:57,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:1,comp:100,pub:'Contributor',maxL:1,req:'',spam:5,minWords:500,indexed:true,domainAge:'4 years'},
-  {url:'kulfly.com',da:71,dr:60,traffic:26807,semT:72548,refD:7173,cats:['Business','Travel'],linkType:'Dofollow',gP:32,wP:45,liOk:true,liP:22,liReq:'',country:'India',lang:'English',tat:5,comp:100,pub:'Owner',maxL:2,req:'',spam:9,minWords:500,indexed:true,domainAge:'3 years'},
-  {url:'apnews.com',da:92,dr:92,traffic:5669883,semT:76078335,refD:345530,cats:['News & Media','Business'],linkType:'Nofollow',gP:90,wP:90,liOk:true,liP:90,liReq:'News topics',country:'USA',lang:'English',tat:7,comp:93,pub:'Contributor',maxL:1,req:'',spam:1,minWords:700,indexed:true,domainAge:'40 years'},
-  {url:'healthline.com',da:94,dr:91,traffic:20000000,semT:42000000,refD:280000,cats:['Health','Fitness'],linkType:'Dofollow',gP:700,wP:850,liOk:true,liP:400,liReq:'Medical topics only',country:'USA',lang:'English',tat:14,comp:90,pub:'Contributor',maxL:1,req:'Health/medical only',spam:1,minWords:800,indexed:true,domainAge:'18 years'},
-  {url:'medicalnewstoday.com',da:91,dr:88,traffic:6200000,semT:18000000,refD:190000,cats:['Health'],linkType:'Nofollow',gP:450,wP:550,liOk:false,liP:0,liReq:'',country:'UK',lang:'English',tat:10,comp:92,pub:'Contributor',maxL:1,req:'Medical content only',spam:2,minWords:700,indexed:true,domainAge:'20 years'},
-  {url:'coindesk.com',da:89,dr:87,traffic:3100000,semT:9500000,refD:155000,cats:['Crypto','Finance'],linkType:'Dofollow',gP:500,wP:620,liOk:true,liP:300,liReq:'Crypto topics only',country:'USA',lang:'English',tat:10,comp:94,pub:'Contributor',maxL:1,req:'',spam:3,minWords:600,indexed:true,domainAge:'11 years'},
-  {url:'cointelegraph.com',da:87,dr:85,traffic:4200000,semT:12000000,refD:170000,cats:['Crypto','Finance'],linkType:'Dofollow',gP:450,wP:560,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:7,comp:96,pub:'Contributor',maxL:2,req:'Crypto only',spam:2,minWords:600,indexed:true,domainAge:'10 years'},
-  {url:'investopedia.com',da:92,dr:90,traffic:12000000,semT:55000000,refD:320000,cats:['Finance','Business'],linkType:'Dofollow',gP:800,wP:950,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:88,pub:'Contributor',maxL:1,req:'Finance only',spam:1,minWords:800,indexed:true,domainAge:'25 years'},
-  {url:'tomsguide.com',da:89,dr:87,traffic:7500000,semT:28000000,refD:140000,cats:['Tech','SaaS'],linkType:'Dofollow',gP:350,wP:430,liOk:true,liP:200,liReq:'Tech topics',country:'USA',lang:'English',tat:10,comp:91,pub:'Contributor',maxL:1,req:'',spam:3,minWords:600,indexed:true,domainAge:'15 years'},
-  {url:'marketwatch.com',da:93,dr:91,traffic:9200000,semT:42000000,refD:380000,cats:['Finance','News & Media'],linkType:'Dofollow',gP:750,wP:900,liOk:false,liP:0,liReq:'',country:'USA',lang:'English',tat:14,comp:87,pub:'Contributor',maxL:1,req:'Finance/market topics',spam:1,minWords:800,indexed:true,domainAge:'28 years'},
-  {url:'searchenginejournal.com',da:82,dr:79,traffic:1200000,semT:3800000,refD:200000,cats:['Marketing','SaaS'],linkType:'Dofollow',gP:220,wP:280,liOk:true,liP:130,liReq:'SEO/Marketing topics',country:'USA',lang:'English',tat:7,comp:97,pub:'Contributor',maxL:2,req:'',spam:4,minWords:600,indexed:true,domainAge:'14 years'},
-,
-  {url:'forbes.com',da:94,dr:92,traffic:32000000,semT:98000000,refD:420000,cats:['Business','Entrepreneurship'],linkType:'Dofollow',gP:1200,wP:1500,liOk:true,liP:800,country:'USA',lang:'English',comp:88,tat:14,maxL:2,spam:2},
-  {url:'huffpost.com',da:91,dr:89,traffic:18000000,semT:55000000,refD:380000,cats:['News & Media','Lifestyle'],linkType:'Dofollow',gP:950,wP:1200,liOk:false,liP:0,country:'USA',lang:'English',comp:85,tat:12,maxL:1,spam:3},
-  {url:'psychologytoday.com',da:91,dr:87,traffic:14000000,semT:42000000,refD:290000,cats:['Mental Health','Psychology'],linkType:'Dofollow',gP:880,wP:1100,liOk:true,liP:600,country:'USA',lang:'English',comp:90,tat:10,maxL:2,spam:1},
-  {url:'foodnetwork.com',da:90,dr:88,traffic:22000000,semT:67000000,refD:310000,cats:['Food & Recipes','Lifestyle'],linkType:'Dofollow',gP:820,wP:1000,liOk:false,liP:0,country:'USA',lang:'English',comp:87,tat:12,maxL:1,spam:2},
-  {url:'pcmag.com',da:91,dr:89,traffic:12000000,semT:38000000,refD:260000,cats:['Technology','Gadgets'],linkType:'Dofollow',gP:760,wP:950,liOk:true,liP:500,country:'USA',lang:'English',comp:92,tat:8,maxL:2,spam:1},
-  {url:'shopify.com/blog',da:93,dr:91,traffic:9000000,semT:28000000,refD:480000,cats:['E-commerce','Entrepreneurship'],linkType:'Dofollow',gP:900,wP:1100,liOk:true,liP:650,country:'USA',lang:'English',comp:89,tat:10,maxL:2,spam:1},
-  {url:'mayoclinic.org',da:93,dr:90,traffic:28000000,semT:200000000,refD:440000,cats:['Health','Medical'],linkType:'Dofollow',gP:1100,wP:1400,liOk:false,liP:0,country:'USA',lang:'English',comp:94,tat:14,maxL:1,spam:1},
-  {url:'lonelyplanet.com',da:89,dr:85,traffic:20000000,semT:26000000,refD:220000,cats:['Travel','Adventure'],linkType:'Dofollow',gP:680,wP:850,liOk:true,liP:480,country:'UK',lang:'English',comp:88,tat:10,maxL:2,spam:2},
-  {url:'investopedia.com',da:91,dr:90,traffic:25000000,semT:78000000,refD:390000,cats:['Finance','Investing'],linkType:'Dofollow',gP:1050,wP:1300,liOk:true,liP:720,country:'USA',lang:'English',comp:91,tat:12,maxL:2,spam:1},
-  {url:'homeadvisor.com',da:82,dr:78,traffic:6500000,semT:19000000,refD:140000,cats:['Home & Garden','Real Estate'],linkType:'Dofollow',gP:480,wP:600,liOk:true,liP:320,country:'USA',lang:'English',comp:85,tat:8,maxL:3,spam:3},
-  {url:'autotrader.com',da:85,dr:82,traffic:11000000,semT:34000000,refD:190000,cats:['Automotive','Finance'],linkType:'Dofollow',gP:620,wP:780,liOk:true,liP:420,country:'USA',lang:'English',comp:87,tat:10,maxL:2,spam:2},
-  {url:'fashionista.com',da:80,dr:76,traffic:3500000,semT:11000000,refD:95000,cats:['Fashion','Lifestyle'],linkType:'Dofollow',gP:420,wP:530,liOk:true,liP:280,country:'USA',lang:'English',comp:83,tat:8,maxL:2,spam:3},
-  {url:'sportsillustrated.com',da:88,dr:85,traffic:9000000,semT:27000000,refD:210000,cats:['Sports','Fitness'],linkType:'Dofollow',gP:720,wP:900,liOk:true,liP:500,country:'USA',lang:'English',comp:86,tat:10,maxL:2,spam:2},
-  {url:'edutopia.org',da:82,dr:78,traffic:4200000,semT:13000000,refD:130000,cats:['Education','E-Learning'],linkType:'Dofollow',gP:460,wP:580,liOk:false,liP:0,country:'USA',lang:'English',comp:91,tat:10,maxL:2,spam:1},
-  {url:'coursera.org/blog',da:91,dr:88,traffic:7800000,semT:24000000,refD:340000,cats:['Education','E-Learning'],linkType:'Dofollow',gP:780,wP:980,liOk:true,liP:540,country:'USA',lang:'English',comp:90,tat:12,maxL:2,spam:1},
-  {url:'legalzoom.com',da:81,dr:77,traffic:4800000,semT:15000000,refD:120000,cats:['Legal','Business'],linkType:'Dofollow',gP:520,wP:660,liOk:true,liP:360,country:'USA',lang:'English',comp:86,tat:10,maxL:2,spam:2},
-  {url:'healthyeating.org',da:72,dr:68,traffic:1800000,semT:5500000,refD:48000,cats:['Food & Recipes','Health'],linkType:'Dofollow',gP:280,wP:360,liOk:true,liP:180,country:'USA',lang:'English',comp:84,tat:7,maxL:2,spam:2},
-  {url:'petmd.com',da:80,dr:76,traffic:5200000,semT:16000000,refD:108000,cats:['Pets & Animals','Health'],linkType:'Dofollow',gP:420,wP:530,liOk:true,liP:280,country:'USA',lang:'English',comp:87,tat:8,maxL:2,spam:2},
-  {url:'reliefweb.int',da:82,dr:79,traffic:2100000,semT:6400000,refD:142000,cats:['Non-Profit','News & Media'],linkType:'Dofollow',gP:460,wP:580,liOk:false,liP:0,country:'Global',lang:'English',comp:89,tat:12,maxL:2,spam:1},
-  {url:'techradar.com',da:90,dr:87,traffic:11000000,semT:34000000,refD:270000,cats:['Technology','Gadgets'],linkType:'Dofollow',gP:820,wP:1030,liOk:true,liP:560,country:'UK',lang:'English',comp:91,tat:10,maxL:2,spam:1},
-  {url:'environmentalleader.com',da:68,dr:63,traffic:890000,semT:2700000,refD:32000,cats:['Environment','Sustainability'],linkType:'Dofollow',gP:220,wP:280,liOk:true,liP:140,country:'USA',lang:'English',comp:82,tat:7,maxL:3,spam:3},
-  {url:'greenbiz.com',da:74,dr:70,traffic:1400000,semT:4200000,refD:58000,cats:['Sustainability','Business'],linkType:'Dofollow',gP:320,wP:400,liOk:true,liP:210,country:'USA',lang:'English',comp:85,tat:8,maxL:2,spam:2},
-  {url:'buildingsanddata.com',da:58,dr:53,traffic:320000,semT:980000,refD:14000,cats:['Architecture','Real Estate'],linkType:'Dofollow',gP:150,wP:190,liOk:true,liP:95,country:'UK',lang:'English',comp:80,tat:7,maxL:3,spam:4},
-  {url:'medscape.com',da:91,dr:88,traffic:16000000,semT:49000000,refD:320000,cats:['Medical','Health'],linkType:'Dofollow',gP:980,wP:1230,liOk:false,liP:0,country:'USA',lang:'English',comp:93,tat:14,maxL:1,spam:1},
-  {url:'securityweek.com',da:74,dr:70,traffic:2200000,semT:6800000,refD:62000,cats:['Cybersecurity','Technology'],linkType:'Dofollow',gP:360,wP:450,liOk:true,liP:240,country:'USA',lang:'English',comp:88,tat:8,maxL:2,spam:2}];
+var SAMPLE = []; // Removed dummy sites - only real publisher sites show
 
 // ═══════════════════════════════════
 // STATE
@@ -1638,30 +1592,18 @@ function loadAllSites(){
     });
   }catch(e){ console.warn('loadAllSites local error:', e); }
 
-  // Build result from urlMap + SAMPLE
-  SAMPLE.forEach(function(s){
-    var url = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
-    if(!urlMap[url]){ urlMap[url]=s; }
-  });
-
   allSites = Object.values(urlMap);
-  allSites.sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); });
+  allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
 
   // Method 3 (async): Fetch from Supabase — real cross-device data
-  // This runs in background and refreshes once done
-  fetch('/api/sites?status=Live&limit=1000')
+  // Primary source — runs immediately and re-renders with real sites
+  fetch('/api/sites?status=Live&limit=2000')
     .then(function(r){ return r.json(); })
     .then(function(res){
       if(!res.success || !Array.isArray(res.sites) || !res.sites.length) return;
-      var sbMap = {};
       res.sites.forEach(function(s){ processSite(s, s.publisher_id); });
-      // Rebuild allSites including Supabase data
-      SAMPLE.forEach(function(s){
-        var url = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
-        if(!urlMap[url]) urlMap[url]=s;
-      });
       allSites = Object.values(urlMap);
-      allSites.sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); });
+      allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
       applyFilters();
       updateSiteCounter();
     }).catch(function(){});
