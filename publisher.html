@@ -173,47 +173,9 @@ html,body{overflow-x:hidden;max-width:100vw}
 <script>
 
 // ── SUPABASE SYNC ──
-async function syncSitesToSupabase(){
-  try{
-    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(!user||!user.id) return;
-    // Push local sites to Supabase if not already there
-    var localSites = _publisherSites || [];
-    for(var s of localSites){
-      if(!s._synced && s.url){
-        var result = await UplyncioDB.addSite({
-          publisher_id: user.id,
-          url: s.url,
-          domain: s.domain || s.url.replace(/^https?:\/\//,'').split('/')[0],
-          da: parseInt(s.da)||0,
-          dr: parseInt(s.dr)||0,
-          traffic: parseInt(s.traffic)||0,
-          category: s.category||'',
-          link_type: s.linkType||'Dofollow',
-          price: parseFloat(s.price)||0,
-          status: s.status||'Pending Review',
-          publisher_name: user.name||'',
-          publisher_email: user.email||''
-        });
-        if(result.success) s._synced = true;
-      }
-    }
-  }catch(e){ console.log('Supabase sync skipped:', e.message); }
-}
-
-async function loadSitesFromSupabase(){
-  try{
-    var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    if(!user||!user.id) return;
-    var result = await UplyncioDB.getSites({publisher_id: user.id});
-    if(Array.isArray(result) && result.length > 0){
-      console.log('[Supabase] Loaded '+result.length+' sites from cloud');
-      // Merge with local
-      return result;
-    }
-  }catch(e){ console.log('Supabase load skipped:', e.message); }
-  return null;
-}
+// ── Legacy sync stubs (real sync handled by saveSites/syncSitesToSupabase below) ──
+async function syncSitesToSupabaseOld(){ /* deprecated */ }
+async function loadSitesFromSupabaseOld(){ /* deprecated */ }
 
 // ── END SUPABASE SYNC ──
 
@@ -2490,6 +2452,14 @@ function reloadSitesForUser(){
 var mySites = loadSites();
 // Pull any sites from Supabase that aren't in localStorage yet (cross-device sync)
 setTimeout(loadSitesFromSupabase, 1500);
+// Force-push ALL local sites to Supabase on load (catches sites added before sync was implemented)
+setTimeout(function(){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  if(uid && mySites.length > 0){
+    console.log('[Uplyncio] Force-syncing', mySites.length, 'sites to Supabase...');
+    syncSitesToSupabase(uid, mySites);
+  }
+}, 3000);
 
 function submit(){
   var url = document.getElementById('urlIn').value.trim();
