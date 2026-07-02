@@ -2982,28 +2982,9 @@ function getPriceAnalysis(siteId, priceNum){
   if(!s) return null;
   var myPrice = parseFloat(s['p'+priceNum]||s.p1||0);
   if(!myPrice) return null;
-  var mySiteDomain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
   var mySiteDA = parseFloat(s.da)||0;
 
-  // Find official (team) floor price for this domain
-  var officialFloor = null;
-  try{
-    var allLoaded = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
-    Object.keys(allLoaded).forEach(function(uid){
-      if(uid === 'uplyncio_team_official' || uid === localStorage.getItem('uplyncio_currentUid')) return;
-      // skip own sites
-    });
-    // Also check Supabase-loaded sites
-    var teamSites = JSON.parse(localStorage.getItem('uplyncio_team_sites')||'[]');
-    teamSites.forEach(function(ts){
-      var tsDomain = (ts.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
-      if(tsDomain === mySiteDomain){
-        officialFloor = parseFloat(ts.p1||ts.guestPostPrice||0);
-      }
-    });
-  }catch(e){}
-
-  // Calculate market median: all OTHER publisher sites with similar DA (±15)
+  // Calculate market median from comparable DA sites
   var comparablePrices = [];
   try{
     var reg = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
@@ -3013,24 +2994,20 @@ function getPriceAnalysis(siteId, priceNum){
       (reg[uid]||[]).forEach(function(cs){
         var csDA = parseFloat(cs.da)||0;
         var csP = parseFloat(cs.p1||cs.price||0);
-        if(csDA > 0 && csP > 0 && Math.abs(csDA - mySiteDA) <= 15){
-          comparablePrices.push(csP);
-        }
+        if(csDA > 0 && csP > 0 && Math.abs(csDA - mySiteDA) <= 15) comparablePrices.push(csP);
       });
     });
   }catch(e){}
 
-  // Use SAMPLE data if not enough comps
   var median = null;
   if(comparablePrices.length >= 3){
     comparablePrices.sort(function(a,b){return a-b;});
     var mid = Math.floor(comparablePrices.length/2);
-    median = comparablePrices.length % 2 === 0
+    median = comparablePrices.length%2===0
       ? (comparablePrices[mid-1]+comparablePrices[mid])/2
       : comparablePrices[mid];
     median = Math.round(median);
   } else {
-    // Estimate median from DA
     if(mySiteDA >= 70) median = 400;
     else if(mySiteDA >= 50) median = 150;
     else if(mySiteDA >= 30) median = 70;
@@ -3038,35 +3015,22 @@ function getPriceAnalysis(siteId, priceNum){
   }
 
   var pct = median > 0 ? ((myPrice - median) / median * 100) : 0;
-  var issues = [];
-  var recommended = median;
+  var hasIssue = pct > 20 && median > 0;
+  var issues = hasIssue
+    ? [{type:'too_high', msg:'Your price is '+Math.abs(pct).toFixed(2)+'% higher than similar sites in your niche. Sites with this pricing rarely receive orders.', recommended: median}]
+    : [];
 
-  // Too low?
-  if(officialFloor && myPrice < officialFloor){
-    issues.push({type:'too_low', msg:'Your price is below the Uplyncio minimum of $'+officialFloor+' for this site.', recommended: officialFloor});
-    recommended = officialFloor;
-  } else if(myPrice < 5){
-    issues.push({type:'too_low', msg:'Your price is too low and may not be accepted on the marketplace.', recommended: Math.max(10, median)});
-    recommended = Math.max(10, median);
-  }
-
-  // Too high?
-  if(pct > 20 && median > 0 && !issues.length){
-    issues.push({
-      type:'too_high',
-      msg:'Your price is '+Math.abs(pct).toFixed(2)+'% higher than similar sites in your niche. Sites with this pricing rarely receive orders.',
-      recommended: median
-    });
-  }
+  // What buyer sees for this publisher price (tiered markup)
+  var buyerPrice = myPrice <= 5 ? 20 : myPrice <= 10 ? 30 : myPrice <= 20 ? 50 : Math.ceil(myPrice * 1.28);
 
   return {
     myPrice: myPrice,
+    buyerPrice: buyerPrice,
     median: median,
-    officialFloor: officialFloor,
     pct: pct,
     issues: issues,
-    recommended: recommended || median,
-    hasIssue: issues.length > 0
+    recommended: median,
+    hasIssue: hasIssue
   };
 }
 
@@ -3089,13 +3053,16 @@ function openChangePriceModal(siteId, priceNum){
     '<div style="background:#fff;border-radius:20px;padding:36px 38px;width:440px;max-width:92vw;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.25)">'
     +'<button onclick="document.getElementById(\'changePriceMdl\').remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8">×</button>'
     +'<div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:22px;text-align:center">Change price</div>'
-    +'<div style="margin-bottom:12px"><span style="font-size:14px;color:#475569">Your Price: </span><span style="font-size:14px;font-weight:700;color:'+priceColor+'">$'+analysis.myPrice.toFixed(2)+'</span></div>'
+    +'<div style="background:#f8faff;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    +'<div><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">YOUR PRICE (publisher)</div><div style="font-size:18px;font-weight:800;color:'+priceColor+'">$'+analysis.myPrice.toFixed(2)+'</div></div>'
+    +'<div><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">BUYER SEES</div><div style="font-size:18px;font-weight:800;color:#16a34a">$'+analysis.buyerPrice.toFixed(2)+'</div><div style="font-size:10px;color:#94a3b8">Uplyncio markup applied</div></div>'
+    +'</div>'
     +(analysis.median ? '<div style="margin-bottom:12px"><span style="font-size:14px;color:#475569">Market Median: </span><span style="font-size:14px;font-weight:700;color:'+priceColor+'">$'+analysis.median.toFixed(2)+'</span></div>' : '')
-    +(analysis.officialFloor ? '<div style="margin-bottom:12px"><span style="font-size:14px;color:#475569">Uplyncio Floor: </span><span style="font-size:14px;font-weight:700;color:#4f7cff">$'+analysis.officialFloor.toFixed(2)+'</span></div>' : '')
-    +'<div style="background:#fff7ed;border-radius:10px;padding:14px 16px;margin-bottom:22px;font-size:13.5px;color:#92400e;line-height:1.6">Insight: '+insightText+'</div>'
-    +'<button onclick="applyRecommendedPrice('+siteId+','+priceNum+','+analysis.recommended+')" style="width:100%;padding:14px;background:#0f172a;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px">Apply recommended price ($'+analysis.recommended.toFixed(2)+')</button>'
-    +'<div style="text-align:center;color:#94a3b8;font-size:13px;margin-bottom:12px">OR</div>'
-    +'<input id="cpmNewPrice" type="number" value="'+analysis.myPrice+'" placeholder="Enter new price" style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;outline:none" onfocus="this.style.borderColor=\'#4f7cff\'" onblur="this.style.borderColor=\'#e2e8f0\'">'
+    +'<div style="background:'+(analysis.hasIssue?'#fff7ed':'#f0fdf4')+';border-radius:10px;padding:14px 16px;margin-bottom:22px;font-size:13.5px;color:'+(analysis.hasIssue?'#92400e':'#166534')+';line-height:1.6">'+insightText+'</div>'
+    +(analysis.hasIssue ? '<button onclick="applyRecommendedPrice('+siteId+','+priceNum+','+analysis.recommended+')" style="width:100%;padding:14px;background:#0f172a;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px">Apply recommended price ($'+analysis.recommended.toFixed(2)+')</button>' : '')
+    +'<div style="text-align:center;color:#94a3b8;font-size:13px;margin-bottom:12px">'+(analysis.hasIssue?'OR':'Enter new price')+'</div>'
+    +'<input id="cpmNewPrice" type="number" value="'+analysis.myPrice+'" placeholder="Enter new price" style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;outline:none" oninput="updateCpmBuyerPreview(this.value)" onfocus="this.style.borderColor=\'#4f7cff\'" onblur="this.style.borderColor=\'#e2e8f0\'">'
+    +'<div id="cpmBuyerPreview" style="font-size:12px;color:#94a3b8;margin-bottom:12px;text-align:center">Buyer will see: <strong style="color:#16a34a">$'+analysis.buyerPrice.toFixed(2)+'</strong></div>'
     +'<button onclick="applyCustomPrice('+siteId+','+priceNum+')" style="width:100%;padding:14px;background:#4f7cff;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Change</button>'
     +'</div>';
   document.body.appendChild(el);
@@ -3106,6 +3073,13 @@ function applyRecommendedPrice(siteId, priceNum, recommended){
   applyPriceChange(siteId, priceNum, recommended);
   var el = document.getElementById('changePriceMdl');
   if(el) el.remove();
+}
+
+function updateCpmBuyerPreview(val){
+  var p = parseFloat(val)||0;
+  var buyerP = p <= 0 ? 0 : p <= 5 ? 20 : p <= 10 ? 30 : p <= 20 ? 50 : Math.ceil(p * 1.28);
+  var el = document.getElementById('cpmBuyerPreview');
+  if(el) el.innerHTML = 'Buyer will see: <strong style="color:#16a34a">$'+buyerP.toFixed(2)+'</strong>';
 }
 
 function applyCustomPrice(siteId, priceNum){
@@ -3139,23 +3113,11 @@ function editPrice(siteId, priceNum){
 function checkAndMarkSiteIssues(s){
   var myPrice = parseFloat(s.p1||s.guestPostPrice||0);
   if(!myPrice) return;
-  var mySiteDomain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
   var mySiteDA = parseFloat(s.da)||0;
   var issues = [];
-  var officialFloor = 0;
-  try{
-    var teamSites = JSON.parse(localStorage.getItem('uplyncio_team_sites')||'[]');
-    teamSites.forEach(function(ts){
-      var tsDomain = (ts.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
-      if(tsDomain === mySiteDomain) officialFloor = parseFloat(ts.p1||ts.guestPostPrice||0);
-    });
-  }catch(e){}
-  if(officialFloor > 0 && myPrice < officialFloor){
-    issues.push('Price below Uplyncio minimum ($'+officialFloor+')');
-  }
-  if(myPrice < 5 && !issues.length){
-    issues.push('Price too low (minimum $5)');
-  }
+
+  // Only flag: price too HIGH vs market median (>20% above)
+  // No floor/too-low check — tiered markup in buyer page guarantees minimum buyer price automatically
   var comparablePrices = [];
   try{
     var reg = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
@@ -3169,7 +3131,8 @@ function checkAndMarkSiteIssues(s){
       });
     });
   }catch(e){}
-  if(comparablePrices.length >= 3 && !issues.length){
+
+  if(comparablePrices.length >= 3){
     comparablePrices.sort(function(a,b){return a-b;});
     var mid = Math.floor(comparablePrices.length/2);
     var median = comparablePrices.length%2===0
@@ -3177,9 +3140,10 @@ function checkAndMarkSiteIssues(s){
       : comparablePrices[mid];
     var pct = (myPrice - median) / median * 100;
     if(pct > 20){
-      issues.push('Price '+pct.toFixed(1)+'% above market median ($'+Math.round(median)+')');
+      issues.push('Price '+pct.toFixed(1)+'% above market median ($'+Math.round(median)+') — may receive fewer orders');
     }
   }
+
   s.priceIssues = issues;
   if(issues.length && (s.status==='Live'||s.status==='pending')){
     if(!s.priceIssueStatus) s.priceIssueStatus = s.status;
