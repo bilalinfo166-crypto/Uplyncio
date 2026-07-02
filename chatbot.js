@@ -115,8 +115,8 @@
       }
     }, 3000);
 
-    // Add welcome message when first opened
-    renderQuickReplies(QUICK_REPLIES);
+    // Add welcome message when first opened - don't render quick replies at init
+    // renderQuickReplies(QUICK_REPLIES); // removed - causes black bar on load
   }
 
   window.uplyToggle = function() {
