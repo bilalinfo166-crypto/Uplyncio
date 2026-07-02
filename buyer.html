@@ -1616,22 +1616,31 @@ function fetchSitesFromSupabase(){
     .then(function(r){ return r.json(); })
     .then(function(res){
       var sbSites = (res.success && Array.isArray(res.sites)) ? res.sites : [];
+
+      // Always start with local data
       var urlMap = {};
-      // Start with local
       _loadLocal().forEach(function(e){ if(e) urlMap[e.url]=e; });
-      // Supabase overrides (always wins for same domain)
-      sbSites.forEach(function(s){
-        var entry = _siteEntry(s, s.publisher_id);
-        if(entry) urlMap[entry.url] = entry;
-      });
-      _allSites = Object.values(urlMap);
-      _allSites.sort(function(a,b){
-        var aT=a.isTeamSite?1:0, bT=b.isTeamSite?1:0;
-        if(aT!==bT) return bT-aT;
-        return (a.gP||0)-(b.gP||0);
-      });
-      applyFilters();
-      updateSiteCounter();
+
+      // Add Supabase sites on top (only if we actually got some)
+      if(sbSites.length > 0){
+        sbSites.forEach(function(s){
+          var entry = _siteEntry(s, s.publisher_id);
+          if(entry) urlMap[entry.url] = entry;
+        });
+      }
+
+      // Only update if we have sites (never replace with empty)
+      var merged = Object.values(urlMap);
+      if(merged.length > 0 || _allSites.length === 0){
+        _allSites = merged;
+        _allSites.sort(function(a,b){
+          var aT=a.isTeamSite?1:0, bT=b.isTeamSite?1:0;
+          if(aT!==bT) return bT-aT;
+          return (a.gP||0)-(b.gP||0);
+        });
+        applyFilters();
+        updateSiteCounter();
+      }
     })
     .catch(function(e){ console.warn('Supabase fetch error:', e.message); });
 }

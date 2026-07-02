@@ -2369,6 +2369,9 @@ function saveSites(){
 
 function syncSitesToSupabase(uid, sites){
   if(!uid || !Array.isArray(sites)) return;
+  // Never send 'uplyncio_team_official' as publisher_id — use actual UID
+  var actualUid = (uid === 'uplyncio_team_official') ? 
+    (localStorage.getItem('uplyncio_currentUid')||uid) : uid;
   var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
   var publisherName = userData.name || '';
   var publisherEmail = userData.email || '';
@@ -2377,7 +2380,7 @@ function syncSitesToSupabase(uid, sites){
     var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
     if(!domain) return;
     var payload = {
-      publisher_id: uid,
+      publisher_id: actualUid,
       publisher_name: publisherName,
       publisher_email: publisherEmail,
       url: s.url||'', domain: domain,
@@ -2412,7 +2415,10 @@ function syncSitesToSupabase(uid, sites){
 // Force push ALL sites to Supabase with visible feedback
 window.forceSyncAllSites = function(){
   var uid = localStorage.getItem('uplyncio_currentUid')||'';
-  if(!uid){ alert('Not logged in'); return; }
+  if(!uid || uid === 'uplyncio_team_official'){ 
+    var ud = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    uid = ud.id || ud.uid || uid;
+  }
   var liveSites = mySites.filter(function(s){ return s.status==='Live'; });
   if(!liveSites.length){ toast('No Live sites to sync. Make sure sites are approved first.','#d97706'); return; }
 
@@ -2505,6 +2511,11 @@ setTimeout(loadSitesFromSupabase, 1500);
 // Force-push ALL local sites to Supabase on load (catches sites added before sync was implemented)
 setTimeout(function(){
   var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  // Never use placeholder string as UUID
+  if(uid === 'uplyncio_team_official'){
+    var ud = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
+    uid = ud.id || ud.uid || '';
+  }
   if(uid && mySites.length > 0){
     console.log('[Uplyncio] Force-syncing', mySites.length, 'sites to Supabase...');
     syncSitesToSupabase(uid, mySites);
