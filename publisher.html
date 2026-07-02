@@ -186,37 +186,29 @@ function applyVerifiedBadges(){
     if(!uid) return;
     var data = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
     var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    // Team account (info@uplyncio.com) is always verified
-    var isTeam = user && user.email === 'info@uplyncio.com';
-    var isVerified = data.publisherVerified || isTeam;
-    
+    var isTeam = user && (user.email||'').toLowerCase() === 'info@uplyncio.com';
+    var isVerified = data.publisherVerified || (user && user.publisher_verified) || isTeam;
+
     if(isVerified){
       if(isTeam && !data.publisherVerified){
         data.publisherVerified = true;
         data.publisherVerifiedDate = new Date().toISOString();
         localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data));
       }
-      // Show verified badges, hide Get Verified button
-      var pb = document.getElementById('pubVerifiedBadge');
-      if(pb){ pb.style.display = 'inline-flex'; }
-      var pnb = document.getElementById('pubNavVerifiedBadge');
-      if(pnb){ pnb.style.display = 'inline-flex'; }
-      var pcb = document.getElementById('pubCrownBadge');
-      if(pcb){ pcb.style.display = 'inline'; }
-      var gvb = document.getElementById('pubNavGetVerifiedBtn');
-      if(gvb){ gvb.style.display = 'none'; }
+      ['pubVerifiedBadge','pubNavVerifiedBadge'].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.style.display='inline-flex';
+      });
+      var pcb=document.getElementById('pubCrownBadge'); if(pcb) pcb.style.display='inline';
+      var gvb=document.getElementById('pubNavGetVerifiedBtn'); if(gvb) gvb.style.display='none';
     } else {
-      // Show Get Verified button, hide verified badges
-      var gvb2 = document.getElementById('pubNavGetVerifiedBtn');
-      if(gvb2){ gvb2.style.display = 'inline-block'; }
+      var gvb2=document.getElementById('pubNavGetVerifiedBtn');
+      if(gvb2) gvb2.style.display='inline-block';
     }
-  }catch(e){ console.error('Badge error:', e); }
+  }catch(e){}
 }
-// Run immediately + after DOM loads
-applyVerifiedBadges();
+// Run at multiple points to ensure DOM is ready
+[200, 500, 1200, 2500].forEach(function(ms){ setTimeout(applyVerifiedBadges, ms); });
 document.addEventListener('DOMContentLoaded', applyVerifiedBadges);
-// Also run after a short delay to ensure all elements rendered
-setTimeout(applyVerifiedBadges, 500);
 
 // Admin mode indicator on publisher page
 (function(){
