@@ -990,10 +990,6 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </svg>
 <span class="logo-txt">Uply<em>ncio</em></span>
 </a>
-<div class="nav-search">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-<input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off">
-</div>
 <div class="nav-right">
 <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none">🛒 Cart<span id="navCartCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span></a>
 <a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none" onclick="localStorage.setItem('cartTab','saved')">❤️ Saved<span id="navSavedCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span></a>
@@ -1203,10 +1199,16 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 
 <div class="filter-bar">
+<!-- Search bar at top of filters -->
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 14px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+<input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off" oninput="applyFiltersDebounced()" style="flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:#1a202c">
+<button onclick="document.getElementById('globalSearch').value='';applyFilters();" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px;padding:0;display:none" id="searchClearBtn">✕</button>
+</div>
 <div style="display:flex;align-items:center;justify-content:space-between">
 <div style="display:flex;align-items:center;gap:8px">
-<div style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">🔍</div>
-<span style="font-size:13px;font-weight:800;color:#1a202c;letter-spacing:.3px">Filter Sites</span>
+<div style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">⚙️</div>
+<span style="font-size:13px;font-weight:800;color:#1a202c;letter-spacing:.3px">Advanced Filters</span>
 <span id="activeFilterCount" style="display:none;background:#4f7cff;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">0 active</span>
 </div>
 <button onclick="clearAllFilters()" style="font-size:11.5px;color:#94a3b8;background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:4px">✕ Clear all</button>
@@ -1215,38 +1217,38 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <div class="fgroup">
 <label class="flbl">Price ($)</label>
 <div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fPriceMin" type="number" placeholder="Min" style="width:100%">
+<input class="fi" id="fPriceMin" type="number" placeholder="Min" style="width:100%" oninput="applyFiltersDebounced()">
 <span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fPriceMax" type="number" placeholder="Max" style="width:100%">
+<input class="fi" id="fPriceMax" type="number" placeholder="Max" style="width:100%" oninput="applyFiltersDebounced()">
 </div>
 </div>
 <div class="fgroup">
 <label class="flbl">Moz DA</label>
 <div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fDAMin" type="number" placeholder="1" style="width:100%">
+<input class="fi" id="fDAMin" type="number" oninput="applyFiltersDebounced()" placeholder="1" style="width:100%">
 <span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fDAMax" type="number" placeholder="100" style="width:100%">
+<input class="fi" id="fDAMax" type="number" oninput="applyFiltersDebounced()" placeholder="100" style="width:100%">
 </div>
 </div>
 <div class="fgroup">
 <label class="flbl">Ahrefs DR</label>
 <div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fDRMin" type="number" placeholder="1" style="width:100%">
+<input class="fi" id="fDRMin" type="number" oninput="applyFiltersDebounced()" placeholder="1" style="width:100%">
 <span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fDRMax" type="number" placeholder="100" style="width:100%">
+<input class="fi" id="fDRMax" type="number" oninput="applyFiltersDebounced()" placeholder="100" style="width:100%">
 </div>
 </div>
 <div class="fgroup">
 <label class="flbl">Ahrefs Traffic</label>
 <div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fTrMin" type="number" placeholder="100" style="width:100%">
+<input class="fi" id="fTrMin" type="number" oninput="applyFiltersDebounced()" placeholder="100" style="width:100%">
 <span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fTrMax" type="number" placeholder="Any" style="width:100%">
+<input class="fi" id="fTrMax" type="number" oninput="applyFiltersDebounced()" placeholder="Any" style="width:100%">
 </div>
 </div>
 <div class="fgroup">
 <label class="flbl">Country</label>
-<select class="fi-sel" id="fCountry" style="width:100%">
+<select class="fi-sel" id="fCountry" onchange="applyFilters()" style="width:100%">
 <option value="">All Countries</option>
 <option>USA</option><option>UK</option><option>Canada</option>
 <option>Australia</option><option>India</option><option>Germany</option>
@@ -1255,7 +1257,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 <div class="fgroup">
 <label class="flbl">Language</label>
-<select class="fi-sel" id="fLang" style="width:100%">
+<select class="fi-sel" id="fLang" onchange="applyFilters()" style="width:100%">
 <option value="">All Languages</option>
 <option>English</option><option>Spanish</option><option>French</option>
 <option>German</option><option>Arabic</option><option>Hindi</option>
@@ -1263,14 +1265,14 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 <div class="fgroup">
 <label class="flbl">Link Type</label>
-<select class="fi-sel" id="fLinkType" style="width:100%">
+<select class="fi-sel" id="fLinkType" onchange="applyFilters()" style="width:100%">
 <option value="">All Types</option>
 <option>Dofollow</option><option>Nofollow</option><option>Sponsored</option>
 </select>
 </div>
 <div class="fgroup">
 <label class="flbl">TAT (Days)</label>
-<select class="fi-sel" id="fTAT" style="width:100%">
+<select class="fi-sel" id="fTAT" onchange="applyFilters()" style="width:100%">
 <option value="">Any</option>
 <option value="3">Up to 3 days</option>
 <option value="7">Up to 7 days</option>
@@ -1280,7 +1282,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 <div class="fgroup">
 <label class="flbl">Completion Rate</label>
-<select class="fi-sel" id="fCompletion" style="width:100%">
+<select class="fi-sel" id="fCompletion" onchange="applyFilters()" style="width:100%">
 <option value="">All</option>
 <option value="70">70%+</option>
 <option value="80">80%+</option>
@@ -1290,14 +1292,14 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 <div class="fgroup">
 <label class="flbl">Publisher</label>
-<select class="fi-sel" id="fVerified" style="width:100%">
+<select class="fi-sel" id="fVerified" onchange="applyFilters()" style="width:100%">
 <option value="">All Publishers</option>
 <option value="verified">👑 Verified Only</option>
 </select>
 </div>
 <div class="fgroup">
 <label class="flbl">Sponsored Tag</label>
-<select class="fi-sel" id="fSponsored" style="width:100%">
+<select class="fi-sel" id="fSponsored" onchange="applyFilters()" style="width:100%">
 <option value="">Any</option>
 <option value="no">No Sponsored Tag</option>
 <option value="yes">Sponsored Tag OK</option>
@@ -1305,7 +1307,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 <div class="fgroup">
 <label class="flbl">Google Indexed</label>
-<select class="fi-sel" id="fIndexed" style="width:100%">
+<select class="fi-sel" id="fIndexed" onchange="applyFilters()" style="width:100%">
 <option value="">Any</option>
 <option value="yes">Indexed Only</option>
 </select>
@@ -1329,7 +1331,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         Press Release <span class="tab-cnt" id="tcnt-press">0</span>
 </button>
 <div class="tabs-right">
-<select class="sort-sel" id="sortBy">
+<select class="sort-sel" id="sortBy" onchange="applyFilters()">
 <option value="recommended">Top Recommended</option>
 <option value="price-asc">Price: Low → High</option>
 <option value="price-desc">Price: High → Low</option>
@@ -1924,12 +1926,26 @@ function applyFilters(){
   var tab = currentTab;
   var sort = document.getElementById('sortBy').value;
 
-  // Count tabs
+  // Show/hide search clear button
+  var scBtn = document.getElementById('searchClearBtn');
+  if(scBtn) scBtn.style.display = search ? 'block' : 'none';
+
+  // Count tabs (including search filter)
   var artCnt=0, liCnt=0;
-  all.forEach(function(s){ artCnt++; if(s.liOk && s.liP && s.liP > 0) liCnt++; });
+  all.forEach(function(s){
+    var hay = (s.url+' '+(s.cats||[]).join(' ')+' '+(s.publisherName||'')+' '+(s.req||'')).toLowerCase();
+    if(!search || hay.indexOf(search)>=0){ artCnt++; if(s.liOk && s.liP && s.liP > 0) liCnt++; }
+  });
   document.getElementById('tcnt-article').textContent = artCnt;
   document.getElementById('tcnt-link').textContent = liCnt;
   document.getElementById('tcnt-press').textContent = 0;
+
+  // Build domain→publisher count map for "X publishers listed this site"
+  var domainPubCount = {};
+  all.forEach(function(s){
+    domainPubCount[s.url] = (domainPubCount[s.url]||0) + 1;
+  });
+  window._domainPubCount = domainPubCount;
 
   filteredSites = all.filter(function(s){
     if(tab==='link' && (!s.liOk || !s.liP || s.liP <= 0)) return false;
@@ -1940,9 +1956,9 @@ function applyFilters(){
     // Category filter
     if(currentCat && (s.cats||[]).indexOf(currentCat)<0) return false;
 
-    // Search: domain or category keyword
+    // Search: domain, category, publisher name, requirements
     if(search){
-      var haystack = s.url + ' ' + (s.cats||[]).join(' ').toLowerCase() + ' ' + (s.req||'').toLowerCase();
+      var haystack = (s.url+' '+(s.cats||[]).join(' ')+' '+(s.publisherName||'')+' '+(s.req||'')).toLowerCase();
       if(haystack.indexOf(search)<0) return false;
     }
 
@@ -1988,10 +2004,10 @@ function applyFilters(){
       if(aTeam !== bTeam) return bTeam - aTeam;
       return b.comp - a.comp;
     }
-    // Default: team first → verified/badged first → price ascending
+    // Default: team first → verified (has profile) first → price ascending
     if(aTeam !== bTeam) return bTeam - aTeam;
-    var aVerified = a.publisherName && (a.isTeamSite || a.pub==='Uplyncio Team') ? 1 : 0;
-    var bVerified = b.publisherName && (b.isTeamSite || b.pub==='Uplyncio Team') ? 1 : 0;
+    var aVerified = a.isTeamSite ? 2 : (a.publisherUid && a.publisherUid !== 'uplyncio_team_official' ? 1 : 0);
+    var bVerified = b.isTeamSite ? 2 : (b.publisherUid && b.publisherUid !== 'uplyncio_team_official' ? 1 : 0);
     if(aVerified !== bVerified) return bVerified - aVerified;
     return (a.gP||0) - (b.gP||0);
   });
@@ -2032,6 +2048,9 @@ function renderCard(s, idx){
     }catch(e){}
   }
   var catB = (s.cats||[]).slice(0,3).map(function(c){ return '<span class="badge b-cat">'+c+'</span>'; }).join('');
+  // Multi-publisher badge
+  var pubCount = (window._domainPubCount && window._domainPubCount[s.url]) || 1;
+  var multiPubB = pubCount > 1 ? '<span style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700">👥 '+pubCount+' publishers</span>' : '';
 
   var flags={'USA':'🇺🇸','UK':'🇬🇧','India':'🇮🇳','Germany':'🇩🇪','Australia':'🇦🇺','Canada':'🇨🇦','UAE':'🇦🇪','Pakistan':'🇵🇰'};
   var cFlag=flags[s.country]||'🌐';
@@ -2140,7 +2159,7 @@ function renderCard(s, idx){
     +'</div>';
     return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
       +'<div class="card-top-wrap">'
-        +'<div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+        +'<div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+multiPubB+'</div>'
         +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button>'
       +'</div>'
       +stats
@@ -2190,7 +2209,7 @@ function renderCard(s, idx){
       +'</div>'
     +'</div>';
     return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')" style="cursor:pointer">'
-      +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+'</div>'
+      +'<div class="card-top-wrap"><div class="card-top"><a class="site-url" href="https://'+s.url+'" target="_blank" onclick="event.stopPropagation()">'+s.url+'</a>'+pubB+ltB+catB+multiPubB+'</div>'
       +'<button class="expand-toggle" onclick="event.stopPropagation();toggleExpand('+idx+')" id="toggle_'+idx+'">▼</button></div>'
       +stats+'<div class="card-bottom li-bg" onclick="event.stopPropagation()">'+priceCols2+actions2+'</div>'+expandHtml2+'</div>';
   }
