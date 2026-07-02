@@ -1525,49 +1525,10 @@ function loadAllSites(){
   var pubSites = [];
   var urlMap = {};
 
-  // Helper to process a site entry
+  // Helper to process a site entry (delegates to global processSiteToEntry)
   function processSite(s, uid){
-    if(!s.url) return;
-    var st = (s.status||'').toLowerCase();
-    if(st==='rejected') return;
-    if(s.status==='Deactivated'||s.status==='Inactive'||s.active===false) return;
-    if(st==='pending'||st==='hold'||st==='pending review'||st==='on hold') return;
-
-    var entry = {
-      url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
-      da: parseInt(s.da)||0,
-      dr: parseInt(s.dr)||0,
-      traffic: (function(t){
-        if(!t) return 0;
-        t = t.toString().toLowerCase().trim();
-        if(t.indexOf('m')>=0) return parseFloat(t)*1000000;
-        if(t.indexOf('k')>=0) return parseFloat(t)*1000;
-        return parseInt(t.replace(/[^0-9.]/g,''))||0;
-      })(s.traffic),
-      semT:0, refD:0,
-      cats: s.category?[s.category]:(s.cat?[s.cat]:['General']),
-      linkType: s.link_type||s.linkType||s.lt||'Dofollow',
-      gP: _mkup(parseFloat((s.price||s.guestPostPrice||s.p1||'50').toString().replace('$',''))||50),
-      wP: _mkup(parseFloat((s.write_publish_price||s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0),
-      liOk: s.li_accepted===true||s.li_accepted==='Yes'||s.liAccepted==='Yes'||s.liAccepted===true,
-      liP: _mkup(parseFloat((s.link_insertion_price||s.liPrice||s.p5||'0').toString().replace('$',''))||0),
-      extraWordPrice: _mkup(parseFloat((s.p3||'0').toString().replace('$',''))||0),
-      specialTopicPrice: _mkup(parseFloat((s.p4||'0').toString().replace('$',''))||0),
-      country: s.country||'USA',
-      lang: s.language||s.lang||'English',
-      tat: parseInt(s.tat)||7,
-      comp:100, pub:s.role||'Owner',
-      maxL: s.max_links||s.maxLinks||2,
-      req: s.requirements||s.req||'',
-      spam: parseInt(s.spam)||3,
-      minWords: Math.max(500,parseInt(s.min_words||s.minWords)||500),
-      indexed:true, domainAge:s.domain_age||s.domainAge||'N/A',
-      _uid:uid||s.publisher_id||'', _status:s.status||'Live',
-      publisherUid:uid||s.publisher_id||'',
-      publisherName:s.publisher_name||s.publisherName||'',
-      role:s.role||'Owner',
-      isTeamSite:(s.role==='Uplyncio Team'||(uid||s.publisher_id)==='uplyncio_team_official')
-    };
+    var entry = processSiteToEntry(s, uid);
+    if(!entry) return;
     var key = entry.url;
     if(!urlMap[key]){ urlMap[key]=entry; }
     else if(entry.gP < urlMap[key].gP){ urlMap[key]=entry; }
@@ -1595,20 +1556,102 @@ function loadAllSites(){
   allSites = Object.values(urlMap);
   allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
 
-  // Method 3 (async): Fetch from Supabase — real cross-device data
-  // Primary source — runs immediately and re-renders with real sites
+  // Fetch from Supabase — PRIMARY source (real cross-device data)
+  fetchSitesFromSupabase();
+
+  return allSites;
+}
+
+var _sbFetchTimer = null;
+
+function fetchSitesFromSupabase(){
   fetch('/api/sites?status=Live&limit=2000')
     .then(function(r){ return r.json(); })
     .then(function(res){
-      if(!res.success || !Array.isArray(res.sites) || !res.sites.length) return;
-      res.sites.forEach(function(s){ processSite(s, s.publisher_id); });
+      if(!res.success) return;
+      var sites = Array.isArray(res.sites) ? res.sites : [];
+      
+      // Rebuild urlMap with Supabase data (overrides localStorage)
+      var urlMap = {};
+      
+      // First add localStorage sites
+      try{
+        var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
+        Object.keys(registry).forEach(function(uid){
+          var s = registry[uid];
+          if(Array.isArray(s)) s.forEach(function(site){ 
+            if(site.url){
+              var key = site.url.replace(/https?:\/\//,'').replace(/\/$/,'');
+              if(!urlMap[key]) urlMap[key] = processSiteToEntry(site, uid);
+            }
+          });
+        });
+      }catch(e){}
+
+      // Then override/add with Supabase (real source)
+      sites.forEach(function(s){
+        var entry = processSiteToEntry(s, s.publisher_id);
+        if(entry){
+          var key = entry.url;
+          // Supabase always wins for same domain
+          urlMap[key] = entry;
+        }
+      });
+
       allSites = Object.values(urlMap);
       allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
       applyFilters();
       updateSiteCounter();
-    }).catch(function(){});
 
-  return allSites;
+      // Show count
+      var el = document.getElementById('cnt-all');
+      if(el) el.textContent = allSites.length;
+    })
+    .catch(function(e){ console.warn('Supabase fetch failed:', e); });
+}
+
+function processSiteToEntry(s, uid){
+  if(!s.url) return null;
+  var st = (s.status||'').toLowerCase();
+  if(st==='rejected'||st==='deactivated'||st==='inactive'||st==='issues'||
+     st==='pending'||st==='hold'||st==='pending review'||st==='on hold') return null;
+  return {
+    url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
+    da: parseInt(s.da)||0,
+    dr: parseInt(s.dr)||0,
+    traffic: (function(t){
+      if(!t) return 0;
+      t = t.toString().toLowerCase().trim();
+      if(t.indexOf('m')>=0) return parseFloat(t)*1000000;
+      if(t.indexOf('k')>=0) return parseFloat(t)*1000;
+      return parseInt(t.replace(/[^0-9.]/g,''))||0;
+    })(s.traffic),
+    semT:0, refD:0,
+    cats: s.category?[s.category]:(s.cat?[s.cat]:['General']),
+    linkType: s.link_type||s.linkType||s.lt||'Dofollow',
+    gP: _mkup(parseFloat((s.price||s.guestPostPrice||s.p1||'50').toString().replace('$',''))||50),
+    wP: _mkup(parseFloat((s.write_publish_price||s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0),
+    liOk: s.li_accepted===true||s.li_accepted==='Yes'||s.liAccepted==='Yes',
+    liP: _mkup(parseFloat((s.link_insertion_price||s.liPrice||s.p5||'0').toString().replace('$',''))||0),
+    country: s.country||'USA',
+    lang: s.language||s.lang||'English',
+    tat: parseInt(s.tat)||7,
+    comp:100, pub:s.role||'Owner',
+    maxL: parseInt(s.max_links||s.maxLinks)||2,
+    req: s.requirements||s.req||'',
+    spam:3, minWords:500, indexed:true,
+    _uid: uid||s.publisher_id||'',
+    _status: s.status||'Live',
+    publisherUid: uid||s.publisher_id||'',
+    publisherName: s.publisher_name||s.publisherName||'',
+    role: s.role||'Owner',
+    isTeamSite: s.role==='Uplyncio Team'||(uid||s.publisher_id)==='uplyncio_team_official'
+  };
+}
+
+// Poll Supabase every 30 seconds for new/deleted sites
+if(!_sbFetchTimer){
+  _sbFetchTimer = setInterval(fetchSitesFromSupabase, 30000);
 }
 
 // ── LIVE COUNTER: total sites across platform ──

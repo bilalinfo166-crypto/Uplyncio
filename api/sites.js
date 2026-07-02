@@ -1,5 +1,4 @@
 // Publisher Sites API
-import { sendPublisherSitesApproved, sendPublisherSiteRejected } from './email.js';
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
@@ -7,8 +6,26 @@ function headers() {
   return {
     'apikey': SUPABASE_KEY,
     'Authorization': `Bearer ${SUPABASE_KEY}`,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
   };
+}
+
+// Only send fields that definitely exist in base schema
+function cleanPayload(body) {
+  const allowed = [
+    'publisher_id','publisher_name','publisher_email',
+    'url','domain','da','dr','traffic',
+    'category','link_type','price',
+    'write_publish_price','link_insertion_price','li_accepted',
+    'language','country','tat','requirements','role',
+    'status','site_id_local','updated_at','created_at'
+  ];
+  const out = {};
+  for (const k of allowed) {
+    if (body[k] !== undefined && body[k] !== null) out[k] = body[k];
+  }
+  return out;
 }
 
 export default async function handler(req, res) {
@@ -18,112 +35,111 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // GET - fetch sites
+    // ── GET ──
     if (req.method === 'GET') {
-      const { publisher_id, status, limit = 200 } = req.query;
-      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}&order=created_at.desc`;
-      if (publisher_id) url += `&publisher_id=eq.${publisher_id}`;
-      if (status) url += `&status=eq.${encodeURIComponent(status)}`;
+      const { publisher_id, status, limit = 500 } = req.query;
+      // Buyer page fetches status=Live, publisher fetches by publisher_id
+      // Accept: Live, Approved, live, approved
+      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}`;
+      if (publisher_id) {
+        url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
+      } else if (status) {
+        // Case-insensitive match for live sites
+        url += `&status=in.(Live,live,Approved,approved,Active,active)`;
+      }
+      url += `&order=created_at.desc`;
 
       const r = await fetch(url, { headers: headers() });
       const data = await r.json();
-      return res.status(200).json({ success: true, sites: data });
+      if (!Array.isArray(data)) {
+        console.log('Supabase sites error:', JSON.stringify(data));
+        return res.status(200).json({ success: true, sites: [] });
+      }
+
+      // When fetching for buyer (no publisher_id), only return live sites
+      const filtered = publisher_id ? data : data.filter(s => {
+        const st = (s.status||'').toLowerCase();
+        return st === 'live' || st === 'approved' || st === 'active';
+      });
+
+      return res.status(200).json({ success: true, sites: filtered });
     }
 
-    // POST - add site (or upsert if ?upsert=1)
+    // ── POST (upsert or insert) ──
     if (req.method === 'POST') {
       const body = req.body;
-      if (!body.url || !body.publisher_id) return res.status(400).json({ error: 'Missing url or publisher_id' });
-      const domain = body.url.replace(/^https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
+      if (!body.url || !body.publisher_id) {
+        return res.status(400).json({ error: 'Missing url or publisher_id' });
+      }
+      const domain = (body.url||'').replace(/^https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
+      const payload = cleanPayload({ ...body, domain, updated_at: new Date().toISOString() });
 
       if (req.query.upsert === '1') {
-        const localId = body.site_id_local ? body.site_id_local.toString() : null;
-        let existingRes = localId
-          ? await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?site_id_local=eq.${encodeURIComponent(localId)}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() })
-          : await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${domain}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() });
-        const existing = await existingRes.json();
-        const siteData = { ...body, domain, updated_at: new Date().toISOString() };
+        // Try to find existing by domain+publisher_id
+        const chkUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(body.publisher_id)}&select=id&limit=1`;
+        const chkR = await fetch(chkUrl, { headers: headers() });
+        const existing = await chkR.json();
+
         if (Array.isArray(existing) && existing.length > 0) {
-          const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`, {
-            method: 'PATCH', headers: { ...headers(), 'Prefer': 'return=representation' }, body: JSON.stringify(siteData)
-          });
-          const data = await r.json();
-          return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data, action: 'updated' });
+          // Update
+          const patchR = await fetch(
+            `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`,
+            { method: 'PATCH', headers: headers(), body: JSON.stringify(payload) }
+          );
+          const data = await patchR.json();
+          return res.status(200).json({ success: true, action: 'updated', site: Array.isArray(data)?data[0]:data });
         } else {
-          const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, {
-            method: 'POST', headers: { ...headers(), 'Prefer': 'return=representation' },
-            body: JSON.stringify({ ...siteData, created_at: new Date().toISOString() })
-          });
-          const data = await r.json();
-          return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data, action: 'inserted' });
+          // Insert
+          const insR = await fetch(
+            `${SUPABASE_URL}/rest/v1/publisher_sites`,
+            { method: 'POST', headers: headers(), body: JSON.stringify({ ...payload, created_at: new Date().toISOString() }) }
+          );
+          const data = await insR.json();
+          if (!insR.ok) console.log('Insert error:', JSON.stringify(data));
+          return res.status(200).json({ success: insR.ok, action: 'inserted', site: Array.isArray(data)?data[0]:data });
         }
       }
 
-      // Normal insert with duplicate check
-      const existing2 = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${domain}&publisher_id=eq.${body.publisher_id}&select=id`, { headers: headers() });
-      const ex = await existing2.json();
-      if (ex?.length > 0) return res.status(409).json({ error: 'Site already added' });
-      const site = { ...body, domain, status: 'Pending Review', created_at: new Date().toISOString() };
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, {
-        method: 'POST', headers: { ...headers(), 'Prefer': 'return=representation' }, body: JSON.stringify(site)
-      });
-      const data = await r.json();
-      return res.status(200).json({ success: true, site: Array.isArray(data) ? data[0] : data });
+      // Normal insert
+      const insR = await fetch(
+        `${SUPABASE_URL}/rest/v1/publisher_sites`,
+        { method: 'POST', headers: headers(), body: JSON.stringify({ ...payload, status: 'Pending Review', created_at: new Date().toISOString() }) }
+      );
+      const data = await insR.json();
+      return res.status(200).json({ success: insR.ok, site: Array.isArray(data)?data[0]:data });
     }
 
-    // PATCH - update site
+    // ── PATCH ──
     if (req.method === 'PATCH') {
       const { id } = req.query;
-      if (!id) return res.status(400).json({ error: 'Missing site id' });
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`, {
-        method: 'PATCH',
-        headers: { ...headers(), 'Prefer': 'return=representation' },
-        body: JSON.stringify({ ...req.body, updated_at: new Date().toISOString() })
-      });
+      if (!id) return res.status(400).json({ error: 'Missing id' });
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`,
+        { method: 'PATCH', headers: headers(), body: JSON.stringify({ ...req.body, updated_at: new Date().toISOString() }) }
+      );
       const data = await r.json();
-      const site = Array.isArray(data) ? data[0] : data;
-
-      // Email on approve/reject
-      try {
-        const newStatus = (req.body.status||'').toLowerCase();
-        if (site && (newStatus==='live'||newStatus==='approved'||newStatus==='rejected')) {
-          const pRes = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${site.publisher_id}&select=*`, { headers: headers() });
-          const pubs = await pRes.json();
-          const pub = Array.isArray(pubs) ? pubs[0] : null;
-          if (pub) {
-            if (newStatus==='live'||newStatus==='approved') {
-              const { sendPublisherSitesApproved } = await import('./email.js');
-              sendPublisherSitesApproved({ to: pub.email, name: pub.name,
-                sites:[{ siteUrl: site.url||site.domain, da: site.da, dr: site.dr, price: site.price }]
-              }).catch(()=>{});
-            } else {
-              const { sendPublisherSiteRejected } = await import('./email.js');
-              sendPublisherSiteRejected({ to: pub.email, name: pub.name,
-                siteUrl: site.url||site.domain,
-                reason: site.rejection_reason||req.body.rejection_reason||'Does not meet quality standards'
-              }).catch(()=>{});
-            }
-          }
-        }
-      } catch(e) { console.log('Site email err:', e.message); }
-
-      return res.status(200).json({ success: true, site });
+      return res.status(200).json({ success: true, site: Array.isArray(data)?data[0]:data });
     }
 
-    // DELETE
+    // ── DELETE ──
     if (req.method === 'DELETE') {
-      const { id, site_id_local, publisher_id } = req.query;
-      if (site_id_local && publisher_id) {
-        await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?site_id_local=eq.${encodeURIComponent(site_id_local)}&publisher_id=eq.${publisher_id}`, { method: 'DELETE', headers: headers() });
+      const { id, site_id_local, publisher_id, domain } = req.query;
+      let delUrl;
+      if (domain && publisher_id) {
+        delUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
+      } else if (site_id_local && publisher_id) {
+        delUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?site_id_local=eq.${encodeURIComponent(site_id_local)}&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else if (id) {
-        await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`, { method: 'DELETE', headers: headers() });
+        delUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`;
       } else {
-        return res.status(400).json({ error: 'Missing id or site_id_local' });
+        return res.status(400).json({ error: 'Missing id, domain, or site_id_local' });
       }
+      await fetch(delUrl, { method: 'DELETE', headers: headers() });
       return res.status(200).json({ success: true });
     }
 
   } catch (e) {
+    console.error('Sites API error:', e.message);
     return res.status(500).json({ error: e.message });
   }
 }

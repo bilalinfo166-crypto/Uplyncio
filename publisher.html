@@ -3141,9 +3141,17 @@ function deactivateSite(id){
 
 function delSite(id){
   if(!confirm('Remove this site from your listings?')) return;
-  // Delete from Supabase first (by local site_id)
-  fetch('/api/sites?site_id_local='+encodeURIComponent(id.toString()), { method:'DELETE' }).catch(function(){});
-  mySites = mySites.filter(function(s){ return s.id !== id; });
+  var s = mySites.find(function(x){ return x.id===id; });
+  if(s){
+    var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
+    var uid = localStorage.getItem('uplyncio_currentUid')||'';
+    if(domain && uid){
+      fetch('/api/sites?domain='+encodeURIComponent(domain)+'&publisher_id='+encodeURIComponent(uid), {
+        method:'DELETE'
+      }).catch(function(){});
+    }
+  }
+  mySites = mySites.filter(function(x){ return x.id !== id; });
   saveSites();
   applyFilters();
 }
