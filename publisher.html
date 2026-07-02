@@ -672,12 +672,163 @@ av.textContent = initials.toUpperCase();
 <div class="bc"><a onclick="go(1)">Home</a><span>&rsaquo;</span><a onclick="go(1)">My Platforms</a><span>&rsaquo;</span><span class="cu">Add website(s)</span></div>
 <div class="pg" style="width:50%"></div>
 <div class="uc">
-<h1>Add website(s)</h1>
-<div class="utabs">
+<h1 style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:var(--tx);margin-bottom:6px">Add websites or update</h1>
+<div style="height:3px;background:linear-gradient(90deg,#4f7cff,#00d4aa);border-radius:3px;margin-bottom:22px"></div>
+
+<!-- Tabs -->
+<div class="utabs" style="margin-bottom:24px">
 <div class="utab on" onclick="stab(this,'t1')">One website</div>
 <div class="utab" onclick="stab(this,'t2')">Upload via file (add/update)</div>
 <div class="utab" onclick="stab(this,'t3')">Download websites via file</div>
 <div class="utab" onclick="stab(this,'t4')"><span class="ntag">new</span> Site's activity status</div>
+</div>
+
+<!-- Tab 1: One website -->
+<div id="t1">
+<label class="fl" style="margin-bottom:7px">URL *</label>
+<div class="uw">
+<div class="up">http(s)://</div>
+<input class="ui" id="urlIn" type="text" placeholder="yoursite.com">
+<button class="un" onclick="next3()">Next</button>
+</div>
+</div>
+
+<!-- Tab 2: Upload via file -->
+<div id="t2" style="display:none">
+
+<!-- Recently uploaded files -->
+<div id="recentUploadsWrap" style="margin-bottom:24px">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+<span style="font-size:15px;font-weight:800;color:#0f172a">Recently uploaded files</span>
+<span style="font-size:12px;color:#94a3b8">The list shows last 10 files</span>
+</div>
+<div id="recentUploadsList" style="border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
+<div id="recentUploadsEmpty" style="padding:24px;text-align:center;font-size:13px;color:#94a3b8">No files uploaded yet</div>
+</div>
+<div id="showMoreWrap" style="display:none;padding:10px 0">
+<button onclick="toggleMoreUploads()" id="showMoreUploads" style="background:none;border:none;color:#475569;font-size:13px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;display:flex;align-items:center;gap:6px">Show More <span id="showMoreArrow">▾</span></button>
+</div>
+</div>
+
+<!-- Drag & Drop zone -->
+<div style="background:#f8faff;border:2px dashed #c7d7ff;border-radius:14px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:12px"
+id="dropZone"
+onclick="document.getElementById('fileInput').click()"
+ondragover="event.preventDefault();this.style.background='#eff6ff';this.style.borderColor='#4f7cff'"
+ondragleave="this.style.background='#f8faff';this.style.borderColor='#c7d7ff'"
+ondrop="handleDrop(event)">
+<input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+<div style="width:64px;height:64px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin-bottom:4px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f7cff" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+</div>
+<div style="font-size:13.5px;font-weight:700;color:#0f172a">xls, xlsx</div>
+<div style="font-size:13px;color:#64748b">Drag your file here or <span style="color:#4f7cff;font-weight:700;cursor:pointer;text-decoration:underline">browse</span> to upload</div>
+</div>
+</div>
+<div style="font-size:12px;color:#94a3b8;margin-bottom:22px">Restrictions: no larger than 2MB, only csv, xls, xlsx</div>
+
+<!-- Service types explanation -->
+<div style="margin-bottom:16px">
+<div style="font-size:13px;color:#475569;margin-bottom:12px">In your file, set a price for at least 1 service type among 4 basic for each site:</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px">
+<div>
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px">Article posting</div>
+<div style="font-size:12px;color:#64748b;line-height:1.5">By choosing this product type, you agree to permanently place the provided content on your website.</div>
+</div>
+<div>
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px">Link insertion</div>
+<div style="font-size:12px;color:#64748b;line-height:1.5">By choosing this product type, you agree to permanently insert the provided link(s) to the requested site.</div>
+</div>
+</div>
+<div style="margin-bottom:12px">
+<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px">Press release</div>
+<div style="font-size:12px;color:#64748b;line-height:1.5">By choosing this product type, you agree to permanently place the provided press release on your website.</div>
+</div>
+<div style="font-size:13px;font-weight:700;color:#ef4444">Minimum price for any service type is $5, maximum — $50000.</div>
+</div>
+
+<!-- Info box -->
+<div style="background:#eff6ff;border-left:4px solid #4f7cff;border-radius:0 10px 10px 0;padding:16px 18px;margin-bottom:24px">
+<div style="display:flex;gap:12px;align-items:flex-start">
+<span style="font-size:18px;flex-shrink:0;margin-top:2px">ℹ️</span>
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font-size:13px;color:#1e40af">Note that prices in the inventory may be updated within <strong>one hour</strong>.</div>
+<div style="font-size:13px;color:#1e40af">Note that the file can include <strong>no more than 30,000</strong> websites.</div>
+<div style="font-size:13px;color:#1e40af">Note that we will send <strong>only 100 of them</strong> for moderation. Once those sites are checked and approved, they become available in the inventory. Once we confirm you have completed the tasks and can publish on those sites, we will review additional sites from your list and release them to inventory.</div>
+</div>
+</div>
+</div>
+
+<!-- Template instructions -->
+<div style="margin-bottom:24px">
+<div style="font-size:17px;font-weight:800;color:#0f172a;margin-bottom:16px">Template of how your file should be filled out</div>
+<div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:#475569;margin-bottom:16px">
+<div style="display:flex;gap:10px"><span style="font-weight:800;color:#0f172a;flex-shrink:0">1.</span><span>Open the xlsx sample file or download the csv file.</span></div>
+<div style="display:flex;gap:10px"><span style="font-weight:800;color:#0f172a;flex-shrink:0">2.</span><span>See how the file should be filled out. Press the column names to understand what data to provide and in what manner.</span></div>
+<div style="display:flex;gap:10px"><span style="font-weight:800;color:#0f172a;flex-shrink:0">3.</span><span>Copy the cells' names and paste them into your original file. Fill out your file. (Please note that we DO NOT share the Edit access to the file. It's only an example.) Or simply edit the needed cells in the downloaded sample file.</span></div>
+<div style="display:flex;gap:10px"><span style="font-weight:800;color:#0f172a;flex-shrink:0">4.</span><span>Fill out the data — URLs are a must. Please ensure you also provide data for Article posting — Basic content size; Link Dofollow/Nofollow/Sponsored; and How many links can be placed in one article.</span></div>
+<div style="display:flex;gap:10px"><span style="font-weight:800;color:#0f172a;flex-shrink:0">5.</span><span>Upload your file.</span></div>
+</div>
+<div style="font-size:13px;color:#0f172a;margin-bottom:14px"><strong>N.B. To ensure everything is correct, we highly recommend that you check this </strong><a onclick="downloadTemplate()" style="color:#4f7cff;cursor:pointer;font-weight:600">text guide</a><strong> or download our sample template on </strong><a onclick="downloadTemplate()" style="color:#4f7cff;cursor:pointer;font-weight:600">file creation &amp; upload</a>.</div>
+
+<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+<button onclick="downloadTemplate()" style="display:flex;align-items:center;gap:8px;background:none;border:none;color:#4f7cff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;text-decoration:none">
+<span style="font-size:18px">📊</span> Google Spreadsheet
+</button>
+<span style="color:#94a3b8">or</span>
+<button onclick="downloadTemplate()" style="display:flex;align-items:center;gap:8px;background:none;border:none;color:#4f7cff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;padding:0">
+<span style="font-size:18px">📄</span> Csv, xlsx
+</button>
+</div>
+</div>
+
+<div id="uploadStatus" style="display:none;margin-top:14px"></div>
+<div id="previewWrap" style="display:none;margin-top:16px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+<div style="font-size:14px;font-weight:700;color:#0f172a">Preview <span id="previewCount" style="color:#4f7cff"></span></div>
+<button onclick="clearUpload()" style="background:transparent;border:1px solid #fecaca;color:#ef4444;border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit">✕ Clear</button>
+</div>
+<div style="overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:280px;overflow-y:auto">
+<table style="width:100%;border-collapse:collapse;min-width:700px">
+<thead><tr style="background:#f8faff;position:sticky;top:0">
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Website URL</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DA</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DR</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Traffic</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Category</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Link Type</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">GP Price</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">LI Price</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Language</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Country</th>
+</tr></thead>
+<tbody id="previewTbody"></tbody>
+</table>
+</div>
+<button onclick="importSites()" style="margin-top:14px;background:#4f7cff;color:#fff;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">✅ Import All Sites to Dashboard</button>
+</div>
+</div>
+
+<!-- Tab 3: Download -->
+<div id="t3" style="display:none">
+<div style="text-align:center;padding:48px 24px;background:#f8faff;border-radius:14px;border:1px solid var(--br)">
+<div style="font-size:40px;margin-bottom:14px">📥</div>
+<div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:6px">Download Your Sites as File</div>
+<div style="font-size:13px;color:#64748b;margin-bottom:20px">Export all your listed sites as a CSV or Excel file</div>
+<button class="btn ba" onclick="downloadMySites()">⬇️ Download My Sites (CSV)</button>
+</div>
+</div>
+
+<!-- Tab 4: Activity -->
+<div id="t4" style="display:none">
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px">
+<div style="font-size:15px;font-weight:800;color:#15803d;margin-bottom:6px">✅ All sites active</div>
+<div style="font-size:13px;color:#166534">All your listed sites are currently active and visible to buyers.</div>
+</div>
+</div>
+
+</div>
 </div>
 <div id="t1">
 <label class="fl" style="margin-bottom:7px">URL *</label>
@@ -2062,6 +2213,7 @@ document.querySelectorAll('.utab').forEach(function(t){t.classList.remove('on');
 el.classList.add('on');
 var e=document.getElementById(id);
 if(e) e.style.display='block';
+if(id==='t2') renderRecentUploads();
 }
 function spt(el,id){
 document.querySelectorAll('.utab').forEach(function(t){t.classList.remove('on');});
@@ -3125,6 +3277,8 @@ fname: fname,
 uploadedAt: new Date().toISOString(),
 data: parsedSites.map(function(s){ return {url:s.url, p1:s.p1, p2:s.p2, liPrice:s.liPrice, da:s.da, dr:s.dr}; })
 }));
+// Save to recent uploads history
+saveUploadHistory(fname, parsedSites.length, 'Added');
 }catch(e){}
 showStatus('success','✅ Found '+parsedSites.length+' sites'+(errors?' ('+errors+' rows skipped)':'')+' from '+fname);
 showPreview();
@@ -5436,7 +5590,92 @@ if(shareUrl) window.open(shareUrl,'_blank');
 }
 // Initialization handled by DOMContentLoaded above
 function downloadTemplate(){
-window.open('https://docs.google.com/spreadsheets/d/1XVWW_4o2MKhir3PZFVKnKyp0iSuXll48x-_TWHuB2eQ/edit?gid=1138458576#gid=1138458576','_blank');
+  // Save as CSV template
+  var csv = 'URL,DA,DR,Traffic (monthly),Category,Link Type (Dofollow/Nofollow/Sponsored),GP Price ($),Link Insertion Price ($),Write & Publish Price ($),Language,Country,TAT (days),Requirements\nexample.com,35,30,50000,Tech,Dofollow,30,0,50,English,USA,7,Min 500 words\n';
+  var blob = new Blob([csv], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'uplyncio_sites_template.csv';
+  a.click();
+  toast('📥 Template downloaded!', '#16a34a');
+}
+
+// ── RECENT UPLOADS SYSTEM ──
+var _showAllUploads = false;
+
+function saveUploadHistory(fname, siteCount, status){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  var key = 'uplyncio_upload_history_'+uid;
+  var history = [];
+  try{ history = JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
+  history.unshift({
+    fname: fname,
+    siteCount: siteCount,
+    status: status||'Added',
+    date: new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}),
+    ts: Date.now(),
+    data: null // don't store full data to save localStorage space
+  });
+  history = history.slice(0, 20); // keep last 20
+  try{ localStorage.setItem(key, JSON.stringify(history)); }catch(e){}
+  renderRecentUploads();
+}
+
+function renderRecentUploads(){
+  var list = document.getElementById('recentUploadsList');
+  var empty = document.getElementById('recentUploadsEmpty');
+  var moreWrap = document.getElementById('showMoreWrap');
+  if(!list) return;
+
+  var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  var key = 'uplyncio_upload_history_'+uid;
+  var history = [];
+  try{ history = JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
+
+  if(history.length === 0){
+    list.innerHTML = '<div id="recentUploadsEmpty" style="padding:24px;text-align:center;font-size:13px;color:#94a3b8">No files uploaded yet</div>';
+    if(moreWrap) moreWrap.style.display='none';
+    return;
+  }
+
+  var show = _showAllUploads ? history : history.slice(0,5);
+  list.innerHTML = show.map(function(item, idx){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:'+(idx<show.length-1?'1px solid #f1f5f9':'none')+';gap:12px;background:#fff">'
+      +'<div style="display:flex;align-items:center;gap:10px;min-width:0">'
+        +'<div style="width:20px;height:20px;background:#e0e7ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#4f7cff;flex-shrink:0">+</div>'
+        +'<span style="font-size:13px;color:#1a202c;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+item.fname+'</span>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:20px;flex-shrink:0">'
+        +'<span style="font-size:12.5px;font-weight:700;color:#16a34a">'+item.status+'</span>'
+        +'<span style="font-size:12px;color:#94a3b8;min-width:72px;text-align:right">'+item.date+'</span>'
+        +'<button onclick="redownloadUpload('+idx+')" title="Download" style="background:none;border:none;cursor:pointer;padding:4px;color:#64748b;display:flex;align-items:center">'
+          +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+        +'</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+
+  if(moreWrap){
+    moreWrap.style.display = history.length > 5 ? 'block' : 'none';
+    var arrow = document.getElementById('showMoreArrow');
+    var btn = document.getElementById('showMoreUploads');
+    if(arrow) arrow.textContent = _showAllUploads ? '▴' : '▾';
+    if(btn) btn.innerHTML = (_showAllUploads ? 'Show Less' : 'Show More') + ' <span id="showMoreArrow">'+ (_showAllUploads?'▴':'▾') +'</span>';
+  }
+}
+
+function toggleMoreUploads(){
+  _showAllUploads = !_showAllUploads;
+  renderRecentUploads();
+}
+
+function redownloadUpload(idx){
+  var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
+  var history = [];
+  try{ history = JSON.parse(localStorage.getItem('uplyncio_upload_history_'+uid)||'[]'); }catch(e){}
+  var item = history[idx];
+  if(!item){ toast('File data not available for re-download','#d97706'); return; }
+  toast('📋 '+item.fname+' — file data not stored locally. Please re-upload the original file.','#64748b');
 }
 // ── ORDERS SYSTEM ──
 var currentOTab='all';
