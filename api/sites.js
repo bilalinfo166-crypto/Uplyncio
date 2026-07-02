@@ -2,7 +2,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
 
-function headers() {
+function h() {
   return {
     'apikey': SUPABASE_KEY,
     'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -11,130 +11,95 @@ function headers() {
   };
 }
 
-// Only send fields that definitely exist in base schema
-function cleanPayload(body) {
-  const allowed = [
-    'publisher_id','publisher_name','publisher_email',
-    'url','domain','da','dr','traffic',
-    'category','link_type','price',
-    'write_publish_price','link_insertion_price','li_accepted',
-    'language','country','tat','requirements','role',
-    'status','site_id_local','updated_at','created_at'
-  ];
-  const out = {};
-  for (const k of allowed) {
-    if (body[k] !== undefined && body[k] !== null) out[k] = body[k];
-  }
-  return out;
-}
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    return res.status(500).json({ error: 'Supabase not configured' });
+  }
+
   try {
-    // ── GET ──
+
     if (req.method === 'GET') {
-      const { publisher_id, status, limit = 500 } = req.query;
-      // Buyer page fetches status=Live, publisher fetches by publisher_id
-      // Accept: Live, Approved, live, approved
+      const { publisher_id, limit = 2000 } = req.query;
       let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}`;
       if (publisher_id) {
         url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
-      } else if (status) {
-        // Case-insensitive match for live sites
+      } else {
         url += `&status=in.(Live,live,Approved,approved,Active,active)`;
       }
-      url += `&order=created_at.desc`;
-
-      const r = await fetch(url, { headers: headers() });
+      const r = await fetch(url, { headers: h() });
       const data = await r.json();
       if (!Array.isArray(data)) {
-        console.log('Supabase sites error:', JSON.stringify(data));
+        console.error('GET error:', JSON.stringify(data).substring(0,300));
         return res.status(200).json({ success: true, sites: [] });
       }
-
-      // When fetching for buyer (no publisher_id), only return live sites
-      const filtered = publisher_id ? data : data.filter(s => {
-        const st = (s.status||'').toLowerCase();
-        return st === 'live' || st === 'approved' || st === 'active';
-      });
-
-      return res.status(200).json({ success: true, sites: filtered });
+      return res.status(200).json({ success: true, sites: data });
     }
 
-    // ── POST (upsert or insert) ──
     if (req.method === 'POST') {
-      const body = req.body;
-      if (!body.url || !body.publisher_id) {
-        return res.status(400).json({ error: 'Missing url or publisher_id' });
-      }
-      const domain = (body.url||'').replace(/^https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
-      const payload = cleanPayload({ ...body, domain, updated_at: new Date().toISOString() });
+      const b = req.body || {};
+      if (!b.url || !b.publisher_id) return res.status(400).json({ error: 'Missing url or publisher_id' });
+      const domain = b.url.replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
 
-      if (req.query.upsert === '1') {
-        // Try to find existing by domain+publisher_id
-        const chkUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(body.publisher_id)}&select=id&limit=1`;
-        const chkR = await fetch(chkUrl, { headers: headers() });
-        const existing = await chkR.json();
+      const safe = {
+        publisher_id: b.publisher_id,
+        url: b.url, domain: domain,
+        da: parseInt(b.da)||0, dr: parseInt(b.dr)||0,
+        traffic: parseInt(b.traffic)||0,
+        price: parseFloat(b.price)||0,
+        category: b.category||'General',
+        link_type: b.link_type||'Dofollow',
+        status: b.status||'Pending Review',
+        updated_at: new Date().toISOString()
+      };
 
-        if (Array.isArray(existing) && existing.length > 0) {
-          // Update
-          const patchR = await fetch(
-            `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`,
-            { method: 'PATCH', headers: headers(), body: JSON.stringify(payload) }
-          );
-          const data = await patchR.json();
-          return res.status(200).json({ success: true, action: 'updated', site: Array.isArray(data)?data[0]:data });
-        } else {
-          // Insert
-          const insR = await fetch(
-            `${SUPABASE_URL}/rest/v1/publisher_sites`,
-            { method: 'POST', headers: headers(), body: JSON.stringify({ ...payload, created_at: new Date().toISOString() }) }
-          );
-          const data = await insR.json();
-          if (!insR.ok) console.log('Insert error:', JSON.stringify(data));
-          return res.status(200).json({ success: insR.ok, action: 'inserted', site: Array.isArray(data)?data[0]:data });
-        }
+      const optional = ['publisher_name','publisher_email','write_publish_price',
+        'link_insertion_price','li_accepted','language','country','tat',
+        'requirements','role','site_id_local'];
+      for (const col of optional) {
+        if (b[col] !== undefined && b[col] !== null) safe[col] = b[col];
       }
 
-      // Normal insert
-      const insR = await fetch(
-        `${SUPABASE_URL}/rest/v1/publisher_sites`,
-        { method: 'POST', headers: headers(), body: JSON.stringify({ ...payload, status: 'Pending Review', created_at: new Date().toISOString() }) }
+      const chk = await fetch(
+        `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(b.publisher_id)}&select=id&limit=1`,
+        { headers: h() }
       );
-      const data = await insR.json();
-      return res.status(200).json({ success: insR.ok, site: Array.isArray(data)?data[0]:data });
+      const existing = await chk.json();
+
+      if (Array.isArray(existing) && existing.length > 0) {
+        const upd = await fetch(
+          `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`,
+          { method: 'PATCH', headers: h(), body: JSON.stringify(safe) }
+        );
+        const d = await upd.json();
+        return res.status(200).json({ success: upd.ok, action: 'updated', site: Array.isArray(d)?d[0]:d });
+      } else {
+        safe.created_at = new Date().toISOString();
+        const ins = await fetch(
+          `${SUPABASE_URL}/rest/v1/publisher_sites`,
+          { method: 'POST', headers: h(), body: JSON.stringify(safe) }
+        );
+        const d = await ins.json();
+        if (!ins.ok) console.error('Insert error:', JSON.stringify(d).substring(0,300));
+        return res.status(200).json({ success: ins.ok, action: 'inserted', site: Array.isArray(d)?d[0]:d });
+      }
     }
 
-    // ── PATCH ──
-    if (req.method === 'PATCH') {
-      const { id } = req.query;
-      if (!id) return res.status(400).json({ error: 'Missing id' });
-      const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`,
-        { method: 'PATCH', headers: headers(), body: JSON.stringify({ ...req.body, updated_at: new Date().toISOString() }) }
-      );
-      const data = await r.json();
-      return res.status(200).json({ success: true, site: Array.isArray(data)?data[0]:data });
-    }
-
-    // ── DELETE ──
     if (req.method === 'DELETE') {
-      const { id, site_id_local, publisher_id, domain } = req.query;
+      const { domain, publisher_id, id } = req.query;
       let delUrl;
       if (domain && publisher_id) {
         delUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
-      } else if (site_id_local && publisher_id) {
-        delUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?site_id_local=eq.${encodeURIComponent(site_id_local)}&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else if (id) {
         delUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${id}`;
       } else {
-        return res.status(400).json({ error: 'Missing id, domain, or site_id_local' });
+        return res.status(400).json({ error: 'Missing params' });
       }
-      await fetch(delUrl, { method: 'DELETE', headers: headers() });
+      await fetch(delUrl, { method: 'DELETE', headers: h() });
       return res.status(200).json({ success: true });
     }
 
