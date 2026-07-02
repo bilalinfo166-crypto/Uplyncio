@@ -191,18 +191,24 @@ function applyVerifiedBadges(){
     var isVerified = data.publisherVerified || isTeam;
     
     if(isVerified){
-      // Force save verified if team
       if(isTeam && !data.publisherVerified){
         data.publisherVerified = true;
         data.publisherVerifiedDate = new Date().toISOString();
         localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data));
       }
+      // Show verified badges, hide Get Verified button
       var pb = document.getElementById('pubVerifiedBadge');
       if(pb){ pb.style.display = 'inline-flex'; }
       var pnb = document.getElementById('pubNavVerifiedBadge');
       if(pnb){ pnb.style.display = 'inline-flex'; }
       var pcb = document.getElementById('pubCrownBadge');
       if(pcb){ pcb.style.display = 'inline'; }
+      var gvb = document.getElementById('pubNavGetVerifiedBtn');
+      if(gvb){ gvb.style.display = 'none'; }
+    } else {
+      // Show Get Verified button, hide verified badges
+      var gvb2 = document.getElementById('pubNavGetVerifiedBtn');
+      if(gvb2){ gvb2.style.display = 'inline-block'; }
     }
   }catch(e){ console.error('Badge error:', e); }
 }
@@ -557,8 +563,9 @@ window.addEventListener('DOMContentLoaded', function(){
 </div>
 <div id="notifList" style="overflow-y:auto;max-height:380px"></div>
 </div>
-<div style="position:relative">
-<span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;margin-right:2px">👑 Verified</span>
+<div style="position:relative;display:flex;align-items:center;gap:8px">
+<span id="pubNavVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700">👑 Verified</span>
+<button id="pubNavGetVerifiedBtn" onclick="openBuyVerifiedModal()" style="display:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">👑 Get Verified</button>
 <div style="position:relative;display:inline-block">
 <div class="tb-av" id="profileAvatar" style="cursor:pointer;user-select:none">?</div>
 <span id="pubCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
@@ -4285,11 +4292,17 @@ function markPublisherVerified(uid, userData, method){
   var modal = document.getElementById('buyVerifiedModal');
   if(modal) modal.remove();
 
-  // Show crown badge
+  // Show crown badge in nav
   var pcb = document.getElementById('pubCrownBadge');
   if(pcb) pcb.style.display = 'inline';
   var pnb = document.getElementById('pubNavVerifiedBadge');
-  if(pnb) pnb.style.display = 'inline';
+  if(pnb) pnb.style.display = 'inline-flex';
+  // Hide Get Verified button
+  var gvb = document.getElementById('pubNavGetVerifiedBtn');
+  if(gvb) gvb.style.display = 'none';
+  // Hide main page nudge card
+  var nudge = document.getElementById('mainVerifNudge');
+  if(nudge) nudge.style.display = 'none';
 
   // Celebrate
   var msg = method==='card'
