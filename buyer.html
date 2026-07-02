@@ -63,6 +63,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c
 .nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 @keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes crownFloat{0%,100%{transform:translateY(0px) rotate(-8deg) scale(1)}25%{transform:translateY(-3px) rotate(0deg) scale(1.1)}50%{transform:translateY(-5px) rotate(8deg) scale(1.15)}75%{transform:translateY(-2px) rotate(2deg) scale(1.05)}}
+@keyframes crownGlow{0%,100%{filter:drop-shadow(0 0 3px #f59e0b)}50%{filter:drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 12px #fcd34d)}}
 .nav-logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;text-decoration:none;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
 .nav-logo .logo-box{width:30px;height:30px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}
 .nav-logo .logo-txt{color:#1a202c}
@@ -1999,7 +2001,7 @@ function renderCard(s, idx){
             '<span class="badge b-nf">● Nofollow</span>';
   var isTeam = s.isTeamSite || s.role==='Uplyncio Team' || s.pub==='Uplyncio Team';
   var pubB = isTeam
-    ? '<span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">👑 Uplyncio Team</span>'
+    ? '<span class="badge" style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px">👑 Verified</span>'
     : (s.pub==='Owner'||s.role==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
   // Verified badge
   var verifiedB = '';
@@ -2021,7 +2023,18 @@ function renderCard(s, idx){
   var _lCol=_p.lifeRate>=90?'#16a34a':_p.lifeRate>=70?'#d97706':'#dc2626';
   var _cCol=_p.compRate>=90?'#16a34a':_p.compRate>=70?'#d97706':'#dc2626';
   var _st=''; for(var _si=0;_si<5;_si++){ if(_si<Math.floor(_p.avgRating)) _st+='<span style="color:#f59e0b;font-size:10px">★</span>'; else if(_si===Math.floor(_p.avgRating)&&(_p.avgRating%1)>=0.5) _st+='<span style="color:#fcd34d;font-size:10px">★</span>'; else _st+='<span style="color:#e2e8f0;font-size:10px">★</span>'; }
-  var _pName=_p.pubName?('<span style="display:inline-flex;align-items:center;gap:3px"><span style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff">'+_p.pubName.charAt(0).toUpperCase()+'</span><span style="font-size:11px;font-weight:600;color:#374151">'+_p.pubName+'</span></span>'):'<span style="font-size:11px;color:#94a3b8">'+s.pub+'</span>';
+  var _pName = isTeam
+    ? '<span style="display:inline-flex;align-items:center;gap:5px">'
+      +'<span style="position:relative;width:20px;height:20px;display:inline-flex;align-items:flex-end;justify-content:center">'
+        +'<span style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff;font-family:Manrope,sans-serif">U</span>'
+        +'<span style="position:absolute;top:-9px;font-size:11px;line-height:1;animation:crownFloat 2s ease-in-out infinite,crownGlow 2s ease-in-out infinite;display:inline-block;transform-origin:center bottom">👑</span>'
+      +'</span>'
+      +'<span style="font-size:11px;font-weight:700;color:#374151">Uplyncio Team</span>'
+    +'</span>'
+    : (_p.pubName
+        ? '<span style="display:inline-flex;align-items:center;gap:3px"><span style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff">'+_p.pubName.charAt(0).toUpperCase()+'</span><span style="font-size:11px;font-weight:600;color:#374151">'+_p.pubName+'</span></span>'
+        : '<span style="font-size:11px;color:#94a3b8">'+s.pub+'</span>'
+      );
 
   var stats='<div class="card-stats">'
     +'<div class="st"><div class="st-v blue">'+s.da+'</div><div class="st-l">Moz DA</div></div>'
