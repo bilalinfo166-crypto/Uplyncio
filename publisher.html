@@ -633,6 +633,18 @@ window.addEventListener('DOMContentLoaded', function(){
 <div id="s1">
 <div class="bc"><a onclick="go(1)">Home</a><span>&rsaquo;</span><span class="cu">My Platforms</span></div>
 <div class="pg" style="width:0%"></div>
+
+<!-- Verification nudge card — only shown to unverified publishers -->
+<div id="mainVerifNudge" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fde68a;border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:12px">
+    <span style="font-size:26px">👑</span>
+    <div>
+      <div style="font-size:13.5px;font-weight:800;color:#92400e">You are not verified yet</div>
+      <div style="font-size:12px;color:#b45309;margin-top:2px">Complete 10 orders for a <strong>free</strong> verified badge — or get it now for just <strong>$20 one-time</strong> and unlock the animated crown on all your sites</div>
+    </div>
+  </div>
+  <button onclick="openBuyVerifiedModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 4px 14px rgba(245,158,11,.3);flex-shrink:0">👑 Get Verified — $20</button>
+</div>
 <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:16px;overflow:hidden">
 <div onclick="toggleS1Help()" style="padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8faff" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='#f8faff'">
 <div style="display:flex;align-items:center;gap:10px">
@@ -6270,12 +6282,11 @@ function mapStatus(s) {
 function showMain(){
   mySites = loadSites();
   saveState("main",{step:1});
-  // Show ticker only for unverified publishers
-  var uid = localStorage.getItem('uplyncio_currentUid')||'';
-  var tk = document.getElementById('verifiedTicker');
-  if(tk){
-    var isVerif = isPublisherVerified(uid) || (JSON.parse(localStorage.getItem('uplyncio_user')||'{}').publisher_verified);
-    tk.style.display = isVerif ? 'none' : 'block';
+  // Show/hide verification nudge on main page
+  var nudge = document.getElementById('mainVerifNudge');
+  if(nudge){
+    var isVerif2 = isPublisherVerified(uid) || (JSON.parse(localStorage.getItem('uplyncio_user')||'{}').publisher_verified);
+    nudge.style.display = isVerif2 ? 'none' : 'flex';
   }
   // Hide all special pages
   ['ordersPage','balancePage','settingsPage','ratingPage','referralPage','trendingPage'].forEach(function(id){
