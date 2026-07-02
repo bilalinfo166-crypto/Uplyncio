@@ -1517,146 +1517,150 @@ function debugPublisherSites(){
   });
   var reg = localStorage.getItem('uplyncio_pub_registry');
   console.log('Registry:', reg ? JSON.parse(reg) : 'EMPTY');
-  var all = loadAllSites();
-  console.log('loadAllSites result:', all.length, 'sites');
+  var all = _allSites.length > 0 ? _allSites : _loadLocal();
+  console.log('allSites result:', all.length, 'sites');
 }
 
-function loadAllSites(){
-  var pubSites = [];
-  var urlMap = {};
+// ── GLOBAL SITES STORE ──
+var _allSites = [];  // global cache
+var _sbTimer = null;
 
-  // Helper to process a site entry (delegates to global processSiteToEntry)
-  function processSite(s, uid){
-    var entry = processSiteToEntry(s, uid);
-    if(!entry) return;
-    var key = entry.url;
-    if(!urlMap[key]){ urlMap[key]=entry; }
-    else if(entry.gP < urlMap[key].gP){ urlMap[key]=entry; }
-  }
-
-  try{
-    // Method 1: registry (same-browser, fast)
-    var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
-    Object.keys(registry).forEach(function(uid){
-      var sites = registry[uid];
-      if(Array.isArray(sites)) sites.forEach(function(s){ processSite(s,uid); });
-    });
-
-    // Method 2: all uplyncio_data_ keys (same browser)
-    Object.keys(localStorage)
-      .filter(function(k){ return k.startsWith('uplyncio_data_'); })
-      .forEach(function(key){
-        var uid = key.replace('uplyncio_data_','');
-        var d = JSON.parse(localStorage.getItem(key)||'{}');
-        if(!d.sites || !Array.isArray(d.sites)) return;
-        d.sites.forEach(function(s){ processSite(s, uid); });
-    });
-  }catch(e){ console.warn('loadAllSites local error:', e); }
-
-  allSites = Object.values(urlMap);
-  allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
-
-  // Fetch from Supabase — PRIMARY source (real cross-device data)
-  fetchSitesFromSupabase();
-
-  return allSites;
+function _mkupFromPub(publisherPrice){
+  var p = parseFloat(publisherPrice)||0;
+  if(p <= 0) return 0;
+  if(p <= 5)  return 20;
+  if(p <= 10) return 30;
+  if(p <= 20) return 50;
+  return Math.ceil(p * 1.28);
 }
 
-var _sbFetchTimer = null;
-
-function fetchSitesFromSupabase(){
-  fetch('/api/sites?status=Live&limit=2000')
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if(!res.success) return;
-      var sites = Array.isArray(res.sites) ? res.sites : [];
-      
-      // Rebuild urlMap with Supabase data (overrides localStorage)
-      var urlMap = {};
-      
-      // First add localStorage sites
-      try{
-        var registry = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
-        Object.keys(registry).forEach(function(uid){
-          var s = registry[uid];
-          if(Array.isArray(s)) s.forEach(function(site){ 
-            if(site.url){
-              var key = site.url.replace(/https?:\/\//,'').replace(/\/$/,'');
-              if(!urlMap[key]) urlMap[key] = processSiteToEntry(site, uid);
-            }
-          });
-        });
-      }catch(e){}
-
-      // Then override/add with Supabase (real source)
-      sites.forEach(function(s){
-        var entry = processSiteToEntry(s, s.publisher_id);
-        if(entry){
-          var key = entry.url;
-          // Supabase always wins for same domain
-          urlMap[key] = entry;
-        }
-      });
-
-      allSites = Object.values(urlMap);
-      allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
-      applyFilters();
-      updateSiteCounter();
-
-      // Show count
-      var el = document.getElementById('cnt-all');
-      if(el) el.textContent = allSites.length;
-    })
-    .catch(function(e){ console.warn('Supabase fetch failed:', e); });
-}
-
-function processSiteToEntry(s, uid){
-  if(!s.url) return null;
+function _siteEntry(s, uid){
+  if(!s || !s.url) return null;
   var st = (s.status||'').toLowerCase();
-  if(st==='rejected'||st==='deactivated'||st==='inactive'||st==='issues'||
-     st==='pending'||st==='hold'||st==='pending review'||st==='on hold') return null;
+  // Skip non-live statuses
+  if(['rejected','deactivated','inactive','issues','pending',
+      'hold','pending review','on hold',''].includes(st) && st !== '') return null;
+
+  var domain = s.url.replace(/https?:\/\//,'').replace(/\/$/,'');
+  var pubPrice = parseFloat((s.price||s.guestPostPrice||s.p1||'0').toString().replace('$',''))||0;
+  var wPrice   = parseFloat((s.write_publish_price||s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0;
+  var liPrice  = parseFloat((s.link_insertion_price||s.liPrice||s.p5||'0').toString().replace('$',''))||0;
+
   return {
-    url: s.url.replace(/https?:\/\//,'').replace(/\/$/,''),
-    da: parseInt(s.da)||0,
-    dr: parseInt(s.dr)||0,
+    url: domain,
+    da:  parseInt(s.da)||0,
+    dr:  parseInt(s.dr)||0,
     traffic: (function(t){
       if(!t) return 0;
-      t = t.toString().toLowerCase().trim();
-      if(t.indexOf('m')>=0) return parseFloat(t)*1000000;
-      if(t.indexOf('k')>=0) return parseFloat(t)*1000;
-      return parseInt(t.replace(/[^0-9.]/g,''))||0;
+      var ts = t.toString().toLowerCase().replace(/,/g,'');
+      if(ts.indexOf('m')>=0) return parseFloat(ts)*1000000;
+      if(ts.indexOf('k')>=0) return parseFloat(ts)*1000;
+      return parseInt(ts)||0;
     })(s.traffic),
     semT:0, refD:0,
     cats: s.category?[s.category]:(s.cat?[s.cat]:['General']),
     linkType: s.link_type||s.linkType||s.lt||'Dofollow',
-    gP: _mkup(parseFloat((s.price||s.guestPostPrice||s.p1||'50').toString().replace('$',''))||50),
-    wP: _mkup(parseFloat((s.write_publish_price||s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0),
+    gP:  _mkupFromPub(pubPrice),
+    wP:  _mkupFromPub(wPrice),
     liOk: s.li_accepted===true||s.li_accepted==='Yes'||s.liAccepted==='Yes',
-    liP: _mkup(parseFloat((s.link_insertion_price||s.liPrice||s.p5||'0').toString().replace('$',''))||0),
+    liP:  _mkupFromPub(liPrice),
     country: s.country||'USA',
     lang: s.language||s.lang||'English',
-    tat: parseInt(s.tat)||7,
-    comp:100, pub:s.role||'Owner',
+    tat:  parseInt(s.tat)||7,
+    comp: 100,
+    pub:  s.role||'Owner',
     maxL: parseInt(s.max_links||s.maxLinks)||2,
-    req: s.requirements||s.req||'',
-    spam:3, minWords:500, indexed:true,
+    req:  s.requirements||s.req||'',
+    spam: 3,
+    minWords: 500,
+    indexed: true,
     _uid: uid||s.publisher_id||'',
     _status: s.status||'Live',
-    publisherUid: uid||s.publisher_id||'',
+    publisherUid:  uid||s.publisher_id||'',
     publisherName: s.publisher_name||s.publisherName||'',
     role: s.role||'Owner',
-    isTeamSite: s.role==='Uplyncio Team'||(uid||s.publisher_id)==='uplyncio_team_official'
+    isTeamSite: (s.role==='Uplyncio Team'||(uid||s.publisher_id)==='uplyncio_team_official')
   };
 }
 
-// Poll Supabase every 30 seconds for new/deleted sites
-if(!_sbFetchTimer){
-  _sbFetchTimer = setInterval(fetchSitesFromSupabase, 30000);
+function _mergeSite(entry, urlMap){
+  if(!entry) return;
+  var k = entry.url;
+  if(!urlMap[k]) urlMap[k] = entry;
+  else if(entry.gP > 0 && entry.gP < urlMap[k].gP) urlMap[k] = entry;
 }
+
+// Load from all localStorage sources immediately (same-browser, instant)
+function _loadLocal(){
+  var urlMap = {};
+  try{
+    // Registry (publisher saves Live sites here)
+    var reg = JSON.parse(localStorage.getItem('uplyncio_pub_registry')||'{}');
+    Object.keys(reg).forEach(function(uid){
+      (reg[uid]||[]).forEach(function(s){ _mergeSite(_siteEntry(s,uid), urlMap); });
+    });
+    // Raw publisher data keys
+    Object.keys(localStorage).filter(function(k){ return k.startsWith('uplyncio_data_'); })
+      .forEach(function(k){
+        var uid = k.replace('uplyncio_data_','');
+        var d = JSON.parse(localStorage.getItem(k)||'{}');
+        (d.sites||[]).forEach(function(s){ _mergeSite(_siteEntry(s,uid), urlMap); });
+      });
+  }catch(e){}
+  return Object.values(urlMap);
+}
+
+// Fetch from Supabase and update global store
+function fetchSitesFromSupabase(){
+  fetch('/api/sites?status=Live&limit=2000')
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      var sbSites = (res.success && Array.isArray(res.sites)) ? res.sites : [];
+      var urlMap = {};
+      // Start with local
+      _loadLocal().forEach(function(e){ if(e) urlMap[e.url]=e; });
+      // Supabase overrides (always wins for same domain)
+      sbSites.forEach(function(s){
+        var entry = _siteEntry(s, s.publisher_id);
+        if(entry) urlMap[entry.url] = entry;
+      });
+      _allSites = Object.values(urlMap);
+      _allSites.sort(function(a,b){
+        var aT=a.isTeamSite?1:0, bT=b.isTeamSite?1:0;
+        if(aT!==bT) return bT-aT;
+        return (a.gP||0)-(b.gP||0);
+      });
+      applyFilters();
+      updateSiteCounter();
+    })
+    .catch(function(e){ console.warn('Supabase fetch error:', e.message); });
+}
+
+function loadAllSites(){
+  // Immediate local load
+  var localMap = {};
+  _loadLocal().forEach(function(e){ if(e) localMap[e.url]=e; });
+  _allSites = Object.values(localMap);
+  _allSites.sort(function(a,b){ return (a.gP||0)-(b.gP||0); });
+
+  // Then refresh from Supabase in background
+  fetchSitesFromSupabase();
+
+  return _allSites;
+}
+
+// Also expose as processSiteToEntry for backward compat
+function processSiteToEntry(s, uid){ return _siteEntry(s, uid); }
+
+// Poll Supabase every 30s
+if(!_sbTimer){ _sbTimer = setInterval(fetchSitesFromSupabase, 30000); }
+
+// Load immediately on script run
+setTimeout(fetchSitesFromSupabase, 500);
 
 // ── LIVE COUNTER: total sites across platform ──
 function updateLiveSiteCount(){
-  var all = loadAllSites();
+  var all = _allSites.length > 0 ? _allSites : _loadLocal();
   var total = all.length;
 
   // Update all site count elements across the page
@@ -1866,7 +1870,7 @@ function toggleCart(idx, isLI){
 // FILTERS + RENDER
 // ═══════════════════════════════════
 function applyFilters(){
-  var all = loadAllSites();
+  var all = _allSites.length > 0 ? _allSites : _loadLocal();
   buildCatSidebar(all);
 
   var search = (document.getElementById('globalSearch').value||'').toLowerCase().trim();
@@ -4904,7 +4908,7 @@ function openNewCampaignForm(editId){
   window._campFormEditId = editId || null;
   var editC = editId ? getCampaigns().find(function(x){return x.id===editId;}) : null;
 
-  var allSites = loadAllSites();
+  var allSites = _allSites.length > 0 ? _allSites : _loadLocal();
   var catSet = {};
   allSites.forEach(function(s){ (s.cats||[]).forEach(function(c){ catSet[c]=1; }); });
   var catOptions = Object.keys(catSet).sort();
@@ -5195,7 +5199,7 @@ function saveCampaignSubmit(){
 
 // ── MATCHING ──
 function matchCampaignSites(c){
-  var all = loadAllSites();
+  var all = _allSites.length > 0 ? _allSites : _loadLocal();
   var excl = (c.excludeDomains||[]).concat(c.usedDomains||[]).map(function(d){return d.toLowerCase();});
   var cat = (c.category||'').toLowerCase();
 
