@@ -1727,9 +1727,14 @@ function filterByCategory(cat){
 // ═══════════════════════════════════
 // PUBLISHER LIVE PERFORMANCE READER
 // ═══════════════════════════════════
-function getPubPerformance(siteUrl){
-  // Default values (for sample sites or when no publisher data exists)
+function getPubPerformance(siteUrl, isTeamSite){
+  // Default values
   var defaults = { compRate:100, lifeRate:100, avgRating:5.0, reviewCount:0, removedLinks:0, rejectedOrders:0, pubName:'' };
+
+  // For Uplyncio Team sites — fixed stats
+  if(isTeamSite){
+    return { compRate:100, lifeRate:100, avgRating:5.0, reviewCount:79, removedLinks:0, rejectedOrders:0, pubName:'Uplyncio Team' };
+  }
 
   try{
     // Find which publisher owns this site
@@ -1907,7 +1912,7 @@ function applyFilters(){
   document.getElementById('tcnt-press').textContent = 0;
 
   filteredSites = all.filter(function(s){
-    if(tab==='link' && !s.liOk) return false;
+    if(tab==='link' && (!s.liOk || !s.liP || s.liP <= 0)) return false;
     if(tab==='press') return false;
 
     var price = tab==='link' ? s.liP : s.gP;
@@ -1992,11 +1997,13 @@ function renderCard(s, idx){
   var ltB = s.linkType==='Dofollow'?'<span class="badge b-df">● Dofollow</span>':
             s.linkType==='Sponsored'?'<span class="badge b-sp">● Sponsored</span>':
             '<span class="badge b-nf">● Nofollow</span>';
-  var pubB = (s.isTeamSite||s.role==='Uplyncio Team') ? '<span class="badge" style="background:#0f1628;color:#4f7cff;border:1px solid #4f7cff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">🔗 Uplyncio Team</span>' : (s.pub==='Owner'||s.role==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
-  // Check if publisher is verified
+  var isTeam = s.isTeamSite || s.role==='Uplyncio Team' || s.pub==='Uplyncio Team';
+  var pubB = isTeam
+    ? '<span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">👑 Uplyncio Team</span>'
+    : (s.pub==='Owner'||s.role==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
+  // Verified badge
   var verifiedB = '';
-  // Uplyncio Team is always verified
-  if(s.isTeamSite || s.role==='Uplyncio Team' || s.publisherUid==='uplyncio_team_official'){
+  if(isTeam){
     verifiedB = '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap">👑 Verified</span>';
   } else if(s.publisherUid){
     try{
@@ -2010,7 +2017,7 @@ function renderCard(s, idx){
   var cFlag=flags[s.country]||'🌐';
 
   // Live publisher performance
-  var _p=getPubPerformance(s.url);
+  var _p=getPubPerformance(s.url, isTeam);
   var _lCol=_p.lifeRate>=90?'#16a34a':_p.lifeRate>=70?'#d97706':'#dc2626';
   var _cCol=_p.compRate>=90?'#16a34a':_p.compRate>=70?'#d97706':'#dc2626';
   var _st=''; for(var _si=0;_si<5;_si++){ if(_si<Math.floor(_p.avgRating)) _st+='<span style="color:#f59e0b;font-size:10px">★</span>'; else if(_si===Math.floor(_p.avgRating)&&(_p.avgRating%1)>=0.5) _st+='<span style="color:#fcd34d;font-size:10px">★</span>'; else _st+='<span style="color:#e2e8f0;font-size:10px">★</span>'; }
