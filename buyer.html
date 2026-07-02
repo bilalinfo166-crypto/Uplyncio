@@ -1926,7 +1926,7 @@ function applyFilters(){
 
   // Count tabs
   var artCnt=0, liCnt=0;
-  all.forEach(function(s){ artCnt++; if(s.liOk) liCnt++; });
+  all.forEach(function(s){ artCnt++; if(s.liOk && s.liP && s.liP > 0) liCnt++; });
   document.getElementById('tcnt-article').textContent = artCnt;
   document.getElementById('tcnt-link').textContent = liCnt;
   document.getElementById('tcnt-press').textContent = 0;
