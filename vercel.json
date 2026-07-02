@@ -1,51 +1,54 @@
 {
   "functions": {
-    "api/auth.js": { "maxDuration": 15 },
-    "api/email.js": { "maxDuration": 15 },
-    "api/inquiry.js": { "maxDuration": 10 },
-    "api/orders.js": { "maxDuration": 15 },
-    "api/send-verification.js": { "maxDuration": 10 },
-    "api/sites.js": { "maxDuration": 15 },
+    "api/auth.js":             { "maxDuration": 15 },
+    "api/email.js":            { "maxDuration": 15 },
+    "api/inquiry.js":          { "maxDuration": 10 },
+    "api/orders.js":           { "maxDuration": 15 },
+    "api/send-verification.js":{ "maxDuration": 10 },
+    "api/sites.js":            { "maxDuration": 15 },
     "api/test-order-email.js": { "maxDuration": 30 },
-    "api/chat-filter.js": { "maxDuration": 10 },
-    "api/google-auth.js": { "maxDuration": 15 },
-    "api/monthly-report.js": { "maxDuration": 30 },
-    "api/chatbot.js": { "maxDuration": 30 }
+    "api/chat-filter.js":      { "maxDuration": 10 },
+    "api/google-auth.js":      { "maxDuration": 15 },
+    "api/monthly-report.js":   { "maxDuration": 30 },
+    "api/chatbot.js":          { "maxDuration": 30 }
   },
   "headers": [
     {
       "source": "/(.*)\\.html",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+        { "key": "Cache-Control",            "value": "public, max-age=0, must-revalidate" },
+        { "key": "X-Content-Type-Options",   "value": "nosniff" },
+        { "key": "X-Frame-Options",          "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection",         "value": "1; mode=block" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
       "source": "/(.*)\\.css",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-    },
-    {
-      "source": "/(.*)\\.js",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-    },
-    {
-      "source": "/(.*)\\.png",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
-    },
-    {
-      "source": "/(.*)\\.svg",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     },
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "Cache-Control",          "value": "no-store" },
         { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-DNS-Prefetch-Control", "value": "on" }
       ]
     }
   ],
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "compress": true
 }

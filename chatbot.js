@@ -84,27 +84,7 @@
 
     // Chatbot button
     document.body.insertAdjacentHTML('beforeend', `
-      <button id="uply-btn" onclick="uplyToggle()" title="Chat with Ace AI">
-        <span id="uply-icon">💬</span>
-        <span id="uply-badge" style="display:none">1</span>
-      </button>
-      <div id="uply-box">
-        <div id="uply-head">
-          <div id="uply-avatar">🤖</div>
-          <div id="uply-title">
-            <h4>Ace — AI Assistant</h4>
-            <p>● Online — Instant replies</p>
-          </div>
-          <button onclick="ulyClearChat()" title="Clear chat history" style="background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center" title="Clear history">🗑</button>
-          <button id="uply-close" onclick="uplyToggle()">✕</button>
-        </div>
-        <div id="uply-msgs"></div>
-        <div id="uply-quick"></div>
-        <div id="uply-input-wrap">
-          <textarea id="uply-input" placeholder="Ask Ace anything..." rows="1" onkeydown="uplyKey(event)" oninput="uplyResize(this)"></textarea>
-          <button id="uply-send" onclick="ulySend()">➤</button>
-        </div>
-      </div>
+      <button id="uply-btn" onclick="uplyToggle()" title="Chat with Ace AI"> <span id="uply-icon">💬</span> <span id="uply-badge" style="display:none">1</span> </button> <div id="uply-box"> <div id="uply-head"> <div id="uply-avatar">🤖</div> <div id="uply-title"> <h4>Ace — AI Assistant</h4> <p>● Online — Instant replies</p> </div> <button onclick="ulyClearChat()" title="Clear chat history" style="background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center" title="Clear history">🗑</button> <button id="uply-close" onclick="uplyToggle()">✕</button> </div> <div id="uply-msgs"></div> <div id="uply-quick"></div> <div id="uply-input-wrap"> <textarea id="uply-input" placeholder="Ask Ace anything..." rows="1" onkeydown="uplyKey(event)" oninput="uplyResize(this)"></textarea> <button id="uply-send" onclick="ulySend()">➤</button> </div> </div>
     `);
 
     // Show welcome message after 3s
