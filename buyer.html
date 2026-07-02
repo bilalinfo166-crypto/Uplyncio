@@ -2034,19 +2034,28 @@ function renderCard(s, idx){
             s.linkType==='Sponsored'?'<span class="badge b-sp">● Sponsored</span>':
             '<span class="badge b-nf">● Nofollow</span>';
   var isTeam = s.isTeamSite || s.role==='Uplyncio Team' || s.pub==='Uplyncio Team';
-  var pubB = isTeam
-    ? '<span class="badge" style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px">👑 Verified</span>'
-    : (s.pub==='Owner'||s.role==='Owner'?'<span class="badge b-own">👤 Owner</span>':'<span class="badge b-con">✏️ Contributor</span>');
-  // Verified badge
-  var verifiedB = '';
-  if(isTeam){
-    verifiedB = '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap">👑 Verified</span>';
-  } else if(s.publisherUid){
+
+  // Check publisher verified status (10+ completed orders)
+  var isVerified = isTeam; // team always verified
+  var ordersCompleted = 0;
+  if(!isTeam && s.publisherUid){
     try{
       var pData = JSON.parse(localStorage.getItem('uplyncio_data_'+s.publisherUid)||'{}');
-      if(pData.publisherVerified) verifiedB = '<span style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap">👑 Verified</span>';
+      ordersCompleted = pData.ordersCompleted || pData.orders_completed || 0;
+      if(ordersCompleted >= 10 || pData.publisherVerified) isVerified = true;
     }catch(e){}
   }
+
+  // Top badge — only show Verified crown if actually verified (10+ orders or team)
+  var pubB = isTeam
+    ? '<span class="badge" style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px">👑 Verified</span>'
+    : isVerified
+      ? '<span class="badge" style="background:#fef9c3;color:#92400e;border:1px solid #fbbf24;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px">👑 Verified</span>'
+      : (s.pub==='Owner'||s.role==='Owner'
+          ? '<span class="badge b-own">👤 Owner</span>'
+          : '<span class="badge b-con">✏️ Contributor</span>');
+
+  var verifiedB = ''; // handled inside pubB now
   var catB = (s.cats||[]).slice(0,3).map(function(c){ return '<span class="badge b-cat">'+c+'</span>'; }).join('');
   // Multi-publisher badge
   var pubCount = (window._domainPubCount && window._domainPubCount[s.url]) || 1;
@@ -2061,18 +2070,24 @@ function renderCard(s, idx){
   var _lCol=_p.lifeRate>=90?'#16a34a':_p.lifeRate>=70?'#d97706':'#dc2626';
   var _cCol=_p.compRate>=90?'#16a34a':_p.compRate>=70?'#d97706':'#dc2626';
   var _st=''; for(var _si=0;_si<5;_si++){ if(_si<Math.floor(_p.avgRating)) _st+='<span style="color:#f59e0b;font-size:10px">★</span>'; else if(_si===Math.floor(_p.avgRating)&&(_p.avgRating%1)>=0.5) _st+='<span style="color:#fcd34d;font-size:10px">★</span>'; else _st+='<span style="color:#e2e8f0;font-size:10px">★</span>'; }
-  var _pName = isTeam
-    ? '<span style="display:inline-flex;align-items:center;gap:5px">'
-      +'<span style="position:relative;width:20px;height:20px;display:inline-flex;align-items:flex-end;justify-content:center">'
-        +'<span style="width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff;font-family:Manrope,sans-serif">U</span>'
-        +'<span style="position:absolute;top:-9px;font-size:11px;line-height:1;animation:crownFloat 2s ease-in-out infinite,crownGlow 2s ease-in-out infinite;display:inline-block;transform-origin:center bottom">👑</span>'
-      +'</span>'
-      +'<span style="font-size:11px;font-weight:700;color:#374151">Uplyncio Team</span>'
-    +'</span>'
-    : (_p.pubName
-        ? '<span style="display:inline-flex;align-items:center;gap:3px"><span style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff">'+_p.pubName.charAt(0).toUpperCase()+'</span><span style="font-size:11px;font-weight:600;color:#374151">'+_p.pubName+'</span></span>'
-        : '<span style="font-size:11px;color:#94a3b8">'+s.pub+'</span>'
-      );
+  var _pName = (function(){
+    var initLetter = (_p.pubName||s.pub||'P').charAt(0).toUpperCase();
+    var name = _p.pubName || (isTeam ? 'Uplyncio Team' : (s.pub||'Publisher'));
+    var avatarBg = isTeam ? 'linear-gradient(135deg,#4f7cff,#00d4aa)' : isVerified ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#94a3b8,#64748b)';
+
+    var avatarEl = '<span style="position:relative;width:20px;height:20px;display:inline-flex;align-items:flex-end;justify-content:center">'
+      +'<span style="width:20px;height:20px;border-radius:50%;background:'+avatarBg+';display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff;font-family:Manrope,sans-serif">'+initLetter+'</span>'
+      +(isVerified||isTeam ? '<span style="position:absolute;top:-9px;font-size:11px;line-height:1;animation:crownFloat 2s ease-in-out infinite,crownGlow 2s ease-in-out infinite;display:inline-block;transform-origin:center bottom">👑</span>' : '')
+      +'</span>';
+
+    var nameEl = isTeam
+      ? '<span style="font-size:11px;font-weight:700;color:#374151">Uplyncio Team</span>'
+      : isVerified
+        ? '<span style="font-size:11px;font-weight:700;color:#92400e">'+name+'</span>'
+        : '<span style="font-size:11px;font-weight:600;color:#374151">'+name+'</span>';
+
+    return '<span style="display:inline-flex;align-items:center;gap:5px">'+avatarEl+nameEl+'</span>';
+  })();
 
   var stats='<div class="card-stats">'
     +'<div class="st"><div class="st-v blue">'+s.da+'</div><div class="st-l">Moz DA</div></div>'
