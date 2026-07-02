@@ -1,3 +1,4 @@
+import { rateLimit, getIp, setCors, sanitize, setApiHeaders, apiError } from './_security.js';
 // ── Uplyncio Chat Filter — Contact Detection & Auto-Restrict System ──
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -39,10 +40,11 @@ const THRESHOLDS = {
 };
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  setCors(req, res);
+      if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const _ip = getIp(req);
+  if(rateLimit(`cf:${_ip}`, 20, 60000)) return apiError(res, 429, 'Too many requests. Please slow down.');
 
   // ── ADMIN: Get all violations ──
   if (req.method === 'GET') {

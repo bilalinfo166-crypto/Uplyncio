@@ -1,3 +1,4 @@
+import { rateLimit, getIp, setCors, sanitize, setApiHeaders, apiError } from './_security.js';
 // Google OAuth Handler
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -34,7 +35,9 @@ async function sbUpdate(table, filter, data) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const _ip = getIp(req);
+  if(rateLimit(`ga:${_ip}`, 10, 60000)) return apiError(res, 429, "Too many requests. Please slow down.");
+  setCors(req, res);
 
   const query = req.method === 'GET' ? req.query : (req.body || {});
   const { code, state, action } = query;

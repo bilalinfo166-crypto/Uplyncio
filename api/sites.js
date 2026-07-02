@@ -1,3 +1,4 @@
+import { rateLimit, getIp, setCors, sanitize, sanitizeObj, checkBodySize, setApiHeaders, apiError } from './_security.js';
 // Publisher Sites API
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY;
@@ -12,10 +13,11 @@ function h() {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  setCors(req, res);
+      if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const _ip = getIp(req);
+  if(rateLimit(`sites:${_ip}`, 60, 60000)) return apiError(res, 429, 'Too many requests. Please slow down.');
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return res.status(500).json({ error: 'Supabase not configured' });
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const b = req.body || {};
+    if(!checkBodySize(b)) return apiError(res, 413, "Request too large");
       if (!b.url || !b.publisher_id) return res.status(400).json({ error: 'Missing url or publisher_id' });
       const domain = b.url.replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
 

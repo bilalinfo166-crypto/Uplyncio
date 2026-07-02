@@ -1,3 +1,4 @@
+import { setCors, checkBodySize, apiError } from './_security.js';
 // Orders API — with full email + WhatsApp notifications
 import {
   sendBuyerOrderPlaced, sendBuyerOrderAccepted, sendBuyerOrderDelivered,
@@ -47,9 +48,10 @@ function rlOrders(k,max,ms){ const n=Date.now(),r=_rlOrders.get(k)||{c:0,t:n+ms}
 export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Access-Control-Allow-Origin', 'https://uplyncio.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+      if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const _ip = getIp(req);
+  if(rateLimit(`orders:${_ip}`, 30, 60000)) return apiError(res, 429, 'Too many requests. Please slow down.');
   const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown';
   if (rlOrders(`ord:${ip}`, 30, 60000)) return res.status(429).json({ error: 'Too many requests.' });
 

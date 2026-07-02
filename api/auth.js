@@ -1,3 +1,4 @@
+import { sanitize, sanitizeObj, checkBodySize, isValidEmail as _isValidEmail } from './_security.js';
 import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './email.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -70,7 +71,6 @@ function rateLimit(key, max, windowMs) {
 // ── Input validators ──
 function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e||'').trim()); }
 function isValidPassword(p) { return typeof p === 'string' && p.length >= 8; }
-function sanitize(str, maxLen=200) { return String(str||'').trim().substring(0, maxLen).replace(/[<>]/g, ''); }
 
 export default async function handler(req, res) {
   // Security headers

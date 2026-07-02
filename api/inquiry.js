@@ -1,12 +1,13 @@
+import { rateLimit, getIp, setCors, sanitize, sanitizeObj, checkBodySize, setApiHeaders, apiError } from './_security.js';
 const _rl = new Map();
 function rlCheck(k,max,ms){ const n=Date.now(),r=_rl.get(k)||{c:0,t:n+ms}; if(n>r.t){r.c=0;r.t=n+ms;} r.c++; _rl.set(k,r); return r.c>max; }
 
 export default async function handler(req, res) {
+  const _ip = getIp(req);
+  if(rateLimit(`inq:${_ip}`, 5, 60000)) return apiError(res, 429, "Too many requests. Please slow down.");
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('Access-Control-Allow-Origin','*');
-  res.setHeader('Access-Control-Allow-Methods','POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers','Content-Type');
-  if(req.method==='OPTIONS') return res.status(200).end();
+      if(req.method==='OPTIONS') return res.status(200).end();
   if(req.method!=='POST') return res.status(405).json({error:'Method not allowed'});
   const ip = req.headers['x-forwarded-for']?.split(',')[0]||'unknown';
   if(rlCheck(`inq:${ip}`,5,3600000)) return res.status(429).json({error:'Too many requests.'});

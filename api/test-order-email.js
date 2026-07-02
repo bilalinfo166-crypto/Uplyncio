@@ -1,3 +1,4 @@
+import { rateLimit, getIp, setCors, sanitize, setApiHeaders, apiError } from './_security.js';
 // ── Uplyncio Site Checker API ──
 // Scoring system: sites need 60%+ to approve, 90%+ bad signals to reject, else hold
 
@@ -199,10 +200,11 @@ async function checkSite(url) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  setCors(req, res);
+      if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const _ip = getIp(req);
+  if(rateLimit(`sc:${_ip}`, 10, 60000)) return apiError(res, 429, 'Too many requests. Please slow down.');
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { sites } = req.body || {};
