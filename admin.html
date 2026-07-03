@@ -1,469 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
 <meta charset="UTF-8">
-  <link rel="canonical" href="https://uplyncio.com/admin.html">
-
-<meta name="viewport" content="width=1280">
-<title>Uplyncio — Admin Control Room</title>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Uplyncio Admin Panel</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ── ADMIN LOGIN ── */
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#07090f;color:#e8eaf0;min-height:100vh}
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center}
-.login-box{background:#13192a;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:40px;width:380px}
-.login-inp{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:9px;padding:11px 14px;font-size:14px;color:#e8eaf0;font-family:inherit;outline:none;margin-bottom:12px;display:block}
-.login-inp:focus{border-color:#4f7cff}
-.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.login-err{color:#ef4444;font-size:12px;text-align:center;margin-top:8px;display:none}
-
-/* ── ADMIN PANEL WRAPPER ── */
-#adminPanel{display:none}
-
-/* Admin sidebar overlay on top of publisher sidebar */
-.admin-sb{width:200px;position:fixed;top:0;left:0;bottom:0;background:#07090f;border-right:1px solid rgba(255,255,255,.08);z-index:9999;display:flex;flex-direction:column}
-.admin-logo{padding:16px 18px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.08)}
-.admin-logo-text{font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff}
-.admin-logo-text em{color:#4f7cff;font-style:normal}
-.admin-badge{font-size:9px;font-weight:700;background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px}
-.admin-nav{flex:1;padding:10px 0;overflow-y:auto;scrollbar-width:none}
-.admin-nav::-webkit-scrollbar{display:none}
-.admin-lbl{font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.8px;padding:10px 18px 5px}
-.admin-item{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:600;color:#8892a4;border-left:3px solid transparent;transition:all .15s}
-.admin-item:hover{background:rgba(255,255,255,.04);color:#e8eaf0}
-.admin-item.active{background:rgba(79,124,255,.1);color:#4f7cff;border-left-color:#4f7cff}
-.admin-bottom{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08)}
-.admin-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
-
-/* ── ADMIN DASHBOARD ── */
-.admin-main{position:fixed;top:0;left:200px;right:0;bottom:0;background:#07090f;z-index:9998;display:flex;flex-direction:column;overflow:hidden}
-.admin-topbar{height:54px;background:#0d1120;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
-.admin-topbar-title{font-size:14px;font-weight:700;color:#e8eaf0}
-.admin-content{flex:1;overflow-y:auto;padding:24px;scrollbar-width:none}
-.admin-content::-webkit-scrollbar{display:none}
-
-/* stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.scard{background:#13192a;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden}
-.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.scard.blue::before{background:linear-gradient(90deg,#4f7cff,#818cf8)}
-.scard.teal::before{background:linear-gradient(90deg,#00d4aa,#06b6d4)}
-.scard.gold::before{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
-.scard.green::before{background:linear-gradient(90deg,#22c55e,#16a34a)}
-.scard-lbl{font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
-.scard-val{font-family:Manrope,sans-serif;font-size:28px;font-weight:800;color:#e8eaf0;line-height:1}
-.scard-sub{font-size:11px;color:#6b7a99;margin-top:5px}
-
-/* sections */
-.asection{background:#13192a;border:1px solid rgba(255,255,255,.07);border-radius:12px;margin-bottom:16px;overflow:hidden}
-.asection-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
-.asection-title{font-size:14px;font-weight:700;color:#e8eaf0}
-.atbl{width:100%;border-collapse:collapse}
-.atbl th{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02)}
-.atbl td{padding:12px 16px;font-size:13px;color:#e8eaf0;border-bottom:1px solid rgba(255,255,255,.07)}
-.atbl tr:last-child td{border-bottom:none}
-.atbl tbody tr:hover td{background:rgba(255,255,255,.02);cursor:pointer}
-.b-v{background:#422006;color:#fbbf24;border:1px solid #92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
-.b-u{background:rgba(255,255,255,.05);color:#6b7a99;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
-.b-role{background:rgba(79,124,255,.15);color:#4f7cff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px}
-.aav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
-
-/* filter bar */
-.afbar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
-.asinp{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 12px;font-size:13px;color:#e8eaf0;font-family:inherit;outline:none;width:240px}
-.asinp::placeholder{color:#6b7a99}.asinp:focus{border-color:#4f7cff}
-.assel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:7px 10px;font-size:12px;color:#e8eaf0;font-family:inherit;outline:none;cursor:pointer}
-
-/* modal */
-.aoverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.aoverlay.open{display:flex}
-.ambox{background:#13192a;border:1px solid rgba(255,255,255,.12);border-radius:16px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;scrollbar-width:none}
-.ambox::-webkit-scrollbar{display:none}
-.amhead{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;background:#13192a;z-index:1}
-.amhead-title{font-size:14px;font-weight:700;color:#e8eaf0}
-.amclose{background:rgba(255,255,255,.07);border:none;color:#6b7a99;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:16px}
-.ambody{padding:22px}
-.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.ditem{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:11px 13px}
-.dlbl{font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.dval{font-size:13px;font-weight:600;color:#e8eaf0;word-break:break-all}
-.dsec{font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 7px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.07)}
-.abtn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:none}
-.abtn-p{background:#4f7cff;color:#fff}
-.abtn-s{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
-.abtn-d{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
-.ainp{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:9px;padding:9px 12px;font-size:13px;color:#e8eaf0;font-family:inherit;outline:none}
-.ainp:focus{border-color:#4f7cff}
-.admin-page{display:none}
-.admin-page.active{display:block}
-.live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite;display:inline-block}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.3)}}
-
-/* Publisher iframe */
-#pubFrame{width:100%;height:100%;border:none;display:none}
-.frame-wrap{position:fixed;top:0;left:200px;right:0;bottom:0;z-index:9998;display:none}
-.frame-wrap.visible{display:block}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#0f1628;display:flex;flex-direction:column;padding:0 0 20px;z-index:100}
+.logo{padding:20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.logo span{font-family:Manrope,sans-serif;font-size:16px;font-weight:800;color:#fff}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,.55);transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover,.nav-item.active{background:rgba(79,124,255,.12);color:#fff;border-left-color:#4f7cff}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.main{margin-left:220px;padding:28px 32px;min-height:100vh}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.page-title{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#0f172a}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0}
+.stat-val{font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#0f172a;margin-bottom:4px}
+.stat-label{font-size:12px;color:#94a3b8;font-weight:600}
+.stat-card.green .stat-val{color:#16a34a}
+.stat-card.blue .stat-val{color:#4f7cff}
+.stat-card.amber .stat-val{color:#f59e0b}
+.stat-card.red .stat-val{color:#ef4444}
+.card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:20px}
+.card-header{padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:800;color:#0f172a}
+.page{display:none}
+.page.active{display:block}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;font-size:11px;font-weight:700;color:#94a3b8;text-align:left;background:#f8faff;border-bottom:1px solid #e2e8f0;text-transform:uppercase;letter-spacing:.5px}
+td{padding:12px 14px;font-size:13px;color:#1a202c;border-bottom:1px solid #f8faff}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.pending{background:#fef9c3;color:#92400e}
+.badge.accepted{background:#dbeafe;color:#1d4ed8}
+.badge.delivered{background:#ede9fe;color:#6d28d9}
+.badge.completed{background:#d1fae5;color:#065f46}
+.badge.disputed{background:#fee2e2;color:#991b1b}
+.badge.cancelled{background:#f1f5f9;color:#475569}
+.badge.rejected{background:#fee2e2;color:#991b1b}
+.badge.refunded{background:#fef9c3;color:#92400e}
+.badge.paid{background:#d1fae5;color:#065f46}
+.badge.live{background:#d1fae5;color:#065f46}
+.badge.down{background:#fee2e2;color:#991b1b}
+.btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;transition:all .15s}
+.btn-primary{background:#4f7cff;color:#fff}
+.btn-primary:hover{background:#3b6aee}
+.btn-success{background:#16a34a;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-ghost{background:#f1f5f9;color:#475569}
+.search{padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;width:250px}
+.search:focus{border-color:#4f7cff}
+.tab-bar{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid #e2e8f0;background:#f8faff}
+.tab{padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:#4f7cff;border-bottom-color:#4f7cff;background:#fff}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:480px;max-width:92vw;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:700;color:#475569;display:block;margin-bottom:5px}
+.form-input{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none}
+.form-input:focus{border-color:#4f7cff}
+.toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.stat-change{font-size:11px;margin-top:4px}
+.stat-change.up{color:#16a34a}
+.stat-change.down{color:#ef4444}
+.empty{padding:40px;text-align:center;color:#94a3b8;font-size:13px}
 </style>
-  <link rel="stylesheet" href="/shared.css">
 </head>
 <body>
-<div class="login-wrap" id="loginWrap">
-<div class="login-box">
-<div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:22px">
-<svg width="34" height="34" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
-<span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#fff">Uply<em style="color:#4f7cff;font-style:normal">ncio</em></span>
+
+<!-- Login Screen -->
+<div id="loginScreen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f1628,#1a2d5a)">
+<div style="background:#fff;border-radius:20px;padding:36px;width:380px;box-shadow:0 30px 80px rgba(0,0,0,.4)">
+<div style="text-align:center;margin-bottom:28px">
+<div style="font-size:32px;margin-bottom:8px">⚙️</div>
+<div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#0f172a">Uplyncio Admin</div>
+<div style="font-size:13px;color:#94a3b8;margin-top:4px">Restricted access</div>
 </div>
-<div style="font-size:11px;font-weight:700;color:#6b7a99;text-align:center;margin-bottom:20px;text-transform:uppercase;letter-spacing:.8px">🔐 Admin Control Room</div>
-<input class="login-inp" id="aUser" type="text" placeholder="Admin username" autocomplete="off">
-<input class="login-inp" id="aPass" type="password" placeholder="Admin password" onkeydown="if(event.key==='Enter')doLogin()">
-<button class="login-btn" onclick="doLogin()">Enter Control Room →</button>
-<div class="login-err" id="loginErr">❌ Invalid credentials</div>
-</div>
-</div>
-<div id="adminPanel">
-<div class="admin-sb">
-<div class="admin-logo">
-<svg width="26" height="26" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1a2035"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#1a2035"/></svg>
-<div><div class="admin-logo-text">Uply<em>ncio</em><span class="admin-badge">ADMIN</span></div><div style="font-size:9px;color:#6b7a99">Control Room</div></div>
-</div>
-<div class="admin-nav">
-<div class="admin-lbl">Overview</div>
-<div class="admin-item active" onclick="showAdminPage('dashboard',this)">📊 Dashboard</div>
-<div class="admin-lbl">Our Platform</div>
-<div class="admin-item" onclick="openTeamPublisher()">🌐 Our Sites & Orders</div>
-<div class="admin-lbl">Users</div>
-<div class="admin-item" onclick="showAdminPage('publishers',this)">📰 Publishers <span id="sbP" style="margin-left:auto;background:rgba(79,124,255,.2);color:#4f7cff;font-size:10px;padding:1px 7px;border-radius:20px"></span></div>
-<div class="admin-item" onclick="showAdminPage('buyers',this)">🛒 Buyers <span id="sbB" style="margin-left:auto;background:rgba(0,212,170,.2);color:#00d4aa;font-size:10px;padding:1px 7px;border-radius:20px"></span></div>
-<div class="admin-lbl">Finance</div>
-<div class="admin-item" onclick="showAdminPage('revenue',this)">💰 Revenue</div>
-<div class="admin-lbl">Settings</div>
-<div class="admin-item" onclick="showAdminPage('settings',this)">⚙️ Settings</div>
-</div>
-<div class="admin-bottom">
-<div style="display:flex;align-items:center;gap:8px">
-<div class="admin-av">A</div>
-<div style="flex:1"><div style="font-size:11px;font-weight:700;color:#e8eaf0">Uplyncio Admin</div><div style="font-size:9px;color:#6b7a99">Super Admin</div></div>
-<button onclick="logout()" style="background:none;border:none;color:#6b7a99;cursor:pointer;font-size:15px" title="Logout">🚪</button>
+<input type="password" id="adminPwd" placeholder="Admin password" style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px" onkeydown="if(event.key==='Enter')adminLogin()">
+<button onclick="adminLogin()" style="width:100%;padding:13px;background:#4f7cff;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Login to Admin Panel</button>
+<div id="loginErr" style="color:#ef4444;font-size:13px;margin-top:10px;text-align:center"></div>
 </div>
 </div>
+
+<!-- Admin Panel -->
+<div id="adminPanel" style="display:none">
+
+<!-- Sidebar -->
+<div class="sidebar">
+<div class="logo">
+<div style="width:32px;height:32px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">🔗</div>
+<span>Uplyncio Admin</span>
 </div>
-<div class="frame-wrap" id="frameWrap" style="position:fixed;top:0;left:200px;right:0;bottom:0;z-index:9998;display:none">
-<iframe id="pubFrame" title="Publisher Panel" style="width:100%;height:100%;border:none;background:#f0f2f7"></iframe>
+<div style="flex:1;overflow-y:auto;padding:10px 0">
+<div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
+<div class="nav-item" onclick="showPage('orders',this)"><span class="icon">📦</span> Orders <span id="pendingOrdersBadge" style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:auto;display:none">0</span></div>
+<div class="nav-item" onclick="showPage('disputes',this)"><span class="icon">⚖️</span> Disputes <span id="disputesBadge" style="background:#f59e0b;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:auto;display:none">0</span></div>
+<div class="nav-item" onclick="showPage('withdrawals',this)"><span class="icon">💰</span> Withdrawals <span id="withdrawalsBadge" style="background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:auto;display:none">0</span></div>
+<div class="nav-item" onclick="showPage('publishers',this)"><span class="icon">🌐</span> Publishers</div>
+<div class="nav-item" onclick="showPage('buyers',this)"><span class="icon">🛒</span> Buyers</div>
+<div class="nav-item" onclick="showPage('sites',this)"><span class="icon">🔗</span> Sites</div>
+<div class="nav-item" onclick="showPage('reviews',this)"><span class="icon">⭐</span> Reviews</div>
+<div class="nav-item" onclick="showPage('links',this)"><span class="icon">🔍</span> Link Monitor</div>
 </div>
-<div class="admin-main" id="adminMain">
-<div class="admin-topbar">
-<div style="display:flex;align-items:center;gap:10px">
-<span class="live-dot"></span>
-<span class="admin-topbar-title" id="adminTitle">📊 Dashboard</span>
-</div>
-<div style="display:flex;align-items:center;gap:12px">
-<span id="adminClock" style="font-size:12px;color:#6b7a99;font-family:Manrope,sans-serif"></span>
-<button onclick="refreshAdmin()" style="background:rgba(79,124,255,.15);border:1px solid rgba(79,124,255,.3);color:#4f7cff;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
+<div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)">
+<div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:6px">Logged in as Admin</div>
+<button onclick="adminLogout()" style="background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;cursor:pointer;padding:7px 12px;border-radius:7px;width:100%;font-family:inherit">🚪 Logout</button>
 </div>
 </div>
-<div class="admin-content">
-<div class="admin-page active" id="pg-dashboard">
-<div class="stats-row" id="dashStats"></div>
+
+<!-- Main -->
+<div class="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+<div class="header">
+<div class="page-title">📊 Dashboard Overview</div>
+<button onclick="loadStats()" class="btn btn-ghost">🔄 Refresh</button>
+</div>
+<div class="stat-grid" id="statGrid">
+<div class="stat-card"><div class="stat-val" id="st-orders">—</div><div class="stat-label">Total Orders</div></div>
+<div class="stat-card green"><div class="stat-val" id="st-revenue">—</div><div class="stat-label">Total Revenue</div></div>
+<div class="stat-card blue"><div class="stat-val" id="st-users">—</div><div class="stat-label">Total Users</div></div>
+<div class="stat-card amber"><div class="stat-val" id="st-sites">—</div><div class="stat-label">Live Sites</div></div>
+<div class="stat-card red"><div class="stat-val" id="st-pending">—</div><div class="stat-label">Pending Orders</div></div>
+<div class="stat-card amber"><div class="stat-val" id="st-disputes">—</div><div class="stat-label">Open Disputes</div></div>
+<div class="stat-card green"><div class="stat-val" id="st-withdrawals">—</div><div class="stat-label">Pending Payouts</div></div>
+<div class="stat-card blue"><div class="stat-val" id="st-rating">—</div><div class="stat-label">Avg Rating</div></div>
+</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-<div class="asection"><div class="asection-head"><div class="asection-title">Recent Publishers</div></div><table class="atbl"><tbody id="rPubs"></tbody></table></div>
-<div class="asection"><div class="asection-head"><div class="asection-title">Recent Buyers</div></div><table class="atbl"><tbody id="rBuys"></tbody></table></div>
+<div class="card"><div class="card-header"><span class="card-title">Recent Orders</span></div><div id="recentOrdersList"><div class="empty">Loading...</div></div></div>
+<div class="card"><div class="card-header"><span class="card-title">Pending Withdrawals</span></div><div id="pendingWithdrawalsList"><div class="empty">Loading...</div></div></div>
 </div>
 </div>
-<div class="admin-page" id="pg-publishers">
-<div class="asection">
-<div class="asection-head"><div class="asection-title">All Publishers</div><span id="pCnt" style="background:rgba(79,124,255,.15);color:#4f7cff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span></div>
-<div class="afbar">
-<input class="asinp" id="pQ" placeholder="🔍 Name or email..." oninput="renderPubs()">
-<select class="assel" id="pF" onchange="renderPubs()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
+
+<!-- ORDERS -->
+<div id="page-orders" class="page">
+<div class="header"><div class="page-title">📦 Order Management</div><input class="search" id="orderSearch" placeholder="Search orders..." oninput="filterOrders()"></div>
+<div class="card">
+<div class="tab-bar">
+<div class="tab on" onclick="loadOrders(this,'')">All</div>
+<div class="tab" onclick="loadOrders(this,'Pending')">Pending</div>
+<div class="tab" onclick="loadOrders(this,'Accepted')">Accepted</div>
+<div class="tab" onclick="loadOrders(this,'Delivered')">Delivered</div>
+<div class="tab" onclick="loadOrders(this,'Completed')">Completed</div>
+<div class="tab" onclick="loadOrders(this,'Disputed')">Disputed</div>
+<div class="tab" onclick="loadOrders(this,'Cancelled')">Cancelled</div>
 </div>
-<table class="atbl"><thead><tr><th>Publisher</th><th>Email</th><th>Sites</th><th>Orders</th><th>Earnings</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="pBody"></tbody></table>
-</div>
-</div>
-<div class="admin-page" id="pg-buyers">
-<div class="asection">
-<div class="asection-head"><div class="asection-title">All Buyers</div><span id="bCnt" style="background:rgba(0,212,170,.15);color:#00d4aa;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"></span></div>
-<div class="afbar">
-<input class="asinp" id="bQ" placeholder="🔍 Name or email..." oninput="renderBuys()">
-<select class="assel" id="bF" onchange="renderBuys()"><option value="">All</option><option value="v">👑 Verified</option><option value="u">Unverified</option></select>
-</div>
-<table class="atbl"><thead><tr><th>Buyer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Balance</th><th>Badge</th><th>Joined</th></tr></thead><tbody id="bBody"></tbody></table>
+<div style="overflow-x:auto"><table id="ordersTable"><thead><tr><th>Order ID</th><th>Site</th><th>Buyer</th><th>Publisher</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="ordersTbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody></table></div>
 </div>
 </div>
-<div class="admin-page" id="pg-revenue">
-<div class="stats-row" id="revStats"></div>
-<div class="asection"><div class="asection-head"><div class="asection-title">Revenue Details</div></div><div id="revDetail" style="padding:20px;color:#6b7a99;font-size:13px"></div></div>
-</div>
-<div class="admin-page" id="pg-settings">
-<div class="asection"><div class="asection-head"><div class="asection-title">Admin Settings</div></div>
-<div style="padding:22px;display:flex;flex-direction:column;gap:18px">
-<div>
-<label style="font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Change Admin Password</label>
-<div style="display:flex;gap:10px"><input id="newPw" type="password" class="ainp" placeholder="New password" style="max-width:260px"><button class="abtn abtn-p" onclick="changePw()">Update</button></div>
-</div>
-<div style="padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
-<label style="font-size:10px;font-weight:700;color:#6b7a99;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Team Accounts</label>
-<div style="font-size:13px;color:#8892a4;margin-bottom:10px">Admin publisher & buyer accounts are auto-created with Verified status.</div>
-<button class="abtn abtn-s" onclick="ensureTeam()">✓ Sync Team Accounts</button>
+
+<!-- DISPUTES -->
+<div id="page-disputes" class="page">
+<div class="header"><div class="page-title">⚖️ Dispute Management</div></div>
+<div class="card">
+<div style="overflow-x:auto"><table><thead><tr><th>Order ID</th><th>Site</th><th>Buyer</th><th>Publisher</th><th>Price</th><th>Reason</th><th>Opened</th><th>Resolve</th></tr></thead><tbody id="disputesTbody"><tr><td colspan="8" class="empty">Loading disputes...</td></tr></tbody></table></div>
 </div>
 </div>
+
+<!-- WITHDRAWALS -->
+<div id="page-withdrawals" class="page">
+<div class="header"><div class="page-title">💰 Withdrawal Requests</div></div>
+<div class="card">
+<div class="tab-bar">
+<div class="tab on" onclick="loadWithdrawals(this,'Pending')">Pending</div>
+<div class="tab" onclick="loadWithdrawals(this,'Paid')">Paid</div>
+</div>
+<div style="overflow-x:auto"><table><thead><tr><th>Publisher</th><th>Amount</th><th>Fee</th><th>Net</th><th>Method</th><th>Account</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsTbody"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody></table></div>
+</div>
+</div>
+
+<!-- PUBLISHERS -->
+<div id="page-publishers" class="page">
+<div class="header"><div class="page-title">🌐 Publishers</div><input class="search" id="pubSearch" placeholder="Search publishers..." oninput="filterUsers('publisher')"></div>
+<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Verified</th><th>Balance</th><th>Earned</th><th>Orders</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="publishersTbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody></table></div></div>
+</div>
+
+<!-- BUYERS -->
+<div id="page-buyers" class="page">
+<div class="header"><div class="page-title">🛒 Buyers</div><input class="search" id="buyerSearch" placeholder="Search buyers..." oninput="filterUsers('buyer')"></div>
+<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Balance</th><th>Reserved</th><th>Orders</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="buyersTbody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody></table></div></div>
+</div>
+
+<!-- SITES -->
+<div id="page-sites" class="page">
+<div class="header"><div class="page-title">🔗 Publisher Sites</div></div>
+<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>URL</th><th>Publisher</th><th>DA</th><th>DR</th><th>Price</th><th>Status</th><th>Category</th></tr></thead><tbody id="sitesTbody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody></table></div></div>
+</div>
+
+<!-- REVIEWS -->
+<div id="page-reviews" class="page">
+<div class="header"><div class="page-title">⭐ Reviews & Ratings</div></div>
+<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Order</th><th>Site</th><th>Buyer</th><th>Rating</th><th>Review</th><th>Date</th></tr></thead><tbody id="reviewsTbody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody></table></div></div>
+</div>
+
+<!-- LINKS -->
+<div id="page-links" class="page">
+<div class="header"><div class="page-title">🔍 Link Monitor</div><button onclick="checkAllLinks()" class="btn btn-primary">🔄 Check All Links</button></div>
+<div class="card"><div style="overflow-x:auto"><table><thead><tr><th>Order</th><th>Site</th><th>Live URL</th><th>Status</th><th>Last Checked</th><th>Guarantee Until</th><th>Check</th></tr></thead><tbody id="linksTbody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody></table></div></div>
+</div>
+
+</div>
+</div>
+
+<!-- Dispute Resolve Modal -->
+<div id="disputeModal" class="modal-overlay">
+<div class="modal">
+<div style="font-size:17px;font-weight:800;color:#0f172a;margin-bottom:20px">⚖️ Resolve Dispute</div>
+<div id="disputeOrderInfo" style="background:#f8faff;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#475569"></div>
+<div class="form-group">
+<label class="form-label">Decision</label>
+<select id="disputeWinner" class="form-input">
+<option value="buyer">Refund Buyer (buyer wins)</option>
+<option value="publisher">Release to Publisher (publisher wins)</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Resolution Note</label>
+<textarea id="disputeNote" class="form-input" rows="3" placeholder="Explain your decision..."></textarea>
+</div>
+<div style="display:flex;gap:10px;justify-content:flex-end">
+<button onclick="closeDisputeModal()" class="btn btn-ghost">Cancel</button>
+<button onclick="submitDisputeResolution()" class="btn btn-primary">Resolve</button>
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="aoverlay" id="pModal"><div class="ambox"><div class="amhead"><div class="amhead-title" id="pMTitle"></div><button class="amclose" onclick="closeAModal('pModal')">✕</button></div><div class="ambody" id="pMBody"></div></div></div>
-<div class="aoverlay" id="bModal"><div class="ambox"><div class="amhead"><div class="amhead-title" id="bMTitle"></div><button class="amclose" onclick="closeAModal('bModal')">✕</button></div><div class="ambody" id="bMBody"></div></div></div>
+
+<!-- Toast -->
+<div class="toast" id="adminToast"></div>
+
 <script>
-var ADMIN_ID = 'uplyncio_admin';
-var TEAM_UID = 'uplyncio_team_official';
-var TEAM_EMAIL = 'team@uplyncio.com';
+const ADMIN_KEY = 'uplyncio_admin_2026';
+var _currentDisputeId = null;
+var _allOrders = [], _allUsers = [];
 
-function getAdminPass(){ return localStorage.getItem('uplyncio_admin_pass')||'Uplyncio@2026!'; }
-
-// ── AUTH ──
-function openTeamPublisher(){
-  // Mark item as active
-  document.querySelectorAll('.admin-item').forEach(function(i){i.classList.remove('active')});
-  event.target.classList.add('active');
-  // Set team account and open publisher
-  var teamUser={email:'info@uplyncio.com',name:'Uplyncio Team',role:'publisher',uid:'uplyncio_team_official',verified:true};
-  localStorage.setItem('uplyncio_user',JSON.stringify(teamUser));
-  localStorage.setItem('uplyncio_currentUid','uplyncio_team_official');
-  localStorage.setItem('uplyncio_loggedIn','1');
-  localStorage.setItem('uplyncio_admin_sess','1');
-  window.open('publisher.html','_blank');
-}
-
-function doLogin(){
-  var u=document.getElementById('aUser').value.trim();
-  var p=document.getElementById('aPass').value;
-  if(u===ADMIN_ID && p===getAdminPass()){
-    localStorage.setItem('uplyncio_admin_sess','1');
-    showApp();
+function adminLogin(){
+  var pwd = document.getElementById('adminPwd').value;
+  if(pwd === ADMIN_KEY || pwd === (localStorage.getItem('uplyncio_admin_pwd')||'')){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminPanel').style.display='block';
+    localStorage.setItem('uplyncio_admin_auth','1');
+    loadStats();
+    loadOrders(document.querySelector('.tab.on'),'');
+    loadWithdrawals(null,'Pending');
+    loadDisputes();
   } else {
-    document.getElementById('loginErr').style.display='block';
+    document.getElementById('loginErr').textContent='Invalid password';
   }
 }
-function logout(){ localStorage.removeItem('uplyncio_admin_sess'); location.reload(); }
-function changePw(){ var p=document.getElementById('newPw').value; if(!p){alert('Enter password');return;} localStorage.setItem('uplyncio_admin_pass',p); document.getElementById('newPw').value=''; alert('✅ Password updated!'); }
 
-function showApp(){
-  document.getElementById('loginWrap').style.display='none';
+function adminLogout(){
+  localStorage.removeItem('uplyncio_admin_auth');
+  location.reload();
+}
+
+// Check if already logged in
+if(localStorage.getItem('uplyncio_admin_auth')==='1'){
+  document.getElementById('loginScreen').style.display='none';
   document.getElementById('adminPanel').style.display='block';
-  ensureTeam();
-  renderDash();
-  updateSbCounts();
-  setInterval(function(){ document.getElementById('adminClock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); },1000);
+  setTimeout(function(){ loadStats(); loadOrders(document.querySelector('.tab.on'),''); loadWithdrawals(null,'Pending'); loadDisputes(); }, 100);
 }
 
-// ── NAV ──
-var pubFrameLoaded = false;
-function showAdminPage(id, el){
-  // Hide frame
-  document.getElementById('frameWrap').classList.remove('visible');
-  document.getElementById('adminMain').style.display='flex';
-
-  if(id==='publisher'){
-    document.getElementById('frameWrap').style.display='block';
-    document.getElementById('adminMain').style.display='none';
-    if(!pubFrameLoaded){
-      ensureTeam();
-      document.getElementById('pubFrame').src='publisher-admin.html';
-      pubFrameLoaded=true;
-    }
-    return;
-  } else {
-    document.getElementById('frameWrap').style.display='none';
-    document.getElementById('adminMain').style.display='flex';
-    document.querySelectorAll('.admin-page').forEach(function(p){p.classList.remove('active')});
-    var pg=document.getElementById('pg-'+id);
-    if(pg) pg.classList.add('active');
-    var titles={dashboard:'📊 Dashboard',publishers:'📰 Publishers',buyers:'🛒 Buyers',revenue:'💰 Revenue',settings:'⚙️ Settings'};
-    document.getElementById('adminTitle').textContent=titles[id]||id;
-    if(id==='publishers') renderPubs();
-    if(id==='buyers') renderBuys();
-    if(id==='revenue') renderRevenue();
-  }
-
-  document.querySelectorAll('.admin-item').forEach(function(i){i.classList.remove('active')});
+function showPage(name, el){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.getElementById('page-'+name).classList.add('active');
   if(el) el.classList.add('active');
+  // Load data for page
+  if(name==='publishers') loadUsers('publisher');
+  if(name==='buyers') loadUsers('buyer');
+  if(name==='sites') loadSites();
+  if(name==='reviews') loadReviews();
+  if(name==='links') loadLinks();
+  if(name==='disputes') loadDisputes();
 }
 
-// ── HELPERS ──
-function getUsers(){ try{return JSON.parse(localStorage.getItem('uplyncio_users')||'{}')}catch(e){return{}} }
-function getPubData(uid){ try{return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}')}catch(e){return{}} }
-function getAllOrders(){ try{return JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]')}catch(e){return[]} }
-function fmt$(n){ return '$'+(parseFloat(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) }
-function fmtD(d){ try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}catch(e){return'—'} }
-function pubsList(){ var u=getUsers(); return Object.values(u).filter(function(x){return x.role==='publisher'&&x.email!==TEAM_EMAIL}) }
-function buyersList(){ var u=getUsers(); return Object.values(u).filter(function(x){return (x.role==='buyer'||!x.role)&&x.email!=='buyer@uplyncio.com'}) }
-function closeAModal(id){ document.getElementById(id).classList.remove('open') }
-function updateSbCounts(){ document.getElementById('sbP').textContent=pubsList().length; document.getElementById('sbB').textContent=buyersList().length; }
-function refreshAdmin(){ renderDash(); updateSbCounts(); }
+function api(path, opts){ return fetch('/api/orders'+path, { headers:{'Content-Type':'application/json','x-admin-key':ADMIN_KEY}, ...opts }).then(r=>r.json()); }
+function sitesApi(path, opts){ return fetch('/api/sites'+path, opts).then(r=>r.json()); }
 
-// ── STAT CARD ──
-function sc(color,label,val,sub){ return '<div class="scard '+color+'"><div class="scard-lbl">'+label+'</div><div class="scard-val">'+val+'</div><div class="scard-sub">'+sub+'</div></div>'; }
-function di(l,v){ return '<div class="ditem"><div class="dlbl">'+l+'</div><div class="dval">'+(v||'—')+'</div></div>'; }
-
-// ── DASHBOARD ──
-function renderDash(){
-  var ps=pubsList(),bs=buyersList(),ords=getAllOrders();
-  var rev=ords.reduce(function(s,o){return s+(o.price||0)},0);
-  var vp=ps.filter(function(u){return getPubData(u.uid||u.email).publisherVerified}).length;
-  var vb=bs.filter(function(u){return u.buyerVerified}).length;
-  document.getElementById('dashStats').innerHTML=
-    sc('blue','📰 Publishers',ps.length,vp+' verified')+
-    sc('teal','🛒 Buyers',bs.length,vb+' verified')+
-    sc('gold','📦 Total Orders',ords.length,'all time')+
-    sc('green','💰 Revenue',fmt$(rev),'platform-wide');
-
-  document.getElementById('rPubs').innerHTML=ps.slice(-6).reverse().map(function(u){
-    var d=getPubData(u.uid||u.email);
-    return '<tr onclick="openPub(\''+encodeURIComponent(JSON.stringify(u))+'\')"><td><div style="display:flex;align-items:center;gap:8px"><div class="aav" style="width:28px;height:28px;font-size:11px">'+((u.name||'?')[0])+'</div><b style="font-size:13px">'+u.name+'</b></div></td><td style="font-size:11px;color:#6b7a99">'+u.email+'</td><td>'+(d.publisherVerified?'<span class="b-v">👑</span>':'<span class="b-u">—</span>')+'</td></tr>';
-  }).join('')||'<tr><td colspan="3" style="padding:20px;text-align:center;color:#6b7a99">No publishers yet</td></tr>';
-
-  document.getElementById('rBuys').innerHTML=bs.slice(-6).reverse().map(function(u){
-    return '<tr onclick="openBuy(\''+encodeURIComponent(JSON.stringify(u))+'\')"><td><div style="display:flex;align-items:center;gap:8px"><div class="aav" style="width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,#16a34a,#0d9488)">'+((u.name||'?')[0])+'</div><b style="font-size:13px">'+u.name+'</b></div></td><td style="font-size:11px;color:#6b7a99">'+u.email+'</td><td>'+(u.buyerVerified?'<span class="b-v">👑</span>':'<span class="b-u">—</span>')+'</td></tr>';
-  }).join('')||'<tr><td colspan="3" style="padding:20px;text-align:center;color:#6b7a99">No buyers yet</td></tr>';
+function toast(msg, color){
+  var t=document.getElementById('adminToast');
+  t.textContent=msg; t.style.background=color||'#0f172a';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 4000);
 }
 
-// ── PUBLISHERS ──
-function renderPubs(){
-  var ps=pubsList(),q=(document.getElementById('pQ')||{value:''}).value.toLowerCase(),f=(document.getElementById('pF')||{value:''}).value;
-  document.getElementById('pCnt').textContent=ps.length+' total';
-  var fil=ps.filter(function(u){
-    var d=getPubData(u.uid||u.email);
-    if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.email||'').toLowerCase().includes(q))return false;
-    if(f==='v'&&!d.publisherVerified)return false;
-    if(f==='u'&&d.publisherVerified)return false;
-    return true;
-  });
-  document.getElementById('pBody').innerHTML=fil.map(function(u){
-    var d=getPubData(u.uid||u.email),sites=(d.sites||[]).length,ords=(d.orders||[]).length;
-    var earn=(d.orders||[]).reduce(function(s,o){return s+(o.price||0)},0);
-    return '<tr onclick="openPub(\''+encodeURIComponent(JSON.stringify(u))+'\')">'+
-      '<td><div style="display:flex;align-items:center;gap:9px"><div class="aav">'+((u.name||'?')[0])+'</div><b>'+u.name+'</b></div></td>'+
-      '<td style="color:#6b7a99;font-size:12px">'+u.email+'</td>'+
-      '<td><span style="background:rgba(79,124,255,.1);color:#4f7cff;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700">'+sites+'</span></td>'+
-      '<td>'+ords+'</td><td style="font-family:Manrope,sans-serif;font-weight:700">'+fmt$(earn)+'</td>'+
-      '<td>'+(d.publisherVerified?'<span class="b-v">👑 Verified</span>':'<span class="b-u">Unverified</span>')+'</td>'+
-      '<td style="color:#6b7a99">'+fmtD(u.createdAt)+'</td></tr>';
-  }).join('')||'<tr><td colspan="7" style="padding:40px;text-align:center;color:#6b7a99">No publishers found</td></tr>';
+function statusBadge(s){ return '<span class="badge '+(s||'').toLowerCase().replace(' ','-')+'">'+s+'</span>'; }
+function stars(r){ return '★'.repeat(r)+'☆'.repeat(5-r); }
+function date(d){ return d ? new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'; }
+
+async function loadStats(){
+  try {
+    const d = await api('?resource=admin&action=stats');
+    if(!d.success) return;
+    const s = d.stats;
+    document.getElementById('st-orders').textContent = s.totalOrders;
+    document.getElementById('st-revenue').textContent = '$'+s.totalRevenue.toLocaleString();
+    document.getElementById('st-users').textContent = s.totalUsers;
+    document.getElementById('st-sites').textContent = s.liveSites;
+    document.getElementById('st-pending').textContent = s.pendingOrders;
+    document.getElementById('st-disputes').textContent = s.disputedOrders;
+    document.getElementById('st-withdrawals').textContent = '$'+s.pendingWithdrawals;
+    document.getElementById('st-rating').textContent = s.avgRating+'⭐';
+    // Update badges
+    if(s.pendingOrders>0){ var b=document.getElementById('pendingOrdersBadge'); b.textContent=s.pendingOrders; b.style.display='inline'; }
+    if(s.disputedOrders>0){ var b=document.getElementById('disputesBadge'); b.textContent=s.disputedOrders; b.style.display='inline'; }
+  } catch(e){}
 }
 
-function openPub(enc){
-  var u=JSON.parse(decodeURIComponent(enc)),uid=u.uid||u.email,d=getPubData(uid);
-  var sites=d.sites||[],ords=d.orders||[];
-  var earn=ords.reduce(function(s,o){return s+(o.price||0)},0);
-  document.getElementById('pMTitle').innerHTML=(d.publisherVerified?'👑 ':'')+u.name;
-  document.getElementById('pMBody').innerHTML=
-    '<div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.07)">'+
-      '<div class="aav" style="width:50px;height:50px;font-size:20px">'+((u.name||'?')[0])+'</div>'+
-      '<div><div style="font-size:17px;font-weight:800;color:#e8eaf0">'+u.name+'</div>'+
-      '<div style="color:#6b7a99;margin-top:2px">'+u.email+'</div>'+
-      '<div style="margin-top:6px">'+(d.publisherVerified?'<span class="b-v">👑 Verified Publisher</span> ':'')+'<span class="b-role">Publisher</span></div></div></div>'+
-    '<div class="dgrid">'+di('Name',u.name)+di('Email',u.email)+di('UID',uid)+di('Joined',fmtD(u.createdAt))+di('Sites Added',sites.length)+di('Orders',ords.length)+di('Earnings',fmt$(earn))+di('Verified',d.publisherVerified?'✅ Yes':'❌ No')+'</div>'+
-    '<div class="dsec">Sites ('+sites.length+')</div>'+
-    (sites.length?'<div style="max-height:150px;overflow-y:auto">'+sites.map(function(s){
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07)">'+
-        '<div><div style="font-weight:700;color:#4f7cff">'+s.url+'</div>'+
-        '<div style="font-size:11px;color:#6b7a99;margin-top:2px">DA '+(s.da||'?')+' · DR '+(s.dr||'?')+' · $'+(s.gP||'?')+'</div></div>'+
-        '<span style="background:rgba(34,197,94,.1);color:#22c55e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px">Active</span></div>';
-    }).join('')+'</div>':'<div style="color:#6b7a99;font-size:13px;padding:10px 0">No sites yet</div>')+
-    '<div style="margin-top:14px;display:flex;gap:8px">'+
-      (!d.publisherVerified?'<button class="abtn abtn-s" onclick="grantPub(\''+uid+'\')">👑 Grant Verified Badge</button>':'')+
-      '<button class="abtn abtn-d" onclick="delPub(\''+uid+'\',\''+u.email+'\')">🗑 Delete Account</button>'+
-    '</div>';
-  document.getElementById('pModal').classList.add('open');
+// Load recent orders for dashboard
+async function loadRecentForDashboard(){
+  try {
+    const d = await api('?resource=admin&action=all_orders&limit=5');
+    var tbody = document.getElementById('recentOrdersList');
+    if(!d.success||!d.orders.length){ tbody.innerHTML='<div class="empty">No orders yet</div>'; return; }
+    tbody.innerHTML = '<table style="width:100%"><thead><tr><th>Order</th><th>Site</th><th>Price</th><th>Status</th></tr></thead><tbody>'+
+      d.orders.map(function(o){ return '<tr><td style="padding:10px 14px;font-size:12px">'+o.order_id+'</td><td style="padding:10px 14px;font-size:12px">'+o.site_url+'</td><td style="padding:10px 14px;font-size:12px">$'+o.price+'</td><td style="padding:10px 14px">'+statusBadge(o.status)+'</td></tr>'; }).join('')+'</tbody></table>';
+  } catch(e){}
 }
 
-function grantPub(uid){ var d=getPubData(uid); d.publisherVerified=true; d.publisherVerifiedDate=new Date().toISOString(); localStorage.setItem('uplyncio_data_'+uid,JSON.stringify(d)); closeAModal('pModal'); renderPubs(); alert('✅ Verified Publisher badge granted!'); }
-function delPub(uid,email){ if(!confirm('Delete this publisher account?'))return; var u=getUsers(); delete u[email]; localStorage.setItem('uplyncio_users',JSON.stringify(u)); localStorage.removeItem('uplyncio_data_'+uid); closeAModal('pModal'); renderPubs(); updateSbCounts(); }
-
-// ── BUYERS ──
-function renderBuys(){
-  var bs=buyersList(),q=(document.getElementById('bQ')||{value:''}).value.toLowerCase(),f=(document.getElementById('bF')||{value:''}).value;
-  var ords=getAllOrders();
-  document.getElementById('bCnt').textContent=bs.length+' total';
-  var fil=bs.filter(function(u){
-    if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.email||'').toLowerCase().includes(q))return false;
-    if(f==='v'&&!u.buyerVerified)return false;
-    if(f==='u'&&u.buyerVerified)return false;
-    return true;
-  });
-  document.getElementById('bBody').innerHTML=fil.map(function(u){
-    var uOrds=ords.filter(function(o){return o.uid===u.uid||o.email===u.email});
-    var spent=uOrds.reduce(function(s,o){return s+(o.price||0)},0);
-    return '<tr onclick="openBuy(\''+encodeURIComponent(JSON.stringify(u))+'\')">'+
-      '<td><div style="display:flex;align-items:center;gap:9px"><div class="aav" style="background:linear-gradient(135deg,#16a34a,#0d9488)">'+((u.name||'?')[0])+'</div><b>'+u.name+'</b></div></td>'+
-      '<td style="color:#6b7a99;font-size:12px">'+u.email+'</td>'+
-      '<td>'+uOrds.length+'</td><td style="font-family:Manrope,sans-serif;font-weight:700">'+fmt$(spent)+'</td>'+
-      '<td style="color:#00d4aa;font-weight:700">—</td>'+
-      '<td>'+(u.buyerVerified?'<span class="b-v">👑 Verified</span>':'<span class="b-u">Unverified</span>')+'</td>'+
-      '<td style="color:#6b7a99">'+fmtD(u.createdAt)+'</td></tr>';
-  }).join('')||'<tr><td colspan="7" style="padding:40px;text-align:center;color:#6b7a99">No buyers found</td></tr>';
+async function loadOrders(el, status){
+  if(el){ document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); }); el.classList.add('on'); }
+  var tbody = document.getElementById('ordersTbody');
+  tbody.innerHTML = '<tr><td colspan="8" class="empty">Loading...</td></tr>';
+  try {
+    var path = status ? '?resource=admin&action=all_orders&status='+encodeURIComponent(status)+'&limit=100' : '?resource=admin&action=all_orders&limit=100';
+    const d = await api(path);
+    _allOrders = Array.isArray(d.orders)?d.orders:[];
+    renderOrders(_allOrders);
+  } catch(e){ tbody.innerHTML='<tr><td colspan="8" class="empty">Error loading orders</td></tr>'; }
 }
 
-function openBuy(enc){
-  var u=JSON.parse(decodeURIComponent(enc));
-  var ords=getAllOrders().filter(function(o){return o.uid===u.uid||o.email===u.email});
-  var spent=ords.reduce(function(s,o){return s+(o.price||0)},0);
-  document.getElementById('bMTitle').innerHTML=(u.buyerVerified?'👑 ':'')+u.name;
-  document.getElementById('bMBody').innerHTML=
-    '<div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,.07)">'+
-      '<div class="aav" style="width:50px;height:50px;font-size:20px;background:linear-gradient(135deg,#16a34a,#0d9488)">'+((u.name||'?')[0])+'</div>'+
-      '<div><div style="font-size:17px;font-weight:800;color:#e8eaf0">'+u.name+'</div>'+
-      '<div style="color:#6b7a99;margin-top:2px">'+u.email+'</div>'+
-      '<div style="margin-top:6px">'+(u.buyerVerified?'<span class="b-v">👑 Verified Buyer</span> ':'')+'<span class="b-role">Buyer</span></div></div></div>'+
-    '<div class="dgrid">'+di('Name',u.name)+di('Email',u.email)+di('Joined',fmtD(u.createdAt))+di('Verified',u.buyerVerified?'✅ Yes':'❌ No')+di('Total Orders',ords.length)+di('Total Spent',fmt$(spent))+'</div>'+
-    '<div class="dsec">Orders ('+ords.length+')</div>'+
-    (ords.length?'<div style="max-height:200px;overflow-y:auto">'+ords.map(function(o){
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07)">'+
-        '<div><div style="font-weight:700;color:#e8eaf0">'+o.id+'</div>'+
-        '<div style="font-size:11px;color:#6b7a99;margin-top:2px">'+(o.site||'?')+' · '+(o.type||'?')+' · '+fmtD(o.date)+'</div></div>'+
-        '<div style="text-align:right"><div style="font-weight:700;color:#00d4aa;font-family:Manrope,sans-serif">'+fmt$(o.price)+'</div>'+
-        '<div style="font-size:11px;color:#6b7a99">'+(o.status||'Pending')+'</div></div></div>';
-    }).join('')+'</div>':'<div style="color:#6b7a99;font-size:13px;padding:10px 0">No orders yet</div>')+
-    (!u.buyerVerified?'<div style="margin-top:14px"><button class="abtn abtn-s" onclick="grantBuy(\''+u.email+'\')">👑 Grant Verified Badge</button></div>':'');
-  document.getElementById('bModal').classList.add('open');
+function renderOrders(orders){
+  var tbody = document.getElementById('ordersTbody');
+  if(!orders.length){ tbody.innerHTML='<tr><td colspan="8" class="empty">No orders found</td></tr>'; return; }
+  tbody.innerHTML = orders.map(function(o){
+    var actions = '';
+    if(o.status==='Pending') actions='<button onclick="cancelOrder(\''+o.order_id+'\')" class="btn btn-danger" style="padding:4px 10px;font-size:11px">Cancel</button>';
+    if(o.status==='Disputed') actions='<button onclick="openDisputeModal(\''+o.order_id+'\',\''+o.site_url+'\',\''+o.buyer_name+'\',\''+o.publisher_name+'\')" class="btn btn-amber" style="padding:4px 10px;font-size:11px">Resolve</button>';
+    if(o.status==='Delivered') actions='<button onclick="adminConfirm(\''+o.order_id+'\')" class="btn btn-success" style="padding:4px 10px;font-size:11px">Force Complete</button>';
+    return '<tr><td style="font-size:12px;font-weight:700">'+o.order_id+'</td><td style="font-size:12px">'+o.site_url+'</td><td style="font-size:12px">'+o.buyer_name+'</td><td style="font-size:12px">'+o.publisher_name+'</td><td style="font-weight:700">$'+o.price+'</td><td>'+statusBadge(o.status)+'</td><td style="font-size:12px">'+date(o.created_at)+'</td><td>'+actions+'</td></tr>';
+  }).join('');
 }
 
-function grantBuy(email){ var u=getUsers(); if(u[email]){u[email].buyerVerified=true;u[email].buyerVerifiedDate=new Date().toISOString();} localStorage.setItem('uplyncio_users',JSON.stringify(u)); closeAModal('bModal'); renderBuys(); alert('✅ Verified Buyer badge granted!'); }
-
-// ── REVENUE ──
-function renderRevenue(){
-  var ords=getAllOrders();
-  var total=ords.reduce(function(s,o){return s+(o.price||0)},0);
-  var now=new Date(),mOrds=ords.filter(function(o){var d=new Date(o.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  var mRev=mOrds.reduce(function(s,o){return s+(o.price||0)},0);
-  document.getElementById('revStats').innerHTML=
-    sc('green','💰 Total Revenue',fmt$(total),'all time')+
-    sc('teal','📅 This Month',fmt$(mRev),mOrds.length+' orders')+
-    sc('blue','📦 Total Orders',ords.length,'all time')+
-    sc('gold','💵 Avg Order',fmt$(ords.length?total/ords.length:0),'per order');
-  document.getElementById('revDetail').innerHTML='<div>'+ords.length+' total orders · '+fmt$(total)+' total revenue</div>';
+function filterOrders(){
+  var q = document.getElementById('orderSearch').value.toLowerCase();
+  if(!q){ renderOrders(_allOrders); return; }
+  renderOrders(_allOrders.filter(function(o){ return (o.order_id+o.site_url+o.buyer_name+o.publisher_name).toLowerCase().includes(q); }));
 }
 
-// ── TEAM ACCOUNTS ──
-function ensureTeam(){
-  var u=getUsers();
-  if(!u[TEAM_EMAIL]){ u[TEAM_EMAIL]={email:TEAM_EMAIL,name:'Uplyncio Team',role:'publisher',uid:TEAM_UID,createdAt:new Date().toISOString(),verified:true}; }
-  var bE='buyer@uplyncio.com';
-  if(!u[bE]){ u[bE]={email:bE,name:'Uplyncio Team',role:'buyer',uid:TEAM_UID+'_buyer',buyerVerified:true,createdAt:new Date().toISOString(),verified:true}; }
-  localStorage.setItem('uplyncio_users',JSON.stringify(u));
-  var d=getPubData(TEAM_UID);
-  if(!d.publisherVerified){ d.publisherVerified=true; d.publisherVerifiedDate=new Date().toISOString(); localStorage.setItem('uplyncio_data_'+TEAM_UID,JSON.stringify(d)); }
-  updateSbCounts();
+async function loadDisputes(){
+  var tbody = document.getElementById('disputesTbody');
+  if(!tbody) return;
+  try {
+    const d = await api('?resource=admin&action=all_orders&status=Disputed&limit=50');
+    var orders = Array.isArray(d.orders)?d.orders:[];
+    if(!orders.length){ tbody.innerHTML='<tr><td colspan="8" class="empty">No open disputes 🎉</td></tr>'; return; }
+    tbody.innerHTML = orders.map(function(o){
+      return '<tr><td style="font-size:12px;font-weight:700">'+o.order_id+'</td><td style="font-size:12px">'+o.site_url+'</td><td style="font-size:12px">'+o.buyer_name+'</td><td style="font-size:12px">'+o.publisher_name+'</td><td style="font-weight:700">$'+o.price+'</td><td style="font-size:12px;max-width:200px">'+((o.dispute_reason||'').substring(0,80))+'</td><td style="font-size:12px">'+date(o.dispute_opened_at)+'</td><td><button onclick="openDisputeModal(\''+o.order_id+'\',\''+o.site_url+'\',\''+o.buyer_name+'\',\''+o.publisher_name+'\')" class="btn btn-amber" style="padding:5px 12px;font-size:12px">Resolve</button></td></tr>';
+    }).join('');
+  } catch(e){}
 }
 
-// ── AUTO LOAD ──
-if(localStorage.getItem('uplyncio_admin_sess')==='1'){ showApp(); }
+function openDisputeModal(orderId, site, buyer, publisher){
+  _currentDisputeId = orderId;
+  document.getElementById('disputeOrderInfo').innerHTML = '<strong>'+orderId+'</strong> — '+site+'<br>Buyer: '+buyer+' | Publisher: '+publisher;
+  document.getElementById('disputeNote').value='';
+  document.getElementById('disputeModal').classList.add('open');
+}
+function closeDisputeModal(){ document.getElementById('disputeModal').classList.remove('open'); _currentDisputeId=null; }
+
+async function submitDisputeResolution(){
+  if(!_currentDisputeId) return;
+  var winner = document.getElementById('disputeWinner').value;
+  var note = document.getElementById('disputeNote').value;
+  try {
+    const d = await api('?resource=admin&action=resolve_dispute&order_id='+encodeURIComponent(_currentDisputeId), { method:'POST', body:JSON.stringify({winner,note}) });
+    if(d.success){ toast('✅ Dispute resolved — '+winner+' wins','#16a34a'); closeDisputeModal(); loadDisputes(); loadStats(); }
+    else toast('Error: '+(d.error||'Unknown'),'#ef4444');
+  } catch(e){ toast('Network error','#ef4444'); }
+}
+
+async function loadWithdrawals(el, status){
+  if(el){ document.querySelectorAll('#page-withdrawals .tab').forEach(function(t){ t.classList.remove('on'); }); el.classList.add('on'); }
+  var tbody = document.getElementById('withdrawalsTbody');
+  if(!tbody) return;
+  tbody.innerHTML='<tr><td colspan="9" class="empty">Loading...</td></tr>';
+  try {
+    const d = await api('?resource=admin&action=all_withdrawals');
+    var wds = Array.isArray(d.withdrawals)?d.withdrawals.filter(function(w){ return w.status===status; }):[];
+    if(!wds.length){ tbody.innerHTML='<tr><td colspan="9" class="empty">No '+(status.toLowerCase())+' withdrawals</td></tr>'; return; }
+    tbody.innerHTML = wds.map(function(w){
+      var action = status==='Pending'?'<button onclick="approveWithdrawal(\''+w.id+'\')" class="btn btn-success" style="padding:5px 12px;font-size:12px">✅ Mark Paid</button>':'<span class="badge paid">Paid</span>';
+      return '<tr><td style="font-size:12px">'+w.publisher_id+'</td><td style="font-weight:700">$'+w.amount+'</td><td style="font-size:12px;color:#ef4444">-$'+w.fee+'</td><td style="font-weight:700;color:#16a34a">$'+w.net_amount+'</td><td style="font-size:12px">'+w.method+'</td><td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis">'+w.account_details+'</td><td>'+statusBadge(w.status)+'</td><td style="font-size:12px">'+date(w.created_at)+'</td><td>'+action+'</td></tr>';
+    }).join('');
+    if(status==='Pending'){ var b=document.getElementById('withdrawalsBadge'); b.textContent=wds.length; b.style.display=wds.length?'inline':'none'; }
+  } catch(e){ tbody.innerHTML='<tr><td colspan="9" class="empty">Error loading withdrawals</td></tr>'; }
+}
+
+async function approveWithdrawal(id){
+  if(!confirm('Mark this withdrawal as Paid?')) return;
+  try {
+    const d = await api('?resource=admin&action=approve_withdrawal&withdrawal_id='+id, { method:'POST', body:'{}' });
+    if(d.success){ toast('✅ Withdrawal marked as Paid','#16a34a'); loadWithdrawals(null,'Pending'); }
+    else toast('Error: '+(d.error||'Unknown'),'#ef4444');
+  } catch(e){ toast('Network error','#ef4444'); }
+}
+
+async function loadUsers(role){
+  var tbody = document.getElementById(role+'sTbody');
+  if(!tbody) return;
+  try {
+    const d = await api('?resource=admin&action=all_users');
+    _allUsers = Array.isArray(d.users)?d.users:[];
+    renderUsers(role, _allUsers.filter(function(u){ return u.role===role; }));
+  } catch(e){}
+}
+
+function renderUsers(role, users){
+  var tbody = document.getElementById(role+'sTbody');
+  if(!users.length){ tbody.innerHTML='<tr><td colspan="8" class="empty">No '+role+'s found</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u){
+    if(role==='publisher'){
+      return '<tr><td style="font-weight:700">'+u.name+'</td><td style="font-size:12px">'+u.email+'</td><td>'+(u.publisher_verified?'<span class="badge completed">✓ Verified</span>':'<span style="font-size:12px;color:#94a3b8">Unverified</span>')+'</td><td style="font-weight:700">$'+(u.balance||0)+'</td><td>$'+(u.total_earned||0)+'</td><td>'+(u.completed_orders||0)+'</td><td style="font-size:12px">'+date(u.created_at)+'</td><td><button onclick="verifyUser(\''+u.id+'\')" class="btn btn-amber" style="padding:4px 10px;font-size:11px">Verify</button></td></tr>';
+    } else {
+      return '<tr><td style="font-weight:700">'+u.name+'</td><td style="font-size:12px">'+u.email+'</td><td style="font-weight:700">$'+(u.balance||0)+'</td><td>$'+(u.reserved||0)+'</td><td>—</td><td style="font-size:12px">'+date(u.created_at)+'</td><td><button onclick="addBalance(\''+u.id+'\')" class="btn btn-primary" style="padding:4px 10px;font-size:11px">+ Balance</button></td></tr>';
+    }
+  }).join('');
+}
+
+function filterUsers(role){
+  var q = document.getElementById(role+'Search').value.toLowerCase();
+  var filtered = _allUsers.filter(function(u){ return u.role===role && (u.name+u.email).toLowerCase().includes(q); });
+  renderUsers(role, filtered);
+}
+
+async function verifyUser(id){
+  if(!confirm('Mark this publisher as Verified?')) return;
+  try {
+    await fetch('/api/auth',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'update_user', id, publisher_verified:true, badge:'verified' }) });
+    toast('✅ Publisher verified','#16a34a'); loadUsers('publisher');
+  } catch(e){ toast('Error','#ef4444'); }
+}
+
+async function addBalance(id){
+  var amt = prompt('Add balance amount ($):');
+  if(!amt||isNaN(amt)) return;
+  try {
+    const userRes = await fetch('/api/auth?action=get_user&id='+id).then(r=>r.json()).catch(()=>({}));
+    const curBal = parseFloat(userRes.balance||0);
+    await fetch('/api/auth',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'update_user', id, balance:curBal+parseFloat(amt) }) });
+    toast('✅ Added $'+amt+' to balance','#16a34a'); loadUsers('buyer');
+  } catch(e){ toast('Error','#ef4444'); }
+}
+
+async function cancelOrder(orderId){
+  if(!confirm('Cancel order '+orderId+'? Buyer will be refunded.')) return;
+  try {
+    const d = await fetch('/api/orders?action=cancel&order_id='+orderId,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason:'Cancelled by admin'}) }).then(r=>r.json());
+    if(d.success){ toast('✅ Order cancelled','#16a34a'); loadOrders(null,'Pending'); loadStats(); }
+  } catch(e){ toast('Error','#ef4444'); }
+}
+
+async function adminConfirm(orderId){
+  if(!confirm('Force complete order '+orderId+'?')) return;
+  try {
+    const d = await fetch('/api/orders?action=confirm&order_id='+orderId,{ method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' }).then(r=>r.json());
+    if(d.success){ toast('✅ Order completed','#16a34a'); loadOrders(null,'Delivered'); loadStats(); }
+  } catch(e){ toast('Error','#ef4444'); }
+}
+
+async function loadSites(){
+  var tbody = document.getElementById('sitesTbody');
+  try {
+    const d = await fetch('/api/sites?limit=100').then(r=>r.json());
+    var sites = Array.isArray(d.sites)?d.sites:[];
+    if(!sites.length){ tbody.innerHTML='<tr><td colspan="7" class="empty">No sites found</td></tr>'; return; }
+    tbody.innerHTML = sites.map(function(s){ return '<tr><td><a href="https://'+s.domain+'" target="_blank" style="color:#4f7cff;font-size:12px;font-weight:700">'+s.domain+'</a></td><td style="font-size:12px">'+s.publisher_email+'</td><td style="font-weight:700">'+s.da+'</td><td>'+s.dr+'</td><td>$'+s.price+'</td><td>'+statusBadge(s.status)+'</td><td style="font-size:12px">'+s.category+'</td></tr>'; }).join('');
+  } catch(e){ tbody.innerHTML='<tr><td colspan="7" class="empty">Error loading</td></tr>'; }
+}
+
+async function loadReviews(){
+  var tbody = document.getElementById('reviewsTbody');
+  try {
+    const d = await fetch('/api/orders?resource=reviews').then(r=>r.json());
+    var revs = Array.isArray(d.reviews)?d.reviews:[];
+    if(!revs.length){ tbody.innerHTML='<tr><td colspan="6" class="empty">No reviews yet</td></tr>'; return; }
+    tbody.innerHTML = revs.map(function(r){ return '<tr><td style="font-size:12px">'+r.order_id+'</td><td style="font-size:12px">'+r.site_url+'</td><td style="font-size:12px">'+r.buyer_id+'</td><td style="color:#f59e0b">'+stars(r.rating||5)+' ('+r.rating+')</td><td style="font-size:12px">'+((r.review||'').substring(0,80))+'</td><td style="font-size:12px">'+date(r.created_at)+'</td></tr>'; }).join('');
+  } catch(e){}
+}
+
+async function loadLinks(){
+  var tbody = document.getElementById('linksTbody');
+  try {
+    const d = await fetch('/api/orders?resource=links&buyer_id=all').then(r=>r.json());
+    var links = Array.isArray(d.links)?d.links:[];
+    if(!links.length){ tbody.innerHTML='<tr><td colspan="7" class="empty">No completed orders to monitor</td></tr>'; return; }
+    tbody.innerHTML = links.map(function(l){
+      var st = l.link_status||'Pending';
+      return '<tr><td style="font-size:12px">'+l.order_id+'</td><td style="font-size:12px">'+l.site_url+'</td><td><a href="'+l.live_url+'" target="_blank" style="color:#4f7cff;font-size:12px">'+((l.live_url||'').substring(0,40))+'</a></td><td>'+statusBadge(st)+'</td><td style="font-size:12px">'+date(l.link_last_checked)+'</td><td style="font-size:12px">'+date(l.link_guarantee_until)+'</td><td><button onclick="checkLink(\''+l.order_id+'\',\''+l.live_url+'\')" class="btn btn-ghost" style="padding:4px 10px;font-size:11px">Check</button></td></tr>';
+    }).join('');
+  } catch(e){}
+}
+
+async function checkLink(orderId, liveUrl){
+  try {
+    const d = await fetch('/api/orders?resource=links',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({order_id:orderId, live_url:liveUrl}) }).then(r=>r.json());
+    if(d.success) toast(d.alive?'✅ Link is Live!':'❌ Link is Down!', d.alive?'#16a34a':'#ef4444');
+    loadLinks();
+  } catch(e){ toast('Error checking link','#ef4444'); }
+}
+
+async function checkAllLinks(){
+  toast('🔍 Checking all links...','#4f7cff');
+  try {
+    const d = await fetch('/api/orders?resource=links&buyer_id=all').then(r=>r.json());
+    var links = Array.isArray(d.links)?d.links:[];
+    for(var l of links){
+      if(l.live_url) await checkLink(l.order_id, l.live_url);
+      await new Promise(r=>setTimeout(r,500));
+    }
+    toast('✅ All links checked','#16a34a');
+  } catch(e){ toast('Error','#ef4444'); }
+}
+
+// Init
+loadStats();
+setTimeout(loadRecentForDashboard, 500);
+setTimeout(function(){ loadWithdrawals(null,'Pending'); }, 800);
 </script>
-
-<script src="/chatbot.js" defer></script>
 </body>
 </html>
