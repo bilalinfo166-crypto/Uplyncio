@@ -2235,34 +2235,107 @@ t.innerHTML=[...items,...items].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <
 }).catch(function(){t.innerHTML='';});
 }
 (function(){
+var SHOWCASE = [
+{n:'TechBullion',u:'techbullion.com',da:72,dr:68,tr:'48K',niche:'Tech',price:120},
+{n:'GoodMenProject',u:'goodmenproject.com',da:74,dr:70,tr:'380K',niche:'Lifestyle',price:90},
+{n:'UrbanSplatter',u:'urbansplatter.com',da:65,dr:60,tr:'95K',niche:'Business',price:75},
+{n:'Programminginsider',u:'programminginsider.com',da:60,dr:55,tr:'62K',niche:'Tech',price:65},
+{n:'IEMLabs',u:'iemlabs.com',da:52,dr:48,tr:'40K',niche:'Tech',price:50},
+{n:'Nerdbot',u:'nerdbot.com',da:57,dr:52,tr:'55K',niche:'Entertainment',price:60},
+{n:'ArtDaily',u:'artdaily.com',da:69,dr:63,tr:'120K',niche:'Art',price:85},
+{n:'BigNewsNetwork',u:'bignewsnetwork.com',da:63,dr:58,tr:'75K',niche:'News',price:70},
+{n:'GuruHitech',u:'guruhitech.com',da:55,dr:50,tr:'35K',niche:'Tech',price:45},
+{n:'GISUser',u:'gisuser.com',da:58,dr:54,tr:'42K',niche:'Tech',price:55},
+{n:'Techeasily',u:'techeasily.co.uk',da:51,dr:46,tr:'31K',niche:'Tech',price:44},
+{n:'InMagazine',u:'inmagazine.co.uk',da:48,dr:44,tr:'28K',niche:'Lifestyle',price:40},
+{n:'UKHeadlines',u:'ukheadlines.co.uk',da:50,dr:46,tr:'32K',niche:'News',price:42},
+{n:'CloudMagazine',u:'cloudmagazine.co.uk',da:45,dr:41,tr:'22K',niche:'Tech',price:35},
+{n:'PrimeJournal',u:'primejournal.co.uk',da:47,dr:43,tr:'25K',niche:'Business',price:38},
+{n:'Blogbuz',u:'blogbuz.co.uk',da:44,dr:40,tr:'20K',niche:'Lifestyle',price:32},
+{n:'Trans4mind',u:'trans4mind.com',da:61,dr:56,tr:'50K',niche:'Health',price:68},
+{n:'IntelligentNews',u:'intelligentnews.co.uk',da:49,dr:45,tr:'30K',niche:'News',price:40},
+{n:'Kulfiy',u:'kulfiy.com',da:43,dr:39,tr:'18K',niche:'Lifestyle',price:30},
+{n:'Downbeach',u:'downbeach.com',da:53,dr:49,tr:'38K',niche:'News',price:48},
+{n:'Breakingac',u:'breakingac.com',da:46,dr:42,tr:'24K',niche:'News',price:36},
+{n:'DGMNews',u:'dgmnews.com',da:44,dr:40,tr:'21K',niche:'News',price:33},
+{n:'NorthPennNow',u:'northpennnow.com',da:41,dr:37,tr:'16K',niche:'News',price:28},
+{n:'NorthIowaToday',u:'northiowatoday.com',da:40,dr:36,tr:'15K',niche:'News',price:26},
+{n:'OCNJDaily',u:'ocnjdaily.com',da:42,dr:38,tr:'17K',niche:'News',price:29},
+{n:'SeaIsleNews',u:'seaislenews.com',da:38,dr:34,tr:'13K',niche:'News',price:24},
+{n:'TamaraCameraBlog',u:'tamaracamerablog.com',da:37,dr:33,tr:'12K',niche:'Lifestyle',price:22},
+{n:'ParkMagazineNY',u:'parkmagazineny.com',da:45,dr:41,tr:'23K',niche:'Lifestyle',price:36},
+{n:'BentsMAgazine',u:'bentsmagazine.co.uk',da:43,dr:39,tr:'19K',niche:'Lifestyle',price:31},
+{n:'TufferMagazine',u:'tuffermagazine.co.uk',da:41,dr:37,tr:'16K',niche:'Lifestyle',price:27},
+{n:'TheSalfordMagazine',u:'thesalfordmagazine.com',da:44,dr:40,tr:'20K',niche:'Lifestyle',price:33},
+{n:'ThePrestonMagazine',u:'theprestonmagazine.com',da:42,dr:38,tr:'18K',niche:'Lifestyle',price:30},
+{n:'TheHypeMagazine',u:'thehypemagazine.com',da:46,dr:42,tr:'24K',niche:'Entertainment',price:37},
+{n:'TheActionElite',u:'theactionelite.com',da:48,dr:44,tr:'27K',niche:'Entertainment',price:40},
+{n:'ElevatedMagazines',u:'elevatedmagazines.com',da:47,dr:43,tr:'26K',niche:'Lifestyle',price:38},
+{n:'AddMagazine',u:'addmagazine.co.uk',da:43,dr:39,tr:'19K',niche:'Lifestyle',price:32},
+{n:'DooperMagazine',u:'doopermagazine.co.uk',da:40,dr:36,tr:'15K',niche:'Lifestyle',price:26},
+{n:'TodaysMagazine',u:'todaysmagazine.co.uk',da:42,dr:38,tr:'17K',niche:'Lifestyle',price:29},
+{n:'FreezeMagazine',u:'freezemagazine.co.uk',da:39,dr:35,tr:'14K',niche:'Lifestyle',price:25},
+{n:'BalzaroMagazine',u:'balzaromagazine.co.uk',da:38,dr:34,tr:'13K',niche:'Lifestyle',price:23},
+{n:'TynMagazine',u:'tynmagazine.com',da:41,dr:37,tr:'16K',niche:'Lifestyle',price:28},
+{n:'LuxeVoyager',u:'theluxevoyager.com',da:49,dr:45,tr:'29K',niche:'Travel',price:42},
+{n:'OnPattison',u:'onpattison.com',da:44,dr:40,tr:'21K',niche:'Business',price:34},
+{n:'GossiplyUK',u:'gossiply.co.uk',da:40,dr:36,tr:'15K',niche:'Entertainment',price:26},
+{n:'Simpcity',u:'simpcity.city',da:38,dr:34,tr:'12K',niche:'Lifestyle',price:22},
+{n:'PPVLand',u:'ppv-land.co.uk',da:37,dr:33,tr:'11K',niche:'Entertainment',price:21},
+{n:'PCTechMag',u:'pctechmag.com',da:50,dr:46,tr:'32K',niche:'Tech',price:43},
+{n:'Zooplas',u:'zooplas.co.uk',da:39,dr:35,tr:'14K',niche:'Real Estate',price:25},
+{n:'Kemotech',u:'kemotech.co.uk',da:38,dr:34,tr:'12K',niche:'Tech',price:23},
+{n:'TechAboveIt',u:'techaboveit.com',da:42,dr:38,tr:'18K',niche:'Tech',price:30},
+];
 try{
-var all = getMergedSites();
-var top50 = all.sort(function(a,b){ return (b.da+b.dr) - (a.da+a.dr); }).slice(0, 50);
-render(top50);
-}catch(e){ console.warn('render error:',e); }
-// Also fetch real sites from Supabase and re-render
+var mpEl = document.getElementById('mpTable');
+if(mpEl){
+mpEl.innerHTML = SHOWCASE.map(function(s){
+return '<tr><td><div class="s-name">'+s.n+'</div><div class="s-url">'+s.u+'</div></td>'
++'<td><span class="bdg b-da">DA '+s.da+'</span></td>'
++'<td><span class="bdg b-dr">DR '+s.dr+'</span></td>'
++'<td><span class="bdg b-tr">'+s.tr+'</span></td>'
++'<td><span class="niche-pill">'+s.niche+'</span></td>'
++'<td><span class="df-lbl"><span class="df-dot"></span>Dofollow</span></td>'
++'<td><span class="ptag">$'+s.price+'</span></td>'
++'<td><button class="btn-ord" onclick="handleOrderNow(\''+s.u+'\',\''+s.n+'\','+s.price+')">Order Now</button></td>'
++'</tr>';
+}).join('');
+var mc = document.getElementById('mpCount');
+if(mc) mc.textContent = SHOWCASE.length;
+}
+}catch(e){ console.warn('mpTable render error:', e); }
+
+// Also fetch real sites from Supabase
 fetch('/api/sites?status=Live&limit=50')
 .then(function(r){ return r.json(); })
 .then(function(res){
-if(res.success && Array.isArray(res.sites) && res.sites.length > 0){
-var sbSites = res.sites.map(function(s){
-return {
-n:(s.domain||s.url||'').replace(/https?:\/\/(www\.)?/,'').split('/')[0],
-u:s.domain||s.url||'',
-da:parseInt(s.da)||0, dr:parseInt(s.dr)||0,
-tr:parseInt(s.traffic||s.monthly_traffic)||0,
-trD:formatTraffic(parseInt(s.traffic||s.monthly_traffic)||0),
-niche:s.category||s.cat||'General',
-price:parseFloat(s.price||s.gp_price||0)||0, gP:parseFloat(s.price||s.gp_price||0)||0
-};
-}).filter(function(s){ return s.da > 0; });
-// Merge: deduplicate by domain
-var baseMap = {};
-sites.forEach(function(s){ baseMap[s.u]=s; });
-sbSites.forEach(function(s){ if(!baseMap[s.u]) baseMap[s.u]=s; });
-var merged = Object.values(baseMap).sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); }).slice(0,50);
-render(merged);
-}
+if(!res.success || !Array.isArray(res.sites) || !res.sites.length) return;
+var mpEl = document.getElementById('mpTable');
+if(!mpEl) return;
+var existingDomains = {};
+SHOWCASE.forEach(function(s){ existingDomains[s.u]=1; });
+var newSites = res.sites.filter(function(s){
+var d=(s.domain||s.url||'').replace(/https?:\/\/(www\.)?/,'').split('/')[0];
+return d && !existingDomains[d] && parseInt(s.da)>0;
+}).map(function(s){
+var d=(s.domain||s.url||'').replace(/https?:\/\/(www\.)?/,'').split('/')[0];
+return {n:d,u:d,da:parseInt(s.da)||0,dr:parseInt(s.dr)||0,tr:formatTraffic(parseInt(s.traffic||s.monthly_traffic)||0),niche:s.category||s.cat||'General',price:parseFloat(s.price||s.gp_price||0)||0};
+});
+if(!newSites.length) return;
+var combined = SHOWCASE.concat(newSites).sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); }).slice(0,50);
+mpEl.innerHTML = combined.map(function(s){
+return '<tr><td><div class="s-name">'+s.n+'</div><div class="s-url">'+s.u+'</div></td>'
++'<td><span class="bdg b-da">DA '+s.da+'</span></td>'
++'<td><span class="bdg b-dr">DR '+s.dr+'</span></td>'
++'<td><span class="bdg b-tr">'+s.tr+'</span></td>'
++'<td><span class="niche-pill">'+s.niche+'</span></td>'
++'<td><span class="df-lbl"><span class="df-dot"></span>Dofollow</span></td>'
++'<td><span class="ptag">$'+s.price+'</span></td>'
++'<td><button class="btn-ord" onclick="handleOrderNow(\''+s.u+'\',\''+s.n+'\','+s.price+')">Order Now</button></td>'
++'</tr>';
+}).join('');
+var mc=document.getElementById('mpCount'); if(mc) mc.textContent=combined.length;
 }).catch(function(){});
 })();
 // SLIDER
