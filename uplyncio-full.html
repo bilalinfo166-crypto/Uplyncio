@@ -2055,7 +2055,29 @@ if(pm && ab && !ab.contains(e.target) && !pm.contains(e.target)) pm.style.displa
 </div>
 <div class="toast" id="toast">✅ Order received! We'll reach out within 24 hours.</div>
 <script>
-const sites=[];
+// Hardcoded showcase sites — always visible
+const sites=[
+{n:'TechBullion',u:'techbullion.com',da:72,dr:68,tr:48000,trD:'48K',niche:'Tech',price:120,gP:120},
+{n:'Goodmenproject',u:'goodmenproject.com',da:74,dr:70,tr:380000,trD:'380K',niche:'Lifestyle',price:90,gP:90},
+{n:'Urbansplatter',u:'urbansplatter.com',da:65,dr:60,tr:95000,trD:'95K',niche:'Business',price:75,gP:75},
+{n:'Programminginsider',u:'programminginsider.com',da:60,dr:55,tr:62000,trD:'62K',niche:'Tech',price:65,gP:65},
+{n:'Iemlabs',u:'iemlabs.com',da:52,dr:48,tr:40000,trD:'40K',niche:'Tech',price:50,gP:50},
+{n:'Nerdbot',u:'nerdbot.com',da:57,dr:52,tr:55000,trD:'55K',niche:'Entertainment',price:60,gP:60},
+{n:'Artdaily',u:'artdaily.com',da:69,dr:63,tr:120000,trD:'120K',niche:'Art',price:85,gP:85},
+{n:'Bignewsnetwork',u:'bignewsnetwork.com',da:63,dr:58,tr:75000,trD:'75K',niche:'News',price:70,gP:70},
+{n:'Guruhitech',u:'guruhitech.com',da:55,dr:50,tr:35000,trD:'35K',niche:'Tech',price:45,gP:45},
+{n:'Gisuser',u:'gisuser.com',da:58,dr:54,tr:42000,trD:'42K',niche:'Tech',price:55,gP:55},
+{n:'Inmagazine',u:'inmagazine.co.uk',da:48,dr:44,tr:28000,trD:'28K',niche:'Lifestyle',price:40,gP:40},
+{n:'Ukheadlines',u:'ukheadlines.co.uk',da:50,dr:46,tr:32000,trD:'32K',niche:'News',price:42,gP:42},
+{n:'Cloudmagazine',u:'cloudmagazine.co.uk',da:45,dr:41,tr:22000,trD:'22K',niche:'Tech',price:35,gP:35},
+{n:'Primejournal',u:'primejournal.co.uk',da:47,dr:43,tr:25000,trD:'25K',niche:'Business',price:38,gP:38},
+{n:'Blogbuz',u:'blogbuz.co.uk',da:44,dr:40,tr:20000,trD:'20K',niche:'Lifestyle',price:32,gP:32},
+{n:'Trans4mind',u:'trans4mind.com',da:61,dr:56,tr:50000,trD:'50K',niche:'Health',price:68,gP:68},
+{n:'Intelligentnews',u:'intelligentnews.co.uk',da:49,dr:45,tr:30000,trD:'30K',niche:'News',price:40,gP:40},
+{n:'Kulfiy',u:'kulfiy.com',da:43,dr:39,tr:18000,trD:'18K',niche:'Lifestyle',price:30,gP:30},
+{n:'Downbeach',u:'downbeach.com',da:53,dr:49,tr:38000,trD:'38K',niche:'News',price:48,gP:48},
+{n:'Breakingac',u:'breakingac.com',da:46,dr:42,tr:24000,trD:'24K',niche:'News',price:36,gP:36},
+];
 function render(data){
 var mpEl = document.getElementById('mpTable');
 if(!mpEl) return;
@@ -2215,10 +2237,33 @@ t.innerHTML=[...items,...items].map(x=>`<div class="t-item">🔗 <b>${x.n}</b> <
 (function(){
 try{
 var all = getMergedSites();
-// Sort by DA+DR desc — show top 50 high authority sites only
 var top50 = all.sort(function(a,b){ return (b.da+b.dr) - (a.da+a.dr); }).slice(0, 50);
 render(top50);
 }catch(e){ console.warn('render error:',e); }
+// Also fetch real sites from Supabase and re-render
+fetch('/api/sites?status=Live&limit=50')
+.then(function(r){ return r.json(); })
+.then(function(res){
+if(res.success && Array.isArray(res.sites) && res.sites.length > 0){
+var sbSites = res.sites.map(function(s){
+return {
+n:(s.domain||s.url||'').replace(/https?:\/\/(www\.)?/,'').split('/')[0],
+u:s.domain||s.url||'',
+da:parseInt(s.da)||0, dr:parseInt(s.dr)||0,
+tr:parseInt(s.traffic||s.monthly_traffic)||0,
+trD:formatTraffic(parseInt(s.traffic||s.monthly_traffic)||0),
+niche:s.category||s.cat||'General',
+price:parseFloat(s.price||s.gp_price||0)||0, gP:parseFloat(s.price||s.gp_price||0)||0
+};
+}).filter(function(s){ return s.da > 0; });
+// Merge: deduplicate by domain
+var baseMap = {};
+sites.forEach(function(s){ baseMap[s.u]=s; });
+sbSites.forEach(function(s){ if(!baseMap[s.u]) baseMap[s.u]=s; });
+var merged = Object.values(baseMap).sort(function(a,b){ return (b.da+b.dr)-(a.da+a.dr); }).slice(0,50);
+render(merged);
+}
+}).catch(function(){});
 })();
 // SLIDER
 const track=document.getElementById('sliderTrack');
