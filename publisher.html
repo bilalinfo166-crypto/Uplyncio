@@ -5911,7 +5911,8 @@ return map[s] || s || 'acceptance';
 function showMain(){
 mySites = loadSites();
 saveState("main",{step:1});
-// Show/hide verification nudge on main page
+// Show/hide verification nudge
+var uid = localStorage.getItem('uplyncio_currentUid')||'';
 var nudge = document.getElementById('mainVerifNudge');
 if(nudge){
 var isVerif2 = isPublisherVerified(uid) || (JSON.parse(localStorage.getItem('uplyncio_user')||'{}').publisher_verified);
@@ -5924,7 +5925,6 @@ var e=document.getElementById(id); if(e) e.style.display='none';
 go(1);
 document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
 document.querySelector('.si').classList.add('on');
-// Always render sites so empty state shows correctly
 renderSites();
 }
 function showTrending(){
