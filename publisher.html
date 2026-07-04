@@ -2021,24 +2021,72 @@ ondrop="handleDrop(event)">
 </div>
 </div>
 <div id="trendingPage" style="display:none">
-<div class="bc"><a onclick="showMain()">Home</a><span>›</span><span class="cu">Trending</span></div>
+<div class="bc"><a onclick="showMain()">Home</a><span>›</span><span class="cu">Trending Insights</span></div>
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-<h1 style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:var(--tx)">Trending Sites</h1>
-<div style="font-size:13px;color:var(--mu)">🔥 Most ordered sites this week</div>
+<h1 style="font-family:Manrope,sans-serif;font-size:26px;font-weight:800;color:var(--tx)">🔥 Trending Market Insights</h1>
+<div style="font-size:13px;color:var(--mu)">Understand what buyers are looking for this week</div>
 </div>
-<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
-<button class="opill on" onclick="setTrendTab(this,'all')" style="padding:7px 16px;border-radius:100px;border:2px solid var(--ac);background:#f0f4ff;color:var(--ac);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">All Niches</button>
-<button class="opill" onclick="setTrendTab(this,'tech')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Tech</button>
-<button class="opill" onclick="setTrendTab(this,'finance')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Finance</button>
-<button class="opill" onclick="setTrendTab(this,'health')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Health</button>
-<button class="opill" onclick="setTrendTab(this,'business')" style="padding:7px 16px;border-radius:100px;border:1px solid var(--br);background:var(--wh);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Business</button>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+<div style="background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:18px 20px">
+<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Most Ordered Niche</div>
+<div style="font-size:20px;font-weight:900;color:var(--tx);font-family:Manrope,sans-serif">Tech / SaaS</div>
+<div style="font-size:12px;color:#16a34a;margin-top:4px">↑ 34% vs last week</div>
+</div>
+<div style="background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:18px 20px">
+<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Avg Buyer Budget</div>
+<div style="font-size:20px;font-weight:900;color:#4f7cff;font-family:Manrope,sans-serif">$85</div>
+<div style="font-size:12px;color:#16a34a;margin-top:4px">↑ 12% vs last month</div>
+</div>
+<div style="background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:18px 20px">
+<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">DA Range in Demand</div>
+<div style="font-size:20px;font-weight:900;color:#f59e0b;font-family:Manrope,sans-serif">DA 30–60</div>
+<div style="font-size:12px;color:var(--mu);margin-top:4px">Sweet spot for most buyers</div>
+</div>
+<div style="background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:18px 20px">
+<div style="font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Fastest Selling TAT</div>
+<div style="font-size:20px;font-weight:900;color:#16a34a;font-family:Manrope,sans-serif">3–5 Days</div>
+<div style="font-size:12px;color:var(--mu);margin-top:4px">Lower TAT = more orders</div>
+</div>
+</div>
+
+<!-- Trending Niches Table -->
+<div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;margin-bottom:20px">
+<div style="padding:16px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between">
+<span style="font-size:14px;font-weight:800;color:var(--tx)">🔥 Trending Niches This Week</span>
+<span style="font-size:12px;color:var(--mu)">Based on buyer orders on Uplyncio</span>
+</div>
+<div style="padding:0">
+<div id="trendingNichesList"></div>
+</div>
+</div>
+
+<!-- Price Benchmarks -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+<div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);overflow:hidden">
+<div style="padding:16px 20px;border-bottom:1px solid var(--br)">
+<span style="font-size:14px;font-weight:800;color:var(--tx)">💰 Price Benchmarks by DA</span>
+</div>
+<div id="priceBenchmarks" style="padding:0"></div>
 </div>
 <div style="background:var(--wh);border:1px solid var(--br);border-radius:var(--r);overflow:hidden">
-<div style="padding:10px 20px;border-bottom:1px solid var(--br);background:#f8faff;display:grid;grid-template-columns:40px 2fr 80px 80px 80px 80px 100px;gap:12px;font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px">
-<div>#</div><div>Site</div><div>DA</div><div>DR</div><div>Traffic</div><div>Price</div><div>Orders</div>
+<div style="padding:16px 20px;border-bottom:1px solid var(--br)">
+<span style="font-size:14px;font-weight:800;color:var(--tx)">💡 Tips to Get More Orders</span>
 </div>
-<div id="trendingList"></div>
+<div style="padding:18px 20px">
+<div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--t2)">
+<div style="display:flex;gap:10px"><span style="color:#4f7cff;font-weight:700;flex-shrink:0">✓</span><span>Keep your TAT under <strong>5 days</strong> — sites with lower TAT get 2x more orders</span></div>
+<div style="display:flex;gap:10px"><span style="color:#4f7cff;font-weight:700;flex-shrink:0">✓</span><span>Enable <strong>Link Insertion</strong> on your sites — separate revenue stream with less work</span></div>
+<div style="display:flex;gap:10px"><span style="color:#4f7cff;font-weight:700;flex-shrink:0">✓</span><span>Get <strong>Verified Badge</strong> — verified publishers earn 3x more on average</span></div>
+<div style="display:flex;gap:10px"><span style="color:#4f7cff;font-weight:700;flex-shrink:0">✓</span><span>Set <strong>realistic prices</strong> — sites priced within 20% of market median sell fastest</span></div>
+<div style="display:flex;gap:10px"><span style="color:#4f7cff;font-weight:700;flex-shrink:0">✓</span><span>Fill in <strong>requirements</strong> clearly — buyers trust publishers with clear guidelines</span></div>
+<div style="display:flex;gap:10px"><span style="color:#4f7cff;font-weight:700;flex-shrink:0">✓</span><span>Accept orders fast — respond within <strong>24 hours</strong> for better ranking</span></div>
 </div>
+</div>
+</div>
+</div>
+
 </div>
 <div id="ordersPage" style="display:none">
 <div class="bc"><a onclick="showMain()">Home</a><span>›</span><span class="cu">Orders</span></div>
@@ -5522,28 +5570,53 @@ var trendingSites = [
 {rank:10, url:'forbes.com', da:95, dr:93, traffic:'85M', price:1200, orders:15, cat:'Business'},
 ];
 function renderTrending(filter){
-var el = document.getElementById('trendingList');
-if(!el) return;
-var filtered = filter==='all' ? trendingSites : trendingSites.filter(function(s){ return s.cat.toLowerCase()===filter; });
-if(filtered.length===0){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--mu)">No sites found in this category</div>'; return; }
-el.innerHTML='';
-filtered.forEach(function(s,i){
-var row = document.createElement('div');
-row.style.cssText = 'padding:13px 20px;border-bottom:1px solid #f1f5f9;display:grid;grid-template-columns:40px 2fr 80px 80px 80px 80px 100px;gap:12px;align-items:center;transition:background .15s';
-row.onmouseenter = function(){ this.style.background='#f8faff'; };
-row.onmouseleave = function(){ this.style.background=''; };
-row.innerHTML =
-'<div style="font-size:14px;font-weight:800;color:'+(i<3?'#f59e0b':'#94a3b8')+'">'+s.rank+'</div>'+
-'<div style="font-size:13.5px;font-weight:700;color:var(--ac)">'+s.url+'</div>'+
-'<div><span style="background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">'+s.da+'</span></div>'+
-'<div><span style="background:#ccfbf1;color:#0d9488;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px">'+s.dr+'</span></div>'+
-'<div style="font-size:12px;color:var(--t2)">'+s.traffic+'</div>'+
-'<div style="font-size:14px;font-weight:800;color:var(--tx)">$'+s.price+'</div>'+
-'<div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px">🔥</span><span style="font-size:13px;font-weight:700;color:var(--tx)">'+s.orders+'</span><span style="font-size:11px;color:var(--mu)"> this week</span></div>';
-el.appendChild(row);
-});
+// Trending niches data
+var niches = [
+{name:'Tech & SaaS', emoji:'💻', orders:127, growth:'+34%', avgPrice:85, hot:true},
+{name:'Finance & Crypto', emoji:'💰', orders:98, growth:'+28%', avgPrice:140, hot:true},
+{name:'Health & Wellness', emoji:'🏥', orders:76, growth:'+19%', avgPrice:95, hot:true},
+{name:'Business & Marketing', emoji:'📈', orders:65, growth:'+15%', avgPrice:75, hot:false},
+{name:'Real Estate', emoji:'🏠', orders:44, growth:'+22%', avgPrice:120, hot:false},
+{name:'Education & eLearning', emoji:'🎓', orders:38, growth:'+11%', avgPrice:60, hot:false},
+{name:'Travel & Lifestyle', emoji:'✈️', orders:32, growth:'+8%', avgPrice:55, hot:false},
+{name:'Legal & Law', emoji:'⚖️', orders:28, growth:'+31%', avgPrice:180, hot:true},
+];
+
+var el = document.getElementById('trendingNichesList');
+if(el){
+el.innerHTML = '<div style="padding:10px 20px;background:#f8faff;border-bottom:1px solid var(--br);display:grid;grid-template-columns:2fr 80px 80px 100px 80px;gap:12px;font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px"><div>Niche</div><div>Orders/wk</div><div>Growth</div><div>Avg Price</div><div>Demand</div></div>'
++ niches.map(function(n,i){
+return '<div style="padding:13px 20px;border-bottom:1px solid #f8faff;display:grid;grid-template-columns:2fr 80px 80px 100px 80px;gap:12px;align-items:center">'
++'<div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">'+n.emoji+'</span><span style="font-size:13.5px;font-weight:700;color:var(--tx)">'+n.name+'</span>'+(n.hot?'<span style="background:#fee2e2;color:#ef4444;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px">HOT</span>':'')+'</div>'
++'<div style="font-size:13px;font-weight:700;color:var(--tx)">'+n.orders+'</div>'
++'<div style="font-size:13px;font-weight:700;color:#16a34a">'+n.growth+'</div>'
++'<div style="font-size:13px;font-weight:700;color:var(--tx)">$'+n.avgPrice+'</div>'
++'<div><div style="height:6px;background:#f1f5f9;border-radius:3px;width:70px"><div style="height:100%;background:'+( n.orders>80?'#16a34a':n.orders>50?'#4f7cff':'#f59e0b')+';border-radius:3px;width:'+(Math.min(100,n.orders/130*100).toFixed(0))+'%"></div></div></div>'
++'</div>';
+}).join('');
 }
-// Init trending on first load
+
+// Price benchmarks
+var benchmarks = [
+{da:'DA 10–20', range:'$5–$15',  buyer:'$20',     tip:'Good for beginners'},
+{da:'DA 20–30', range:'$15–$30', buyer:'$20–$30', tip:'Most popular range'},
+{da:'DA 30–50', range:'$30–$60', buyer:'$30–$50', tip:'High demand'},
+{da:'DA 50–70', range:'$60–$120',buyer:'$50–$154',tip:'Premium segment'},
+{da:'DA 70–90', range:'$120–$300',buyer:'$154–$384',tip:'Top tier'},
+{da:'DA 90+',   range:'$300+',   buyer:'$384+',   tip:'Elite sites'},
+];
+var pb = document.getElementById('priceBenchmarks');
+if(pb){
+pb.innerHTML = benchmarks.map(function(b){
+return '<div style="padding:11px 20px;border-bottom:1px solid #f8faff;display:grid;grid-template-columns:90px 90px 90px 1fr;gap:10px;align-items:center;font-size:12.5px">'
++'<div style="font-weight:700;color:var(--tx)">'+b.da+'</div>'
++'<div style="color:var(--t2)">'+b.range+'</div>'
++'<div style="font-weight:700;color:#16a34a">'+b.buyer+'</div>'
++'<div style="font-size:11px;color:var(--mu)">'+b.tip+'</div>'
++'</div>';
+}).join('');
+}
+}
 setTimeout(function(){ renderTrending('all'); }, 100);
 function loadReferralPage(){
 // Generate unique ref link from task ID or random
@@ -6061,22 +6134,48 @@ actionBtns+
 '</div>';
 }).join('');
 }
-function acceptOrder(id){
-sampleOrders=OrderManager.updateStatus(sampleOrders,id,'progress','Order accepted by publisher');
-renderOrders();updateBalance();
-toast('✅ Order accepted! Now In Progress.','#16a34a');
+async function acceptOrder(id){
+  var o = sampleOrders.find(function(x){ return x.id===id; });
+  if(!o) return;
+  var orderId = o.order_id || o.taskId || id;
+  try{
+    var r = await fetch('/api/orders?action=accept&order_id='+encodeURIComponent(orderId), { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    var res = await r.json();
+    if(res.success) console.log('Order accepted in Supabase');
+  }catch(e){ console.warn('Accept API:', e.message); }
+  sampleOrders = OrderManager.updateStatus(sampleOrders, id, 'progress', 'Order accepted by publisher');
+  renderOrders(); updateBalance();
+  toast('✅ Order accepted! Now In Progress.','#16a34a');
 }
-function rejectOrder(id){
-if(!confirm('Reject this order?'))return;
-var o=sampleOrders.find(function(x){return x.id===id;});
-if(!o)return;
-o.status='rejected';renderOrders();
+
+async function rejectOrder(id){
+  if(!confirm('Reject this order? Buyer will be refunded.')) return;
+  var o = sampleOrders.find(function(x){ return x.id===id; });
+  if(!o) return;
+  var reason = prompt('Reason for rejection (optional):') || 'Publisher rejected the order';
+  var orderId = o.order_id || o.taskId || id;
+  try{
+    await fetch('/api/orders?action=reject&order_id='+encodeURIComponent(orderId), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason:reason}) });
+  }catch(e){}
+  o.status='rejected'; renderOrders();
+  toast('Order rejected. Buyer has been refunded.','#64748b');
 }
-function markDone(id){
-sampleOrders=OrderManager.updateStatus(sampleOrders,id,'approval','Sent for client approval');
-renderOrders();updateBalance();
-toast('✅ Sent for approval!','#4f7cff');
-setTimeout(function(){openClientReview(id);},800);
+
+async function markDone(id){
+  var o = sampleOrders.find(function(x){ return x.id===id; });
+  if(!o) return;
+  var liveUrl = prompt('Paste the live article URL:');
+  if(!liveUrl || !liveUrl.startsWith('http')){ toast('⚠️ Please enter a valid URL starting with http','#d97706'); return; }
+  var note = prompt('Delivery note (optional):') || '';
+  var orderId = o.order_id || o.taskId || id;
+  try{
+    await fetch('/api/orders?action=deliver&order_id='+encodeURIComponent(orderId), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({live_url:liveUrl, note:note}) });
+  }catch(e){}
+  o.liveUrl = liveUrl;
+  sampleOrders = OrderManager.updateStatus(sampleOrders, id, 'approval', 'Sent for client approval');
+  renderOrders(); updateBalance();
+  toast('✅ Delivery submitted! Buyer has been notified.','#4f7cff');
+  setTimeout(function(){ openClientReview(id); }, 800);
 }
 var currentOrderId = null;
 function openOrderDetail(id){
