@@ -242,19 +242,19 @@ window.location.href='uplyncio-full.html';
 function saveState(page, extra){
 try{
 var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
-var state = {
-page: page,
-extra: extra||{},
-ts: Date.now()
-};
-sessionStorage.setItem('uplyncio_state_'+uid, JSON.stringify(state));
+var state = { page:page, extra:extra||{}, ts:Date.now() };
+localStorage.setItem('uplyncio_state_'+uid, JSON.stringify(state));
 }catch(e){}
 }
 function loadState(){
 try{
 var uid = localStorage.getItem('uplyncio_currentUid')||'guest';
-var raw = sessionStorage.getItem('uplyncio_state_'+uid);
-return raw ? JSON.parse(raw) : null;
+var raw = localStorage.getItem('uplyncio_state_'+uid);
+if(!raw) return null;
+var state = JSON.parse(raw);
+// Ignore stale state older than 2 hours
+if(Date.now() - (state.ts||0) > 7200000) return null;
+return state;
 }catch(e){ return null; }
 }
 function restoreState(){
@@ -830,115 +830,7 @@ ondrop="handleDrop(event)">
 
 </div>
 </div>
-<div id="t1">
-<label class="fl" style="margin-bottom:7px">URL *</label>
-<div class="uw">
-<div class="up">http(s)://</div>
-<input class="ui" id="urlIn" type="text" placeholder="yoursite.com">
-<button class="un" onclick="next3()">Next</button>
-</div>
-</div>
-<div id="t2" style="display:none">
-<div style="display:flex;align-items:center;justify-content:space-between;background:#f0f4ff;border:1px solid #c7d7ff;border-radius:12px;padding:14px 20px;margin-bottom:16px;flex-wrap:wrap;gap:12px">
-<div style="display:flex;align-items:center;gap:10px">
-<span style="font-size:22px">📊</span>
-<div>
-<div style="font-size:14px;font-weight:800;color:#1e40af">Download Template Sheet</div>
-<div style="font-size:12px;color:#3b5bdb;margin-top:2px">Fill in your sites and upload — Language, Country & Category are auto-detected from URL</div>
-</div>
-</div>
-<button onclick="downloadTemplate()" style="display:flex;align-items:center;gap:8px;background:#4f7cff;color:#fff;border:none;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s" onmouseover="this.style.background='#3d6aff'" onmouseout="this.style.background='#4f7cff'">
-          ⬇️ Download Google Sheets Template
-        </button>
-</div>
-<div id="dropZone" style="border:2px dashed #c7d7ff;border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;background:#fafbff;transition:all .2s;position:relative"
-        onclick="document.getElementById('fileInput').click()"
-        ondragover="event.preventDefault();this.style.background='#f0f4ff';this.style.borderColor='#4f7cff'"
-        ondragleave="this.style.background='#fafbff';this.style.borderColor='#c7d7ff'"
-        ondrop="handleDrop(event)">
-<input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])">
-<div style="font-size:44px;margin-bottom:12px">📂</div>
-<div style="font-size:16px;font-weight:700;color:#0f172a;margin-bottom:6px">Drag &amp; Drop your sheet here</div>
-<div style="font-size:13px;color:#64748b;margin-bottom:14px">or click to browse files</div>
-<div style="display:inline-flex;gap:10px">
-<span style="background:#e0e7ff;color:#4f7cff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:100px">CSV</span>
-<span style="background:#dcfce7;color:#16a34a;font-size:12px;font-weight:700;padding:4px 12px;border-radius:100px">Excel .xlsx</span>
-<span style="background:#fef3c7;color:#d97706;font-size:12px;font-weight:700;padding:4px 12px;border-radius:100px">Excel .xls</span>
-</div>
-</div>
-<div style="text-align:center;margin-top:14px">
-<span style="font-size:13px;color:var(--mu)">or</span>
-<button onclick="go(1);setTimeout(function(){go(2);setTimeout(function(){go(3);setTimeout(function(){document.querySelector('.utab').click();},100)},100)},100)" style="background:transparent;border:none;color:var(--ac);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:underline;margin-left:6px">
-          + Add site manually (one by one)
-        </button>
-</div>
-<div style="display:flex;align-items:center;gap:12px;margin-top:16px">
-<div style="flex:1;height:1px;background:var(--br)"></div>
-<span style="font-size:12px;color:var(--mu);white-space:nowrap">or add manually</span>
-<div style="flex:1;height:1px;background:var(--br)"></div>
-</div>
-<button onclick="go(1);setTimeout(function(){go(2)},50)" style="margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--wh);border:1px solid var(--br);border-radius:10px;padding:12px;font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;font-family:inherit;transition:all .2s" onmouseover="this.style.borderColor='var(--ac)';this.style.color='var(--ac)'" onmouseout="this.style.borderColor='var(--br)';this.style.color='var(--t2)'">
-        ✏️ Add Site Manually (One by One)
-      </button>
-<div id="uploadStatus" style="display:none;margin-top:14px"></div>
-<div id="previewWrap" style="display:none;margin-top:16px">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-<div style="font-size:14px;font-weight:700;color:#0f172a">Preview <span id="previewCount" style="color:#4f7cff"></span></div>
-<button onclick="clearUpload()" style="background:transparent;border:1px solid #fecaca;color:#ef4444;border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit">✕ Clear</button>
-</div>
-<div style="overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:280px;overflow-y:auto">
-<table style="width:100%;border-collapse:collapse;min-width:700px">
-<thead>
-<tr style="background:#f8faff;position:sticky;top:0">
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Website URL</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DA</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DR</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Traffic</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Category</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Link Type</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Price</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Status</th>
-</tr>
-</thead>
-<thead>
-<tr style="background:#f8faff;position:sticky;top:0">
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Website URL</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DA</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DR</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Traffic</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Category</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Link Type</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">GP Price</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">LI Accepted</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">LI Price</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Language</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Country</th>
-</tr>
-</thead>
-<tbody id="previewTbody"></tbody>
-</table>
-</div>
-<button onclick="importSites()" style="margin-top:14px;background:#4f7cff;color:#fff;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">
-          ✅ Import All Sites to Dashboard
-        </button>
-</div>
-</div>
-<div id="t3" style="display:none">
-<div style="text-align:center;padding:36px;background:#f8faff;border-radius:10px;border:1px solid var(--br)">
-<div style="font-size:36px;margin-bottom:12px">&#128229;</div>
-<div style="font-size:14px;font-weight:600;margin-bottom:8px">Download Template File</div>
-<button class="btn ba" onclick="alert('Downloaded!')">Download Template</button>
-</div>
-</div>
-<div id="t4" style="display:none">
-<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px">
-<div style="font-size:14px;font-weight:700;color:#15803d;margin-bottom:5px">&#9989; All sites active</div>
-<div style="font-size:13px;color:#166534">All your listed sites are currently active and visible to advertisers.</div>
-</div>
-</div>
-</div>
-</div>
-<div id="s4" style="display:none">
+<div id="s4"<div id="s4" style="display:none">
 <div class="bc"><a onclick="go(1)">Home</a><span>&rsaquo;</span><a onclick="go(1)">My Platforms</a><span>&rsaquo;</span><a onclick="go(3)">Add website(s)</a><span>&rsaquo;</span><span class="cu">Add your website info</span></div>
 <div class="pg" style="width:75%"></div>
 <div class="ic2">
