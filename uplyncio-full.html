@@ -3143,6 +3143,11 @@ var pass = document.getElementById('pubPass').value;
 if(!name||!email||!pass){ errEl.textContent='Please fill all fields'; return; }
 var passErr=validateStrongPassword(pass);
 if(passErr){ errEl.textContent=passErr; errEl.style.color='#ef4444'; document.getElementById('pubPass').style.borderColor='#ef4444'; return; }
+// Check if email already registered as buyer
+var existingUser = findUser(email);
+if(existingUser && existingUser.role === 'buyer' && existingUser.email.toLowerCase() !== 'info@uplyncio.com'){
+showRoleConflictPopup('buyer','publisher',email); return;
+}
 document.getElementById('pubPass').style.borderColor='#4ade80';
 errEl.textContent='Creating account...'; errEl.style.color='#64748b';
 fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'signup',email:email,password:pass,name:name,role:'publisher'})})
@@ -3159,6 +3164,13 @@ document.getElementById('publisherModal').style.display='none';
 document.body.style.overflow='';
 setTimeout(function(){openVerifyModal(email,true);},300);
 } else {
+if(result.error && result.error.toLowerCase().includes('buyer')){
+showRoleConflictPopup('buyer','publisher',email); return;
+}
+if(result.error && result.error.toLowerCase().includes('already')){
+errEl.innerHTML='⚠ Email already registered. <a href="#" onclick="closePublisherModal();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:700;text-decoration:underline">Login instead →</a>';
+errEl.style.color='#ef4444'; return;
+}
 errEl.textContent=result.error||'Failed to create account';errEl.style.color='#ef4444';
 }
 })
@@ -3197,6 +3209,46 @@ errEl.textContent = 'Unable to connect. Please try again.';
 });
 }
 }
+// ── ROLE CONFLICT POPUP ──
+function showRoleConflictPopup(existingRole, attemptedRole, email){
+// Close any open modals
+['publisherModal','buyerModal'].forEach(function(id){
+var m=document.getElementById(id); if(m) m.style.display='none';
+});
+document.body.style.overflow='hidden';
+var old=document.getElementById('roleConflictModal'); if(old) old.remove();
+var el=document.createElement('div');
+el.id='roleConflictModal';
+el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+var existingLabel = existingRole==='publisher' ? '🌐 Publisher' : '🛒 Buyer';
+var attemptedLabel = attemptedRole==='publisher' ? 'Publisher' : 'Buyer';
+var loginFn = existingRole==='publisher' ? 'openPublisherSignup' : 'openBuyerSignup';
+el.innerHTML='<div style="background:#fff;border-radius:20px;width:440px;max-width:93vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)">'
++'<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:22px 26px;display:flex;align-items:center;gap:14px">'
++'<div style="width:44px;height:44px;background:rgba(239,68,68,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⚠️</div>'
++'<div><div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff">Email Already Registered</div>'
++'<div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:2px">Account role conflict</div></div></div>'
++'<div style="padding:26px 28px">'
++'<div style="background:#fee2e2;border:1px solid #fecaca;border-radius:12px;padding:16px 18px;margin-bottom:20px">'
++'<div style="font-size:14px;font-weight:700;color:#991b1b;margin-bottom:6px">⚠ Same email, different role</div>'
++'<div style="font-size:13px;color:#7f1d1d;line-height:1.7">'
++'<strong>'+email+'</strong> is already registered as a <strong>'+existingLabel+'</strong>.<br>'
++'You cannot create a <strong>'+attemptedLabel+' account</strong> with this same email.'
++'</div></div>'
++'<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin-bottom:22px">'
++'<div style="font-size:12.5px;font-weight:700;color:#0369a1;margin-bottom:8px">💡 What you can do:</div>'
++'<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#0c4a6e">'
++'<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#0284c7;font-weight:700;flex-shrink:0">1.</span> Use a <strong>different email address</strong> to create a '+attemptedLabel+' account</div>'
++'<div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#0284c7;font-weight:700;flex-shrink:0">2.</span> Or <strong>login</strong> with this email to access your existing '+existingLabel+' account</div>'
++'</div></div>'
++'<div style="display:flex;gap:10px">'
++'<button onclick="document.getElementById(\'roleConflictModal\').remove();document.body.style.overflow=\'\'" style="flex:1;padding:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button>'
++'<button onclick="document.getElementById(\'roleConflictModal\').remove();document.body.style.overflow=\'\';setTimeout(function(){ var m=document.getElementById(\'loginModal\'); if(m) m.style.display=\'flex\'; },200);" style="flex:1;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit">Login with this email →</button>'
++'</div></div></div>';
+document.body.appendChild(el);
+el.addEventListener('click',function(e){if(e.target===el){el.remove();document.body.style.overflow='';}});
+}
+
 function submitBuyerAuth(mode){
 _selectedRole = 'buyer';
 window._selectedRole = 'buyer';
@@ -3209,6 +3261,11 @@ if(!name||!email||!pass){ errEl.textContent='Please fill all fields'; return; }
 if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errEl.textContent='Please enter a valid email'; return; }
 var passErr=validateStrongPassword(pass);
 if(passErr){ errEl.textContent=passErr; errEl.style.color='#ef4444'; document.getElementById('buyerPass').style.borderColor='#ef4444'; return; }
+// Check if email already registered as publisher
+var existingUser = findUser(email);
+if(existingUser && existingUser.role === 'publisher' && existingUser.email.toLowerCase() !== 'info@uplyncio.com'){
+showRoleConflictPopup('publisher','buyer',email); return;
+}
 document.getElementById('buyerPass').style.borderColor='#4ade80';
 errEl.textContent='Creating account...'; errEl.style.color='#64748b';
 fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'signup',email:email,password:pass,name:name,role:'buyer'})})
@@ -3225,13 +3282,18 @@ document.getElementById('buyerModal').style.display='none';
 document.body.style.overflow='';
 setTimeout(function(){openVerifyModal(email,true);},300);
 } else {
+// Check for role conflict from API
+if(result.error && result.error.toLowerCase().includes('publisher')){
+showRoleConflictPopup('publisher','buyer',email); return;
+}
+if(result.error && result.error.toLowerCase().includes('already')){
+errEl.innerHTML='⚠ Email already registered. <a href="#" onclick="closeBuyerModal();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:700;text-decoration:underline">Login instead →</a>';
+errEl.style.color='#ef4444'; return;
+}
 errEl.textContent=result.error||'Failed to create account';errEl.style.color='#ef4444';
 }
 })
-.catch(function(){
-// Fallback: local only
-completeAuth('buyer',email,name);
-});
+.catch(function(){ completeAuth('buyer',email,name); });
 } else {
 var email = document.getElementById('buyerLoginEmail').value.trim();
 var pass = document.getElementById('buyerLoginPass').value;
