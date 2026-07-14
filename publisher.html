@@ -3939,27 +3939,44 @@ tb.style.borderColor = id===tabId ? '#4f7cff' : '#e2e8f0';
 });
 }
 function processVerifiedPayment(method){
-var uid = localStorage.getItem('uplyncio_currentUid')||'';
-var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
-if(method === 'card'){
-var num = (document.getElementById('bvCardNum').value||'').replace(/\s/g,'');
-var exp = document.getElementById('bvExpiry').value||'';
-var cvv = document.getElementById('bvCvv').value||'';
-var name = document.getElementById('bvName').value||'';
-if(num.length < 13 || !exp || cvv.length < 3 || !name){
-toast('⚠️ Please fill in all card details correctly.', '#d97706'); return;
+var old = document.getElementById('buyVerifiedModal');
+if(old) old.remove();
+showPaymentComingSoon();
 }
-// Show processing state
-var btn = document.querySelector('#bv-card button');
-if(btn){ btn.disabled=true; btn.textContent='Processing...'; }
-// Simulate payment processing (real Stripe integration would go here)
-setTimeout(function(){
-markPublisherVerified(uid, userData, method);
-}, 2000);
-} else {
-// PayPal / USDT — manual confirmation
-markPublisherVerified(uid, userData, method);
-}
+
+function closePayComingSoon(){ var m=document.getElementById("payComingSoonModal"); if(m) m.remove(); }
+function showPaymentComingSoon(){
+var old2 = document.getElementById('payComingSoonModal');
+if(old2) old2.remove();
+var el = document.createElement('div');
+el.id = 'payComingSoonModal';
+el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+el.innerHTML = '<div style="background:#fff;border-radius:20px;width:420px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)">'
++'<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">'
++'<div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">💳</span>'
++'<div><div style="font-size:16px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">Payment System</div>'
++'<div style="font-size:11px;color:rgba(255,255,255,.5)">Uplyncio · Secure Payments</div></div></div>'
++'<button onclick="closePayComingSoon()" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center">✕</button>'
++'</div>'
++'<div style="padding:26px">'
++'<div style="text-align:center;margin-bottom:22px">'
++'<div style="width:60px;height:60px;background:#fff7ed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px">🚀</div>'
++'<div style="font-family:Manrope,sans-serif;font-size:19px;font-weight:800;color:#0f172a;margin-bottom:7px">Payment Coming Soon!</div>'
++'<div style="font-size:13px;color:#64748b;line-height:1.7">We are currently integrating our payment gateway.<br>Please contact us to complete your payment manually.</div>'
++'</div>'
++'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin-bottom:18px">'
++'<div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">📧 Contact us to proceed:</div>'
++'<a href="mailto:info@uplyncio.com" style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#0f172a;text-decoration:none">'
++'<span style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">✉️</span>'
++'info@uplyncio.com</a>'
++'<div style="font-size:11.5px;color:#64748b;margin-top:6px;padding-left:36px">Mention your email and payment amount</div>'
++'</div>'
++'<div style="display:flex;gap:10px">'
++'<button onclick="closePayComingSoon()" style="flex:1;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button>'
++'<a href="mailto:info@uplyncio.com?subject=Payment Request - Uplyncio" style="flex:1;padding:11px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">✉️ Email Us Now</a>'
++'</div></div></div>';
+document.body.appendChild(el);
+el.addEventListener('click',function(e){if(e.target===el) el.remove();});
 }
 function markPublisherVerified(uid, userData, method){
 // Save verified status locally
