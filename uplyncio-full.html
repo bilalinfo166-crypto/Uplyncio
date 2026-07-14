@@ -1892,7 +1892,7 @@ if(pm && ab && !ab.contains(e.target) && !pm.contains(e.target)) pm.style.displa
 <div style="font-size:12px;color:var(--text2)">Guest posts starting from</div>
 <div style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:900;color:#10b981">$30<span style="font-size:12px;font-weight:500;color:var(--text2)">/post</span></div>
 </div>
-<a href="#marketplace" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#10b981;color:#fff;border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;font-family:'Manrope',sans-serif" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+<a href="#" onclick="openBuyerSignup();return false;" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#10b981;color:#fff;border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;font-family:'Manrope',sans-serif" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
             📈 Start Buying — Browse Sites
           </a>
 </div>
@@ -3061,6 +3061,8 @@ document.getElementById('fpSendBtn').style.display='none';
 <script>
 var _selectedRole = 'publisher';
 function openPublisherSignup(){
+_selectedRole = 'publisher';
+window._selectedRole = 'publisher';
 document.getElementById('publisherModal').style.display='flex';
 document.body.style.overflow='hidden';
 setTimeout(preFillEmail, 100);
@@ -3077,6 +3079,8 @@ document.getElementById('pub-login-form').style.display = isSignup?'none':'block
 document.getElementById('pub-form-title').textContent = isSignup?'Create Publisher Account':'Welcome Back';
 }
 function openBuyerSignup(){
+_selectedRole = 'buyer';
+window._selectedRole = 'buyer';
 document.getElementById('buyerModal').style.display='flex';
 document.body.style.overflow='hidden';
 setTimeout(preFillEmail, 100);
@@ -3129,6 +3133,8 @@ if (!/[^A-Za-z0-9]/.test(pass)) return 'Add at least one special character (!@#$
 return null;
 }
 function submitPublisherAuth(mode){
+_selectedRole = 'publisher';
+window._selectedRole = 'publisher';
 var errEl = document.getElementById(mode==='signup'?'pub-err':'pub-login-err');
 if(mode==='signup'){
 var name = document.getElementById('pubName').value.trim();
@@ -3192,6 +3198,8 @@ errEl.textContent = 'Unable to connect. Please try again.';
 }
 }
 function submitBuyerAuth(mode){
+_selectedRole = 'buyer';
+window._selectedRole = 'buyer';
 var errEl = document.getElementById(mode==='signup'?'buyer-err':'buyer-login-err');
 if(mode==='signup'){
 var name = document.getElementById('buyerName').value.trim();
