@@ -59,8 +59,21 @@ if(err){ err.style.display='none'; err.textContent=''; }
 });
 }
 // ── LOGIN — strict validation ──
+var _loginCaptchaDone = false;
+function toggleLoginCaptcha(){
+_loginCaptchaDone = !_loginCaptchaDone;
+var box = document.getElementById('loginCaptchaCheck');
+if(box) box.innerHTML = _loginCaptchaDone ? '<svg width="14" height="14" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="#16a34a" stroke-width="3" fill="none" stroke-linecap="round"/></svg>' : '';
+if(box) box.style.background = _loginCaptchaDone ? '#dcfce7' : '#fff';
+if(box) box.style.borderColor = _loginCaptchaDone ? '#16a34a' : '#d1d5db';
+document.getElementById('loginCaptchaErr').style.display = 'none';
+}
 function handleLogin(){
-clearLoginError();
+if(!_loginCaptchaDone){
+var captchaErr = document.getElementById('loginCaptchaErr');
+if(captchaErr) captchaErr.style.display='block';
+return;
+}clearLoginError();
 var emEl = document.getElementById('loginEmail');
 var pwEl = document.getElementById('loginPass');
 if(!emEl || !emEl.value.trim()){ 
@@ -2365,56 +2378,73 @@ function slideMove(dir){goTo(cur+dir)}
 window.addEventListener('resize',()=>{buildDots();goTo(Math.min(cur,maxIdx()))});
 buildDots();
 </script>
-<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeLogin()">
-<div style="background:#0a1628;border:1px solid rgba(255,255,255,.1);border-radius:24px;width:100%;max-width:440px;padding:32px 36px;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5)">
-<button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.2)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.05)';this.style.color='rgba(255,255,255,.6)'">✕</button>
-<div style="text-align:center;margin-bottom:24px">
-<div style="display:inline-flex;align-items:center;gap:8px">
-<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:18px">🔗</div>
-<span style="font-family:'Manrope',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-0.8px">Uplyncio</span>
+<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(15,22,40,.7);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(12px)" onclick="if(event.target===this)closeLogin()">
+<div style="background:#fff;border-radius:24px;width:100%;max-width:440px;padding:40px 36px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.35)">
+<button onclick="closeLogin()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:15px;color:#64748b;display:flex;align-items:center;justify-content:center;transition:all .2s">✕</button>
+<!-- Logo -->
+<div style="text-align:center;margin-bottom:20px">
+<svg width="40" height="40" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto 10px;display:block">
+<rect width="64" height="64" rx="14" fill="#0f1628"/>
+<g style="animation:chainMove 2.5s ease-in-out infinite"><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/></g>
+<g style="animation:chainMove 2.5s ease-in-out infinite reverse"><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></g>
+<rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+</svg>
+<div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.5px">Up<em style="font-style:normal;color:#4f7cff">lyncio</em></div>
+<div style="font-size:14px;color:#64748b;margin-top:4px">Sign in to your account</div>
+</div>
+<!-- Email -->
+<div style="margin-bottom:16px">
+<label style="display:block;font-size:13.5px;font-weight:700;color:#374151;margin-bottom:6px">Email</label>
+<input id="loginEmail" type="email" placeholder="Enter your email" oninput="clearLoginError()"
+style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;color:#1a202c;transition:border .2s;background:#f9fafb"
+onfocus="this.style.borderColor='#4f7cff';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.background='#f9fafb'">
+<div id="loginEmailErr" style="display:none;font-size:12px;color:#ef4444;margin-top:4px;font-weight:600"></div>
+</div>
+<!-- Password -->
+<div style="margin-bottom:6px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+<label style="font-size:13.5px;font-weight:700;color:#374151">Password</label>
+<a href="#" onclick="openForgotModal();return false" style="font-size:13px;color:#4f7cff;font-weight:600;text-decoration:none">Forgot password?</a>
+</div>
+<div style="position:relative">
+<input type="password" placeholder="Enter your password" id="loginPass" oninput="clearLoginError()"
+style="width:100%;padding:12px 42px 12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;color:#1a202c;transition:border .2s;background:#f9fafb"
+onfocus="this.style.borderColor='#4f7cff';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.background='#f9fafb'">
+<button onclick="togglePwd('loginPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:12px;color:#94a3b8;font-weight:600;font-family:inherit">👁</button>
+</div>
+<div id="loginPassErr" style="display:none;font-size:12px;color:#ef4444;margin-top:4px;font-weight:600"></div>
+</div>
+<!-- reCAPTCHA style -->
+<div id="loginCaptchaBox" style="display:flex;align-items:center;justify-content:space-between;border:1.5px solid #d1d5db;border-radius:10px;padding:13px 16px;margin:16px 0;background:#f9fafb">
+<label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+<div id="loginCaptchaCheck" onclick="toggleLoginCaptcha()" style="width:24px;height:24px;border:2px solid #d1d5db;border-radius:4px;background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s"></div>
+<span style="font-size:14px;color:#374151;font-weight:500">I'm not a robot</span>
+</label>
+<div style="text-align:center">
+<div style="font-size:20px">🔄</div>
+<div style="font-size:9px;color:#94a3b8;font-weight:600;letter-spacing:.3px">reCAPTCHA</div>
+<div style="font-size:8px;color:#b0bec5">Privacy - Terms</div>
 </div>
 </div>
-<h2 style="font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;color:#fff;text-align:center;margin-bottom:22px;letter-spacing:-1px">Log In</h2>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-<button onclick="googleLogin('buyer')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
+<div id="loginCaptchaErr" style="display:none;font-size:12px;color:#ef4444;margin:-8px 0 10px;font-weight:600">⚠ Please verify you are not a robot</div>
+<!-- Sign In Button -->
+<button onclick="handleLogin()" style="width:100%;padding:14px;background:#6d28d9;background:linear-gradient(135deg,#7c3aed,#4f7cff);color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 16px rgba(124,58,237,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">Sign in</button>
+<!-- Divider -->
+<div style="display:flex;align-items:center;gap:12px;margin:18px 0">
+<div style="flex:1;height:1px;background:#e2e8f0"></div>
+<span style="font-size:12px;color:#94a3b8;font-weight:500">Or continue with</span>
+<div style="flex:1;height:1px;background:#e2e8f0"></div>
+</div>
+<!-- Social buttons -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+<button onclick="googleLogin('buyer')" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px;cursor:pointer;font-size:13.5px;font-weight:700;color:#374151;font-family:inherit;transition:all .2s" onmouseover="this.style.borderColor='#4f7cff';this.style.background='#f0f4ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
 <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-      Continue with Google
-    </button>
-<button onclick="facebookLogin()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.14)'" onmouseout="this.style.background='rgba(255,255,255,.08)'">
+Google</button>
+<button onclick="facebookLogin()" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px;cursor:pointer;font-size:13.5px;font-weight:700;color:#374151;font-family:inherit;transition:all .2s" onmouseover="this.style.borderColor='#1877F2';this.style.background='#f0f4ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
 <svg width="18" height="18" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/></svg>
-      Continue with Facebook
-    </button>
+Facebook</button>
 </div>
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-<div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
-<span style="font-size:12px;color:rgba(255,255,255,.35);font-weight:500">Or continue with</span>
-<div style="flex:1;height:1px;background:rgba(255,255,255,.1)"></div>
-</div>
-<div id="loginEmailWrap" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 16px;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:all .2s">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#718096" stroke-width="2"/><polyline points="22,6 12,13 2,6" stroke="#718096" stroke-width="2"/></svg>
-<input id="loginEmail" type="email" placeholder="your@email.com" style="background:transparent;border:none;outline:none;font-size:14px;color:#fff;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
-</div>
-<div id="loginEmailErr" style="display:none;font-size:12px;color:#e53e3e;margin-bottom:8px;padding-left:4px;font-weight:600"></div>
-<div id="loginPassWrap" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:13px 16px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;transition:all .2s">
-<div style="display:flex;align-items:center;gap:10px;flex:1">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#718096" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#718096" stroke-width="2"/></svg>
-<input type="password" placeholder="Password" id="loginPass" style="background:transparent;border:none;outline:none;font-size:14px;color:#fff;width:100%;font-family:'Plus Jakarta Sans',sans-serif" oninput="clearLoginError()">
-</div>
-<button onclick="togglePwd('loginPass',this)" style="background:none;border:none;cursor:pointer;font-size:12px;color:#4f7cff;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif">Show</button>
-</div>
-<div id="loginPassErr" style="display:none;font-size:12px;color:#e53e3e;margin-bottom:12px;padding-left:4px;font-weight:600"></div>
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.5)">
-<input type="checkbox" style="width:16px;height:16px;border-radius:4px;accent-color:#4f7cff">
-      Remember me
-    </label>
-<a href="#" onclick="openForgotModal();return false" style="font-size:13px;color:#4f7cff;font-weight:700;text-decoration:none">Lost password?</a>
-</div>
-<button onclick="handleLogin()" style="width:100%;background:#0a1628;color:#fff;border:none;border-radius:100px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Manrope',sans-serif;display:flex;align-items:center;justify-content:space-between;transition:background .2s" onmouseover="this.style.background='#1a2d4a'" onmouseout="this.style.background='#0a1628'">
-<span style="flex:1;text-align:center">Log In</span>
-<span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">↗</span>
-</button>
-<p style="text-align:center;margin-top:14px;font-size:13px;color:rgba(255,255,255,.4)">No account yet? <a href="#" onclick="closeLogin();openSignup();return false" style="color:#4f7cff;font-weight:700;text-decoration:none">Create a new account</a></p>
+<p style="text-align:center;font-size:13.5px;color:#64748b;margin:0">Don't have an account? <a href="#" onclick="closeLogin();openSignup();return false" style="color:#4f7cff;font-weight:700;text-decoration:none">Sign up</a></p>
 </div>
 </div>
 <div id="signupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(8px)" onclick="if(event.target===this)closeSignup()">
@@ -2946,38 +2976,43 @@ document.getElementById('fpSendBtn').style.display='none';
 </div>
 </div>
 <div style="width:380px;background:#fff;padding:36px 32px;overflow-y:auto;display:flex;flex-direction:column;justify-content:center">
-<h3 style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#0a1628;margin-bottom:4px" id="buyer-form-title">Create Buyer Account</h3>
-<p style="font-size:13px;color:#64748b;margin-bottom:22px">Browse 20,000+ sites and start building links today</p>
+<h3 style="font-family:Manrope,sans-serif;font-size:22px;font-weight:900;color:#0a1628;margin-bottom:4px" id="buyer-form-title">Create Buyer Account</h3>
+<p style="font-size:13.5px;color:#64748b;margin-bottom:22px">Browse 20,000+ sites and start building links today</p>
+<!-- Social -->
 <div style="display:flex;gap:10px;margin-bottom:18px">
-<button onclick="handleSocialAuth('google','buyer')" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;border-radius:9px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='#4f7cff'" onmouseout="this.style.borderColor='#e2e8f0'">
+<button onclick="handleSocialAuth('google','buyer')" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='#4f7cff';this.style.background='#f0f4ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
 <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Google
-        </button>
-<button onclick="handleSocialAuth('facebook','buyer')" style="flex:1;padding:10px;border:1.5px solid #e2e8f0;border-radius:9px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='#1877f2'" onmouseout="this.style.borderColor='#e2e8f0'">
+Google</button>
+<button onclick="handleSocialAuth('facebook','buyer')" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:all .15s" onmouseover="this.style.borderColor='#1877f2';this.style.background='#eff6ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          Facebook
-        </button>
+Facebook</button>
 </div>
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
 <div style="flex:1;height:1px;background:#e2e8f0"></div>
-<span style="font-size:12px;color:#94a3b8;font-weight:600">OR</span>
+<span style="font-size:12px;color:#94a3b8;font-weight:700;letter-spacing:.3px">OR</span>
 <div style="flex:1;height:1px;background:#e2e8f0"></div>
 </div>
 <div id="buyer-signup-form">
-<div style="margin-bottom:12px">
-<input id="buyerName" type="text" placeholder="Full Name" autocomplete="name" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+<div style="margin-bottom:10px">
+<input id="buyerName" type="text" placeholder="Full Name" autocomplete="name"
+style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#1a202c;transition:all .2s"
+onfocus="this.style.borderColor='#10b981';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8faff'">
 </div>
-<div style="margin-bottom:12px">
-<input id="buyerEmail" type="email" placeholder="Email Address" autocomplete="email" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'">
+<div style="margin-bottom:10px">
+<input id="buyerEmail" type="email" placeholder="Email Address" autocomplete="email"
+style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#1a202c;transition:all .2s"
+onfocus="this.style.borderColor='#10b981';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8faff'">
 </div>
 <div style="margin-bottom:16px">
 <div style="position:relative">
-<input id="buyerPass" type="password" placeholder="Create a password" autocomplete="off" style="width:100%;padding:11px 42px 11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00c27a'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')">
-<button type="button" onclick="toggleEye('buyerPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+<input id="buyerPass" type="password" placeholder="Create a password" autocomplete="off"
+style="width:100%;padding:13px 44px 13px 16px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#1a202c;transition:all .2s"
+onfocus="this.style.borderColor='#10b981';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.background='#f8faff'"
+oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')">
+<button type="button" onclick="toggleEye('buyerPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0">👁</button>
 </div>
-<div style="margin-top:8px">
-<div style="height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:4px"><div id="buyerPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
-<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="margin-top:8px;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="buyerPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div>
+</div>
 <span id="buyerPassTxt" style="font-size:11px;font-weight:600"></span>
 </div>
 </div>
