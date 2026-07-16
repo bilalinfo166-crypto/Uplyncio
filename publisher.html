@@ -2723,17 +2723,17 @@ return "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style
 "<span style='font-size:13px;color:#64748b'>Content placement</span>" +
 "<div style='display:flex;align-items:center;gap:8px'>" +
 "<span style='font-size:16px;font-weight:900;font-family:Manrope,sans-serif;color:" + (s.priceIssues&&s.priceIssues.length?'#f59e0b':'#0f172a') + "' id='p1-" + s.id + "'>" + (s.p1?'$'+s.p1:'N/A') + "</span>" +
-(s.priceIssues&&s.priceIssues.length?"<button onclick='openChangePriceModal("+s.id+",1)' title='"+s.priceIssues[0]+"' style='background:#fff7ed;border:1px solid #fcd34d;color:#f59e0b;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>⚠️</button>":"") +
-"<button onclick='editPrice(" + s.id + ",1)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button>" +
+(s.priceIssues&&s.priceIssues.length?"<button onclick=\"openChangePriceModal('"+s.id+"',1)\" title='"+s.priceIssues[0]+"' style='background:#fff7ed;border:1px solid #fcd34d;color:#f59e0b;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>⚠️</button>":"") +
+"<button onclick=\"editPrice('" + s.id + "',1)\" style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button>" +
 "</div>" +
 "</div>" +
 "<div style='display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9'>" +
 "<span style='font-size:13px;color:#64748b'>Writing &amp; placement</span>" +
-"<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p2-" + s.id + "'>" + (s.p2?'$'+s.p2:'N/A') + "</span><button onclick='editPrice(" + s.id + ",2)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
+"<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p2-" + s.id + "'>" + (s.p2?'$'+s.p2:'N/A') + "</span><button onclick=\"editPrice('" + s.id + "',2)\" style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
 "</div>" +
 "<div style='display:flex;align-items:center;justify-content:space-between;padding:8px 0'>" +
 "<span style='font-size:13px;color:#64748b'>Special topic</span>" +
-"<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p4-" + s.id + "'>" + (parseFloat(s.p4)>0?'$'+s.p4:parseFloat(s.p3)>0?'$'+s.p3:'$0') + "</span><button onclick='editPrice(" + s.id + ",4)' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
+"<div style='display:flex;align-items:center;gap:8px'><span style='font-size:16px;font-weight:900;color:#0f172a;font-family:Manrope,sans-serif' id='p4-" + s.id + "'>" + (parseFloat(s.p4)>0?'$'+s.p4:parseFloat(s.p3)>0?'$'+s.p3:'$0') + "</span><button onclick=\"editPrice('" + s.id + "',4)\" style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center'>✏️</button></div>" +
 "</div>" +
 "</div>" +
 "</div>" +
@@ -2760,9 +2760,9 @@ return "<div style='padding:16px 20px;border-right:1px solid #e2e8f0'><div style
 "</div>" +
 /* ACTION BUTTONS */
 "<div style='display:flex;align-items:center;gap:10px'>" +
-"<button onclick='deactivateSite(" + s.id + ")' style='background:#0f172a;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px'>⏸️ Deactivate</button>" +
-"<button onclick='editSite(" + s.id + ")' style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px'>✏️ Edit Site</button>" +
-"<button onclick='delSite(" + s.id + ")' style='background:#fef2f2;border:1px solid #fecaca;color:#ef4444;border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer'>🗑️</button>" +
+"<button onclick=\"deactivateSite('" + s.id + "')\" style='background:#0f172a;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px'>⏸️ Deactivate</button>" +
+"<button onclick=\"editSite('" + s.id + "')\" style='background:#f0f4ff;border:1px solid #c7d7ff;color:#4f7cff;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px'>✏️ Edit Site</button>" +
+"<button onclick=\"delSite('" + s.id + "')\" style='background:#fef2f2;border:1px solid #fecaca;color:#ef4444;border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer'>🗑️</button>" +
 "</div>" +
 "</div>" +
 "</td>" +
@@ -2774,7 +2774,7 @@ var row = document.getElementById('det-'+id);
 if(row) row.style.display = row.style.display==='none'?'table-row':'none';
 }
 function editSite(id){
-var s = mySites.find(function(x){return x.id===id;});
+var s = mySites.find(function(x){return String(x.id)===String(id);});
 if(!s) return;
 // ── URL ──
 var urlIn = document.getElementById('urlIn');
@@ -2843,7 +2843,7 @@ go(4);
 }
 // ── PRICE ANALYSIS & CHANGE PRICE MODAL ──
 function getPriceAnalysis(siteId, priceNum){
-var s = mySites.find(function(x){ return x.id === siteId; });
+var s = mySites.find(function(x){ return String(x.id) === String(siteId); });
 if(!s) return null;
 var myPrice = parseFloat(s['p'+priceNum]||s.p1||0);
 if(!myPrice) return null;
@@ -2895,7 +2895,7 @@ hasIssue: hasIssue
 }
 function openChangePriceModal(siteId, priceNum){
 var analysis = getPriceAnalysis(siteId, priceNum);
-var s = mySites.find(function(x){ return x.id === siteId; });
+var s = mySites.find(function(x){ return String(x.id) === String(siteId); });
 if(!s || !analysis) return;
 var old = document.getElementById('changePriceMdl');
 if(old) old.remove();
@@ -2944,7 +2944,7 @@ var el = document.getElementById('changePriceMdl');
 if(el) el.remove();
 }
 function applyPriceChange(siteId, priceNum, newPrice){
-var s = mySites.find(function(x){ return x.id === siteId; });
+var s = mySites.find(function(x){ return String(x.id) === String(siteId); });
 if(!s) return;
 var key = 'p'+priceNum;
 s[key] = newPrice.toString();
@@ -3003,7 +3003,7 @@ function checkAllSiteIssues(){
 mySites.forEach(function(s){ checkAndMarkSiteIssues(s); });
 }
 function deactivateSite(id){
-var s=mySites.find(function(x){return x.id===id;});
+var s=mySites.find(function(x){return String(x.id)===String(id);});
 if(!s) return;
 var isActive = s.status!=='Inactive' && s.status!=='Deactivated';
 if(!confirm((isActive?'Deactivate':'Reactivate')+' '+s.url+'?')) return;
@@ -3014,7 +3014,7 @@ showToast(isActive ? 'Site deactivated — hidden from buyers' : 'Site reactivat
 }
 function delSite(id){
 if(!confirm('Remove this site from your listings?')) return;
-var s = mySites.find(function(x){ return x.id===id; });
+var s = mySites.find(function(x){ return String(x.id)===String(id); });
 if(s){
 var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
 var uid = localStorage.getItem('uplyncio_currentUid')||'';
@@ -3024,9 +3024,10 @@ method:'DELETE'
 }).catch(function(){});
 }
 }
-mySites = mySites.filter(function(x){ return x.id !== id; });
+mySites = mySites.filter(function(x){ return String(x.id) !== String(id); });
 saveSites();
 applyFilters();
+showToast('🗑️ Site removed from your listings');
 }
 // saveSites defined above
 document.querySelectorAll('.ro input').forEach(function(inp){
