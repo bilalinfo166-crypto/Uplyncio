@@ -34,7 +34,7 @@
     #ace-btn{position:fixed;bottom:24px;right:24px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;cursor:pointer;z-index:99998;box-shadow:0 6px 24px rgba(59,130,246,.5);display:flex;align-items:center;justify-content:center;transition:all .25s;font-size:26px}
     #ace-btn:hover{transform:scale(1.08);box-shadow:0 8px 32px rgba(59,130,246,.6)}
     #ace-badge{position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;font-size:9px;font-weight:800;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;font-family:Arial,sans-serif}
-    #ace-box{position:fixed;top:80px;bottom:96px;right:24px;width:380px;background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.2),0 0 0 1px rgba(0,0,0,.05);z-index:99999;display:none;flex-direction:column;overflow:hidden;font-family:'Plus Jakarta Sans',Arial,sans-serif}
+    #ace-box{position:fixed;bottom:96px;right:24px;width:380px;max-height:min(480px, calc(100vh - 120px));height:480px;background:#fff;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.2),0 0 0 1px rgba(0,0,0,.05);z-index:99999;display:none;flex-direction:column;overflow:hidden;font-family:'Plus Jakarta Sans',Arial,sans-serif}
     #ace-box.open{display:flex;animation:aceUp .3s cubic-bezier(.34,1.56,.64,1)}
     @keyframes aceUp{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 
@@ -93,7 +93,7 @@
     #ace-send{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;transition:all .2s;box-shadow:0 2px 8px rgba(59,130,246,.3)}
     #ace-send:hover{transform:scale(1.06);box-shadow:0 4px 14px rgba(59,130,246,.4)}
     #ace-send:disabled{opacity:.4;cursor:not-allowed;transform:none}
-    @media(max-width:420px){#ace-box{width:calc(100vw - 16px);right:8px;top:60px;bottom:90px}}
+    @media(max-width:420px){#ace-box{width:calc(100vw - 16px);right:8px;bottom:90px;max-height:calc(100dvh - 120px);height:420px}}
   `;
 
   var QUICK_REPLIES = ['💰 Pricing', '📝 How to order', '🌐 Become Publisher', '📞 Contact support'];
