@@ -2872,29 +2872,55 @@ var _pkgPlans = {
   Authority:{price:799, posts:20, da:'50–90+', content:'Premium content', links:'Dofollow', report:'White-label reports', support:'Dedicated manager'}
 };
 
+function showPaymentComingSoon(){
+var old=document.getElementById("payComingSoonModal");if(old)old.remove();
+var el=document.createElement("div");el.id="payComingSoonModal";
+el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)";
+el.innerHTML='<div style="background:#fff;border-radius:20px;width:420px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)">'
++'<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">'
++'<div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">💳</span>'
++'<div><div style="font-size:16px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">Payment System</div>'
++'<div style="font-size:11px;color:rgba(255,255,255,.5)">Uplyncio · Secure Payments</div></div></div>'
++'<button onclick="closePayCS()" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center">✕</button>'
++'</div>'
++'<div style="padding:26px">'
++'<div style="text-align:center;margin-bottom:22px">'
++'<div style="width:60px;height:60px;background:#fff7ed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px">🚀</div>'
++'<div style="font-family:Manrope,sans-serif;font-size:19px;font-weight:800;color:#0f172a;margin-bottom:7px">Payment Coming Soon!</div>'
++'<div style="font-size:13px;color:#64748b;line-height:1.7">We are integrating our payment gateway.<br>Please contact us to complete your order.</div>'
++'</div>'
++'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin-bottom:18px">'
++'<div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">📧 Contact us:</div>'
++'<a href="mailto:info@uplyncio.com" style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#0f172a;text-decoration:none">'
++'<span style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">✉️</span>'
++'info@uplyncio.com</a></div>'
++'<div style="display:flex;gap:10px">'
++'<button onclick="closePayCS()" style="flex:1;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button>'
++'<a href="mailto:info@uplyncio.com?subject=Payment Request - Uplyncio" style="flex:1;padding:11px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">✉️ Email Us</a>'
++'</div></div></div>';
+document.body.appendChild(el);
+el.addEventListener("click",function(e){if(e.target===el)el.remove();});
+}
+function closePayCS(){var m=document.getElementById("payComingSoonModal");if(m)m.remove();}
+
 function closePkgModal(){ var m=document.getElementById("pkgOrderModal"); if(m) m.remove(); }
 function startPkgOrder(btn){
-  // Check if logged in as buyer
-  var user = null;
-  try { user = JSON.parse(localStorage.getItem('uplyncio_user')||'null'); } catch(e){}
-  if(!user || !user.verified || user.role!=='buyer'){
-    // Save which plan they clicked
-    var planName = 'Growth';
-    try{
-      var card = btn.closest('.price-c');
-      if(card){ planName = card.querySelector('.plan-nm').textContent.trim(); }
-    }catch(e){}
-    sessionStorage.setItem('pending_pkg', planName);
-    openBuyerSignup();
-    return;
-  }
-  // Already logged in — find which plan
   var planName = 'Growth';
   try{
     var card = btn.closest('.price-c');
-    if(card){ planName = card.querySelector('.plan-nm').textContent.trim(); }
+    if(card){
+      var nm = card.querySelector('.plan-nm');
+      if(nm) planName = nm.textContent.trim();
+    }
   }catch(e){}
-  openPkgOrderForm(planName);
+  var user = null;
+  try{ user = JSON.parse(localStorage.getItem('uplyncio_user')||'null'); }catch(e){}
+  if(user && user.role==='buyer'){
+    openPkgOrderForm(planName);
+  } else {
+    sessionStorage.setItem('pending_pkg', planName);
+    openBuyerSignup();
+  }
 }
 
 function openPkgOrderForm(planName){
