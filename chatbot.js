@@ -96,7 +96,7 @@
     @media(max-width:420px){#ace-box{width:calc(100vw - 16px);right:8px;bottom:90px;max-height:calc(100dvh - 120px);height:420px}}
   `;
 
-  var QUICK_REPLIES = ['💰 Pricing', '📝 How to order', '🌐 Become Publisher', '📞 Contact support'];
+  var QUICK_REPLIES = ['💰 Pricing', '📝 How to order', '🌐 Become Publisher', '👤 Talk to Human'];
 
   function init() {
     var s = document.createElement('style');
@@ -288,6 +288,10 @@
     document.getElementById('ace-send').disabled = true;
     showTyping();
 
+    if(text.toLowerCase().includes('human') || text.toLowerCase().includes('talk to') || text.toLowerCase().includes('agent') || text.toLowerCase().includes('support')){
+      hideTyping(); IS_TYPING=false; document.getElementById('ace-send').disabled=false;
+      aceHumanHandoff(); return;
+    }
     var userType = 'visitor';
     try {
       var u = JSON.parse(localStorage.getItem('uplyncio_user') || 'null');
@@ -326,6 +330,26 @@
     IS_TYPING = false;
     document.getElementById('ace-send').disabled = false;
   }
+
+
+  window.aceHumanHandoff = function(){
+    var msgs = document.getElementById('ace-msgs');
+    var row = document.createElement('div');
+    row.className = 'ace-row bot';
+    row.innerHTML = '<div class="ace-av-sm"><svg width="14" height="14" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#3b82f6" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></svg></div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +'<div class="ace-bubble" style="padding:16px">'
+    +'<div style="font-weight:700;color:#1a202c;margin-bottom:10px">👤 Connect with our team:</div>'
+    +'<a href="https://wa.me/923000000000?text=Hi%20Uplyncio%20team%2C%20I%20need%20help%20with..." target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#dcfce7;border:1px solid #86efac;border-radius:10px;text-decoration:none;color:#166534;font-weight:700;font-size:13px;margin-bottom:8px"><span style="font-size:18px">💬</span>WhatsApp — Instant Reply</a>'
+    +'<a href="mailto:info@uplyncio.com?subject=Support Request" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;text-decoration:none;color:#1e40af;font-weight:700;font-size:13px;margin-bottom:8px"><span style="font-size:18px">✉️</span>Email — info@uplyncio.com</a>'
+    +'<a href="https://uplyncio.com/contact.html" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:10px;text-decoration:none;color:#5b21b6;font-weight:700;font-size:13px"><span style="font-size:18px">📋</span>Contact Form</a>'
+    +'</div>'
+    +'<div class="ace-meta"><span class="ace-time">' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + '</span></div>'
+    +'</div>';
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+    MESSAGES.push({role:'assistant',content:'Connect with team: WhatsApp, Email, or Contact Form'});
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
