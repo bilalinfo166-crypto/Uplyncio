@@ -2881,13 +2881,10 @@ else median = 30;
 var pct = median > 0 ? ((myPrice - median) / median * 100) : 0;
 var hasIssue = pct > 20 && median > 0;
 var issues = hasIssue
-? [{type:'too_high', msg:'Your price is '+Math.abs(pct).toFixed(2)+'% higher than similar sites in your niche. Sites with this pricing rarely receive orders.', recommended: median}]
+? [{type:'too_high', msg:'Your price is '+Math.abs(pct).toFixed(0)+'% higher than similar sites. Lower pricing = more orders!', recommended: median}]
 : [];
-// What buyer sees for this publisher price (tiered markup)
-var buyerPrice = myPrice <= 5 ? 20 : myPrice <= 10 ? 30 : myPrice <= 20 ? 50 : Math.ceil(myPrice * 1.28);
 return {
 myPrice: myPrice,
-buyerPrice: buyerPrice,
 median: median,
 pct: pct,
 issues: issues,
@@ -2895,47 +2892,65 @@ recommended: median,
 hasIssue: hasIssue
 };
 }
+function getSuggestedPrice(da, dr){
+if(da >= 80) return {min:120, ideal:180, max:300};
+if(da >= 70) return {min:80, ideal:120, max:200};
+if(da >= 60) return {min:50, ideal:80, max:150};
+if(da >= 50) return {min:30, ideal:50, max:100};
+if(da >= 40) return {min:15, ideal:30, max:60};
+if(da >= 30) return {min:10, ideal:20, max:40};
+return {min:5, ideal:10, max:25};
+}
 function openChangePriceModal(siteId, priceNum){
 var analysis = getPriceAnalysis(siteId, priceNum);
 var s = mySites.find(function(x){ return String(x.id) === String(siteId); });
 if(!s || !analysis) return;
 var old = document.getElementById('changePriceMdl');
 if(old) old.remove();
+var da = parseInt(s.da)||0;
+var dr = parseInt(s.dr)||0;
+var suggest = getSuggestedPrice(da, dr);
 var issue = analysis.issues[0] || {};
 var priceColor = analysis.hasIssue ? '#f59e0b' : '#16a34a';
 var insightText = issue.msg || 'Your price looks good for this DA range.';
+// Smart suggestion text
+var suggestText = '';
+if(analysis.myPrice > suggest.ideal * 1.5){
+suggestText = '💡 Try <strong>$'+suggest.ideal+'</strong> for more orders — sites at DA '+da+' typically sell between $'+suggest.min+'-$'+suggest.max;
+} else if(analysis.myPrice < suggest.min){
+suggestText = '💡 You can charge more! DA '+da+' sites usually go for $'+suggest.min+'-$'+suggest.max;
+} else {
+suggestText = '✅ Great pricing! DA '+da+' sites sell best at $'+suggest.min+'-$'+suggest.max;
+}
 var el = document.createElement('div');
 el.id = 'changePriceMdl';
 el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
 el.innerHTML =
 '<div style="background:#fff;border-radius:20px;padding:36px 38px;width:440px;max-width:92vw;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.25)">'
 +'<button onclick="document.getElementById(\'changePriceMdl\').remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8">×</button>'
-+'<div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:22px;text-align:center">Change price</div>'
-+'<div style="background:#f8faff;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-+'<div><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">YOUR PRICE (publisher)</div><div style="font-size:18px;font-weight:800;color:'+priceColor+'">$'+analysis.myPrice.toFixed(2)+'</div></div>'
-+'<div><div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:4px">BUYER SEES</div><div style="font-size:18px;font-weight:800;color:#16a34a">$'+analysis.buyerPrice.toFixed(2)+'</div><div style="font-size:10px;color:#94a3b8">Uplyncio markup applied</div></div>'
++'<div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px;text-align:center">Change price</div>'
++'<div style="font-size:13px;color:#94a3b8;text-align:center;margin-bottom:22px">'+s.url+' · DA '+da+' · DR '+dr+'</div>'
+// Current price
++'<div style="background:#f8faff;border-radius:12px;padding:16px 18px;margin-bottom:16px;text-align:center">'
++'<div style="font-size:11px;color:#94a3b8;font-weight:600;margin-bottom:6px">YOUR CURRENT PRICE</div>'
++'<div style="font-size:28px;font-weight:900;color:'+priceColor+';font-family:Manrope,sans-serif">$'+analysis.myPrice.toFixed(0)+'</div>'
 +'</div>'
-+(analysis.median ? '<div style="margin-bottom:12px"><span style="font-size:14px;color:#475569">Market Median: </span><span style="font-size:14px;font-weight:700;color:'+priceColor+'">$'+analysis.median.toFixed(2)+'</span></div>' : '')
-+'<div style="background:'+(analysis.hasIssue?'#fff7ed':'#f0fdf4')+';border-radius:10px;padding:14px 16px;margin-bottom:22px;font-size:13.5px;color:'+(analysis.hasIssue?'#92400e':'#166534')+';line-height:1.6">'+insightText+'</div>'
-+(analysis.hasIssue ? '<button onclick="applyRecommendedPrice('+siteId+','+priceNum+','+analysis.recommended+')" style="width:100%;padding:14px;background:#0f172a;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px">Apply recommended price ($'+analysis.recommended.toFixed(2)+')</button>' : '')
-+'<div style="text-align:center;color:#94a3b8;font-size:13px;margin-bottom:12px">'+(analysis.hasIssue?'OR':'Enter new price')+'</div>'
-+'<input id="cpmNewPrice" type="number" value="'+analysis.myPrice+'" placeholder="Enter new price" style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;outline:none" oninput="updateCpmBuyerPreview(this.value)" onfocus="this.style.borderColor=\'#4f7cff\'" onblur="this.style.borderColor=\'#e2e8f0\'">'
-+'<div id="cpmBuyerPreview" style="font-size:12px;color:#94a3b8;margin-bottom:12px;text-align:center">Buyer will see: <strong style="color:#16a34a">$'+analysis.buyerPrice.toFixed(2)+'</strong></div>'
-+'<button onclick="applyCustomPrice('+siteId+','+priceNum+')" style="width:100%;padding:14px;background:#4f7cff;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Change</button>'
+// Suggestion
++'<div style="background:'+(analysis.hasIssue?'#fff7ed':'#f0fdf4')+';border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:'+(analysis.hasIssue?'#92400e':'#166534')+';line-height:1.6">'+suggestText+'</div>'
+// Quick price buttons
++'<div style="margin-bottom:16px"><div style="font-size:12px;color:#94a3b8;font-weight:600;margin-bottom:8px;text-align:center">SUGGESTED PRICES</div>'
++'<div style="display:flex;gap:8px;justify-content:center">'
++'<button onclick="document.getElementById(\'cpmNewPrice\').value='+suggest.min+'" style="padding:8px 16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:#374151">$'+suggest.min+'</button>'
++'<button onclick="document.getElementById(\'cpmNewPrice\').value='+suggest.ideal+'" style="padding:8px 16px;background:#eff6ff;border:1.5px solid #3b82f6;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:#1d4ed8">$'+suggest.ideal+' ⭐</button>'
++'<button onclick="document.getElementById(\'cpmNewPrice\').value='+suggest.max+'" style="padding:8px 16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;color:#374151">$'+suggest.max+'</button>'
++'</div></div>'
+// Custom price input
++'<div style="text-align:center;color:#94a3b8;font-size:12px;margin-bottom:10px">Or enter custom price</div>'
++'<input id="cpmNewPrice" type="number" value="'+analysis.myPrice+'" placeholder="Enter price" style="width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit;box-sizing:border-box;margin-bottom:14px;outline:none;background:#fff;color:#1a202c" onfocus="this.style.borderColor=\'#4f7cff\'" onblur="this.style.borderColor=\'#e2e8f0\'">'
++'<button onclick="applyCustomPrice(\''+siteId+'\','+priceNum+')" style="width:100%;padding:14px;background:#4f7cff;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Update Price</button>'
 +'</div>';
 document.body.appendChild(el);
 el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
-}
-function applyRecommendedPrice(siteId, priceNum, recommended){
-applyPriceChange(siteId, priceNum, recommended);
-var el = document.getElementById('changePriceMdl');
-if(el) el.remove();
-}
-function updateCpmBuyerPreview(val){
-var p = parseFloat(val)||0;
-var buyerP = p <= 0 ? 0 : p <= 5 ? 20 : p <= 10 ? 30 : p <= 20 ? 50 : Math.ceil(p * 1.28);
-var el = document.getElementById('cpmBuyerPreview');
-if(el) el.innerHTML = 'Buyer will see: <strong style="color:#16a34a">$'+buyerP.toFixed(2)+'</strong>';
 }
 function applyCustomPrice(siteId, priceNum){
 var inp = document.getElementById('cpmNewPrice');
@@ -2944,6 +2959,7 @@ if(!val || val <= 0){ toast('⚠️ Enter a valid price', '#d97706'); return; }
 applyPriceChange(siteId, priceNum, val);
 var el = document.getElementById('changePriceMdl');
 if(el) el.remove();
+toast('✅ Price updated to $'+val, '#16a34a');
 }
 function applyPriceChange(siteId, priceNum, newPrice){
 var s = mySites.find(function(x){ return String(x.id) === String(siteId); });
