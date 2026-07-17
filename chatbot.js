@@ -1,4 +1,4 @@
-// ── Uplyncio Ace Chatbot — Premium Design ──
+// ── Uplyncio Max Chatbot — Premium Design ──
 (function() {
   var MESSAGES = [];
   var IS_OPEN = false;
@@ -166,7 +166,7 @@
   };
 
   window.aceClearChat = function() {
-    if (!confirm('Clear your entire chat history with Ace?')) return;
+    if (!confirm('Clear your entire chat history with Max?')) return;
     MESSAGES = [];
     HISTORY_LOADED = false;
     var msgs = document.getElementById('ace-msgs');
