@@ -2446,9 +2446,9 @@ function resetTurnstiles(){
 var _selectedRole = 'publisher';
 function openPublisherSignup(){
 _selectedRole = 'publisher';
-setTimeout(function(){ renderTurnstile('pub','pubTurnstile','pubCaptchaErr'); }, 200);
 window._selectedRole = 'publisher';
 document.getElementById('publisherModal').style.display='flex';
+setTimeout(function(){ renderTurnstile('pub','pubTurnstile','pubCaptchaErr'); }, 500);
 document.body.style.overflow='hidden';
 setTimeout(preFillEmail, 100);
 switchPubForm('signup');
@@ -2465,9 +2465,9 @@ document.getElementById('pub-form-title').textContent = isSignup?'Create Publish
 }
 function openBuyerSignup(){
 _selectedRole = 'buyer';
-setTimeout(function(){ renderTurnstile('buyer','buyerTurnstile','buyerCaptchaErr'); }, 200);
 window._selectedRole = 'buyer';
 document.getElementById('buyerModal').style.display='flex';
+setTimeout(function(){ renderTurnstile('buyer','buyerTurnstile','buyerCaptchaErr'); }, 500);
 document.body.style.overflow='hidden';
 setTimeout(preFillEmail, 100);
 switchBuyerForm('signup');
