@@ -2893,13 +2893,14 @@ hasIssue: hasIssue
 };
 }
 function getSuggestedPrice(da, dr){
-if(da >= 80) return {min:120, ideal:180, max:300};
-if(da >= 70) return {min:80, ideal:120, max:200};
-if(da >= 60) return {min:50, ideal:80, max:150};
-if(da >= 50) return {min:30, ideal:50, max:100};
-if(da >= 40) return {min:15, ideal:30, max:60};
-if(da >= 30) return {min:10, ideal:20, max:40};
-return {min:5, ideal:10, max:25};
+// Max acceptable price per DA range — above this = red warning
+if(da >= 80) return {max:250, s1:80, s2:120, s3:180};
+if(da >= 70) return {max:180, s1:50, s2:80, s3:120};
+if(da >= 60) return {max:120, s1:30, s2:50, s3:80};
+if(da >= 50) return {max:80, s1:20, s2:35, s3:50};
+if(da >= 40) return {max:50, s1:10, s2:20, s3:30};
+if(da >= 30) return {max:30, s1:5, s2:10, s3:20};
+return {max:20, s1:3, s2:5, s3:10};
 }
 function openChangePriceModal(siteId, priceNum){
 var analysis = getPriceAnalysis(siteId, priceNum);
@@ -2915,12 +2916,12 @@ var priceColor = analysis.hasIssue ? '#f59e0b' : '#16a34a';
 var insightText = issue.msg || 'Your price looks good for this DA range.';
 // Smart suggestion text
 var suggestText = '';
-if(analysis.myPrice > suggest.ideal * 1.5){
-suggestText = '💡 Try <strong>$'+suggest.ideal+'</strong> for more orders — sites at DA '+da+' typically sell between $'+suggest.min+'-$'+suggest.max;
-} else if(analysis.myPrice < suggest.min){
-suggestText = '💡 You can charge more! DA '+da+' sites usually go for $'+suggest.min+'-$'+suggest.max;
+var isTooHigh = analysis.myPrice > suggest.max;
+if(isTooHigh){
+suggestText = '⚠️ Your price is <strong>too high</strong> for DA '+da+' sites. Most buyers skip sites priced above $'+suggest.max+'. Lower your price to start getting orders.';
+priceColor = '#ef4444';
 } else {
-suggestText = '✅ Great pricing! DA '+da+' sites sell best at $'+suggest.min+'-$'+suggest.max;
+suggestText = '✅ Good price! Keep it competitive to attract more buyers.';
 }
 var el = document.createElement('div');
 el.id = 'changePriceMdl';
