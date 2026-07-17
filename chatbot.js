@@ -104,7 +104,7 @@
     document.head.appendChild(s);
 
     document.body.insertAdjacentHTML('beforeend', `
-      <button id="ace-btn" onclick="aceToggle()" title="Chat with Ace">
+      <button id="ace-btn" onclick="aceToggle()" title="Chat with Max">
         <span id="ace-icon">💬</span>
         <span id="ace-badge" style="display:none">1</span>
       </button>
@@ -119,7 +119,7 @@
             </svg>
           </div>
           <div id="ace-info">
-            <h4>Ace — AI Assistant</h4>
+            <h4>Max — AI Assistant</h4>
             <p><span class="dot-on"></span> Typically replies in seconds</p>
           </div>
           <button class="ace-hbtn" onclick="aceClearChat()" title="Clear chat">🗑</button>
@@ -155,7 +155,7 @@
       btn.innerHTML = '<span style="font-size:22px">✕</span>';
       loadHistoryFromSupabase();
       if (MESSAGES.length === 0) {
-        aceBotMsg("Hey there! 👋 I'm **Ace**, your AI assistant at Uplyncio. How can I help you today?");
+        aceBotMsg("Hey there! 👋 I'm **Max**, your AI assistant at Uplyncio. How can I help you today?");
         renderQuickReplies(QUICK_REPLIES);
       }
       setTimeout(function() { document.getElementById('ace-input').focus(); }, 200);
