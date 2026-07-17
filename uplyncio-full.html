@@ -2864,46 +2864,43 @@ document.getElementById('fpSendBtn').style.display='none';
 </div>
 </div> <script src="/chatbot.js?v=3" defer></script>
 
+
 <script>
 // ── PACKAGE ORDER SYSTEM ──
 var _pkgPlans = {
-  Starter: {price:149, posts:3, da:'30–50', content:'Included', links:'Dofollow', report:'Live URL report', support:'Email support'},
-  Growth:  {price:349, posts:8, da:'40–70', content:'Included', links:'Dofollow', report:'Detailed reports', support:'Priority support'},
-  Authority:{price:799, posts:20, da:'50–90+', content:'Premium content', links:'Dofollow', report:'White-label reports', support:'Dedicated manager'}
+  Starter: {price:149, posts:3, da:'30-50'},
+  Growth: {price:349, posts:8, da:'40-70'},
+  Authority: {price:799, posts:20, da:'50-90+'}
 };
+var _currentPkg = 'Growth';
+
+function closePkgModal(){
+  var m = document.getElementById('pkgOrderModal');
+  if(m) m.remove();
+}
 
 function showPaymentComingSoon(){
-var old=document.getElementById("payComingSoonModal");if(old)old.remove();
-var el=document.createElement("div");el.id="payComingSoonModal";
-el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)";
-el.innerHTML='<div style="background:#fff;border-radius:20px;width:420px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)">'
-+'<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">'
-+'<div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">💳</span>'
-+'<div><div style="font-size:16px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">Payment System</div>'
-+'<div style="font-size:11px;color:rgba(255,255,255,.5)">Uplyncio · Secure Payments</div></div></div>'
-+'<button onclick="closePayCS()" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center">✕</button>'
-+'</div>'
-+'<div style="padding:26px">'
-+'<div style="text-align:center;margin-bottom:22px">'
-+'<div style="width:60px;height:60px;background:#fff7ed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px">🚀</div>'
-+'<div style="font-family:Manrope,sans-serif;font-size:19px;font-weight:800;color:#0f172a;margin-bottom:7px">Payment Coming Soon!</div>'
-+'<div style="font-size:13px;color:#64748b;line-height:1.7">We are integrating our payment gateway.<br>Please contact us to complete your order.</div>'
-+'</div>'
-+'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 16px;margin-bottom:18px">'
-+'<div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">📧 Contact us:</div>'
-+'<a href="mailto:info@uplyncio.com" style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#0f172a;text-decoration:none">'
-+'<span style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">✉️</span>'
-+'info@uplyncio.com</a></div>'
-+'<div style="display:flex;gap:10px">'
-+'<button onclick="closePayCS()" style="flex:1;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button>'
-+'<a href="mailto:info@uplyncio.com?subject=Payment Request - Uplyncio" style="flex:1;padding:11px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:5px">✉️ Email Us</a>'
-+'</div></div></div>';
-document.body.appendChild(el);
-el.addEventListener("click",function(e){if(e.target===el)el.remove();});
+  var old = document.getElementById('payComingSoonModal');
+  if(old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'payComingSoonModal';
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+  var d = document.createElement('div');
+  d.style.cssText = 'background:#fff;border-radius:20px;width:420px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)';
+  d.innerHTML = '<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:20px 24px;text-align:center"><div style="font-size:16px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">💳 Payment System</div></div>'
+    + '<div style="padding:26px;text-align:center">'
+    + '<div style="width:60px;height:60px;background:#fff7ed;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px">🚀</div>'
+    + '<div style="font-family:Manrope,sans-serif;font-size:19px;font-weight:800;color:#0f172a;margin-bottom:7px">Payment Coming Soon!</div>'
+    + '<div style="font-size:13px;color:#64748b;line-height:1.7;margin-bottom:18px">We are integrating our payment gateway.<br>Please contact us to complete your order.</div>'
+    + '<a href="mailto:info@uplyncio.com?subject=Payment Request" style="display:block;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;margin-bottom:10px">✉️ Email info@uplyncio.com</a>'
+    + '<button id="payCSClose" style="width:100%;padding:10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button>'
+    + '</div>';
+  el.appendChild(d);
+  document.body.appendChild(el);
+  el.addEventListener('click', function(e){ if(e.target === el) el.remove(); });
+  document.getElementById('payCSClose').addEventListener('click', function(){ el.remove(); });
 }
-function closePayCS(){var m=document.getElementById("payComingSoonModal");if(m)m.remove();}
 
-function closePkgModal(){ var m=document.getElementById("pkgOrderModal"); if(m) m.remove(); }
 function startPkgOrder(btn){
   var planName = 'Growth';
   try{
@@ -2913,9 +2910,11 @@ function startPkgOrder(btn){
       if(nm) planName = nm.textContent.trim();
     }
   }catch(e){}
+  
   var user = null;
-  try{ user = JSON.parse(localStorage.getItem('uplyncio_user')||'null'); }catch(e){}
-  if(user && user.role==='buyer'){
+  try{ user = JSON.parse(localStorage.getItem('uplyncio_user') || 'null'); }catch(e){}
+  
+  if(user && user.role === 'buyer'){
     openPkgOrderForm(planName);
   } else {
     sessionStorage.setItem('pending_pkg', planName);
@@ -2924,149 +2923,132 @@ function startPkgOrder(btn){
 }
 
 function openPkgOrderForm(planName){
+  _currentPkg = planName;
   var plan = _pkgPlans[planName] || _pkgPlans.Growth;
-  var old = document.getElementById('pkgOrderModal');
-  if(old) old.remove();
-
+  closePkgModal();
+  
   var el = document.createElement('div');
   el.id = 'pkgOrderModal';
   el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px;overflow-y:auto';
-  el.onclick = function(e){ if(e.target===el) el.remove(); };
+  el.addEventListener('click', function(e){ if(e.target === el) el.remove(); });
 
-  el.innerHTML = '<div style="background:#fff;border-radius:20px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.4)">'
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:20px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.4)';
+  
   // Header
-  +'<div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:24px 28px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between">'
-  +'<div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff">📦 '+planName+' Package Order</div>'
-  +'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:3px">$'+plan.price+'/month · '+plan.posts+' guest posts · DA '+plan.da+'</div></div>'
-  +'<button onclick="closePkgModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>'
-  +'</div>'
-  // Form
-  +'<div style="padding:28px">'
-  // Plan selector
-  +'<div style="margin-bottom:18px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">📋 Select Plan</label>'
-  +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="pkgPlanBtns">'
-  +'<button onclick="selectPkgPlan(\'Starter\')" class="'+(planName==='Starter'?'ppsel':'')+'" style="padding:10px;border:1.5px solid '+(planName==='Starter'?'#3b82f6':'#e2e8f0')+';border-radius:10px;background:'+(planName==='Starter'?'#eff6ff':'#fff')+';cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;color:#374151">Starter<br><span style="font-size:11px;color:#64748b;font-weight:500">$149/mo</span></button>'
-  +'<button onclick="selectPkgPlan(\'Growth\')" class="'+(planName==='Growth'?'ppsel':'')+'" style="padding:10px;border:1.5px solid '+(planName==='Growth'?'#3b82f6':'#e2e8f0')+';border-radius:10px;background:'+(planName==='Growth'?'#eff6ff':'#fff')+';cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;color:#374151">Growth<br><span style="font-size:11px;color:#64748b;font-weight:500">$349/mo</span></button>'
-  +'<button onclick="selectPkgPlan(\'Authority\')" class="'+(planName==='Authority'?'ppsel':'')+'" style="padding:10px;border:1.5px solid '+(planName==='Authority'?'#3b82f6':'#e2e8f0')+';border-radius:10px;background:'+(planName==='Authority'?'#eff6ff':'#fff')+';cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;color:#374151">Authority<br><span style="font-size:11px;color:#64748b;font-weight:500">$799/mo</span></button>'
-  +'</div></div>'
-  // Target URLs
-  +'<div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">🎯 Target URLs <span style="color:#94a3b8;font-weight:400">(pages you want to rank)</span></label>'
-  +'<textarea id="pkgUrls" placeholder="https://yoursite.com/page-1&#10;https://yoursite.com/page-2&#10;Add one URL per line..." style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;min-height:80px;resize:vertical;color:#1a202c;background:#fff" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'"></textarea></div>'
-  // Keywords
-  +'<div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">🔑 Keywords / Anchor Texts</label>'
-  +'<textarea id="pkgKeywords" placeholder="best seo agency, guest posting service&#10;Add one keyword per line..." style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;min-height:70px;resize:vertical;color:#1a202c;background:#fff" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'"></textarea></div>'
-  // Link count
-  +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
-  +'<div><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">🔗 Number of Links</label>'
-  +'<select id="pkgLinkCount" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;color:#1a202c;background:#fff" onchange="updatePkgTotal()">'
-  +'<option value="pkg">Package ('+plan.posts+' links)</option>'
-  +'<option value="5">Custom: 5 links</option><option value="10">Custom: 10 links</option><option value="15">Custom: 15 links</option><option value="25">Custom: 25 links</option><option value="50">Custom: 50 links</option>'
-  +'</select></div>'
-  +'<div><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">⏱️ Preferred Timeline</label>'
-  +'<select id="pkgTimeline" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;color:#1a202c;background:#fff">'
-  +'<option>Standard (7–14 days)</option><option>Rush (3–5 days) +30%</option><option>Extended (30 days)</option>'
-  +'</select></div></div>'
-  // Special notes
-  +'<div style="margin-bottom:18px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">📝 Special Requirements <span style="color:#94a3b8;font-weight:400">(optional)</span></label>'
-  +'<textarea id="pkgNotes" placeholder="Any specific niches, competitor sites to avoid, article topics..." style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;min-height:60px;resize:vertical;color:#1a202c;background:#fff" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#e2e8f0'"></textarea></div>'
-  // Total
-  +'<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">'
-  +'<div><div style="font-size:13px;color:#0369a1;font-weight:600">Package Total</div><div style="font-size:11px;color:#64748b;margin-top:2px" id="pkgSummary">'+plan.posts+' dofollow links · DA '+plan.da+' sites</div></div>'
-  +'<div id="pkgTotal" style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#1d4ed8">$'+plan.price+'</div>'
-  +'</div>'
-  +'<div id="pkgErr" style="font-size:12px;color:#ef4444;margin-bottom:8px;min-height:14px"></div>'
-  // Submit
-  +'<button onclick="submitPkgOrder()" style="width:100%;padding:15px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(59,130,246,.3);margin-bottom:12px">Complete Payment →</button>'
-  +'<p style="text-align:center;font-size:11.5px;color:#94a3b8;margin:0">🔒 Secure payment · 12-month link guarantee · Request changes anytime</p>'
-  +'</div></div>';
-
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:24px 28px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between';
+  hdr.innerHTML = '<div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff">📦 ' + planName + ' Package Order</div>'
+    + '<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:3px">$' + plan.price + '/month · ' + plan.posts + ' guest posts · DA ' + plan.da + '</div></div>';
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center';
+  closeBtn.addEventListener('click', closePkgModal);
+  hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+  
+  // Form body
+  var body = document.createElement('div');
+  body.style.cssText = 'padding:28px';
+  body.innerHTML = ''
+    // Plan selector
+    + '<div style="margin-bottom:18px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">📋 Select Plan</label>'
+    + '<div id="pkgPlanBtns" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div></div>'
+    // Target URLs
+    + '<div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">🎯 Target URLs <span style="color:#94a3b8;font-weight:400">(pages to rank)</span></label>'
+    + '<textarea id="pkgUrls" placeholder="https://yoursite.com/page-1
+https://yoursite.com/page-2" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;min-height:80px;resize:vertical;color:#1a202c;background:#fff;box-sizing:border-box"></textarea></div>'
+    // Keywords
+    + '<div style="margin-bottom:16px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">🔑 Keywords / Anchor Texts</label>'
+    + '<textarea id="pkgKeywords" placeholder="best seo agency
+guest posting service" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;min-height:70px;resize:vertical;color:#1a202c;background:#fff;box-sizing:border-box"></textarea></div>'
+    // Link count + timeline
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">'
+    + '<div><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">🔗 Number of Links</label>'
+    + '<select id="pkgLinkCount" style="width:100%;padding:11px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;color:#1a202c;background:#fff;box-sizing:border-box">'
+    + '<option value="pkg">Package (' + plan.posts + ' links)</option><option value="5">Custom: 5</option><option value="10">Custom: 10</option><option value="15">Custom: 15</option><option value="25">Custom: 25</option><option value="50">Custom: 50</option></select></div>'
+    + '<div><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">⏱️ Timeline</label>'
+    + '<select id="pkgTimeline" style="width:100%;padding:11px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;color:#1a202c;background:#fff;box-sizing:border-box">'
+    + '<option>Standard (7-14 days)</option><option>Rush (3-5 days) +30%</option><option>Extended (30 days)</option></select></div></div>'
+    // Notes
+    + '<div style="margin-bottom:18px"><label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">📝 Special Requirements <span style="color:#94a3b8;font-weight:400">(optional)</span></label>'
+    + '<textarea id="pkgNotes" placeholder="Any niches, competitor sites, article topics..." style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;min-height:60px;resize:vertical;color:#1a202c;background:#fff;box-sizing:border-box"></textarea></div>'
+    // Total
+    + '<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center">'
+    + '<div><div style="font-size:13px;color:#0369a1;font-weight:600">Package Total</div><div id="pkgSummary" style="font-size:11px;color:#64748b;margin-top:2px">' + plan.posts + ' dofollow links · DA ' + plan.da + ' sites</div></div>'
+    + '<div id="pkgTotal" style="font-family:Manrope,sans-serif;font-size:28px;font-weight:900;color:#1d4ed8">$' + plan.price + '</div></div>'
+    + '<div id="pkgErr" style="font-size:12px;color:#ef4444;margin-bottom:8px;min-height:14px"></div>'
+    // Submit
+    + '<button id="pkgSubmitBtn" style="width:100%;padding:15px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(59,130,246,.3);margin-bottom:12px">Complete Payment →</button>'
+    + '<p style="text-align:center;font-size:11.5px;color:#94a3b8;margin:0">🔒 Secure · 12-month guarantee · Request changes anytime</p>';
+  
+  box.appendChild(body);
+  el.appendChild(box);
   document.body.appendChild(el);
+  
+  // Build plan buttons with proper event listeners (no onclick string!)
+  var planBtns = document.getElementById('pkgPlanBtns');
+  ['Starter','Growth','Authority'].forEach(function(name){
+    var b = document.createElement('button');
+    var p = _pkgPlans[name];
+    b.innerHTML = name + '<br><span style="font-size:11px;color:#64748b;font-weight:500">$' + p.price + '/mo</span>';
+    b.style.cssText = 'padding:10px;border:1.5px solid ' + (name===planName?'#3b82f6':'#e2e8f0') + ';border-radius:10px;background:' + (name===planName?'#eff6ff':'#fff') + ';cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;color:#374151';
+    b.addEventListener('click', function(){ selectPkgPlan(name); });
+    planBtns.appendChild(b);
+  });
+  
+  // Submit button listener
+  document.getElementById('pkgSubmitBtn').addEventListener('click', function(){
+    var urls = document.getElementById('pkgUrls').value.trim();
+    var kw = document.getElementById('pkgKeywords').value.trim();
+    var err = document.getElementById('pkgErr');
+    if(!urls){ err.textContent = '⚠ Please enter at least one target URL'; return; }
+    if(!kw){ err.textContent = '⚠ Please enter at least one keyword'; return; }
+    closePkgModal();
+    showPaymentComingSoon();
+  });
+  
+  // Link count change listener
+  document.getElementById('pkgLinkCount').addEventListener('change', function(){
+    updatePkgTotal();
+  });
 }
 
-var _currentPkgPlan = 'Growth';
 function selectPkgPlan(name){
-  _currentPkgPlan = name;
+  _currentPkg = name;
   var plan = _pkgPlans[name];
   if(!plan) return;
-  var header = document.querySelector('#pkgOrderModal div div:first-child div:first-child');
-  if(header){
-    header.innerHTML = '<div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff">📦 '+name+' Package Order</div>'
-    +'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:3px">$'+plan.price+'/month · '+plan.posts+' guest posts · DA '+plan.da+'</div>';
-  }
-  document.getElementById('pkgTotal').textContent = '$'+plan.price;
-  document.getElementById('pkgSummary').textContent = plan.posts+' dofollow links · DA '+plan.da+' sites';
-  // Update plan buttons
-  document.querySelectorAll('#pkgPlanBtns button').forEach(function(b){
-    var isActive = b.textContent.includes(name);
+  document.getElementById('pkgTotal').textContent = '$' + plan.price;
+  document.getElementById('pkgSummary').textContent = plan.posts + ' dofollow links · DA ' + plan.da + ' sites';
+  var btns = document.getElementById('pkgPlanBtns').querySelectorAll('button');
+  btns.forEach(function(b){
+    var isActive = b.textContent.indexOf(name) === 0;
     b.style.borderColor = isActive ? '#3b82f6' : '#e2e8f0';
     b.style.background = isActive ? '#eff6ff' : '#fff';
   });
-  // Update link count default
   var sel = document.getElementById('pkgLinkCount');
-  if(sel) sel.options[0].textContent = 'Package ('+plan.posts+' links)';
+  if(sel) sel.options[0].textContent = 'Package (' + plan.posts + ' links)';
 }
 
 function updatePkgTotal(){
-  var plan = _pkgPlans[_currentPkgPlan];
+  var plan = _pkgPlans[_currentPkg];
   var sel = document.getElementById('pkgLinkCount');
   var val = sel ? sel.value : 'pkg';
   var price = plan.price;
-  var count = plan.posts;
   if(val !== 'pkg'){
-    count = parseInt(val);
-    var perLink = plan.price / plan.posts;
-    price = Math.round(perLink * count);
+    var count = parseInt(val);
+    price = Math.round((plan.price / plan.posts) * count);
   }
-  document.getElementById('pkgTotal').textContent = '$'+price;
-  document.getElementById('pkgSummary').textContent = count+' dofollow links · DA '+plan.da+' sites';
+  document.getElementById('pkgTotal').textContent = '$' + price;
 }
 
-function submitPkgOrder(){
-  var urls = document.getElementById('pkgUrls').value.trim();
-  var keywords = document.getElementById('pkgKeywords').value.trim();
-  var err = document.getElementById('pkgErr');
-  if(!urls){ err.textContent='⚠ Please enter at least one target URL'; return; }
-  if(!keywords){ err.textContent='⚠ Please enter at least one keyword'; return; }
-  err.textContent = '';
-  // Show payment coming soon
-  showPaymentComingSoon();
-}
-
-function showPkgConfirmation(planName, price, count){
-  var modal = document.getElementById('pkgOrderModal');
-  if(!modal) return;
-  var inner = modal.querySelector('div');
-  var timeline = new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  inner.innerHTML = '<div style="padding:48px 36px;text-align:center">'
-  +'<div style="width:72px;height:72px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px">✅</div>'
-  +'<div style="font-family:Manrope,sans-serif;font-size:24px;font-weight:900;color:#0f172a;margin-bottom:8px">Order Confirmed!</div>'
-  +'<div style="font-size:14px;color:#64748b;margin-bottom:28px">Your '+planName+' package order has been placed successfully</div>'
-  // Timeline
-  +'<div style="text-align:left;background:#f8faff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;margin-bottom:20px">'
-  +'<div style="font-size:13px;font-weight:700;color:#374151;margin-bottom:14px">📅 Estimated Timeline</div>'
-  +'<div style="display:flex;flex-direction:column;gap:12px">'
-  +'<div style="display:flex;gap:10px;align-items:center"><div style="width:28px;height:28px;background:#3b82f6;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">1</div><div><div style="font-size:13px;font-weight:600;color:#1a202c">Order Received</div><div style="font-size:11px;color:#64748b">Today — We start site selection</div></div></div>'
-  +'<div style="display:flex;gap:10px;align-items:center"><div style="width:28px;height:28px;background:#e2e8f0;border-radius:50%;color:#64748b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">2</div><div><div style="font-size:13px;font-weight:600;color:#1a202c">Content Creation</div><div style="font-size:11px;color:#64748b">Day 2–5 — Writing articles for your links</div></div></div>'
-  +'<div style="display:flex;gap:10px;align-items:center"><div style="width:28px;height:28px;background:#e2e8f0;border-radius:50%;color:#64748b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">3</div><div><div style="font-size:13px;font-weight:600;color:#1a202c">Publishing & Review</div><div style="font-size:11px;color:#64748b">Day 5–12 — Posts go live, links placed</div></div></div>'
-  +'<div style="display:flex;gap:10px;align-items:center"><div style="width:28px;height:28px;background:#e2e8f0;border-radius:50%;color:#64748b;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">4</div><div><div style="font-size:13px;font-weight:600;color:#1a202c">Delivery Report</div><div style="font-size:11px;color:#64748b">By '+timeline+' — Full report with live URLs</div></div></div>'
-  +'</div></div>'
-  // Change request note
-  +'<div style="text-align:left;background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px;margin-bottom:20px">'
-  +'<div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px">🔄 Need Changes?</div>'
-  +'<div style="font-size:12.5px;color:#78350f;line-height:1.7">You can request modifications at any stage by emailing <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:700">info@uplyncio.com</a> with your order details. We allow up to 2 revision rounds per order.</div>'
-  +'</div>'
-  +'<button onclick="closePkgModal()" style="width:100%;padding:14px;background:#0f172a;color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Done ✓</button>'
-  +'</div>';
-}
-
-// Check on page load if user just logged in after clicking pricing
 window.addEventListener('DOMContentLoaded', function(){
   var pending = sessionStorage.getItem('pending_pkg');
   if(pending){
     sessionStorage.removeItem('pending_pkg');
     var user = null;
-    try{ user = JSON.parse(localStorage.getItem('uplyncio_user')||'null'); }catch(e){}
-    if(user && user.verified && user.role==='buyer'){
+    try{ user = JSON.parse(localStorage.getItem('uplyncio_user') || 'null'); }catch(e){}
+    if(user && user.role === 'buyer'){
       setTimeout(function(){ openPkgOrderForm(pending); }, 500);
     }
   }
