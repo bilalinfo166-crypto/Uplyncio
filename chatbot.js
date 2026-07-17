@@ -111,11 +111,17 @@
       <div id="ace-box">
         <div id="ace-head">
           <div id="ace-av">
-            <svg width="26" height="26" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-              <rect width="64" height="64" rx="14" fill="#0f1628"/>
-              <rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-              <rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-              <rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+            <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <rect x="12" y="20" width="40" height="32" rx="8" fill="#1d4ed8"/>
+              <rect x="16" y="26" width="12" height="10" rx="5" fill="#fff"/>
+              <rect x="36" y="26" width="12" height="10" rx="5" fill="#fff"/>
+              <circle cx="22" cy="31" r="3" fill="#1d4ed8"/>
+              <circle cx="42" cy="31" r="3" fill="#1d4ed8"/>
+              <rect x="24" y="40" width="16" height="4" rx="2" fill="#93c5fd"/>
+              <rect x="28" y="10" width="8" height="12" rx="4" fill="#60a5fa"/>
+              <circle cx="32" cy="8" r="4" fill="#93c5fd"/>
+              <rect x="6" y="30" width="8" height="4" rx="2" fill="#60a5fa"/>
+              <rect x="50" y="30" width="8" height="4" rx="2" fill="#60a5fa"/>
             </svg>
           </div>
           <div id="ace-info">
@@ -236,7 +242,7 @@
     }
 
     var av = role === 'bot'
-      ? '<div class="ace-av-sm"><svg width="14" height="14" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#3b82f6" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></svg></div>'
+      ? '<div class="ace-av-sm">🤖</div>'
       : '';
 
     var row = document.createElement('div');
@@ -264,7 +270,7 @@
     var row = document.createElement('div');
     row.id = 'ace-typing-ind';
     row.className = 'ace-row bot';
-    row.innerHTML = '<div class="ace-av-sm"><svg width="14" height="14" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#3b82f6" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></svg></div>'
+    row.innerHTML = '<div class="ace-av-sm">🤖</div>'
       + '<div class="ace-typing"><div class="ace-tdot"></div><div class="ace-tdot"></div><div class="ace-tdot"></div></div>';
     msgs.appendChild(row);
     msgs.scrollTop = msgs.scrollHeight;
@@ -336,7 +342,7 @@
     var msgs = document.getElementById('ace-msgs');
     var row = document.createElement('div');
     row.className = 'ace-row bot';
-    row.innerHTML = '<div class="ace-av-sm"><svg width="14" height="14" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#fff"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#3b82f6" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/></svg></div>'
+    row.innerHTML = '<div class="ace-av-sm">🤖</div>'
     +'<div style="display:flex;flex-direction:column;gap:8px">'
     +'<div class="ace-bubble" style="padding:16px">'
     +'<div style="font-weight:700;color:#1a202c;margin-bottom:10px">👤 Connect with our team:</div>'
