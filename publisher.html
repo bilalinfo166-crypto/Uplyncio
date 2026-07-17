@@ -2574,7 +2574,7 @@ var filtered = mySites.filter(function(s){
 if(q && !s.url.toLowerCase().includes(q)) return false;
 if(lt && s.lt !== lt) return false;
 if(cat && !s.cat.includes(cat)) return false;
-var sp = parseInt(s.price.replace('$',''))||0;
+var sp = parseInt(String(s.price||'0').replace('$',''))||0;
 if(sp < pMin || sp > pMax) return false;
 var da = parseInt(s.da)||0;
 if(da < daMin || da > daMax) return false;
@@ -7281,6 +7281,14 @@ document.addEventListener('click', function(e){
   
   if(action === 'delete'){
     if(!confirm('Remove this site from your listings?')) return;
+    // 1. Remove card from DOM instantly
+    var row = btn.closest('tr');
+    if(row){
+      var detRow = row.nextElementSibling;
+      if(detRow && detRow.id && detRow.id.startsWith('det-')) detRow.remove();
+      row.remove();
+    }
+    // 2. Remove from array
     var s = mySites.find(function(x){ return String(x.id) === String(sid); });
     if(s){
       var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
@@ -7291,8 +7299,18 @@ document.addEventListener('click', function(e){
     }
     mySites = mySites.filter(function(x){ return String(x.id) !== String(sid); });
     saveSites();
-    applyFilters();
-    showToast('🗑️ Site deleted successfully!');
+    // 3. Update counts instantly
+    updateTabCounts();
+    var countEl = document.getElementById('siteCount');
+    if(countEl) countEl.textContent = mySites.length + ' site' + (mySites.length!==1?'s':'');
+    // 4. Show empty state if no sites left
+    if(mySites.length === 0){
+      var emptyEl = document.getElementById('emptyState');
+      var listEl = document.getElementById('sitesList');
+      if(emptyEl) emptyEl.style.display = 'block';
+      if(listEl) listEl.style.display = 'none';
+    }
+    showToast('🗑️ Site deleted!');
   }
   else if(action === 'deactivate'){
     deactivateSite(sid);
