@@ -612,7 +612,8 @@ av.textContent = initials.toUpperCase();
 <table style="width:100%;border-collapse:collapse;table-layout:fixed" id="sitesTableEl">
 <thead>
 <tr style="background:#f8faff;border-bottom:1px solid var(--br)">
-<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;width:30%">Website</th>
+<th style="padding:10px 12px;width:36px"><input type="checkbox" id="selectAllSites" onchange="toggleSelectAll(this)" style="width:16px;height:16px;cursor:pointer;accent-color:#4f7cff"></th>
+<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;width:28%">Website</th>
 <th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;width:6%">DA</th>
 <th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;width:6%">DR</th>
 <th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;width:9%">Traffic</th>
@@ -2671,6 +2672,7 @@ var pageList = list.slice(start, start + _SITES_PER_PAGE);
 if(countEl) countEl.textContent = 'Showing ' + (start+1) + '–' + Math.min(start+_SITES_PER_PAGE, list.length) + ' of ' + list.length + ' site' + (list.length>1?'s':'');
 renderPagination(totalPages, list.length);
 tbody.innerHTML = pageList.map(function(s){
+var checkCol = "<td style='padding:12px 12px;'><input type='checkbox' class='site-check' data-sid='" + s.id + "' onchange='updateBulkBar()' style='width:16px;height:16px;cursor:pointer;accent-color:#4f7cff'></td>";
 var statusColor, statusBg, statusText;
 if(s.status==='pending'){
 statusColor='#d97706'; statusBg='#d97706'; statusText='Pending Review';
@@ -2699,7 +2701,7 @@ return "<tr style='border-bottom:1px solid #e2e8f0' onmouseover=\"this.style.bac
 "</div>" +
 "</td></tr>" +
 "<tr id='det-" + s.id + "' style='display:none'>" +
-"<td colspan='9' style='padding:0;border-bottom:2px solid #e0e7ff'>" +
+"<td colspan='10' style='padding:0;border-bottom:2px solid #e0e7ff'>" +
 "<div style='background:linear-gradient(135deg,#f8faff 0%,#f0f4ff 100%);padding:24px 24px 20px;border-left:4px solid #4f7cff'>" +
 /* TOP STATS ROW */
 "<div style='display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)'>" +
@@ -7322,6 +7324,88 @@ document.addEventListener('click', function(e){
     toggleDetails(sid);
   }
 });
+</script>
+<script>
+function toggleSelectAll(cb){
+  var checks = document.querySelectorAll('.site-check');
+  checks.forEach(function(c){ c.checked = cb.checked; });
+  updateBulkBar();
+}
+function updateBulkBar(){
+  var checks = document.querySelectorAll('.site-check:checked');
+  var bar = document.getElementById('bulkActionsBar');
+  var count = document.getElementById('selectedCount');
+  if(checks.length > 0){
+    bar.style.display = 'flex';
+    count.textContent = checks.length;
+  } else {
+    bar.style.display = 'none';
+  }
+  // Update header checkbox
+  var allChecks = document.querySelectorAll('.site-check');
+  var headerCb = document.getElementById('selectAllSites');
+  if(headerCb) headerCb.checked = allChecks.length > 0 && checks.length === allChecks.length;
+}
+function getSelectedSiteIds(){
+  var ids = [];
+  document.querySelectorAll('.site-check:checked').forEach(function(c){
+    ids.push(c.getAttribute('data-sid'));
+  });
+  return ids;
+}
+function bulkDelete(){
+  var ids = getSelectedSiteIds();
+  if(!ids.length) return;
+  if(!confirm('Delete ' + ids.length + ' selected sites? This cannot be undone.')) return;
+  var uid = localStorage.getItem('uplyncio_currentUid')||'';
+  ids.forEach(function(sid){
+    // Remove from DOM
+    var row = document.querySelector('.site-check[data-sid="'+sid+'"]');
+    if(row){
+      var tr = row.closest('tr');
+      if(tr){
+        var det = tr.nextElementSibling;
+        if(det && det.id && det.id.startsWith('det-')) det.remove();
+        tr.remove();
+      }
+    }
+    // Delete from Supabase
+    var s = mySites.find(function(x){ return String(x.id)===String(sid); });
+    if(s){
+      var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
+      if(domain && uid){
+        fetch('/api/sites?domain='+encodeURIComponent(domain)+'&publisher_id='+encodeURIComponent(uid),{method:'DELETE'}).catch(function(){});
+      }
+    }
+  });
+  // Remove from array
+  mySites = mySites.filter(function(x){ return ids.indexOf(String(x.id)) === -1; });
+  saveSites();
+  updateTabCounts();
+  var countEl = document.getElementById('siteCount');
+  if(countEl) countEl.textContent = mySites.length + ' site' + (mySites.length!==1?'s':'');
+  document.getElementById('bulkActionsBar').style.display = 'none';
+  if(document.getElementById('selectAllSites')) document.getElementById('selectAllSites').checked = false;
+  if(mySites.length === 0){
+    var e = document.getElementById('emptyState'); if(e) e.style.display='block';
+    var l = document.getElementById('sitesList'); if(l) l.style.display='none';
+  }
+  showToast('🗑️ ' + ids.length + ' sites deleted!');
+}
+function bulkDeactivate(){
+  var ids = getSelectedSiteIds();
+  if(!ids.length) return;
+  if(!confirm('Deactivate ' + ids.length + ' selected sites?')) return;
+  ids.forEach(function(sid){
+    var s = mySites.find(function(x){ return String(x.id)===String(sid); });
+    if(s) s.status = 'Inactive';
+  });
+  saveSites();
+  applyFilters();
+  document.getElementById('bulkActionsBar').style.display = 'none';
+  if(document.getElementById('selectAllSites')) document.getElementById('selectAllSites').checked = false;
+  showToast('⏸ ' + ids.length + ' sites deactivated');
+}
 </script>
 </body>
 </html>
