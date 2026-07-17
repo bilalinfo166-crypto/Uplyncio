@@ -61,27 +61,41 @@ if(err){ err.style.display='none'; err.textContent=''; }
 // ── LOGIN — strict validation ──
 // ── CLOUDFLARE TURNSTILE CAPTCHA ──
 var _turnstileTokens = {login:'', pub:'', buyer:''};
-function onLoginCaptcha(token){ _turnstileTokens.login = token; document.getElementById('loginCaptchaErr').style.display='none'; }
-function onPubCaptcha(token){ _turnstileTokens.pub = token; document.getElementById('pubCaptchaErr').style.display='none'; }
-function onBuyerCaptcha(token){ _turnstileTokens.buyer = token; document.getElementById('buyerCaptchaErr').style.display='none'; }
-window.onLoginCaptcha = onLoginCaptcha;
-window.onPubCaptcha = onPubCaptcha;
-window.onBuyerCaptcha = onBuyerCaptcha;
+var _turnstileWidgets = {login:null, pub:null, buyer:null};
+var TURNSTILE_KEY = '0x4AAAAAAD32w6fkSeefvWAa';
+
+function renderTurnstile(key, containerId, errId){
+  if(typeof turnstile === 'undefined'){ setTimeout(function(){ renderTurnstile(key, containerId, errId); }, 500); return; }
+  var el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = '';
+  _turnstileTokens[key] = '';
+  _turnstileWidgets[key] = turnstile.render('#' + containerId, {
+    sitekey: TURNSTILE_KEY,
+    theme: 'light',
+    callback: function(token){
+      _turnstileTokens[key] = token;
+      var err = document.getElementById(errId);
+      if(err) err.style.display = 'none';
+    },
+    'expired-callback': function(){
+      _turnstileTokens[key] = '';
+    }
+  });
+}
 
 function verifyCaptcha(key, errId){
   var errEl = document.getElementById(errId);
   if(!_turnstileTokens[key]){
-    if(errEl){ errEl.textContent='⚠ Please complete the captcha verification'; errEl.style.display='block'; }
+    if(errEl){ errEl.textContent = '⚠ Please complete the captcha verification'; errEl.style.display = 'block'; }
     return false;
   }
-  if(errEl) errEl.style.display='none';
+  if(errEl) errEl.style.display = 'none';
   return true;
 }
+
 function resetTurnstiles(){
   _turnstileTokens = {login:'', pub:'', buyer:''};
-  try{ turnstile.reset('#loginTurnstile'); }catch(e){}
-  try{ turnstile.reset('#pubTurnstile'); }catch(e){}
-  try{ turnstile.reset('#buyerTurnstile'); }catch(e){}
 }
 function handleLogin(){
 if(!verifyCaptcha('login','loginCaptchaErr')) return;clearLoginError();
@@ -1034,7 +1048,7 @@ alert('Google sign in failed: ' + err + '. Please use Email/Password.');
   }
 }
 </script>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </head>
 <body>
 <nav class="nav">
@@ -2431,7 +2445,7 @@ onfocus="this.style.borderColor='#4f7cff';this.style.background='#fff'" onblur="
 </div>
 <!-- reCAPTCHA style -->
 <div style="margin:14px 0;display:flex;justify-content:center">
-<div class="cf-turnstile" data-sitekey="0x4AAAAAAD32w6fkSeefvWAa" data-theme="light" data-callback="onLoginCaptcha" id="loginTurnstile"></div>
+<div id="loginTurnstile"></div>
 </div>
 <div id="loginCaptchaErr" style="display:none;font-size:12px;color:#ef4444;margin:-4px 0 8px;font-weight:600;text-align:center">⚠ Please complete the captcha</div>
 <!-- Sign In Button -->
@@ -3085,7 +3099,7 @@ window.addEventListener('DOMContentLoaded', function(){
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Email</label><input id="pubEmail" type="email" placeholder="Enter your email" autocomplete="email" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:4px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><label style="font-size:12.5px;font-weight:700;color:#374151">Password</label></div><div style="position:relative"><input id="pubPass" type="password" placeholder="Create a password" autocomplete="off" style="background:#fff;color:#1a202c;width:100%;padding:11px 40px 11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')"><button type="button" onclick="togglePwd('pubPass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:11px;font-family:inherit">Show</button></div><div style="margin-top:5px;height:3px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="pubPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div><span id="pubPassTxt" style="font-size:10px;font-weight:600"></span></div>
 <div style="margin:12px 0;display:flex;justify-content:center">
-<div class="cf-turnstile" data-sitekey="0x4AAAAAAD32w6fkSeefvWAa" data-theme="light" data-callback="onPubCaptcha" id="pubTurnstile"></div>
+<div id="pubTurnstile"></div>
 </div>
 <div id="pubCaptchaErr" style="display:none;font-size:11px;color:#ef4444;margin:-4px 0 6px;font-weight:600;text-align:center">⚠ Please complete the captcha</div>
 <div id="pub-err" style="font-size:11px;color:#ef4444;margin-bottom:6px;min-height:12px"></div>
@@ -3133,7 +3147,7 @@ window.addEventListener('DOMContentLoaded', function(){
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Email</label><input id="buyerEmail" type="email" placeholder="Enter your email" autocomplete="email" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:4px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Password</label><div style="position:relative"><input id="buyerPass" type="password" placeholder="Create a password" autocomplete="off" style="background:#fff;color:#1a202c;width:100%;padding:11px 40px 11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')"><button type="button" onclick="togglePwd('buyerPass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:11px;font-family:inherit">Show</button></div><div style="margin-top:5px;height:3px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="buyerPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div><span id="buyerPassTxt" style="font-size:10px;font-weight:600"></span></div>
 <div style="margin:12px 0;display:flex;justify-content:center">
-<div class="cf-turnstile" data-sitekey="0x4AAAAAAD32w6fkSeefvWAa" data-theme="light" data-callback="onBuyerCaptcha" id="buyerTurnstile"></div>
+<div id="buyerTurnstile"></div>
 </div>
 <div id="buyerCaptchaErr" style="display:none;font-size:11px;color:#ef4444;margin:-4px 0 6px;font-weight:600;text-align:center">⚠ Please complete the captcha</div>
 <div id="buyer-err" style="font-size:11px;color:#ef4444;margin-bottom:6px;min-height:12px"></div>
@@ -3205,7 +3219,7 @@ window.addEventListener('DOMContentLoaded', function(){
 var _selectedRole = 'publisher';
 function openPublisherSignup(){
 _selectedRole = 'publisher';
-try{resetTurnstiles();}catch(e){}
+setTimeout(function(){ renderTurnstile('pub','pubTurnstile','pubCaptchaErr'); }, 200);
 window._selectedRole = 'publisher';
 document.getElementById('publisherModal').style.display='flex';
 document.body.style.overflow='hidden';
@@ -3224,7 +3238,7 @@ document.getElementById('pub-form-title').textContent = isSignup?'Create Publish
 }
 function openBuyerSignup(){
 _selectedRole = 'buyer';
-try{resetTurnstiles();}catch(e){}
+setTimeout(function(){ renderTurnstile('buyer','buyerTurnstile','buyerCaptchaErr'); }, 200);
 window._selectedRole = 'buyer';
 document.getElementById('buyerModal').style.display='flex';
 document.body.style.overflow='hidden';
