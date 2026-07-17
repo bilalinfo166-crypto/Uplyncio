@@ -2872,6 +2872,7 @@ var _pkgPlans = {
   Authority:{price:799, posts:20, da:'50–90+', content:'Premium content', links:'Dofollow', report:'White-label reports', support:'Dedicated manager'}
 };
 
+function closePkgModal(){ var m=document.getElementById("pkgOrderModal"); if(m) m.remove(); }
 function startPkgOrder(btn){
   // Check if logged in as buyer
   var user = null;
@@ -2911,7 +2912,7 @@ function openPkgOrderForm(planName){
   +'<div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:24px 28px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between">'
   +'<div><div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#fff">📦 '+planName+' Package Order</div>'
   +'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:3px">$'+plan.price+'/month · '+plan.posts+' guest posts · DA '+plan.da+'</div></div>'
-  +'<button onclick="document.getElementById('pkgOrderModal').remove()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>'
+  +'<button onclick="closePkgModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>'
   +'</div>'
   // Form
   +'<div style="padding:28px">'
@@ -3028,7 +3029,7 @@ function showPkgConfirmation(planName, price, count){
   +'<div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px">🔄 Need Changes?</div>'
   +'<div style="font-size:12.5px;color:#78350f;line-height:1.7">You can request modifications at any stage by emailing <a href="mailto:info@uplyncio.com" style="color:#4f7cff;font-weight:700">info@uplyncio.com</a> with your order details. We allow up to 2 revision rounds per order.</div>'
   +'</div>'
-  +'<button onclick="document.getElementById('pkgOrderModal').remove()" style="width:100%;padding:14px;background:#0f172a;color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Done ✓</button>'
+  +'<button onclick="closePkgModal()" style="width:100%;padding:14px;background:#0f172a;color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Done ✓</button>'
   +'</div>';
 }
 
