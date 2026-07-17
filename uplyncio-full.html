@@ -59,54 +59,30 @@ if(err){ err.style.display='none'; err.textContent=''; }
 });
 }
 // ── LOGIN — strict validation ──
-// ── MATH CAPTCHA SYSTEM ──
-var _captchaData = {login:{a:0,b:0,op:'+'},pub:{a:0,b:0,op:'+'},buyer:{a:0,b:0,op:'+'}};
-function genCaptcha(key){
-  var ops = ['+','+','+','-','×'];
-  var op = ops[Math.floor(Math.random()*ops.length)];
-  var a, b, ans;
-  if(op === '+') { a=Math.floor(Math.random()*15)+2; b=Math.floor(Math.random()*15)+2; ans=a+b; }
-  else if(op === '-') { a=Math.floor(Math.random()*15)+8; b=Math.floor(Math.random()*a)+1; ans=a-b; }
-  else { a=Math.floor(Math.random()*9)+2; b=Math.floor(Math.random()*9)+2; ans=a*b; }
-  _captchaData[key] = {a:a, b:b, op:op, ans:ans};
-  return a + ' ' + op + ' ' + b;
-}
-function refreshLoginCaptcha(){
-  var q = document.getElementById('loginCaptchaQ');
-  if(q) q.textContent = genCaptcha('login');
-  var a = document.getElementById('loginCaptchaAns'); if(a) a.value='';
-  var e = document.getElementById('loginCaptchaErr'); if(e) e.style.display='none';
-}
-function refreshPubCaptcha(){
-  var q = document.getElementById('pubCaptchaQ');
-  if(q) q.textContent = genCaptcha('pub');
-  var a = document.getElementById('pubCaptchaAns'); if(a) a.value='';
-  var e = document.getElementById('pubCaptchaErr'); if(e) e.style.display='none';
-}
-function refreshBuyerCaptcha(){
-  var q = document.getElementById('buyerCaptchaQ');
-  if(q) q.textContent = genCaptcha('buyer');
-  var a = document.getElementById('buyerCaptchaAns'); if(a) a.value='';
-  var e = document.getElementById('buyerCaptchaErr'); if(e) e.style.display='none';
-}
+// ── hCAPTCHA VERIFICATION ──
 function verifyCaptcha(key, errId){
-  var ansEl = document.getElementById(key+'CaptchaAns');
+  var response = hcaptcha.getResponse(getHcaptchaWidgetId(key));
   var errEl = document.getElementById(errId);
-  var userAns = parseInt(ansEl ? ansEl.value : '');
-  if(isNaN(userAns) || userAns !== _captchaData[key].ans){
-    if(errEl){ errEl.textContent = '⚠ Wrong answer! Try: ' + _captchaData[key].a + ' ' + _captchaData[key].op + ' ' + _captchaData[key].b; errEl.style.display='block'; }
-    // Refresh with new question
-    var refreshFn = key==='login' ? refreshLoginCaptcha : key==='pub' ? refreshPubCaptcha : refreshBuyerCaptcha;
-    refreshFn();
+  if(!response){
+    if(errEl){ errEl.textContent = '⚠ Please complete the captcha'; errEl.style.display='block'; }
     return false;
   }
   if(errEl) errEl.style.display='none';
   return true;
 }
-// Init captchas on page load
-document.addEventListener('DOMContentLoaded', function(){
-  refreshLoginCaptcha(); refreshPubCaptcha(); refreshBuyerCaptcha();
-});
+function getHcaptchaWidgetId(key){
+  var el = document.getElementById(key==='login'?'loginHcaptcha':key==='pub'?'pubHcaptcha':'buyerHcaptcha');
+  if(!el) return null;
+  var iframes = el.querySelectorAll('iframe');
+  if(iframes.length > 0){
+    var wid = el.getAttribute('data-hcaptcha-widget-id');
+    if(wid) return wid;
+  }
+  return null;
+}
+function resetHcaptchas(){
+  try{ hcaptcha.reset(); }catch(e){}
+}
 function handleLogin(){
 if(!verifyCaptcha('login','loginCaptchaErr')) return;clearLoginError();
 var emEl = document.getElementById('loginEmail');
@@ -1058,6 +1034,7 @@ alert('Google sign in failed: ' + err + '. Please use Email/Password.');
   }
 }
 </script>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 <body>
 <nav class="nav">
@@ -2453,18 +2430,10 @@ onfocus="this.style.borderColor='#4f7cff';this.style.background='#fff'" onblur="
 <div id="loginPassErr" style="display:none;font-size:12px;color:#ef4444;margin-top:4px;font-weight:600"></div>
 </div>
 <!-- reCAPTCHA style -->
-<div id="loginCaptchaBox" style="border:1.5px solid #d1d5db;border-radius:10px;padding:12px 14px;margin:16px 0;background:#f9fafb">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-<span style="font-size:13px;color:#374151;font-weight:600">🔒 Verify you are human</span>
-<button type="button" onclick="refreshLoginCaptcha()" style="background:none;border:none;cursor:pointer;font-size:14px;color:#94a3b8" title="New question">🔄</button>
+<div style="margin:14px 0;display:flex;justify-content:center">
+<div class="h-captcha" data-sitekey="4bee1a4a-194b-45d5-b97c-0ad91a92d86e" data-theme="light" data-size="normal" id="loginHcaptcha"></div>
 </div>
-<div style="display:flex;align-items:center;gap:10px">
-<div id="loginCaptchaQ" style="background:#e2e8f0;padding:8px 14px;border-radius:8px;font-size:15px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif;white-space:nowrap"></div>
-<span style="font-size:14px;color:#64748b">=</span>
-<input id="loginCaptchaAns" type="number" placeholder="?" style="width:70px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;font-weight:700;font-family:inherit;outline:none;text-align:center;background:#fff;color:#1a202c" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
-</div>
-</div>
-<div id="loginCaptchaErr" style="display:none;font-size:12px;color:#ef4444;margin:-4px 0 8px;font-weight:600"></div>
+<div id="loginCaptchaErr" style="display:none;font-size:12px;color:#ef4444;margin:-4px 0 8px;font-weight:600;text-align:center">⚠ Please complete the captcha</div>
 <!-- Sign In Button -->
 <button onclick="handleLogin()" style="width:100%;padding:14px;background:#6d28d9;background:linear-gradient(135deg,#7c3aed,#4f7cff);color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 16px rgba(124,58,237,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">Sign in</button>
 <!-- Divider -->
@@ -3115,17 +3084,10 @@ window.addEventListener('DOMContentLoaded', function(){
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Full Name</label><input id="pubName" type="text" placeholder="Enter your name" autocomplete="name" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Email</label><input id="pubEmail" type="email" placeholder="Enter your email" autocomplete="email" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:4px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><label style="font-size:12.5px;font-weight:700;color:#374151">Password</label></div><div style="position:relative"><input id="pubPass" type="password" placeholder="Create a password" autocomplete="off" style="background:#fff;color:#1a202c;width:100%;padding:11px 40px 11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')"><button type="button" onclick="togglePwd('pubPass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:11px;font-family:inherit">Show</button></div><div style="margin-top:5px;height:3px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="pubPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div><span id="pubPassTxt" style="font-size:10px;font-weight:600"></span></div>
-<div style="border:1.5px solid #d1d5db;border-radius:9px;padding:10px 13px;margin:12px 0;background:#f9fafb">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-<span style="font-size:12px;color:#374151;font-weight:600">🔒 Verify you are human</span>
-<button type="button" onclick="refreshPubCaptcha()" style="background:none;border:none;cursor:pointer;font-size:13px;color:#94a3b8">🔄</button>
+<div style="margin:12px 0;display:flex;justify-content:center;transform:scale(0.9);transform-origin:center">
+<div class="h-captcha" data-sitekey="4bee1a4a-194b-45d5-b97c-0ad91a92d86e" data-theme="light" data-size="normal" id="pubHcaptcha"></div>
 </div>
-<div style="display:flex;align-items:center;gap:8px">
-<div id="pubCaptchaQ" style="background:#e2e8f0;padding:7px 12px;border-radius:7px;font-size:14px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif;white-space:nowrap"></div>
-<span style="font-size:13px;color:#64748b">=</span>
-<input id="pubCaptchaAns" type="number" placeholder="?" style="width:60px;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-weight:700;font-family:inherit;outline:none;text-align:center;background:#fff;color:#1a202c">
-</div></div>
-<div id="pubCaptchaErr" style="display:none;font-size:11px;color:#ef4444;margin:-4px 0 6px;font-weight:600"></div>
+<div id="pubCaptchaErr" style="display:none;font-size:11px;color:#ef4444;margin:-4px 0 6px;font-weight:600;text-align:center">⚠ Please complete the captcha</div>
 <div id="pub-err" style="font-size:11px;color:#ef4444;margin-bottom:6px;min-height:12px"></div>
 <button onclick="doPubSignup()" style="width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#4f7cff);color:#fff;border:none;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(124,58,237,.25);margin-bottom:12px">Create Publisher Account</button>
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:11px;color:#94a3b8">Or continue with</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
@@ -3170,17 +3132,10 @@ window.addEventListener('DOMContentLoaded', function(){
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Full Name</label><input id="buyerName" type="text" placeholder="Enter your name" autocomplete="name" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Email</label><input id="buyerEmail" type="email" placeholder="Enter your email" autocomplete="email" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:4px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Password</label><div style="position:relative"><input id="buyerPass" type="password" placeholder="Create a password" autocomplete="off" style="background:#fff;color:#1a202c;width:100%;padding:11px 40px 11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')"><button type="button" onclick="togglePwd('buyerPass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:11px;font-family:inherit">Show</button></div><div style="margin-top:5px;height:3px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="buyerPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div><span id="buyerPassTxt" style="font-size:10px;font-weight:600"></span></div>
-<div style="border:1.5px solid #d1d5db;border-radius:9px;padding:10px 13px;margin:12px 0;background:#f9fafb">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-<span style="font-size:12px;color:#374151;font-weight:600">🔒 Verify you are human</span>
-<button type="button" onclick="refreshBuyerCaptcha()" style="background:none;border:none;cursor:pointer;font-size:13px;color:#94a3b8">🔄</button>
+<div style="margin:12px 0;display:flex;justify-content:center;transform:scale(0.9);transform-origin:center">
+<div class="h-captcha" data-sitekey="4bee1a4a-194b-45d5-b97c-0ad91a92d86e" data-theme="light" data-size="normal" id="buyerHcaptcha"></div>
 </div>
-<div style="display:flex;align-items:center;gap:8px">
-<div id="buyerCaptchaQ" style="background:#e2e8f0;padding:7px 12px;border-radius:7px;font-size:14px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif;white-space:nowrap"></div>
-<span style="font-size:13px;color:#64748b">=</span>
-<input id="buyerCaptchaAns" type="number" placeholder="?" style="width:60px;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-weight:700;font-family:inherit;outline:none;text-align:center;background:#fff;color:#1a202c">
-</div></div>
-<div id="buyerCaptchaErr" style="display:none;font-size:11px;color:#ef4444;margin:-4px 0 6px;font-weight:600"></div>
+<div id="buyerCaptchaErr" style="display:none;font-size:11px;color:#ef4444;margin:-4px 0 6px;font-weight:600;text-align:center">⚠ Please complete the captcha</div>
 <div id="buyer-err" style="font-size:11px;color:#ef4444;margin-bottom:6px;min-height:12px"></div>
 <button onclick="doBuyerSignup()" style="width:100%;padding:13px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(16,185,129,.25);margin-bottom:12px">Create Buyer Account →</button>
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:11px;color:#94a3b8">Or continue with</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>
@@ -3250,7 +3205,7 @@ window.addEventListener('DOMContentLoaded', function(){
 var _selectedRole = 'publisher';
 function openPublisherSignup(){
 _selectedRole = 'publisher';
-setTimeout(refreshPubCaptcha, 100);
+try{resetHcaptchas();}catch(e){}
 window._selectedRole = 'publisher';
 document.getElementById('publisherModal').style.display='flex';
 document.body.style.overflow='hidden';
@@ -3269,7 +3224,7 @@ document.getElementById('pub-form-title').textContent = isSignup?'Create Publish
 }
 function openBuyerSignup(){
 _selectedRole = 'buyer';
-setTimeout(refreshBuyerCaptcha, 100);
+try{resetHcaptchas();}catch(e){}
 window._selectedRole = 'buyer';
 document.getElementById('buyerModal').style.display='flex';
 document.body.style.overflow='hidden';
