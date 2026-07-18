@@ -7647,7 +7647,7 @@ el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999
 var box=document.createElement('div');
 box.style.cssText='background:#fff;border-radius:20px;width:480px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)';
 box.innerHTML='<div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:24px 28px;text-align:center">'
-+'<div style="font-size:18px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">🔍 Verifying & Approving Sites</div>'
++'<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:18px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">🔍 Verifying & Approving Sites</div><button id="ipMinBtn" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">▬</button></div>'
 +'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">Please wait while we check each site...</div></div>'
 +'<div style="padding:28px">'
 +'<div style="margin-bottom:20px">'
@@ -7673,7 +7673,7 @@ var liveSites=mySites.filter(function(s){return s.status==='Live';});
 var holdSites=mySites.filter(function(s){return s.status==='hold';});
 var rejSites=mySites.filter(function(s){return s.status==='rejected';});
 
-var speed=Math.max(50, Math.min(800, 60000/total)); // 50-800ms per site
+var speed=Math.max(600, Math.min(1000, 60000/Math.min(total,80))); // 600-1000ms per site (60-100 per min)
 var interval=setInterval(function(){
 processed++;
 var pct=Math.min(100, Math.round(processed/total*100));
@@ -7712,11 +7712,49 @@ document.getElementById('ipCurrentSite').innerHTML='<span style="color:#16a34a;f
 document.getElementById('ipDoneBtn').style.display='block';
 document.getElementById('ipDoneBtn').addEventListener('click',function(){
 el.remove();
+var mini = document.getElementById('ipMiniBar');
+if(mini) mini.remove();
 applyFilters();
 go(1);
 });
 }
 }, speed);
+
+// Minimize button
+document.getElementById('ipMinBtn').addEventListener('click', function(){
+el.style.display='none';
+// Create mini bar at bottom
+var mini = document.createElement('div');
+mini.id = 'ipMiniBar';
+mini.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#fff;border-radius:14px;padding:12px 20px;box-shadow:0 8px 30px rgba(0,0,0,.2);z-index:999998;display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid #e2e8f0;min-width:320px';
+mini.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;animation:pulse 1.5s infinite;flex-shrink:0"></div>'
++'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#374151" id="miniText">Verifying sites...</div>'
++'<div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:4px"><div id="miniBar" style="height:100%;background:#3b82f6;border-radius:2px;width:0%;transition:width .3s"></div></div></div>'
++'<div style="font-size:13px;font-weight:800;color:#3b82f6" id="miniPct">0%</div>';
+document.body.appendChild(mini);
+mini.addEventListener('click', function(){
+mini.remove();
+el.style.display='flex';
+});
+
+// Sync mini bar with main progress
+var miniSync = setInterval(function(){
+var pctEl = document.getElementById('ipPercent');
+var miniPct = document.getElementById('miniPct');
+var miniBar = document.getElementById('miniBar');
+var miniText = document.getElementById('miniText');
+if(!pctEl || !miniPct){ clearInterval(miniSync); return; }
+miniPct.textContent = pctEl.textContent;
+miniBar.style.width = pctEl.textContent;
+var detail = document.getElementById('ipDetail');
+if(detail && miniText) miniText.textContent = detail.textContent;
+if(pctEl.textContent === '100%'){
+clearInterval(miniSync);
+if(miniText) miniText.textContent = '✅ All sites verified!';
+if(miniBar) miniBar.style.background = '#16a34a';
+}
+}, 500);
+});
 }
 </script>
 <script>
