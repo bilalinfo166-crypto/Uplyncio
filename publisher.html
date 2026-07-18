@@ -3141,10 +3141,90 @@ r.onload=function(e){
 try{
 var wb=XLSX.read(e.target.result,{type:'array'});
 var ws=wb.Sheets[wb.SheetNames[0]];
-parseCSV(XLSX.utils.sheet_to_csv(ws),file.name);
-} catch(err){ showStatus('error','❌ Could not read Excel file. Try CSV format.'); }
+var json=XLSX.utils.sheet_to_json(ws,{defval:''});
+if(!json||!json.length){showStatus('error','❌ Sheet is empty');return;}
+parseJSON(json, file.name);
+} catch(err){ showStatus('error','❌ Could not read file: '+err.message); }
 };
 r.readAsArrayBuffer(file);
+}
+function parseJSON(rows, fname){
+parsedSites=[];
+var errors=0;
+rows.forEach(function(row, i){
+// Find URL column (try multiple names)
+var url='';
+['Website URL','website url','website_url','URL','url','Domain','domain','Site URL'].forEach(function(k){
+if(!url && row[k]) url=String(row[k]).trim().replace(/https?:\/\//,'').replace(/\/.*$/,'');
+});
+if(!url){errors++;return;}
+var da=0,dr=0;
+['DA (Domain Authority)','DA','da','Domain Authority'].forEach(function(k){ if(row[k]) da=parseFloat(row[k])||0; });
+['DR (Domain Rating)','DR','dr','Domain Rating'].forEach(function(k){ if(row[k]) dr=parseFloat(row[k])||0; });
+var traffic=0;
+['Monthly Traffic','traffic','monthly traffic','Visitors'].forEach(function(k){ if(row[k]) traffic=parseFloat(row[k])||0; });
+var cat='';
+['Category','category','Niche','niche','Categories'].forEach(function(k){ if(row[k]) cat=String(row[k]).trim(); });
+var lt='Dofollow';
+['Link Type (DF/NF)','Link Type','link type','linktype'].forEach(function(k){ if(row[k]) lt=String(row[k]).trim(); });
+var gpPrice=0;
+['Guest Post Price ($)','Guest Post Price','guest_post_price','Price','price'].forEach(function(k){ if(row[k]) gpPrice=parseFloat(String(row[k]).replace('$',''))||0; });
+var wpPrice=0;
+['Write & Publish Price ($)','Write & Publish Price','writing price'].forEach(function(k){ if(row[k]) wpPrice=parseFloat(String(row[k]).replace('$',''))||0; });
+var maxLinks='No limit';
+['Max Links Per Article','max links','Max Links'].forEach(function(k){ if(row[k]) maxLinks=String(row[k]).trim(); });
+var samplePost='';
+['Sample Post URL','sample post','Sample Post'].forEach(function(k){ if(row[k]) samplePost=String(row[k]).trim(); });
+var gpReq='';
+['Guest Post Requirements','requirements','Requirements'].forEach(function(k){ if(row[k]) gpReq=String(row[k]).trim(); });
+var liAccepted='No';
+['Link Insertion Accepted (Yes/No)','Link Insertion Accepted','li accepted'].forEach(function(k){
+if(row[k]){var v=String(row[k]).trim().toLowerCase(); liAccepted=(v==='yes'||v==='true'||v==='1')?'Yes':'No';}
+});
+var liPrice=0;
+['Link Insertion Price ($)','Link Insertion Price','li price'].forEach(function(k){ if(row[k]) liPrice=parseFloat(String(row[k]).replace('$',''))||0; });
+var liReq='';
+['Link Insertion Requirements','li requirements'].forEach(function(k){ if(row[k]) liReq=String(row[k]).trim(); });
+var detected=autoDetectInfo(url);
+if(!cat) cat=detected.cats.join(', ');
+parsedSites.push({
+id:Date.now()+i,
+url:url,
+da:da?String(Math.round(da)):'0',
+dr:dr?String(Math.round(dr)):'0',
+traffic:traffic?String(Math.round(traffic)):'0',
+cat:cat||'General',
+lt:lt||'Dofollow',
+price:'$'+Math.round(gpPrice),
+p1:String(Math.round(gpPrice)),
+p2:String(Math.round(wpPrice)),
+guestPostPrice:String(Math.round(gpPrice)),
+writePublishPrice:String(Math.round(wpPrice)),
+p3:liPrice?String(Math.round(liPrice)):'',
+liAccepted:liAccepted,
+liPrice:liPrice?String(Math.round(liPrice)):'',
+liOk:liAccepted==='Yes',
+liP:liPrice,
+liReq:liReq,
+samplePost:samplePost,
+lang:detected.lang,
+country:detected.country,
+maxLinks:maxLinks==='1'||maxLinks==='1.0'?'1':maxLinks==='3'||maxLinks==='3.0'?'3':maxLinks,
+notes:gpReq,
+requirements:gpReq,
+req:gpReq,
+wordCount:'500',
+status:'pending'
+});
+});
+if(!parsedSites.length){showStatus('error','❌ No valid sites found ('+errors+' rows skipped)');return;}
+try{
+var uid=localStorage.getItem('uplyncio_currentUid')||'guest';
+localStorage.setItem('uplyncio_sheet_'+uid, JSON.stringify({fname:fname,uploadedAt:new Date().toISOString(),data:parsedSites.length}));
+saveUploadHistory(fname, parsedSites.length, 'Parsed');
+}catch(e){}
+showStatus('success','✅ Found '+parsedSites.length+' sites'+(errors?' ('+errors+' rows skipped)':''));
+showPreview();
 }
 function parseCSV(text, fname){
 var lines=text.trim().split(/\r?\n/);
@@ -3344,13 +3424,20 @@ mySites.forEach(function(s){ checkAndMarkSiteIssues(s); });
 parsedSites=[];
 saveSites();
 clearUpload();
+
+// Show loading progress popup for gradual approval
+var totalNew = newSites.filter(function(s){return s.status!=='duplicate'&&s.status!=='rejected';}).length;
+if(totalNew > 10){
+showImportProgress(totalNew, approved, priceUpdated, duplicates-priceUpdated, held, rejected);
+} else {
 applyFilters();
 go(1);
+}
 setTimeout(function(){
 var parts = [];
 if(approved) parts.push('✅ '+approved+' approved');
 if(held) parts.push('⏸ '+held+' on hold');
-if(priceUpdated) parts.push('💰 '+priceUpdated+' prices updated');
+if(priceUpdated) parts.push('💰 '+priceUpdated+' updated');
 if(duplicates - priceUpdated > 0) parts.push('🔁 '+(duplicates-priceUpdated)+' unchanged');
 if(rejected) parts.push('❌ '+rejected+' rejected');
 toast(parts.join(' · '), '#4f7cff');
@@ -7543,6 +7630,87 @@ document.addEventListener('DOMContentLoaded', function(){
   var fi = document.getElementById('fileInput');
   if(fi) fi.addEventListener('change', function(){ if(this.files && this.files[0]) handleFile(this.files[0]); });
 });
+</script>
+<script>
+function showImportProgress(total, approved, updated, unchanged, held, rejected){
+var old=document.getElementById('importProgressModal'); if(old) old.remove();
+var el=document.createElement('div');
+el.id='importProgressModal';
+el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)';
+var box=document.createElement('div');
+box.style.cssText='background:#fff;border-radius:20px;width:480px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)';
+box.innerHTML='<div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:24px 28px;text-align:center">'
++'<div style="font-size:18px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">🔍 Verifying & Approving Sites</div>'
++'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">Please wait while we check each site...</div></div>'
++'<div style="padding:28px">'
++'<div style="margin-bottom:20px">'
++'<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;font-weight:700;color:#374151" id="ipText">Checking sites...</span><span style="font-size:13px;font-weight:700;color:#3b82f6" id="ipPercent">0%</span></div>'
++'<div style="height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden"><div id="ipBar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#10b981);border-radius:4px;transition:width .3s"></div></div>'
++'<div style="font-size:12px;color:#94a3b8;margin-top:6px" id="ipDetail">0 / '+total+' sites processed</div>'
++'</div>'
++'<div id="ipStats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">'
++'<div style="background:#f0fdf4;border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#16a34a;font-family:Manrope,sans-serif" id="ipApproved">0</div><div style="font-size:11px;color:#64748b">Approved</div></div>'
++'<div style="background:#fff7ed;border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#d97706;font-family:Manrope,sans-serif" id="ipHeld">0</div><div style="font-size:11px;color:#64748b">On Hold</div></div>'
++'<div style="background:#fef2f2;border-radius:10px;padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:#ef4444;font-family:Manrope,sans-serif" id="ipRejected">0</div><div style="font-size:11px;color:#64748b">Rejected</div></div>'
++'</div>'
++'<div id="ipCurrentSite" style="background:#f8faff;border-radius:10px;padding:10px 14px;font-size:12px;color:#64748b;text-align:center;min-height:20px"></div>'
++'<button id="ipDoneBtn" style="display:none;width:100%;margin-top:16px;padding:14px;background:#16a34a;color:#fff;border:none;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">✅ Done — View Sites</button>'
++'</div>';
+el.appendChild(box);
+document.body.appendChild(el);
+
+// Gradual animation: process ~1 site per second visually
+var processed=0;
+var approvedCount=0, heldCount=0, rejectedCount=0;
+var liveSites=mySites.filter(function(s){return s.status==='Live';});
+var holdSites=mySites.filter(function(s){return s.status==='hold';});
+var rejSites=mySites.filter(function(s){return s.status==='rejected';});
+
+var speed=Math.max(50, Math.min(800, 60000/total)); // 50-800ms per site
+var interval=setInterval(function(){
+processed++;
+var pct=Math.min(100, Math.round(processed/total*100));
+document.getElementById('ipBar').style.width=pct+'%';
+document.getElementById('ipPercent').textContent=pct+'%';
+document.getElementById('ipDetail').textContent=processed+' / '+total+' sites processed';
+
+// Show current site being checked
+var idx=Math.min(processed-1, mySites.length-1);
+if(idx>=0 && mySites[idx]){
+document.getElementById('ipCurrentSite').innerHTML='🔍 Checking: <strong>'+mySites[idx].url+'</strong> — DA '+mySites[idx].da;
+}
+
+// Update counts gradually
+if(processed<=approved) approvedCount=processed;
+else approvedCount=approved;
+heldCount=Math.min(held, Math.max(0,processed-approved));
+rejectedCount=Math.min(rejected, Math.max(0,processed-approved-held));
+document.getElementById('ipApproved').textContent=approvedCount;
+document.getElementById('ipHeld').textContent=heldCount;
+document.getElementById('ipRejected').textContent=rejectedCount;
+document.getElementById('ipText').textContent=processed>=total?'All sites verified!':'Checking sites...';
+
+if(processed>=total){
+clearInterval(interval);
+document.getElementById('ipApproved').textContent=approved;
+document.getElementById('ipHeld').textContent=held;
+document.getElementById('ipRejected').textContent=rejected;
+document.getElementById('ipPercent').textContent='100%';
+document.getElementById('ipBar').style.width='100%';
+document.getElementById('ipBar').style.background='#16a34a';
+document.getElementById('ipText').textContent='✅ All '+total+' sites verified!';
+document.getElementById('ipCurrentSite').innerHTML='<span style="color:#16a34a;font-weight:700">Verification complete!</span>'
++(updated?' · 💰 '+updated+' prices updated':'')
++(unchanged?' · 🔁 '+unchanged+' unchanged':'');
+document.getElementById('ipDoneBtn').style.display='block';
+document.getElementById('ipDoneBtn').addEventListener('click',function(){
+el.remove();
+applyFilters();
+go(1);
+});
+}
+}, speed);
+}
 </script>
 </body>
 </html>
