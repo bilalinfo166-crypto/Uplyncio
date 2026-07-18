@@ -731,6 +731,14 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 </div>
 </div> <div class="filter-bar" style="padding:10px 24px 8px">
+<!-- Verified / All toggle -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+<div style="font-family:Manrope,sans-serif;font-size:18px;font-weight:800;color:#0f172a">Browse Marketplace</div>
+<div style="display:flex;border:1.5px solid #e2e8f0;border-radius:10px;overflow:hidden" id="siteTypeToggle">
+<button onclick="setSiteFilter('verified')" id="btnVerified" style="padding:8px 20px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#0f172a;color:#fff;transition:all .15s">Verified Sites</button>
+<button onclick="setSiteFilter('all')" id="btnAllSites" style="padding:8px 20px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#fff;color:#64748b;transition:all .15s">All Sites</button>
+</div>
+</div>
 <!-- Search Bar -->
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 14px">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -1322,6 +1330,20 @@ showToast('✅ '+site.url+' added to cart!');
 // ─── Performance: debounced applyFilters ───
 var _filterTimer = null;
 var _pubPerfCache = {}; // cache getPubPerformance results
+var _siteFilterMode = 'verified'; // default: show verified first
+function setSiteFilter(mode){
+_siteFilterMode = mode;
+var btnV = document.getElementById('btnVerified');
+var btnA = document.getElementById('btnAllSites');
+if(mode==='verified'){
+btnV.style.background='#0f172a';btnV.style.color='#fff';
+btnA.style.background='#fff';btnA.style.color='#64748b';
+} else {
+btnA.style.background='#0f172a';btnA.style.color='#fff';
+btnV.style.background='#fff';btnV.style.color='#64748b';
+}
+applyFilters();
+}
 function applyFiltersDebounced(){
 clearTimeout(_filterTimer);
 _filterTimer = setTimeout(applyFilters, 30);
@@ -1366,9 +1388,21 @@ all.forEach(function(s){
 domainPubCount[s.url] = (domainPubCount[s.url]||0) + 1;
 });
 window._domainPubCount = domainPubCount;
+// Pre-compute verified status on ALL sites before filtering
+var _vfCache = {};
+all.forEach(function(s){
+var key = s.publisherUid || s._uid || '';
+if(_vfCache[key] !== undefined) { s._vf = _vfCache[key]; return; }
+var v = false;
+if(s.isTeamSite) v = true;
+else if(key) { try{ var pd = JSON.parse(localStorage.getItem('uplyncio_data_'+key)||'{}'); if(pd.publisherVerified || pd.ordersCompleted >= 10) v = true; }catch(e){} }
+_vfCache[key] = v; s._vf = v;
+});
 filteredSites = all.filter(function(s){
 if(tab==='link' && (!s.liOk || !s.liP || s.liP <= 0)) return false;
 if(tab==='press') return false;
+// Verified Sites toggle filter
+if(_siteFilterMode==='verified' && !s._vf && !s.isTeamSite) return false;
 var price = tab==='link' ? s.liP : s.gP;
 // Category filter (from sidebar or dropdown)
 var fCatVal = (document.getElementById('fCategory')||{}).value||'';
@@ -1392,23 +1426,6 @@ return true;
 });
 // Sort — verified first (by traffic), then unverified (by traffic). Search: lowest price.
 var isSearching = search && search.length > 0;
-
-// Pre-compute verified status ONCE (not inside sort comparator)
-var _verifiedCache = {};
-filteredSites.forEach(function(s){
-var key = s.publisherUid || s._uid || '';
-if(_verifiedCache[key] !== undefined) { s._vf = _verifiedCache[key]; return; }
-var v = false;
-if(s.isTeamSite) v = true;
-else if(key) {
-try{
-var pd = JSON.parse(localStorage.getItem('uplyncio_data_'+key)||'{}');
-if(pd.publisherVerified || pd.ordersCompleted >= 10 || pd.orders_completed >= 10) v = true;
-}catch(e){}
-}
-_verifiedCache[key] = v;
-s._vf = v;
-});
 
 filteredSites.sort(function(a,b){
 var aV = a._vf ? 1 : 0;
