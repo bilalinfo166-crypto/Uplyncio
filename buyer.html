@@ -1133,7 +1133,7 @@ _localSitesCache = Object.values(urlMap);
 _localCacheTime = now;
 return _localSitesCache;
 }
-// Fetch from Supabase DIRECTLY (skip API middleman for speed)
+// Fetch from Supabase — try direct first, fallback to API
 var _sbFetching = false;
 function fetchSitesFromSupabase(){
 if(_sbFetching) return;
@@ -1141,26 +1141,54 @@ _sbFetching = true;
 var _sbAll = [];
 var _sbOffset = 0;
 var _firstBatchRendered = false;
+var _useFallback = false;
+
 function _fetchPage(){
-var url = SUPABASE_URL+'/rest/v1/publisher_sites?select=*&status=in.(Live,live,Approved,approved,Active,active)&order=da.desc&limit=1000&offset='+_sbOffset;
-fetch(url, { headers: SB_HEADERS })
+// Try direct Supabase first (faster), fallback to API
+var url = _useFallback
+  ? '/api/sites?status=Live&limit=1000&offset='+_sbOffset
+  : SUPABASE_URL+'/rest/v1/publisher_sites?select=*&status=in.(Live,live,Approved,approved,Active,active)&order=da.desc&limit=1000&offset='+_sbOffset;
+var headers = _useFallback ? {'Content-Type':'application/json'} : SB_HEADERS;
+
+fetch(url, { headers: headers })
 .then(function(r){ return r.json(); })
-.then(function(sites){
-if(!Array.isArray(sites)) sites = [];
+.then(function(data){
+// Handle API wrapper format vs direct Supabase format
+var sites = Array.isArray(data) ? data : (data.success && Array.isArray(data.sites) ? data.sites : []);
+
+// If direct Supabase returned empty/error, try API fallback
+if(!sites.length && !_useFallback && _sbOffset === 0){
+  console.warn('[Buyer] Direct Supabase returned empty, trying API fallback...');
+  _useFallback = true;
+  _fetchPage();
+  return;
+}
+
 _sbAll = _sbAll.concat(sites);
-// Render FIRST batch immediately — don't wait for all pages
+// Render FIRST batch immediately
 if(!_firstBatchRendered && _sbAll.length > 0){
 _firstBatchRendered = true;
 _processSBSites(_sbAll);
 }
 if(sites.length === 1000){
 _sbOffset += 1000;
-_fetchPage(); // no delay — fire next page immediately
+_fetchPage();
 } else {
 _sbFetching = false;
-_processSBSites(_sbAll);
+if(_sbAll.length > 0) _processSBSites(_sbAll);
 }
-}).catch(function(e){ console.warn('Supabase fetch error:', e.message); _sbFetching = false; _processSBSites(_sbAll); });
+}).catch(function(e){
+console.warn('[Buyer] Fetch error:', e.message);
+// If direct failed, try API
+if(!_useFallback){
+  console.warn('[Buyer] Switching to API fallback...');
+  _useFallback = true;
+  _fetchPage();
+  return;
+}
+_sbFetching = false;
+if(_sbAll.length > 0) _processSBSites(_sbAll);
+});
 }
 _fetchPage();
 }
@@ -1184,7 +1212,7 @@ if(aT!==bT) return bT-aT;
 return (a.gP||0)-(b.gP||0);
 });
 applyFilters();
-updateSiteCounter();
+updateLiveSiteCount();
 }
 }
 function loadAllSites(){
@@ -1721,7 +1749,12 @@ if(!filteredSites.length){
 list.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><h3>No sites found</h3><p>Try adjusting your filters or clearing the search.</p></div>';
 document.getElementById('pagination').innerHTML=''; return;
 }
+try {
 list.innerHTML = page.map(function(s,i){ return renderCard(s, start+i); }).join('');
+} catch(e) {
+console.error('[Buyer] renderCard error:', e);
+list.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><h3>Rendering error</h3><p>'+e.message+'</p></div>';
+}
 renderPagination();
 }
 function renderPagination(){
