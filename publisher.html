@@ -542,12 +542,14 @@ av.textContent = initials.toUpperCase();
 <span style="font-size:13px;font-weight:800;color:#1a202c">Filter Sites</span>
 <span id="pubActiveFilterCount" style="display:none;background:var(--ac);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">0 active</span>
 </div>
+<button onclick="applyFilters()" style="font-size:12px;font-weight:700;color:#fff;background:#4f7cff;border:none;cursor:pointer;font-family:inherit;padding:6px 16px;border-radius:7px">🔍 Apply</button>
 <button onclick="clearFilters()" style="font-size:12px;font-weight:600;color:#ef4444;background:none;border:none;cursor:pointer;font-family:inherit">✕ Clear all</button>
 </div>
 <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;margin-bottom:12px;align-items:center">
 <div style="display:flex;align-items:center;gap:8px;background:var(--wh);border:1.5px solid var(--br);border-radius:9px;padding:8px 14px;transition:border-color .2s" onfocusin="this.style.borderColor='var(--ac)'" onfocusout="this.style.borderColor='var(--br)'">
 <span style="color:var(--mu);font-size:15px">🔍</span>
-<input id="siteSearch" type="text" placeholder="Search by URL..." style="border:none;outline:none;font-size:13px;font-family:inherit;color:var(--tx);background:transparent;width:100%">
+<input id="siteSearch" type="text" placeholder="Search by URL..." oninput="clearTimeout(window._pubSrchT);window._pubSrchT=setTimeout(applyFilters,30)" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}" style="border:none;outline:none;font-size:13px;font-family:inherit;color:var(--tx);background:transparent;flex:1">
+<button onclick="applyFilters()" style="padding:5px 14px;background:var(--ac);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Search</button>
 </div>
 <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--t2);white-space:nowrap">
 <input type="checkbox" id="crowdPost" style="accent-color:var(--ac);width:14px;height:14px">
@@ -566,22 +568,22 @@ av.textContent = initials.toUpperCase();
 <div>
 <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Price ($)</div>
 <div style="display:flex;align-items:center;gap:6px">
-<input id="priceMin" type="number" placeholder="Min" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+<input id="priceMin" type="number" placeholder="Min" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
 <span style="color:var(--mu);font-size:12px;flex-shrink:0">—</span>
-<input id="priceMax" type="number" placeholder="Max" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+<input id="priceMax" type="number" placeholder="Max" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
 </div>
 </div>
 <div>
 <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">DA Range</div>
 <div style="display:flex;align-items:center;gap:6px">
-<input id="daMin" type="number" placeholder="0" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+<input id="daMin" type="number" placeholder="0" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
 <span style="color:var(--mu);font-size:12px;flex-shrink:0">—</span>
-<input id="daMax" type="number" placeholder="100" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
+<input id="daMax" type="number" placeholder="100" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box">
 </div>
 </div>
 <div>
 <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Link Type</div>
-<select id="ltFilter" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
+<select id="ltFilter" onchange="applyFilters()" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
 <option value="">All types</option>
 <option value="Dofollow">Dofollow</option>
 <option value="Nofollow">Nofollow</option>
@@ -590,7 +592,7 @@ av.textContent = initials.toUpperCase();
 </div>
 <div>
 <div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Category</div>
-<select id="catFilter" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
+<select id="catFilter" onchange="applyFilters()" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
 <option value="">All categories</option>
 <option>Tech</option><option>Business</option><option>Finance</option>
 <option>Health</option><option>Marketing</option><option>SaaS</option>
