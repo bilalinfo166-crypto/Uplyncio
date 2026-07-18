@@ -1,13 +1,32 @@
 User-agent: *
 Allow: /
 
+# Block private/dashboard pages
 Disallow: /publisher
 Disallow: /buyer
 Disallow: /admin
 Disallow: /cart
 Disallow: /publisher-admin
-Disallow: /api/
 Disallow: /oauth-bridge
 Disallow: /signup
+Disallow: /api/
+
+# Block old dynamic URLs that caused spam indexing
+Disallow: /buyer?*
+Disallow: /publisher?*
+Disallow: /buyer.html
+Disallow: /publisher.html
+Disallow: /admin.html
+Disallow: /cart.html
+Disallow: /uplyncio-full.html
+Disallow: /uplyncio-full
+
+# Block query parameter variations
+Disallow: /*?search=
+Disallow: /*?filter=
+Disallow: /*?page=
+Disallow: /*?sort=
+Disallow: /*?openBuyer=
+Disallow: /*?openPublisher=
 
 Sitemap: https://uplyncio.com/sitemap.xml

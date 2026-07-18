@@ -111,14 +111,66 @@
           "value": "nosniff"
         }
       ]
+    },
+    {
+      "source": "/buyer",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/publisher",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/admin",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/cart",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/publisher-admin",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ],
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/uplyncio-full.html" }
+    {
+      "source": "/",
+      "destination": "/uplyncio-full.html"
+    }
   ],
   "redirects": [
-    { "source": "/uplyncio-full", "destination": "/", "statusCode": 301 }
+    {
+      "source": "/uplyncio-full",
+      "destination": "/",
+      "statusCode": 301
+    }
   ]
 }
