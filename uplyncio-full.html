@@ -2852,6 +2852,202 @@ window.location.href='buyer.html';
 }
 }
 function showForgotPassword(role){ openForgotPassword(); }
+
+// ═══════════════════════════════════
+// OTP VERIFICATION FLOW
+// ═══════════════════════════════════
+var _verifyEmail = '';
+var _verifyIsPublisher = true;
+var _verifyTimerInt = null;
+var _verifyResendTimer = null;
+
+function openVerifyModal(email, isPublisher){
+_verifyEmail = email;
+_verifyIsPublisher = isPublisher;
+var modal = document.getElementById('verifyModal');
+if(!modal) { console.error('verifyModal not found'); return; }
+// Show email
+var emShow = document.getElementById('verifyEmailShow');
+if(emShow) emShow.textContent = email;
+// Reset OTP boxes
+var boxes = document.querySelectorAll('.otp-box');
+boxes.forEach(function(b){ b.value=''; });
+// Setup OTP box auto-advance
+setupOtpBoxes();
+// Reset error
+var err = document.getElementById('verifyError');
+if(err) err.style.display='none';
+// Show modal
+modal.style.display='flex';
+document.body.style.overflow='hidden';
+// Focus first box
+setTimeout(function(){ if(boxes[0]) boxes[0].focus(); }, 100);
+// Start timer
+startVerifyTimer();
+}
+
+function setupOtpBoxes(){
+var boxes = document.querySelectorAll('.otp-box');
+boxes.forEach(function(box, i){
+box.oninput = function(){
+this.value = this.value.replace(/[^0-9]/g,'');
+if(this.value && i < boxes.length-1) boxes[i+1].focus();
+updateVerifyCode();
+// Auto-submit when all filled
+var allFilled = Array.prototype.every.call(boxes, function(b){ return b.value; });
+if(allFilled) submitVerifyCode();
+};
+box.onkeydown = function(e){
+if(e.key==='Backspace' && !this.value && i>0) boxes[i-1].focus();
+};
+box.onpaste = function(e){
+e.preventDefault();
+var paste = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+for(var j=0;j<paste.length && j<boxes.length;j++) boxes[j].value = paste[j];
+updateVerifyCode();
+if(paste.length===6) submitVerifyCode();
+};
+});
+}
+
+function updateVerifyCode(){
+var boxes = document.querySelectorAll('.otp-box');
+var code = Array.prototype.map.call(boxes, function(b){ return b.value; }).join('');
+var input = document.getElementById('verifyCodeInput');
+if(input) input.value = code;
+}
+
+function startVerifyTimer(){
+if(_verifyTimerInt) clearInterval(_verifyTimerInt);
+var secs = 180; // 3 minutes
+var timerEl = document.getElementById('verifyTimer');
+var expiredMsg = document.getElementById('verifyExpiredMsg');
+var timerWrap = document.getElementById('verifyTimerWrap');
+if(expiredMsg) expiredMsg.style.display='none';
+if(timerWrap) timerWrap.style.display='inline-flex';
+_verifyTimerInt = setInterval(function(){
+secs--;
+var m = Math.floor(secs/60), s = secs%60;
+if(timerEl) timerEl.textContent = m+':'+(s<10?'0':'')+s;
+if(secs<=0){
+clearInterval(_verifyTimerInt);
+if(timerWrap) timerWrap.style.display='none';
+if(expiredMsg) expiredMsg.style.display='block';
+}
+}, 1000);
+}
+
+function submitVerifyCode(){
+updateVerifyCode();
+var code = (document.getElementById('verifyCodeInput')||{}).value||'';
+var err = document.getElementById('verifyError');
+if(code.length!==6){
+if(err){ err.textContent='Please enter the complete 6-digit code'; err.style.display='block'; }
+return;
+}
+var btn = document.getElementById('verifyBtn');
+if(btn){ btn.textContent='Verifying...'; btn.disabled=true; }
+if(err) err.style.display='none';
+
+// Verify via API
+fetch('/api/auth', {
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body: JSON.stringify({ action:'verify', email:_verifyEmail, code:code })
+})
+.then(function(r){ return r.json(); })
+.then(function(result){
+if(result.success){
+// Update local user as verified
+var users = getUsers();
+var u = users.find(function(x){ return (x.email||'').toLowerCase()===_verifyEmail.toLowerCase(); });
+if(u){ u.verified=true; saveUsers(users); }
+if(btn){ btn.textContent='✓ Verified! Opening dashboard...'; }
+// Close modal + login
+document.getElementById('verifyModal').style.display='none';
+var role = _verifyIsPublisher ? 'publisher' : 'buyer';
+var name = (u && u.name) || _verifyEmail.split('@')[0];
+var uid = (u && (u.uid||u.id)) || result.user && result.user.id;
+completeAuth(role, _verifyEmail, name, uid, result.user);
+} else {
+if(btn){ btn.textContent='Verify & Open Dashboard →'; btn.disabled=false; }
+// Fallback: check local verify code
+var users = getUsers();
+var u = users.find(function(x){ return (x.email||'').toLowerCase()===_verifyEmail.toLowerCase(); });
+if(u && u.verifyCode && u.verifyCode===code){
+u.verified=true; saveUsers(users);
+document.getElementById('verifyModal').style.display='none';
+var role = _verifyIsPublisher ? 'publisher' : 'buyer';
+completeAuth(role, _verifyEmail, u.name||_verifyEmail.split('@')[0], u.uid||u.id);
+return;
+}
+if(err){ err.textContent = result.error || 'Invalid code. Please try again.'; err.style.display='block'; }
+}
+})
+.catch(function(){
+if(btn){ btn.textContent='Verify & Open Dashboard →'; btn.disabled=false; }
+// Full fallback: local verify code check
+var users = getUsers();
+var u = users.find(function(x){ return (x.email||'').toLowerCase()===_verifyEmail.toLowerCase(); });
+if(u && u.verifyCode && u.verifyCode===code){
+u.verified=true; saveUsers(users);
+document.getElementById('verifyModal').style.display='none';
+var role = _verifyIsPublisher ? 'publisher' : 'buyer';
+completeAuth(role, _verifyEmail, u.name||_verifyEmail.split('@')[0], u.uid||u.id);
+} else {
+if(err){ err.textContent='Unable to verify. Please check your code and try again.'; err.style.display='block'; }
+}
+});
+}
+
+function closeVerifyModal(){
+if(_verifyTimerInt) clearInterval(_verifyTimerInt);
+var modal = document.getElementById('verifyModal');
+if(modal) modal.style.display='none';
+document.body.style.overflow='';
+}
+
+function resendCode(){
+var link = document.getElementById('resendLink');
+if(link && link.dataset.cooling==='1') return;
+// Generate new code
+var newCode = Math.floor(100000+Math.random()*900000).toString();
+// Update local user
+var users = getUsers();
+var u = users.find(function(x){ return (x.email||'').toLowerCase()===_verifyEmail.toLowerCase(); });
+if(u){ u.verifyCode=newCode; saveUsers(users); }
+// Request resend via API
+fetch('/api/auth', {
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body: JSON.stringify({ action:'resend_otp', email:_verifyEmail })
+}).catch(function(){});
+// Restart timer
+startVerifyTimer();
+// Cooldown 60s on resend link
+if(link){
+link.dataset.cooling='1';
+var cd = 60;
+var origText = 'Resend Code';
+link.style.opacity='.4';
+link.style.pointerEvents='none';
+var cdInt = setInterval(function(){
+cd--;
+link.textContent = 'Resend in '+cd+'s';
+if(cd<=0){
+clearInterval(cdInt);
+link.textContent = origText;
+link.style.opacity='1';
+link.style.pointerEvents='auto';
+link.dataset.cooling='0';
+}
+}, 1000);
+}
+var err = document.getElementById('verifyError');
+if(err){ err.textContent='✓ New code sent! Check your email.'; err.style.color='#22c55e'; err.style.display='block';
+setTimeout(function(){ err.style.display='none'; err.style.color='#ef4444'; }, 3000); }
+}
+
 // openBuyerSignup defined above
 // closePublisherModal defined above
 function closeSignupStep2(){ document.getElementById('signupStep2Modal').style.display='none'; document.body.style.overflow=''; }

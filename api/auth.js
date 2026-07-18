@@ -231,6 +231,19 @@ export default async function handler(req, res) {
     }
 
     // ── VERIFY EMAIL ──
+    if (action === 'resend_otp') {
+      const { email } = body;
+      if (!email) return res.status(400).json({ error: 'Missing email' });
+      const emailLow = email.toLowerCase().trim();
+      const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
+      if (!users?.length) return res.status(404).json({ error: 'User not found' });
+      const user = users[0];
+      const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+      await sbUpdate('users', `email=eq.${encodeURIComponent(emailLow)}`, { verify_code: newCode });
+      const emailResult = await sendVerifyEmail({ to: emailLow, name: user.name, code: newCode }).catch(e => ({ ok: false, error: e.message }));
+      return res.status(200).json({ success: true, emailSent: emailResult.ok, code: emailResult.ok ? undefined : newCode });
+    }
+
     if (action === 'verify') {
       const { email, code } = body;
       if (!email || !code) return res.status(400).json({ error: 'Missing email or code' });
