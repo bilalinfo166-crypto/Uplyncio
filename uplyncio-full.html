@@ -2666,34 +2666,9 @@ errEl.textContent = 'Unable to connect. Please try again.';
 }
 }
 function doPubSignup(){
-// Validate captcha — try token first, then getResponse, then allow if Turnstile not loaded
-var captchaOk = false;
-if(typeof turnstile === 'undefined'){ captchaOk = true; }
-else if(_turnstileTokens['pub']){ captchaOk = true; }
-else {
-  try{ var r = turnstile.getResponse(_turnstileWidgets['pub']); if(r){ _turnstileTokens['pub']=r; captchaOk=true; } }catch(e){}
-}
-if(!captchaOk){
-  var err = document.getElementById('pubCaptchaErr');
-  if(err){ err.textContent='⚠ Please complete the captcha first'; err.style.display='block'; }
-  return;
-}
-var err2 = document.getElementById('pubCaptchaErr'); if(err2) err2.style.display='none';
 submitPublisherAuth('signup');
 }
 function doBuyerSignup(){
-var captchaOk = false;
-if(typeof turnstile === 'undefined'){ captchaOk = true; }
-else if(_turnstileTokens['buyer']){ captchaOk = true; }
-else {
-  try{ var r = turnstile.getResponse(_turnstileWidgets['buyer']); if(r){ _turnstileTokens['buyer']=r; captchaOk=true; } }catch(e){}
-}
-if(!captchaOk){
-  var err = document.getElementById('buyerCaptchaErr');
-  if(err){ err.textContent='⚠ Please complete the captcha first'; err.style.display='block'; }
-  return;
-}
-var err2 = document.getElementById('buyerCaptchaErr'); if(err2) err2.style.display='none';
 submitBuyerAuth('signup');
 }
 function switchBuyerForm(mode){
