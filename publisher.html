@@ -2274,17 +2274,18 @@ syncSitesToSupabase(uid, mySites);
 }catch(e){ console.warn('saveSites error:', e); }
 }
 function syncSitesToSupabase(uid, sites){
-if(!uid || !Array.isArray(sites)) return;
-// Never send 'uplyncio_team_official' as publisher_id — use actual UID
+if(!uid || !Array.isArray(sites) || !sites.length) return;
 var actualUid = (uid === 'uplyncio_team_official') ? 
 (localStorage.getItem('uplyncio_currentUid')||uid) : uid;
 var userData = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
 var publisherName = userData.name || '';
 var publisherEmail = userData.email || '';
+// Batch: send 50 sites per request
+var batch = [];
 sites.forEach(function(s){
 var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
 if(!domain) return;
-var payload = {
+batch.push({
 publisher_id: actualUid,
 publisher_name: publisherName,
 publisher_email: publisherEmail,
@@ -2295,26 +2296,33 @@ category: s.category||s.cat||'General',
 link_type: s.linkType||s.lt||'Dofollow',
 price: parseFloat((s.guestPostPrice||s.p1||s.price||'50').toString().replace('$',''))||50,
 write_publish_price: parseFloat((s.writePublishPrice||s.p2||'0').toString().replace('$',''))||0,
-link_insertion_price: parseFloat((s.liPrice||s.p5||'0').toString().replace('$',''))||0,
+link_insertion_price: parseFloat((s.liPrice||s.p3||s.p5||'0').toString().replace('$',''))||0,
 li_accepted: s.liAccepted==='Yes'||s.liAccepted===true,
 language: s.language||s.lang||'English',
 country: s.country||'USA',
 tat: parseInt(s.tat)||7,
-requirements: s.requirements||s.req||'',
+requirements: (s.requirements||s.req||'').substring(0,200),
 role: s.role||'Owner',
 status: s.status==='Live'?'Live':(s.status==='pending'?'Pending Review':(s.status==='hold'?'On Hold':(s.status==='rejected'?'Rejected':'Pending Review'))),
 site_id_local: s.id ? s.id.toString() : ''
-};
-fetch('/api/sites?upsert=1', {
+});
+});
+// Send in batches of 50
+var batchSize = 50;
+var i = 0;
+function sendBatch(){
+if(i >= batch.length){ console.log('[Sync] All '+batch.length+' sites synced to Supabase'); return; }
+var chunk = batch.slice(i, i+batchSize);
+i += batchSize;
+fetch('/api/sites?upsert=1&batch=1', {
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body: JSON.stringify(payload)
+body: JSON.stringify({sites: chunk})
 }).then(function(r){ return r.json(); })
-.then(function(res){
-if(!res.success) console.error('[Uplyncio Sync] Failed for', domain, JSON.stringify(res));
-})
-.catch(function(e){ console.error('[Uplyncio Sync] Error for', domain, e.message); });
-});
+.then(function(){ setTimeout(sendBatch, 200); })
+.catch(function(){ setTimeout(sendBatch, 500); });
+}
+sendBatch();
 }
 // Force push ALL sites to Supabase with visible feedback
 window.forceSyncAllSites = function(){
@@ -2364,37 +2372,57 @@ toast('✅ '+done+' sites synced to buyer marketplace!','#16a34a');
 function loadSitesFromSupabase(){
 var uid = localStorage.getItem('uplyncio_currentUid')||'';
 if(!uid) return;
-fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=500')
+fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=10000')
 .then(function(r){ return r.json(); })
 .then(function(res){
-if(!res.success || !Array.isArray(res.sites) || !res.sites.length) return;
-var merged = mySites.slice();
-res.sites.forEach(function(sb){
-var localId = sb.site_id_local;
-var exists = merged.some(function(m){ return m.id && m.id.toString()===localId; });
-if(!exists){
-merged.push({
-id: sb.site_id_local || sb.id,
-url: sb.url, da: sb.da, dr: sb.dr, traffic: sb.traffic,
-category: sb.category, cat: sb.category,
-linkType: sb.link_type, lt: sb.link_type,
-guestPostPrice: sb.price, p1: sb.price,
-writePublishPrice: sb.write_publish_price, p2: sb.write_publish_price,
-liAccepted: sb.li_accepted?'Yes':'No', liPrice: sb.link_insertion_price, p5: sb.link_insertion_price,
-language: sb.language, lang: sb.language,
-country: sb.country, tat: sb.tat,
-requirements: sb.requirements, req: sb.requirements,
-role: sb.role, status: sb.status==='Live'?'Live':(sb.status==='Pending Review'?'pending':(sb.status==='On Hold'?'hold':(sb.status==='Rejected'?'rejected':'pending'))),
-publisherName: sb.publisher_name
+if(!res.success || !Array.isArray(res.sites)) return;
+if(!res.sites.length) return;
+// Build map of local sites by domain for dedup
+var localMap = {};
+mySites.forEach(function(m){ 
+var d=(m.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
+if(d) localMap[d]=m;
 });
+var added=0;
+res.sites.forEach(function(sb){
+var d=(sb.url||sb.domain||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
+if(!d) return;
+var site = {
+id: sb.site_id_local || sb.id || ('sb_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)),
+url: d, da: String(sb.da||0), dr: String(sb.dr||0), 
+traffic: String(sb.traffic||0),
+cat: sb.category||'General', lt: sb.link_type||'Dofollow',
+price: '$'+(sb.price||0), p1: String(sb.price||0),
+p2: String(sb.write_publish_price||0),
+guestPostPrice: String(sb.price||0),
+writePublishPrice: String(sb.write_publish_price||0),
+liAccepted: sb.li_accepted?'Yes':'No',
+liPrice: String(sb.link_insertion_price||0),
+liOk: sb.li_accepted||false,
+p3: String(sb.link_insertion_price||0),
+lang: sb.language||'English', country: sb.country||'USA',
+maxLinks: String(sb.max_links||'No limit'),
+tat: sb.tat||7,
+req: (sb.requirements||'').substring(0,150),
+status: sb.status==='Live'?'Live':(sb.status==='On Hold'?'hold':(sb.status==='Rejected'?'rejected':'pending')),
+publisherName: sb.publisher_name||'',
+role: sb.role||'Owner'
+};
+if(localMap[d]){
+// Update existing
+Object.assign(localMap[d], site);
+} else {
+mySites.push(site);
+localMap[d]=site;
+added++;
 }
 });
-if(merged.length !== mySites.length){
-mySites = merged;
+if(added>0){
 saveSites();
 applyFilters();
+console.log('[Supabase] Loaded '+added+' new sites, total: '+mySites.length);
 }
-}).catch(function(){});
+}).catch(function(e){ console.warn('loadSitesFromSupabase error:', e); });
 }
 // Reload sites when UID becomes available (after login)
 function reloadSitesForUser(){

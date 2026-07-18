@@ -44,6 +44,50 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const b = req.body || {};
+      
+      // ── BATCH UPSERT ──
+      if (b.sites && Array.isArray(b.sites)) {
+        const results = [];
+        for (const site of b.sites.slice(0, 100)) { // Max 100 per batch
+          const domain = (site.url||site.domain||'').replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
+          if (!domain || !site.publisher_id) continue;
+          const safe = {
+            publisher_id: site.publisher_id,
+            url: site.url||domain, domain: domain,
+            da: parseInt(site.da)||0, dr: parseInt(site.dr)||0,
+            traffic: parseInt(site.traffic)||0,
+            price: parseFloat(site.price)||0,
+            category: site.category||'General',
+            link_type: site.link_type||'Dofollow',
+            status: site.status||'Live',
+            updated_at: new Date().toISOString()
+          };
+          const optional = ['publisher_name','publisher_email','write_publish_price',
+            'link_insertion_price','li_accepted','language','country','tat',
+            'requirements','role','site_id_local','max_links'];
+          for (const col of optional) {
+            if (site[col] !== undefined && site[col] !== null) safe[col] = site[col];
+          }
+          try {
+            const chk = await fetch(
+              `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(site.publisher_id)}&select=id&limit=1`,
+              { headers: h() }
+            );
+            const existing = await chk.json();
+            if (Array.isArray(existing) && existing.length > 0) {
+              await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`, { method: 'PATCH', headers: h(), body: JSON.stringify(safe) });
+              results.push({domain, action:'updated'});
+            } else {
+              safe.created_at = new Date().toISOString();
+              await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, { method: 'POST', headers: h(), body: JSON.stringify(safe) });
+              results.push({domain, action:'inserted'});
+            }
+          } catch(e) { results.push({domain, action:'error', error:e.message}); }
+        }
+        return res.status(200).json({ success: true, batch: true, count: results.length, results });
+      }
+
+      // ── SINGLE UPSERT ──
     if(!checkBodySize(b)) return apiError(res, 413, "Request too large");
       if (!b.url || !b.publisher_id) return res.status(400).json({ error: 'Missing url or publisher_id' });
       const domain = b.url.replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
