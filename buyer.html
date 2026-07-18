@@ -1047,6 +1047,7 @@ console.log('allSites result:', all.length, 'sites');
 }
 // ── GLOBAL SITES STORE ──
 var _allSites = []; // global cache
+if(typeof escapeHtml==='undefined'){window.escapeHtml=function(s){if(typeof s!=='string')return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};var escapeHtml=window.escapeHtml;}
 var _sbTimer = null;
 function _mkupFromPub(publisherPrice){
 var p = parseFloat(publisherPrice)||0;
