@@ -712,18 +712,14 @@ av.textContent = initials.toUpperCase();
 
 <!-- Drag & Drop zone -->
 <div style="background:#f8faff;border:2px dashed #c7d7ff;border-radius:14px;padding:44px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:12px"
-id="dropZone"
-onclick="document.getElementById('fileInput').click()"
-ondragover="event.preventDefault();this.style.background='#eff6ff';this.style.borderColor='#4f7cff'"
-ondragleave="this.style.background='#f8faff';this.style.borderColor='#c7d7ff'"
-ondrop="handleDrop(event)">
-<input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])">
-<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+id="dropZone">
+<input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none">
 <div style="width:64px;height:64px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;margin-bottom:4px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4f7cff" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
 </div>
-<div style="font-size:13.5px;font-weight:700;color:#0f172a">xls, xlsx</div>
-<div style="font-size:13px;color:#64748b">Drag your file here or <span style="color:#4f7cff;font-weight:700;cursor:pointer;text-decoration:underline">browse</span> to upload</div>
+<div style="font-size:13.5px;font-weight:700;color:#0f172a">csv, xls, xlsx</div>
+<div style="font-size:13px;color:#64748b">Drag your file here or <span style="color:#4f7cff;font-weight:700;text-decoration:underline">browse</span> to upload</div>
 </div>
 </div>
 <div style="font-size:12px;color:#94a3b8;margin-bottom:22px">Restrictions: no larger than 2MB, only csv, xls, xlsx</div>
@@ -7518,6 +7514,41 @@ el.appendChild(box);
 document.body.appendChild(el);
 document.getElementById('siteRejectClose').addEventListener('click', function(){ el.remove(); });
 }
+</script>
+<script>
+// ── FILE UPLOAD EVENT LISTENERS ──
+document.addEventListener('DOMContentLoaded', function(){
+  var dropZone = document.getElementById('dropZone');
+  var fileInput = document.getElementById('fileInput');
+  if(!dropZone || !fileInput) return;
+  
+  fileInput.addEventListener('change', function(){
+    if(this.files && this.files[0]) handleFile(this.files[0]);
+    this.value = ''; // reset so same file can be re-uploaded
+  });
+  
+  dropZone.addEventListener('dragover', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.background = '#eff6ff';
+    this.style.borderColor = '#4f7cff';
+  });
+  
+  dropZone.addEventListener('dragleave', function(e){
+    e.preventDefault();
+    this.style.background = '#f8faff';
+    this.style.borderColor = '#c7d7ff';
+  });
+  
+  dropZone.addEventListener('drop', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    this.style.background = '#f8faff';
+    this.style.borderColor = '#c7d7ff';
+    var file = e.dataTransfer.files[0];
+    if(file) handleFile(file);
+  });
+});
 </script>
 </body>
 </html>
