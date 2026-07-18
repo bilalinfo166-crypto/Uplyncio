@@ -1,275 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta charset="UTF-8">
-  <link rel="canonical" href="https://uplyncio.com/cart.html">
-
+<link rel="canonical" href="https://uplyncio.com/cart.html">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="viewport" content="width=1280">
-<title>My Cart | Review Your Order — Uplyncio Marketplace</title>
+<meta name="robots" content="noindex, nofollow">
+<title>My Cart — Uplyncio</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-a,a:hover,a:visited{text-decoration:none}
-:root{--ac:#4f7cff;--br:#e2e8f0;--bg:#f0f2f7;--tx:#1a202c;--t2:#64748b;--mu:#94a3b8;--wh:#fff;--r:14px;--gn:#16a34a}
+a{text-decoration:none}
+:root{--ac:#4f7cff;--br:#e2e8f0;--bg:#f0f2f7;--tx:#0f172a;--t2:#64748b;--mu:#94a3b8;--wh:#fff;--gn:#16a34a}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
 
-/* NAV */
-nav{background:var(--wh);border-bottom:1px solid var(--br);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-.nav-logo{font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:var(--tx)}
+nav{background:var(--wh);border-bottom:1px solid var(--br);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:var(--tx)}
 .nav-logo em{font-style:normal;color:var(--ac)}
-.nav-back{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--t2);padding:7px 14px;border:1px solid var(--br);border-radius:8px;transition:all .15s}
-.nav-back:hover{color:var(--ac);border-color:var(--ac);background:#f0f4ff}
+.nav-back{font-size:13px;font-weight:600;color:var(--t2);padding:7px 16px;border:1px solid var(--br);border-radius:8px;transition:all .15s}
+.nav-back:hover{color:var(--ac);border-color:var(--ac)}
 
-/* TABS */
-.tabs-bar{background:var(--wh);border-bottom:2px solid var(--br);padding:0 32px;display:flex;gap:0}
-.tab-btn{padding:14px 22px;font-size:14px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:8px}
+.tabs-wrap{background:var(--wh);border-bottom:1px solid var(--br);padding:0 32px;display:flex;gap:0}
+.tab-btn{padding:13px 24px;font-size:13.5px;font-weight:600;color:var(--mu);border:none;background:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;display:flex;align-items:center;gap:8px}
 .tab-btn:hover{color:var(--tx)}
 .tab-btn.act{color:var(--ac);border-bottom-color:var(--ac)}
-.tab-cnt{background:var(--ac);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;font-weight:700}
 
-/* MAIN */
-.container{max-width:1100px;margin:0 auto;width:100%;padding:28px 24px;flex:1;display:flex;gap:24px;align-items:flex-start}
-.cart-main{flex:1}
+.page{max-width:1080px;margin:0 auto;width:100%;padding:24px;flex:1;display:flex;gap:24px;align-items:flex-start}
+.page-main{flex:1;min-width:0}
 
-/* CART ITEM */
-.cart-item{background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:18px 22px;margin-bottom:12px;display:flex;align-items:center;gap:18px;transition:box-shadow .2s}
-.cart-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
-.ci-favicon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4f7cff22,#6366f122);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.ci-info{flex:1}
-.ci-site{font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px}
-.ci-meta{display:flex;gap:12px;flex-wrap:wrap}
-.ci-badge{font-size:11.5px;color:var(--t2);display:flex;align-items:center;gap:4px}
-.ci-badge strong{color:var(--tx);font-weight:700}
-.ci-type{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eff6ff;color:var(--ac)}
-.ci-price{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:var(--tx);flex-shrink:0}
-.ci-remove{width:32px;height:32px;border:1px solid var(--br);background:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--mu);transition:all .15s;flex-shrink:0}
-.ci-remove:hover{border-color:#ef4444;color:#ef4444;background:#fff5f5}
+.card{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:18px 22px;margin-bottom:10px;display:flex;align-items:center;gap:16px;transition:all .2s}
+.card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(79,124,255,.08)}
+.card-icon{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#eff6ff,#e0e7ff);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.card-body{flex:1;min-width:0}
+.card-title{font-size:14.5px;font-weight:700;color:var(--tx);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.card-meta strong{color:var(--tx);font-weight:700}
+.card-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;background:#eff6ff;color:var(--ac)}
+.card-price{font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:var(--tx);flex-shrink:0;margin:0 8px}
+.card-del{width:32px;height:32px;border:1px solid var(--br);background:none;border-radius:8px;cursor:pointer;font-size:13px;color:var(--mu);transition:all .15s;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.card-del:hover{border-color:#ef4444;color:#ef4444;background:#fff5f5}
 
-/* ORDER SUMMARY */
-.order-summary{width:300px;flex-shrink:0;position:sticky;top:76px}
-.summary-card{background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:22px;margin-bottom:14px}
-.summary-title{font-size:15px;font-weight:800;color:var(--tx);margin-bottom:18px}
-.summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--t2);margin-bottom:12px}
-.summary-row span:last-child{font-weight:600;color:var(--tx)}
-.summary-divider{border:none;border-top:1px solid var(--br);margin:14px 0}
-.summary-total{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:800;color:var(--tx)}
-.btn-checkout{width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,124,255,.3);transition:all .18s;margin-top:16px}
-.btn-checkout:hover{opacity:.9;transform:translateY(-1px)}
-.trust-badges{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-.trust-b{font-size:11px;color:var(--mu);display:flex;align-items:center;gap:4px}
+.sidebar{width:300px;flex-shrink:0;position:sticky;top:74px}
+.sb-card{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:22px;margin-bottom:12px}
+.sb-title{font-size:15px;font-weight:800;color:var(--tx);margin-bottom:16px}
+.sb-row{display:flex;justify-content:space-between;font-size:13px;color:var(--t2);margin-bottom:10px}
+.sb-row span:last-child{font-weight:700;color:var(--tx)}
+.sb-divider{border:none;border-top:1px solid var(--br);margin:12px 0}
+.sb-total{display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:var(--tx)}
+.sb-total span:last-child{color:var(--ac)}
+.btn-checkout{width:100%;padding:14px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:11px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px;transition:all .18s}
+.btn-checkout:hover{opacity:.92;transform:translateY(-1px)}
+.sb-trust{display:flex;gap:12px;justify-content:center;margin-top:14px;font-size:11px;color:var(--mu)}
+.sb-help{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:16px 18px;font-size:12.5px;color:#15803d;line-height:1.65}
+.sb-help a{color:#15803d;font-weight:700}
 
-/* EMPTY */
-.empty{text-align:center;padding:80px 20px;color:var(--mu)}
-.empty .icon{font-size:56px;margin-bottom:18px;opacity:.25;display:block}
-.empty h3{font-size:18px;font-weight:700;color:var(--t2);margin-bottom:8px}
-.empty p{font-size:13.5px;margin-bottom:22px}
-.btn-browse{display:inline-block;padding:11px 28px;background:var(--ac);color:#fff;border-radius:10px;font-size:14px;font-weight:700}
+.empty{text-align:center;padding:80px 20px}
+.empty-icon{font-size:52px;margin-bottom:16px;opacity:.2}
+.empty h3{font-size:17px;font-weight:700;color:var(--tx);margin-bottom:6px}
+.empty p{font-size:13px;color:var(--mu);margin-bottom:20px}
+.btn-browse{display:inline-block;padding:11px 28px;background:var(--ac);color:#fff;border-radius:10px;font-size:14px;font-weight:700;transition:all .15s}
+.btn-browse:hover{opacity:.9}
 
-/* SAVED SITE CARD */
-.saved-item{background:var(--wh);border:1px solid var(--br);border-radius:var(--r);padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
-.btn-add{padding:8px 16px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn-unsave{padding:8px 12px;background:#fee2e2;color:#ef4444;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}
+.saved-card{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.btn-sm{padding:8px 14px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-add{background:var(--ac);color:#fff}
+.btn-add:hover{opacity:.9}
+.btn-rm{background:#fee2e2;color:#ef4444}
+.btn-rm:hover{background:#fecaca}
 </style>
-  <link rel="stylesheet" href="/shared.css">
+<link rel="stylesheet" href="/shared.css">
 </head>
 <body>
 <nav>
-<a href="uplyncio-full.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-<svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-<rect width="64" height="64" rx="14" fill="#0f1628"/>
-<g style="animation:chainMove 2.5s ease-in-out infinite">
-<rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
-</g>
-<g style="animation:chainMove 2.5s ease-in-out infinite reverse">
-<rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
-</g>
-<rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
-<style>@keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}</style>
-</svg>
-<span style="font-family:Manrope,sans-serif;font-size:21px;font-weight:800;color:#1a202c">Uply<em style="font-style:normal;color:#4f7cff">ncio</em></span>
+<a href="uplyncio-full.html" class="nav-logo">
+<svg width="30" height="30" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0f1628"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg>
+Uply<em>ncio</em>
 </a>
-<a href="buyer.html" class="nav-back">← Back to Browse</a>
+<a href="buyer.html" class="nav-back">← Back to Marketplace</a>
 </nav>
-<div class="tabs-bar">
-<button class="tab-btn act" id="tab-cart" onclick="showTab('cart')">
-    🛒 My Cart <span class="tab-cnt" id="cnt-cart">0</span>
-</button>
-<button class="tab-btn" id="tab-saved" onclick="showTab('saved')">
-    ❤️ Saved Sites <span class="tab-cnt" id="cnt-saved" style="background:#94a3b8">0</span>
-</button>
+
+<div class="tabs-wrap">
+<button class="tab-btn act" id="tabCart" onclick="showTab('cart')">My Cart <span id="cntCart" style="background:var(--ac);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">0</span></button>
+<button class="tab-btn" id="tabSaved" onclick="showTab('saved')">Saved Sites <span id="cntSaved" style="background:var(--mu);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:700">0</span></button>
 </div>
-<div id="view-cart" class="container">
-<div class="cart-main" id="cartList"></div>
-<div class="order-summary" id="summaryBox" style="display:none">
-<div class="summary-card">
-<div class="summary-title">Order Summary</div>
-<div class="summary-row"><span>Items</span><span id="sumItems">0</span></div>
-<div class="summary-row"><span>Subtotal</span><span id="sumSub">$0.00</span></div>
-<div class="summary-row" style="color:#16a34a"><span>💰 Balance discount</span><span>$0.00</span></div>
-<hr class="summary-divider">
-<div class="summary-total"><span>Total</span><span id="sumTotal" style="color:var(--ac)">$0.00</span></div>
-<button class="btn-checkout" onclick="proceedCheckout()">Proceed to Checkout →</button>
-<div class="trust-badges">
-<span class="trust-b">🔒 SSL Secure</span>
-<span class="trust-b">💳 PayPal / USDT</span>
+
+<!-- CART VIEW -->
+<div id="viewCart" class="page">
+<div class="page-main" id="cartList"></div>
+<div class="sidebar" id="summaryBox" style="display:none">
+<div class="sb-card">
+<div class="sb-title">Order summary</div>
+<div class="sb-row"><span>Items</span><span id="sumItems">0</span></div>
+<div class="sb-row"><span>Subtotal</span><span id="sumSub">$0</span></div>
+<hr class="sb-divider">
+<div class="sb-total"><span>Total</span><span id="sumTotal">$0</span></div>
+<button class="btn-checkout" onclick="proceedCheckout()">Proceed to checkout</button>
+<div class="sb-trust"><span>🔒 SSL secured</span><span>💳 PayPal / Crypto</span><span>🛡 12-mo guarantee</span></div>
+</div>
+<div class="sb-help">Need bulk orders or a custom package? Email <a href="mailto:info@uplyncio.com">info@uplyncio.com</a> — we respond within 24 hours.</div>
 </div>
 </div>
-<div class="summary-card" style="background:#f0fdf4;border-color:#bbf7d0">
-<div style="font-size:12.5px;color:#15803d;line-height:1.6">
-        💡 <strong>Need help?</strong> Contact us at <a href="mailto:info@uplyncio.com" style="color:#15803d;font-weight:700">info@uplyncio.com</a> for bulk orders or custom packages.
-      </div>
+
+<!-- SAVED VIEW -->
+<div id="viewSaved" class="page" style="display:none">
+<div class="page-main" id="savedList"></div>
 </div>
-</div>
-</div>
-<div id="view-saved" class="container" style="display:none">
-<div style="flex:1" id="savedList"></div>
-</div>
+
 <script>
-function showTab(tab){
-  document.getElementById('view-cart').style.display = tab==='cart'?'flex':'none';
-  document.getElementById('view-saved').style.display = tab==='saved'?'flex':'none';
-  document.getElementById('tab-cart').className = 'tab-btn'+(tab==='cart'?' act':'');
-  document.getElementById('tab-saved').className = 'tab-btn'+(tab==='saved'?' act':'');
-  if(tab==='cart') renderCart();
-  else renderSaved();
+function showTab(t){
+document.getElementById('viewCart').style.display=t==='cart'?'flex':'none';
+document.getElementById('viewSaved').style.display=t==='saved'?'flex':'none';
+document.getElementById('tabCart').className='tab-btn'+(t==='cart'?' act':'');
+document.getElementById('tabSaved').className='tab-btn'+(t==='saved'?' act':'');
+if(t==='cart') renderCart(); else renderSaved();
 }
 
 function renderCart(){
-  var items = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  var list = document.getElementById('cartList');
-  var box = document.getElementById('summaryBox');
-  document.getElementById('cnt-cart').textContent = items.length;
-
-  if(!items.length){
-    list.innerHTML = '<div class="empty"><span class="icon">🛒</span><h3>Your cart is empty</h3><p>Browse our marketplace and add sites to get started.</p><a href="buyer.html" class="btn-browse">Browse Sites</a></div>';
-    box.style.display='none';
-    return;
-  }
-
-  var total = 0;
-  list.innerHTML = items.map(function(item, i){
-    var price = parseFloat(item.price)||0;
-    total += price;
-    var svcLabel = item.service==='li' ? 'Link Insertion' : 'Article Posting';
-    var svcIcon = item.service==='li' ? '🔗' : '📝';
-    return '<div class="cart-item">'
-      +'<div class="ci-favicon">🌐</div>'
-      +'<div class="ci-info">'
-        +'<div class="ci-site">'+(item.url||'Unknown Site')+'</div>'
-        +'<div class="ci-meta">'
-          +'<span class="ci-badge"><strong>DA</strong> '+(item.da||'—')+'</span>'
-          +'<span class="ci-badge"><strong>DR</strong> '+(item.dr||'—')+'</span>'
-          +'<span class="ci-badge">📊 '+(item.traffic||'—')+'/mo</span>'
-          +'<span class="ci-type">'+svcIcon+' '+svcLabel+'</span>'
-        +'</div>'
-      +'</div>'
-      +'<div class="ci-price">$'+price.toFixed(2)+'</div>'
-      +'<button class="ci-remove" onclick="removeItem('+i+')" title="Remove">✕</button>'
-    +'</div>';
-  }).join('');
-
-  box.style.display='block';
-  document.getElementById('sumItems').textContent = items.length;
-  document.getElementById('sumSub').textContent = '$'+total.toFixed(2);
-  document.getElementById('sumTotal').textContent = '$'+total.toFixed(2);
+var items=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+var list=document.getElementById('cartList');
+var box=document.getElementById('summaryBox');
+document.getElementById('cntCart').textContent=items.length;
+if(!items.length){
+list.innerHTML='<div class="empty"><div class="empty-icon">🛒</div><h3>Your cart is empty</h3><p>Browse our marketplace and add sites to get started.</p><a href="buyer.html" class="btn-browse">Browse marketplace</a></div>';
+box.style.display='none'; return;
+}
+var total=0;
+list.innerHTML=items.map(function(item,i){
+var price=parseFloat(item.price)||0; total+=price;
+var svc=item.service==='li'?'Link Insertion':'Guest Post';
+return '<div class="card"><div class="card-icon">🌐</div><div class="card-body"><div class="card-title">'+(item.url||'Unknown')+'</div><div class="card-meta"><span><strong>DA</strong> '+(item.da||'—')+'</span><span><strong>DR</strong> '+(item.dr||'—')+'</span><span class="card-tag">'+svc+'</span></div></div><div class="card-price">$'+price.toFixed(0)+'</div><button class="card-del" onclick="removeItem('+i+')" title="Remove">✕</button></div>';
+}).join('');
+box.style.display='block';
+document.getElementById('sumItems').textContent=items.length;
+document.getElementById('sumSub').textContent='$'+total.toFixed(2);
+document.getElementById('sumTotal').textContent='$'+total.toFixed(2);
 }
 
 function removeItem(i){
-  var items = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  var item = items[i];
-  if(item) localStorage.removeItem('cart_'+(item.service==='li'?'li_':'')+item.url);
-  items.splice(i,1);
-  localStorage.setItem('uplyncio_cart_items', JSON.stringify(items));
-  renderCart();
+var items=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+if(items[i]) localStorage.removeItem('cart_'+(items[i].service==='li'?'li_':'')+items[i].url);
+items.splice(i,1);
+localStorage.setItem('uplyncio_cart_items',JSON.stringify(items));
+renderCart();
 }
 
 function renderSaved(){
-  var items = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-  var list = document.getElementById('savedList');
-  document.getElementById('cnt-saved').textContent = items.length;
-
-  if(!items.length){
-    list.innerHTML = '<div class="empty"><span class="icon">❤️</span><h3>No saved sites yet</h3><p>Click the heart icon on any site to save it here.</p><a href="buyer.html" class="btn-browse">Browse Sites</a></div>';
-    return;
-  }
-
-  list.innerHTML = items.map(function(item,i){
-    return '<div class="saved-item">'
-      +'<div class="ci-favicon">🌐</div>'
-      +'<div class="ci-info" style="flex:1">'
-        +'<div class="ci-site">'+(item.url||'Unknown Site')+'</div>'
-        +'<div class="ci-meta">'
-          +'<span class="ci-badge"><strong>DA</strong> '+(item.da||'—')+'</span>'
-          +'<span class="ci-badge"><strong>DR</strong> '+(item.dr||'—')+'</span>'
-          +'<span class="ci-badge">📊 '+(item.traffic||'—')+'/mo</span>'
-        +'</div>'
-      +'</div>'
-      +'<div style="display:flex;gap:8px;align-items:center">'
-        +'<div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:var(--tx);margin-right:8px">$'+(parseFloat(item.price||item.gP||0)).toFixed(2)+'</div>'
-        +'<button class="btn-add" onclick="addToCart('+i+')">+ Add to Cart</button>'
-        +'<button class="btn-unsave" onclick="removeSaved('+i+')">✕</button>'
-      +'</div>'
-    +'</div>';
-  }).join('');
+var items=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+var list=document.getElementById('savedList');
+document.getElementById('cntSaved').textContent=items.length;
+if(!items.length){
+list.innerHTML='<div class="empty"><div class="empty-icon">❤️</div><h3>No saved sites</h3><p>Tap the heart icon on any site to save it for later.</p><a href="buyer.html" class="btn-browse">Browse marketplace</a></div>';
+return;
+}
+list.innerHTML=items.map(function(item,i){
+return '<div class="saved-card"><div class="card-icon">🌐</div><div class="card-body" style="flex:1"><div class="card-title">'+(item.url||'Unknown')+'</div><div class="card-meta"><span><strong>DA</strong> '+(item.da||'—')+'</span><span><strong>DR</strong> '+(item.dr||'—')+'</span></div></div><div class="card-price" style="font-size:17px">$'+(parseFloat(item.price||item.gP||0)).toFixed(0)+'</div><button class="btn-sm btn-add" onclick="addToCart('+i+')">+ Add to cart</button><button class="btn-sm btn-rm" onclick="removeSaved('+i+')">✕</button></div>';
+}).join('');
 }
 
 function addToCart(i){
-  var saved = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-  var cart = JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
-  if(saved[i]){ cart.push(saved[i]); }
-  localStorage.setItem('uplyncio_cart_items', JSON.stringify(cart));
-  showTab('cart');
+var saved=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+var cart=JSON.parse(localStorage.getItem('uplyncio_cart_items')||'[]');
+if(saved[i]) cart.push(saved[i]);
+localStorage.setItem('uplyncio_cart_items',JSON.stringify(cart));
+showTab('cart');
 }
 
 function removeSaved(i){
-  var items = JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
-  if(items[i]) localStorage.removeItem('saved_'+items[i].url);
-  items.splice(i,1);
-  localStorage.setItem('uplyncio_saved_sites', JSON.stringify(items));
-  renderSaved();
+var items=JSON.parse(localStorage.getItem('uplyncio_saved_sites')||'[]');
+if(items[i]) localStorage.removeItem('saved_'+items[i].url);
+items.splice(i,1);
+localStorage.setItem('uplyncio_saved_sites',JSON.stringify(items));
+renderSaved();
 }
 
 function proceedCheckout(){
-  alert('To complete your order please contact us at info@uplyncio.com or use your account balance.');
+alert('To complete your order, use your wallet balance or contact info@uplyncio.com');
 }
 
 // Init
-var hash = window.location.hash;
-if(hash==='#saved') showTab('saved');
-else { showTab('cart'); }
-
-function browseSites(){
-  try{
-    var u=JSON.parse(localStorage.getItem('uplyncio_user')||'null');
-    var li=localStorage.getItem('uplyncio_loggedIn')==='1';
-    if(u&&li){ window.location.href='buyer.html'; return; }
-  }catch(e){}
-  showBpsPopup();
-}
-function browsePublisherSites(){ browseSites(); }
-function showBpsPopup(){
-  var m=document.getElementById('bpsModal');
-  if(!m) return;
-  m.style.display='flex';
-  m.style.position='fixed';
-  m.style.inset='0';
-  m.style.zIndex='99999';
-  m.style.alignItems='center';
-  m.style.justifyContent='center';
-  m.style.padding='20px';
-  document.body.style.overflow='hidden';
-}
-function closeBpsModal(){ closeBps(); }
-function closeBps(){
-  var m=document.getElementById('bpsModal');
-  if(m) m.style.display='none';
-  document.body.style.overflow='';
-}
+if(window.location.hash==='#saved') showTab('saved');
+else showTab('cart');
 </script>
-
 <script src="/chatbot.js" defer></script>
 </body>
 </html>
