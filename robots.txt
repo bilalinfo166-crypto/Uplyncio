@@ -1,9 +1,13 @@
 User-agent: *
 Allow: /
-Disallow: /publisher.html
-Disallow: /buyer.html
-Disallow: /admin.html
+
+Disallow: /publisher
+Disallow: /buyer
+Disallow: /admin
+Disallow: /cart
+Disallow: /publisher-admin
 Disallow: /api/
-Disallow: /oauth-bridge.html
+Disallow: /oauth-bridge
+Disallow: /signup
 
 Sitemap: https://uplyncio.com/sitemap.xml
