@@ -717,7 +717,8 @@ av.textContent = initials.toUpperCase();
 </div>
 <div style="font-size:13.5px;font-weight:700;color:#0f172a;margin-bottom:4px">csv, xls, xlsx</div>
 <div style="font-size:13px;color:#64748b;margin-bottom:16px">Select your file below to upload</div>
-<div style="display:flex;justify-content:center"><input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="font-size:14px;font-family:inherit;cursor:pointer;margin-bottom:8px"></div>
+<input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none">
+<button onclick="document.getElementById('fileInput').click()" style="display:block;margin:0 auto;padding:12px 32px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 10px rgba(79,124,255,.3)">📁 Choose File</button>
 </div>
 <div style="font-size:12px;color:#94a3b8;margin-bottom:22px">Restrictions: no larger than 2MB, only csv, xls, xlsx</div>
 
