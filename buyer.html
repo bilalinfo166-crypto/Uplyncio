@@ -1487,46 +1487,53 @@ if(comp && (s.comp||0)<comp) return false;
 if(tat<999 && (s.tat||999)>tat) return false;
 return true;
 });
-// Sort — when searching: price ascending. Default: best quality first (DA + traffic)
+// Sort — verified first (by traffic), then unverified (by traffic). Search: lowest price.
 var isSearching = search && search.length > 0;
+
+// Helper: check if publisher is verified
+function _isVerified(s){
+if(s.isTeamSite) return true;
+if(!s.publisherUid) return false;
+try{
+var pd = JSON.parse(localStorage.getItem('uplyncio_data_'+s.publisherUid)||'{}');
+if(pd.publisherVerified || pd.ordersCompleted >= 10 || pd.orders_completed >= 10) return true;
+}catch(e){}
+return false;
+}
+
 filteredSites.sort(function(a,b){
-// Always put team/official (info@uplyncio.com) sites first
-var aTeam = a.isTeamSite || a._uid==='uplyncio_team_official' ? 1 : 0;
-var bTeam = b.isTeamSite || b._uid==='uplyncio_team_official' ? 1 : 0;
+var aV = _isVerified(a) ? 1 : 0;
+var bV = _isVerified(b) ? 1 : 0;
+
 if(sort==='price-asc'){
-if(aTeam !== bTeam) return bTeam - aTeam; // team first
+if(aV !== bV) return bV - aV;
 return (a.gP||0) - (b.gP||0);
 }
 if(sort==='price-desc'){
-if(aTeam !== bTeam) return bTeam - aTeam;
+if(aV !== bV) return bV - aV;
 return (b.gP||0) - (a.gP||0);
 }
 if(sort==='da-desc'){
-if(aTeam !== bTeam) return bTeam - aTeam;
+if(aV !== bV) return bV - aV;
 return b.da - a.da;
 }
 if(sort==='dr-desc'){
-if(aTeam !== bTeam) return bTeam - aTeam;
+if(aV !== bV) return bV - aV;
 return b.dr - a.dr;
 }
 if(sort==='traffic-desc'){
-if(aTeam !== bTeam) return bTeam - aTeam;
-return b.traffic - a.traffic;
+if(aV !== bV) return bV - aV;
+return (b.traffic||0) - (a.traffic||0);
 }
 if(sort==='completion'){
-if(aTeam !== bTeam) return bTeam - aTeam;
+if(aV !== bV) return bV - aV;
 return b.comp - a.comp;
 }
-// Default sort depends on whether user is searching
-if(aTeam !== bTeam) return bTeam - aTeam;
-var aVerified = a.isTeamSite ? 2 : (a.publisherUid && a.publisherUid !== 'uplyncio_team_official' ? 1 : 0);
-var bVerified = b.isTeamSite ? 2 : (b.publisherUid && b.publisherUid !== 'uplyncio_team_official' ? 1 : 0);
-if(aVerified !== bVerified) return bVerified - aVerified;
+// Default: verified first, then highest traffic
+if(aV !== bV) return bV - aV;
 if(isSearching){
-// When searching: lowest price first (same site, cheapest on top)
 return (a.gP||0) - (b.gP||0);
 }
-// Default: highest traffic first, then DA
 if((b.traffic||0) !== (a.traffic||0)) return (b.traffic||0) - (a.traffic||0);
 return b.da - a.da;
 });
