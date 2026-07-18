@@ -2299,13 +2299,27 @@ function verifyCaptcha(key, errId){
   var errEl = document.getElementById(errId);
   // If Turnstile hasn't loaded at all, allow signup (graceful fallback)
   if(typeof turnstile === 'undefined') return true;
-  // If Turnstile loaded but no token yet
-  if(!_turnstileTokens[key]){
-    if(errEl){ errEl.textContent = '⚠ Please complete the captcha'; errEl.style.display = 'block'; }
-    return false;
+  // If token exists, captcha passed
+  if(_turnstileTokens[key]){
+    if(errEl) errEl.style.display = 'none';
+    return true;
   }
-  if(errEl) errEl.style.display = 'none';
-  return true;
+  // Check if Turnstile widget visually shows success (iframe rendered with checkmark)
+  var containerId = key === 'pub' ? 'pubTurnstile' : key === 'buyer' ? 'buyerTurnstile' : key+'Turnstile';
+  var container = document.getElementById(containerId);
+  if(container){
+    var iframe = container.querySelector('iframe');
+    // If iframe exists and has rendered (Turnstile loaded), check if response exists
+    if(iframe){
+      try {
+        var resp = turnstile.getResponse(_turnstileWidgets[key]);
+        if(resp){ _turnstileTokens[key] = resp; if(errEl) errEl.style.display='none'; return true; }
+      }catch(e){}
+    }
+  }
+  // No token and no visual success — show error
+  if(errEl){ errEl.textContent = '⚠ Please complete the captcha'; errEl.style.display = 'block'; }
+  return false;
 }
 
 function resetTurnstiles(){
