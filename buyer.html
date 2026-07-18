@@ -25,7 +25,611 @@ if(user.account_status==='banned'){
 document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#07090f;font-family:Arial"><div style="text-align:center;color:#fff"><div style="font-size:48px;margin-bottom:16px">🚫</div><h2 style="color:#ef4444;margin:0 0 8px">Account Banned</h2><p style="color:rgba(255,255,255,.5);margin:0 0 16px">'+(user.ban_reason||'Policy violations')+'</p><p style="color:rgba(255,255,255,.3);font-size:13px">Contact support@uplyncio.com</p></div></div>'; return;
 }
 if(user.account_status==='restricted'){
-document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#07090f;font-family:Arial"><div style="text-align:center;color:#fff">
+document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#07090f;font-family:Arial"><div style="text-align:center;color:#fff"><div style="font-size:48px;margin-bottom:16px">⚠️</div><h2 style="color:#f59e0b;margin:0 0 8px">Account Restricted</h2><p style="color:rgba(255,255,255,.5);margin:0 0 16px">Your account is under review due to policy violations.</p><p style="color:rgba(255,255,255,.3);font-size:13px">Contact support@uplyncio.com to appeal</p></div></div>'; return;
+}
+}catch(e){
+window.location.replace('uplyncio-full.html?openBuyer=1');
+}
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?display=swap&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}html,body{overflow:hidden;max-width:100%;height:100%}*::-webkit-scrollbar{width:0px;background:transparent}*{scrollbar-width:none;-ms-overflow-style:none}.sidebar::-webkit-scrollbar,.main-wrap::-webkit-scrollbar{display:none}body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0f2f7;color:#1a202c;line-height:1.5}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#f0f2f7}::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:4px}.nav{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}@keyframes chainMove{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}@keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}@keyframes crownFloat{0%,100%{transform:translateY(0px) rotate(-8deg) scale(1)}25%{transform:translateY(-3px) rotate(0deg) scale(1.1)}50%{transform:translateY(-5px) rotate(8deg) scale(1.15)}75%{transform:translateY(-2px) rotate(2deg) scale(1.05)}}@keyframes crownGlow{0%,100%{filter:drop-shadow(0 0 3px #f59e0b)}50%{filter:drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 12px #fcd34d)}}.nav-logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;color:#1a202c;text-decoration:none;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}.nav-logo .logo-box{width:30px;height:30px;background:linear-gradient(135deg,#4f7cff,#00d4aa);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}.nav-logo .logo-txt{color:#1a202c}.nav-logo .logo-txt em{font-style:normal;color:#4f7cff}.nav-search{flex:1;max-width:420px;margin:0 16px;position:relative}.nav-search input{width:100%;height:34px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:0 12px 0 34px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}.nav-search input:focus{border-color:#4f7cff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.08)}.nav-search input::placeholder{color:#94a3b8}.nav-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}.bal-wrap{display:flex;gap:10px;align-items:center;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;padding:4px 12px}.bal-item{display:flex;flex-direction:column;align-items:center;min-width:50px}.bal-lbl{font-size:10px;color:#94a3b8;font-weight:500;white-space:nowrap}.bal-val{font-size:13px;font-weight:700;color:#1a202c}.bal-val.green{color:#16a34a}.nav-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}.btn-ghost{background:#f8faff;border:1px solid #e2e8f0;color:#64748b}.btn-ghost:hover{border-color:#4f7cff;color:#4f7cff}.btn-accent{background:#4f7cff;color:#fff}.btn-accent:hover{background:#3d6bef}.nav-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7cff,#00d4aa);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0}.layout{display:flex;position:fixed;top:54px;left:0;right:0;bottom:44px;overflow:hidden}.sidebar{width:220px;flex-shrink:0;background:#fff;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0;padding-bottom:44px;border-top:none}.sidebar::-webkit-scrollbar{display:none}.sidebar::-webkit-scrollbar{width:3px}.sb-section{padding:14px 14px 8px}.sb-section-title{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}.sb-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;transition:all .18s;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none}.sb-link:hover{background:#f0f4ff;color:#4f7cff}.sb-link.active{background:#eff6ff;color:#4f7cff}.sb-link .sb-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}.sb-link .sb-count{margin-left:auto;background:#f0f2f7;border-radius:100px;font-size:10px;font-weight:700;color:#64748b;padding:1px 7px;min-width:22px;text-align:center}.sb-link.active .sb-count{background:#dbeafe;color:#2563eb}.sb-divider{height:1px;background:#f1f5f9;margin:6px 14px}.sb-cat-list{padding:0 8px 12px}.sb-cat-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:7px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s}.sb-cat-item:hover{background:#f0f4ff;color:#4f7cff}.sb-cat-item.active{background:#eff6ff;color:#4f7cff;font-weight:700}.sb-cat-item .cat-cnt{font-size:10px;background:#f0f2f7;border-radius:100px;padding:1px 6px;color:#94a3b8;font-weight:700}.sb-cat-item.active .cat-cnt{background:#dbeafe;color:#2563eb}.main-wrap{flex:1;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;min-height:0;margin-top:38px}.filter-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:6px 24px 8px;display:flex;flex-direction:column;flex-shrink:0}.filter-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.fi-lbl{font-size:11px;font-weight:800;color:#4f7cff;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;flex-shrink:0}.fgroup{display:flex;flex-direction:column;gap:5px}.flbl{font-size:11px;font-weight:700;color:#4f7cff;text-transform:uppercase;letter-spacing:.6px}.fi{height:36px;width:100%;background:#fff;border:1.5px solid #e2e8f0;border-radius:9px;padding:0 12px;font-size:13px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;font-weight:500;box-sizing:border-box}.fi:focus{border-color:#4f7cff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.12)}.fi:focus{border-color:#4f7cff}.fi::placeholder{color:#94a3b8}.fi-range{display:flex;align-items:center;gap:3px}.fi-range .fi{width:62px}.fi-range span{color:#94a3b8;font-size:11px}.fi-sel{height:30px;background:#f8faff;border:1px solid #e2e8f0;border-radius:6px;padding:0 22px 0 8px;font-size:12px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}.fi-sep{width:1px;height:18px;background:#e2e8f0;flex-shrink:0}.clear-btn{height:30px;padding:0 10px;background:none;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;font-weight:600;color:#94a3b8;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}.clear-btn:hover{border-color:#ef4444;color:#ef4444}.tabs-bar{background:#f8faff;border-top:3px solid #4f7cff22;border-bottom:2px solid #e2e8f0;padding:0 18px;display:flex;align-items:center;flex-shrink:0}.svc-tab{padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:#64748b;font-family:'Plus Jakarta Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .18s;white-space:nowrap;display:flex;align-items:center;gap:5px}.svc-tab.active{color:#4f7cff;border-bottom-color:#4f7cff}.svc-tab:hover:not(.active){color:#1a202c}.tab-cnt{min-width:18px;height:18px;padding:0 5px;background:#f0f2f7;border-radius:100px;font-size:10px;font-weight:700;color:#64748b;display:inline-flex;align-items:center;justify-content:center}.svc-tab.active .tab-cnt{background:#4f7cff;color:#fff}.tabs-right{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 0}.sort-sel{height:30px;background:#f8faff;border:1px solid #e2e8f0;border-radius:6px;padding:0 22px 0 8px;font-size:12px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center}.res-info{font-size:12px;color:#64748b;white-space:nowrap}.res-info strong{color:#1a202c;font-weight:700}.content{flex:1;padding:14px 18px 20px;min-width:0;width:100%;box-sizing:border-box}.sites-list{background:#f0f2f7;padding:20px 16px;display:flex;flex-direction:column;gap:10px;width:100%;box-sizing:border-box}.site-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;transition:all .18s;cursor:default}.site-card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(79,124,255,.08)}.card-top{padding:13px 42px 10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.site-url{font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;color:#4f7cff;text-decoration:none}.site-url:hover{text-decoration:underline}.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10.5px;font-weight:700;line-height:1.4}.b-df{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.b-nf{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.b-sp{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}.b-cat{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:10px}.b-own{background:#f0fdf4;color:#15803d;font-size:10px;border:1px solid #bbf7d0}.b-con{background:#fefce8;color:#a16207;font-size:10px;border:1px solid #fef08a}.card-stats{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid #f8faff;border-bottom:1px solid #f8faff}.st{padding:8px 6px;text-align:center;border-right:1px solid #f8faff}.st:last-child{border-right:none}.st-v{font-family:'Manrope',sans-serif;font-size:12.5px;font-weight:800;color:#1a202c;display:flex;align-items:center;justify-content:center;gap:2px}.st-v.blue{color:#2563eb}.st-v.teal{color:#0d9488}.st-v.green{color:#16a34a}.st-v.amber{color:#d97706}.st-l{font-size:9.5px;color:#94a3b8;margin-top:1px}.a-dot{width:11px;height:11px;background:#f97316;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:6.5px;font-weight:900;color:#fff}.c-ring{position:relative;width:28px;height:28px;display:inline-block}.c-ring svg{transform:rotate(-90deg)}.c-ring-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:800}.card-bottom{padding:10px 16px;background:#fafbff;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.card-bottom.li-bg{background:#fff8f0}.price-cols{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.pc{display:flex;flex-direction:column}.pc-lbl{font-size:9.5px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px}.pc-val{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:#1a202c}.pc-sub{font-size:10.5px;color:#94a3b8;margin-top:1px}.pc-sep{width:1px;height:30px;background:#e2e8f0}.card-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}.btn-buy{padding:8px 16px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}.btn-buy:hover{background:#3d6bef;transform:translateY(-1px)}.btn-li{padding:8px 12px;background:#fff;border:1px solid #e2e8f0;color:#64748b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}.btn-li:hover{border-color:#4f7cff;color:#4f7cff}.btn-wish{width:30px;height:30px;border-radius:7px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .18s}.btn-wish:hover{border-color:#ef4444;color:#ef4444}.empty{text-align:center;padding:70px 20px;color:#94a3b8}.empty-icon{font-size:44px;margin-bottom:14px;opacity:.35}.empty h3{font-size:17px;font-weight:700;color:#1a202c;margin-bottom:6px}.pagination{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:20px}.pg{width:32px;height:32px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;color:#64748b;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center}.pg:hover{border-color:#4f7cff;color:#4f7cff}.pg.active{background:#4f7cff;border-color:#4f7cff;color:#fff}.pg:disabled{opacity:.3;cursor:not-allowed}.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(5px);padding:20px 25%;overflow:hidden}.modal-bg.open{display:flex}.modal{background:#fff;border-radius:18px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);scrollbar-width:none;-ms-overflow-style:none}.modal::-webkit-scrollbar{display:none}.m-head{padding:18px 20px 14px;border-bottom:1px solid #f1f5f9;display:flex;align-items:flex-start;position:sticky;top:0;background:#fff;border-radius:18px 18px 0 0;z-index:2}.m-site{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:#4f7cff}.m-close{margin-left:auto;width:28px;height:28px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;color:#94a3b8;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}.m-close:hover{background:#fef2f2;color:#ef4444}.m-body{padding:16px 20px 20px}.m-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}.ms{background:#f8faff;border:1px solid #f1f5f9;border-radius:9px;padding:9px;text-align:center}.ms-v{font-family:'Manrope',sans-serif;font-size:16px;font-weight:800;color:#1a202c}.ms-l{font-size:10px;color:#94a3b8;margin-top:2px}.m-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}.m-tag{padding:3px 9px;background:#f8faff;border:1px solid #e2e8f0;border-radius:5px;font-size:11px;color:#64748b}.m-tag strong{color:#1a202c}.m-sec{font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}.m-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}.m-opt{background:#f8faff;border:2px solid #e2e8f0;border-radius:9px;padding:11px;cursor:pointer;transition:all .15s}.m-opt:hover,.m-opt.sel{border-color:#4f7cff;background:#eff6ff}.m-opt-name{font-size:10.5px;color:#64748b;font-weight:600;margin-bottom:4px}.m-opt-val{font-family:'Manrope',sans-serif;font-size:19px;font-weight:800;color:#1a202c}.m-opt-note{font-size:10px;color:#94a3b8;margin-top:2px}.fg{margin-bottom:10px}.fl{font-size:11.5px;font-weight:600;color:#374151;margin-bottom:4px;display:block}.fi2{width:100%;background:#f8faff;border:1px solid #e2e8f0;border-radius:7px;padding:8px 10px;font-size:12.5px;color:#1a202c;outline:none;font-family:'Plus Jakarta Sans',sans-serif;transition:border-color .15s}.fi2:focus{border-color:#4f7cff;background:#fff}.fi2::placeholder{color:#94a3b8}.fi2-ta{resize:vertical;min-height:65px}.m-total{background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.m-total-lbl{font-size:12px;color:#64748b;font-weight:600}.m-total-val{font-family:'Manrope',sans-serif;font-size:21px;font-weight:800;color:#4f7cff}.m-submit{width:100%;padding:12px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s}.m-submit:hover{background:#3d6bef}.pub-perf{background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:14px}.pub-perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pp-item{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px}.pub-perf-title{font-size:11px;font-weight:700;color:#64748b;margin-bottom:12px;display:flex;align-items:center;gap:6px}.perf-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}.perf-card{background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:11px 12px;text-align:center}.perf-card-icon{font-size:18px;margin-bottom:5px}.perf-card-title{font-size:10px;color:#64748b;font-weight:600;margin-bottom:4px}.perf-card-val{font-family:'Manrope',sans-serif;font-size:15px;font-weight:800;color:#1a202c}.perf-card-val.green{color:#16a34a}.perf-card-val.amber{color:#d97706}.perf-card-val.red{color:#dc2626}.perf-card-sub{font-size:10px;color:#94a3b8;margin-top:2px}.perf-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:5px;overflow:hidden}.perf-bar-fill{height:100%;border-radius:2px;transition:width .5s}.perf-details{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #f1f5f9;border-radius:8px;overflow:hidden}.pd-item{padding:7px 10px;background:#fff;border-bottom:1px solid #f1f5f9}.pd-item:nth-child(odd){border-right:1px solid #f1f5f9}.pd-item:nth-last-child(-n+2){border-bottom:none}.pd-lbl{font-size:10px;color:#94a3b8;font-weight:500;margin-bottom:2px}.pd-val{font-size:12.5px;font-weight:700;color:#1a202c;display:flex;align-items:center;gap:3px}.toast{position:fixed;bottom:22px;right:22px;background:#1a202c;border-radius:9px;padding:11px 16px;color:#fff;font-size:12.5px;font-weight:600;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(60px);opacity:0;transition:all .3s;max-width:300px}.toast.show{transform:translateY(0);opacity:1}@media(max-width:900px){.sidebar{display:none}.card-stats{grid-template-columns:repeat(4,1fr)}}@media(max-width:600px){.card-stats{grid-template-columns:repeat(3,1fr)}.m-opts{grid-template-columns:1fr}}.mob-menu-btn{display:none;position:fixed;top:12px;left:12px;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1);font-size:18px;color:#1a202c}.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;backdrop-filter:blur(2px)}.mob-overlay.active{display:block}@media(max-width:768px){.mob-menu-btn{display:flex}body{overflow-x:hidden}.sidebar{transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:400 !important;box-shadow:4px 0 24px rgba(0,0,0,.15);width:260px !important;top:0 !important}.sidebar.mob-open{transform:translateX(0)}nav,header,[class*="navbar"],[class*="topbar"]{padding-left:60px !important}.layout{left:0 !important;top:54px !important}.main-wrap{margin-top:38px !important}#verifiedTicker{left:0 !important}.card-stats{grid-template-columns:repeat(2,1fr) !important;gap:8px;padding:12px}.filter-bar{padding:8px 12px 10px !important}.nav-btn{padding:7px 12px !important;font-size:12px !important}div[style*="max-width:460px"],div[style*="max-width:480px"],div[style*="max-width:560px"],div[style*="max-width:520px"],div[style*="max-width:700px"]{width:95vw !important;max-width:95vw !important;margin:10px auto !important}.sites-list{padding:10px 8px !important}.tabs-bar,[class*="tabs"]{overflow-x:auto;white-space:nowrap}.sidebar{top:0}}@media(max-width:480px){.card-stats{grid-template-columns:repeat(2,1fr) !important}nav,[class*="navbar"]{padding:0 10px 0 56px !important}}.cp-type-btn{padding:8px 6px;border:1.5px solid #e2e8f0;border-radius:9px;cursor:pointer;font-size:11.5px;font-weight:600;color:#374151;text-align:center;transition:all .18s;background:#fff;user-select:none}.cp-type-btn:hover{border-color:#4f7cff;color:#4f7cff;background:#f0f4ff}.cp-type-btn.sel{border-color:#4f7cff;background:#4f7cff;color:#fff}.cp-label{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}.cp-req{color:#ef4444;font-size:12px}.cp-input{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;transition:border .15s}.cp-input:focus{border-color:#4f7cff}.cp-select{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:#fff;cursor:pointer;box-sizing:border-box}.cp-select:focus{border-color:#4f7cff}.cp-textarea{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13px;font-family:inherit;outline:none;resize:vertical;box-sizing:border-box;line-height:1.5}.cp-textarea:focus{border-color:#4f7cff}.tx-filter{padding:5px 12px;border:1px solid #e2e8f0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:#64748b;font-family:inherit;transition:all .15s}.tx-filter:hover{border-color:#4f7cff;color:#4f7cff}.tx-filter.active{background:#4f7cff;color:#fff;border-color:#4f7cff}.tx-row{display:grid;grid-template-columns:100px 1fr 130px 90px;gap:0;padding:13px 20px;border-bottom:1px solid #f8faff;transition:background .15s}.tx-row:hover{background:#fafbff}.tx-row:last-child{border-bottom:none}.af-method{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:#374151;transition:all .18s;background:#fff}.af-method:hover{border-color:#4f7cff;background:#f0f4ff}.af-method.sel{border-color:#4f7cff;background:#eff6ff;color:#2563eb}.af-amt{padding:7px 4px;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:#374151;text-align:center;transition:all .18s;background:#fff}.af-amt:hover{border-color:#4f7cff;background:#f0f4ff;color:#2563eb}.af-amt.sel{border-color:#4f7cff;background:#4f7cff;color:#fff}@keyframes menuFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}.bmenu-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;font-weight:500;color:#374151;cursor:pointer;transition:background .15s}.bmenu-item:hover{background:#f8faff;color:#4f7cff}.bmenu-item span{font-size:15px;width:20px;text-align:center;flex-shrink:0}@keyframes popupSlide{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}.card-expand{display:none;border-top:2px solid #eff6ff;background:#fff;animation:slideDown .22s ease}.card-expand.open{display:block}@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}.site-card.expanded{border-color:#93c5fd;box-shadow:0 6px 24px rgba(79,124,255,.12)}.expand-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-bottom:1px solid #f1f5f9}.eg-col{padding:14px 16px;border-right:1px solid #f1f5f9}.eg-col:last-child{border-right:none}.eg-title{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px}.eg-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;font-size:12px;color:#374151;line-height:1.5}.eg-dot{width:5px;height:5px;border-radius:50%;background:#4f7cff;flex-shrink:0;margin-top:5px}.eg-dot.green{background:#16a34a}.eg-dot.red{background:#dc2626}.eg-dot.amber{background:#d97706}.expand-bottom{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#f8faff}.spam-bar{display:flex;align-items:center;gap:8px;flex:1}.spam-track{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;max-width:120px}.spam-fill{height:100%;border-radius:3px;transition:width .4s}.add-cart-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;white-space:nowrap}.add-cart-btn:hover{background:#3d6bef;transform:translateY(-1px)}.add-cart-btn.added{background:#16a34a}.cart-icon{font-size:13px}.word-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;font-size:11px;font-weight:700;color:#2563eb}.expand-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:#f0f2f7;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;color:#64748b;font-size:11px}.expand-toggle:hover{background:#dbeafe;color:#4f7cff}.card-top-wrap{position:relative}.pc-val.muted{color:#94a3b8;font-size:14px;font-weight:600}:root{--bg:#f0f2f7;--wh:#fff;--br:#e2e8f0;--ac:#4f7cff;--tl:#00d4aa;--tx:#0f172a;--t2:#475569;--mu:#94a3b8;--gn:#22c55e;--rd:#ef4444;--r:12px}.sb-lg{padding:18px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:9px}.sb-tx{font-family:'Manrope',sans-serif;font-size:17px;font-weight:800;color:var(--tx)}.sb-tx em{font-style:normal;color:var(--ac)}.si:hover{background:#f8faff;color:var(--tx)}.si.on{background:#f0f4ff;color:var(--ac);border-left-color:var(--ac);font-weight:600}.sb-bot{margin-top:auto;padding:14px 16px;border-top:1px solid var(--br)}.tb{position:fixed;top:0;left:210px;right:0;height:58px;background:var(--wh);border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:99}.tb-b{font-size:13px;color:var(--t2)}.tb-b strong{color:var(--tx);font-weight:700}.tb-ic{width:34px;height:34px;border-radius:50%;border:1px solid var(--br);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;position:relative}.tb-dt{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--rd);border:2px solid var(--wh)}.tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--tl));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}.bc{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mu);margin-bottom:6px}.bc a{color:var(--mu);text-decoration:none;cursor:pointer}.bc a:hover{color:var(--ac)}.bc .cu{color:var(--tx);font-weight:600}.gh{background:linear-gradient(135deg,#86efac,#4ade80);border-radius:16px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.gh p{font-size:15px;font-weight:600;color:#14532d;flex:1;line-height:1.5}.gh-btn{background:#0f172a;color:#fff;border:none;border-radius:100px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}.gh-btn:hover{background:#1e293b}.empty .ic{font-size:44px;margin-bottom:14px}.empty p{font-size:13.5px;color:var(--t2)}.card h1{font-family:'Manrope',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px}.card .sub{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:24px}.rule-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}.rule-item{display:flex;gap:11px;padding:12px 14px;background:#f8faff;border-radius:8px;border:1px solid #e8edf8}.rule-n{width:22px;height:22px;border-radius:6px;background:#e0e7ff;color:var(--ac);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}.rule-txt{font-size:13.5px;color:var(--t2);line-height:1.65}.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;display:flex;gap:10px;font-size:13px;color:#92400e;margin-bottom:16px;line-height:1.6}.pay-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}.pay-card{background:#f8faff;border:1px solid var(--br);border-radius:10px;padding:14px}.pay-card h4{font-size:13px;font-weight:700;margin-bottom:8px}.pay-card ul{list-style:none;display:flex;flex-direction:column;gap:4px}.pay-card ul li{font-size:12px;color:var(--t2);padding-left:12px;position:relative;line-height:1.5}.pay-card ul li::before{content:"·";position:absolute;left:0;color:var(--ac);font-weight:800}.uc{background:var(--wh);border-radius:var(--r);border:1px solid var(--br);padding:36px;max-width:860px}.uc h1{font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;margin-bottom:20px}.utabs{display:flex;border-bottom:2px solid var(--br);margin-bottom:24px}.utab{padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:6px}.utab:hover{color:var(--tx)}.utab.on{color:var(--ac);border-bottom-color:var(--ac)}.ntag{background:var(--gn);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:100px}.uw{display:flex;border:1px solid var(--br);border-radius:10px;overflow:hidden;transition:border-color .2s}.uw:focus-within{border-color:var(--ac)}.up{padding:13px 14px;font-size:14px;color:var(--mu);font-weight:600;background:#f8faff;border-right:1px solid var(--br);white-space:nowrap}.ui{flex:1;padding:13px 16px;border:none;outline:none;color:var(--tx);font-size:15px;font-family:inherit}.ui::placeholder{color:var(--mu)}.un{background:var(--ac);color:#fff;border:none;padding:13px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}.un:hover{background:#3d6aff}<style>:root{--ac:#4f7cff;--ac-soft:#eff6ff;--tx:#1a202c;--t1:#1a202c;--t2:#64748b;--mu:#94a3b8;--br:#e2e8f0;--bg:#f0f2f7;--wh:#fff;--gn:#16a34a}.stab{padding:11px 18px;font-size:13.5px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .18s;color:var(--mu)}.stab:hover{color:var(--ac)}.fi{width:100%;padding:10px 14px;border:1.5px solid var(--br);border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:var(--wh);transition:border .18s}.fi:focus{border-color:var(--ac)}.fg{display:flex;flex-direction:column;gap:5px}.fl{font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.3px}.fis{width:100%;padding:10px 14px;border:1.5px solid var(--br);border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;background:var(--wh);cursor:pointer}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.scard{background:var(--wh);border:1px solid var(--br);border-radius:14px;padding:20px 22px;margin-bottom:14px}.scard-title{font-size:13px;font-weight:800;color:var(--t1);margin-bottom:14px;display:flex;align-items:center;gap:7px}.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8faff}.toggle-wrap:last-child{border-bottom:none}.toggle-info{flex:1}.toggle-lbl{font-size:13.5px;font-weight:600;color:var(--t1)}.toggle-sub{font-size:12px;color:var(--mu);margin-top:2px}.toggle{width:40px;height:22px;border-radius:11px;cursor:pointer;transition:all .2s;border:none;position:relative;flex-shrink:0}.toggle.on{background:var(--ac)}.toggle.off{background:#e2e8f0}.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}.toggle.on::after{left:20px}.toggle.off::after{left:3px}.bc{font-size:13px;color:var(--mu);margin-bottom:16px;display:flex;align-items:center;gap:6px}.bc a{color:var(--ac);text-decoration:none;cursor:pointer;font-weight:600}.bc a:hover{text-decoration:underline}.cu{color:var(--t1);font-weight:600}
+.sk{background:linear-gradient(90deg,#f0f2f5 25%,#e0e4ea 50%,#f0f2f5 75%);background-size:200% 100%;animation:sk 1.4s infinite;border-radius:6px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
+</style>
+<script>
+// ── UPLYNCIO AUTH SYSTEM v3 ──
+function getUsers(){ 
+try{ return JSON.parse(localStorage.getItem('uplyncio_users')||'[]'); }
+catch(e){ return []; }
+}
+function saveUsers(u){ 
+try{ localStorage.setItem('uplyncio_users', JSON.stringify(u)); }
+catch(e){}
+}
+function findUser(email){ 
+if(!email) return null;
+return getUsers().find(function(u){ 
+return u.email.toLowerCase()===email.toLowerCase().trim(); 
+})||null; 
+}
+function genCode(){ 
+return Math.floor(100000+Math.random()*900000).toString(); 
+}
+function getUserData(uid){
+try{ return JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{"sites":[],"orders":[],"balance":0}'); }
+catch(e){ return {sites:[],orders:[],balance:0}; }
+}
+function saveUserData(uid,data){
+try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(data)); }
+catch(e){}
+}
+// ── SHOW/HIDE PASSWORD ──
+function togglePwd(inputId, btn){
+var inp = document.getElementById(inputId);
+if(!inp) return;
+if(inp.type==='password'){ inp.type='text'; if(btn) btn.textContent='Hide'; }
+else { inp.type='password'; if(btn) btn.textContent='Show'; }
+}
+// ── INLINE ERROR HELPERS ──
+function showLoginError(field, msg){
+var wrap = document.getElementById('login'+field+'Wrap');
+var err = document.getElementById('login'+field+'Err');
+if(wrap){ wrap.style.background='rgba(239,68,68,.15)'; wrap.style.border='1.5px solid #ef4444'; }
+if(err){ err.textContent='⚠ '+msg; err.style.display='block'; }
+}
+function clearSignupEmailErr(){
+var inp=document.getElementById('su2Email');
+var err=document.getElementById('su2EmailErr');
+if(inp){ inp.style.borderColor='rgba(255,255,255,.1)'; inp.style.background='rgba(255,255,255,.06)'; }
+if(err){ err.style.display='none'; err.textContent=''; }
+}
+function clearLoginError(){
+['Email','Pass'].forEach(function(f){
+var wrap=document.getElementById('login'+f+'Wrap');
+var err=document.getElementById('login'+f+'Err');
+if(wrap){ wrap.style.background='rgba(255,255,255,.08)'; wrap.style.border='1px solid rgba(255,255,255,.12)'; }
+if(err){ err.style.display='none'; err.textContent=''; }
+});
+}
+// ── LOGIN — strict validation ──
+function handleLogin(){
+clearLoginError();
+var emEl = document.getElementById('loginEmail');
+var pwEl = document.getElementById('loginPass');
+if(!emEl || !emEl.value.trim()){ 
+showLoginError('Email','Please enter your email address.');
+return; 
+}
+if(!pwEl || !pwEl.value.trim()){ 
+showLoginError('Pass','Please enter your password.');
+return; 
+}
+var email = emEl.value.trim().toLowerCase();
+var password = pwEl.value.trim();
+var btn = document.querySelector('#loginModal button[onclick="handleLogin()"]');
+if(btn){ 
+btn.innerHTML='<span style="flex:1;text-align:center">Signing in...</span>'; 
+btn.disabled=true; 
+}
+function resetBtn(){
+if(btn){ 
+btn.innerHTML='<span style="flex:1;text-align:center">Log In</span><span style="width:36px;height:36px;border-radius:50%;background:#00d4aa;display:flex;align-items:center;justify-content:center;font-size:16px">↗</span>'; 
+btn.disabled=false; 
+}
+}
+setTimeout(function(){
+// Step 1: Check account exists
+var user = findUser(email);
+if(!user){
+resetBtn();
+showLoginError('Email','No account found with this email. Please sign up first.');
+return;
+}
+// Step 2: Check password
+if(user.password !== password){
+resetBtn();
+showLoginError('Pass','Incorrect password. Please try again.');
+return;
+}
+// Step 3: Check verified
+if(!user.verified){
+resetBtn();
+var users = getUsers();
+var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email; });
+if(idx > -1){
+users[idx].verifyCode = genCode();
+saveUsers(users);
+user = users[idx];
+}
+closeLogin();
+openVerifyModal(user.email, false);
+return;
+}
+// All checks passed!
+resetBtn();
+_loginSuccess(user);
+}, 600);
+}
+// ── SIGNUP — strict validation ──
+function completeSignup(){
+var nEl = document.getElementById('su2Name');
+var eEl = document.getElementById('su2Email');
+var pEl = document.getElementById('su2Pass');
+if(!nEl || !nEl.value.trim()){ 
+alert('Please enter your full name.'); 
+return; 
+}
+if(!eEl || !eEl.value.trim()){ 
+alert('Please enter your email address.'); 
+return; 
+}
+if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eEl.value.trim())){ 
+alert('Please enter a valid email address.'); 
+return; 
+}
+if(!pEl || !pEl.value.trim() || pEl.value.trim().length < 8){ 
+alert('Password must be at least 8 characters.'); 
+return; 
+}
+var name = nEl.value.trim();
+var email = eEl.value.trim().toLowerCase();
+var password = pEl.value.trim();
+// Check duplicate
+if(findUser(email)){
+// Show inline error on email field
+var emailInp = document.getElementById('su2Email');
+var emailErr = document.getElementById('su2EmailErr');
+if(emailInp){ emailInp.style.borderColor='#ef4444'; emailInp.style.background='rgba(239,68,68,.1)'; }
+if(emailErr){ emailErr.innerHTML='⚠ This email is already registered. <a href="#" onclick="closeSignupStep2();setTimeout(openLogin,200);return false" style="color:#ef4444;font-weight:800;text-decoration:underline">Login instead →</a>'; emailErr.style.display='block'; }
+return;
+}
+var btn = document.getElementById('signupCompleteBtn');
+if(btn){ btn.textContent='Creating account...'; btn.disabled=true; }
+var uid = 'user_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+var code = genCode();
+var newUser = {
+uid: uid,
+name: name,
+email: email,
+password: password,
+role: window._selectedRole||'publisher',
+verified: false,
+verifyCode: code,
+createdAt: new Date().toISOString()
+};
+// Init empty data for this user
+saveUserData(uid, {sites:[], orders:[], balance:0, reserved:0, bonus:0});
+var users = getUsers();
+users.push(newUser);
+saveUsers(users);
+if(btn){ btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+if(typeof closeSignupStep2==='function') closeSignupStep2();
+// Show verification
+setTimeout(function(){ openVerifyModal(email, true); }, 300);
+}
+// ── EMAILJS CONFIG ──
+// ── EMAIL via Vercel Serverless (Resend) ──
+function _sendVerifyEmail(email, code, onDone){
+var userName = '';
+try{
+var users = getUsers();
+var u = users.find(function(x){ return x.email.toLowerCase()===email.toLowerCase(); });
+if(u) userName = u.name || email.split('@')[0];
+}catch(e){ userName = email.split('@')[0]; }
+fetch('/api/send-verification', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ email: email, code: code, name: userName })
+})
+.then(function(res){ return res.json(); })
+.then(function(data){
+if(data.success){
+console.log('[Uplyncio] Email sent OK to:', email);
+if(onDone) onDone(true);
+} else {
+console.warn('[Uplyncio] Resend error:', data.error);
+// Show code in modal as fallback
+_showCodeFallback(code);
+if(onDone) onDone(false);
+}
+})
+.catch(function(err){
+console.error('[Uplyncio] Fetch error:', err);
+_showCodeFallback(code);
+if(onDone) onDone(false);
+});
+}
+function _showCodeFallback(code){
+// Show code directly in verify modal as temporary fallback
+var infoBox = document.querySelector('#verifyModal .info-box-text');
+var fallback = document.getElementById('codeFallback');
+if(!fallback){
+fallback = document.createElement('div');
+fallback.id = 'codeFallback';
+fallback.style.cssText = 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 16px;text-align:center;margin-bottom:12px;';
+fallback.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px;">⚠️ Email delivery issue — use this code:</div><div style="font-size:32px;font-weight:800;letter-spacing:10px;color:#f59e0b;font-family:monospace">'+code+'</div>';
+var otpBoxes = document.getElementById('otpBoxes');
+if(otpBoxes) otpBoxes.parentNode.insertBefore(fallback, otpBoxes);
+}
+}
+// OTP boxes + timer logic
+var _otpTimerInterval = null;
+var _otpExpired = false;
+function _initOtpBoxes(){
+var boxes = document.querySelectorAll('.otp-box');
+boxes.forEach(function(box, i){
+box.value = ''; box.disabled = false; box.style.opacity='1';
+box.style.borderColor = 'rgba(255,255,255,.12)';
+box.style.background = 'rgba(255,255,255,.07)';
+// Remove old listeners by cloning
+var nb = box.cloneNode(true);
+box.parentNode.replaceChild(nb, box);
+});
+// Re-query after clone
+boxes = document.querySelectorAll('.otp-box');
+boxes.forEach(function(box, i){
+box.addEventListener('input', function(){
+this.value = this.value.replace(/[^0-9]/g,'').slice(-1);
+if(this.value && i < boxes.length-1) boxes[i+1].focus();
+_syncOtpInput();
+});
+box.addEventListener('keydown', function(e){
+if(e.key==='Backspace' && !this.value && i>0){ boxes[i-1].focus(); boxes[i-1].value=''; _syncOtpInput(); }
+if(e.key==='Enter') submitVerifyCode();
+});
+box.addEventListener('paste', function(e){
+e.preventDefault();
+var paste = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'').slice(0,6);
+document.querySelectorAll('.otp-box').forEach(function(b,j){ b.value=paste[j]||''; });
+if(paste.length>=6) document.querySelectorAll('.otp-box')[5].focus();
+_syncOtpInput();
+});
+box.addEventListener('focus', function(){ if(!_otpExpired){ this.style.borderColor='#4f7cff'; this.style.background='rgba(79,124,255,.1)'; }});
+box.addEventListener('blur', function(){ this.style.borderColor=this.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; this.style.background='rgba(255,255,255,.07)'; });
+});
+}
+function _syncOtpInput(){
+var val='';
+document.querySelectorAll('.otp-box').forEach(function(b){ val+=b.value; });
+var inp=document.getElementById('verifyCodeInput');
+if(inp) inp.value=val;
+}
+function _startOtpTimer(){
+clearInterval(_otpTimerInterval);
+_otpExpired=false;
+var totalSecs=180;
+var timerEl=document.getElementById('verifyTimer');
+var timerWrap=document.getElementById('verifyTimerWrap');
+var expiredEl=document.getElementById('verifyExpiredMsg');
+var resendLnk=document.getElementById('resendLink');
+var vBtn=document.getElementById('verifyBtn');
+if(timerWrap) timerWrap.style.display='inline-flex';
+if(expiredEl) expiredEl.style.display='none';
+if(resendLnk){ resendLnk.style.opacity='0.4'; resendLnk.style.pointerEvents='none'; }
+if(vBtn){ vBtn.style.opacity='1'; vBtn.style.pointerEvents='auto'; }
+function tick(){
+var m=Math.floor(totalSecs/60), s=totalSecs%60;
+if(timerEl){ timerEl.textContent=m+':'+(s<10?'0':'')+s; timerEl.style.color=totalSecs<=60?'#ef4444':'#f59e0b'; }
+if(totalSecs<=0){
+clearInterval(_otpTimerInterval); _otpExpired=true;
+if(timerWrap) timerWrap.style.display='none';
+if(expiredEl) expiredEl.style.display='block';
+if(vBtn){ vBtn.style.opacity='0.4'; vBtn.style.pointerEvents='none'; }
+document.querySelectorAll('.otp-box').forEach(function(b){ b.disabled=true; b.style.opacity='0.45'; b.style.borderColor='#ef4444'; });
+if(resendLnk){ resendLnk.style.opacity='1'; resendLnk.style.pointerEvents='auto'; }
+return;
+}
+totalSecs--;
+}
+tick();
+_otpTimerInterval=setInterval(tick,1000);
+}
+function openVerifyModal(email, isNew){
+window._verifyingEmail = email;
+window._verifyIsNew = isNew;
+var user = findUser(email);
+if(!user){ return; }
+var emailShow = document.getElementById('verifyEmailShow');
+if(emailShow) emailShow.textContent = user.email;
+var err = document.getElementById('verifyError');
+if(err){ err.style.display='none'; err.textContent=''; }
+var modal = document.getElementById('verifyModal');
+if(modal){ modal.style.display='flex'; document.body.style.overflow='hidden'; }
+_initOtpBoxes();
+setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); },200);
+_startOtpTimer();
+_sendVerifyEmail(user.email, user.verifyCode, function(sent){});
+}
+function closeVerifyModal(){
+var m = document.getElementById('verifyModal');
+if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function submitVerifyCode(){
+if(_otpExpired){
+var err = document.getElementById('verifyError');
+if(err){ err.textContent='⏰ Code has expired. Please click Resend Code.'; err.style.display='block'; }
+return;
+}
+var inp = document.getElementById('verifyCodeInput');
+var code = inp ? inp.value.trim() : '';
+if(code.length < 6){
+// Shake the boxes
+document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; });
+var err = document.getElementById('verifyError');
+if(err){ err.textContent='⚠ Please enter all 6 digits of the code.'; err.style.display='block'; }
+setTimeout(function(){ 
+document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; });
+}, 2000);
+return;
+}
+var email = window._verifyingEmail||'';
+var users = getUsers();
+var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+if(idx===-1){ closeVerifyModal(); return; }
+var user = users[idx];
+if(code === user.verifyCode){
+clearInterval(_otpTimerInterval);
+user.verified=true; user.verifyCode=''; user.emailVerified=true;
+users[idx]=user; saveUsers(users);
+try{
+var s=JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+s['settEmail']=user.email; s['emailVerified']=true;
+localStorage.setItem('uplyncio_settings',JSON.stringify(s));
+}catch(e){}
+// Show success briefly
+document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#4ade80'; b.style.background='rgba(74,222,128,.08)'; });
+var vBtn=document.getElementById('verifyBtn');
+if(vBtn){ vBtn.textContent='✅ Verified!'; vBtn.style.background='linear-gradient(135deg,#4ade80,#00d4aa)'; }
+setTimeout(function(){ closeVerifyModal(); _loginSuccess(user); }, 600);
+} else {
+// Wrong code — red boxes + error
+document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor='#ef4444'; b.style.background='rgba(239,68,68,.08)'; });
+var err = document.getElementById('verifyError');
+if(err){ err.textContent='❌ Incorrect code. Please try again.'; err.style.display='block'; }
+setTimeout(function(){ 
+document.querySelectorAll('.otp-box').forEach(function(b){ b.style.borderColor=b.value?'rgba(79,124,255,.4)':'rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)'; });
+if(err) err.style.display='none';
+}, 2500);
+}
+}
+function resendCode(){
+var email = window._verifyingEmail||'';
+var users = getUsers();
+var idx = users.findIndex(function(u){ return u.email.toLowerCase()===email.toLowerCase(); });
+if(idx===-1) return;
+// Generate new code
+users[idx].verifyCode = genCode();
+saveUsers(users);
+// Reset boxes
+document.querySelectorAll('.otp-box').forEach(function(b){
+b.value=''; b.disabled=false; b.style.opacity='1';
+b.style.borderColor='rgba(255,255,255,.12)'; b.style.background='rgba(255,255,255,.07)';
+});
+var inp=document.getElementById('verifyCodeInput'); if(inp) inp.value='';
+var err=document.getElementById('verifyError');
+if(err){ err.style.color='#4ade80'; err.textContent='✅ New code sent! Please check your email.'; err.style.display='block'; }
+setTimeout(function(){ if(err){ err.style.display='none'; err.style.color='#ef4444'; } }, 3000);
+// Reset & restart timer
+_startOtpTimer();
+// Send new email
+var user=findUser(email);
+if(user) _sendVerifyEmail(user.email, user.verifyCode, function(){});
+// Focus first box
+setTimeout(function(){ var f=document.querySelector('.otp-box'); if(f) f.focus(); }, 100);
+}
+// ── FORGOT PASSWORD ──
+function openForgotModal(){
+closeLogin();
+var m = document.getElementById('forgotModal');
+if(m){ m.style.display='flex'; document.body.style.overflow='hidden'; }
+var inp = document.getElementById('forgotEmail');
+if(inp) inp.value='';
+document.getElementById('forgotStep1').style.display='block';
+document.getElementById('forgotStep2').style.display='none';
+document.getElementById('forgotStep3').style.display='none';
+}
+function closeForgotModal(){
+var m=document.getElementById('forgotModal');
+if(m){ m.style.display='none'; document.body.style.overflow=''; }
+}
+function sendForgotCode(){
+var em = document.getElementById('forgotEmail');
+if(!em||!em.value.trim()){ alert('Please enter your email.'); return; }
+var user = findUser(em.value.trim());
+if(!user){ alert('No account found with this email.'); return; }
+var code = genCode();
+var users = getUsers();
+var idx = users.findIndex(function(u){ return u.email.toLowerCase()===em.value.trim().toLowerCase(); });
+if(idx>-1){ users[idx].resetCode=code; saveUsers(users); }
+window._resetEmail = em.value.trim().toLowerCase();
+var box = document.getElementById('forgotCodeBox');
+if(box) box.innerHTML='<div style="background:rgba(79,124,255,.12);border:2px dashed #4f7cff;border-radius:10px;padding:14px;text-align:center;margin:12px 0"><div style="font-size:11px;color:#64748b;margin-bottom:4px">📧 info@uplyncio.com</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px">Password reset code:</div><div style="font-family:monospace;font-size:30px;font-weight:900;color:#4f7cff;letter-spacing:8px">'+code+'</div></div>';
+document.getElementById('forgotStep1').style.display='none';
+document.getElementById('forgotStep2').style.display='block';
+}
+function verifyResetCode(){
+var inp = document.getElementById('resetCodeInput');
+if(!inp||!inp.value.trim()){ alert('Please enter the code.'); return; }
+var user = findUser(window._resetEmail||'');
+if(!user){ alert('User not found.'); return; }
+if(inp.value.trim()!==user.resetCode){ alert('Incorrect code. Please try again.'); return; }
+document.getElementById('forgotStep2').style.display='none';
+document.getElementById('forgotStep3').style.display='block';
+}
+function submitNewPassword(){
+var p1=document.getElementById('newPass1');
+var p2=document.getElementById('newPass2');
+if(!p1||p1.value.trim().length<8){ alert('Password must be at least 8 characters.'); return; }
+if(p1.value!==p2.value){ alert('Passwords do not match.'); return; }
+var users=getUsers();
+var idx=users.findIndex(function(u){ return u.email.toLowerCase()===(window._resetEmail||''); });
+if(idx===-1){ alert('User not found.'); return; }
+users[idx].password=p1.value.trim();
+users[idx].resetCode='';
+saveUsers(users);
+closeForgotModal();
+alert('✅ Password reset successfully! Please login with your new password.');
+openLogin();
+}
+// ── LOGIN SUCCESS ──
+function _loginSuccess(user){
+try{
+var s = JSON.parse(localStorage.getItem('uplyncio_settings')||'{}');
+s['settName'] = user.name||'';
+s['settEmail'] = user.email||'';
+localStorage.setItem('uplyncio_settings', JSON.stringify(s));
+localStorage.setItem('uplyncio_loggedIn', '1');
+localStorage.setItem('uplyncio_currentUid', user.uid||'');
+localStorage.setItem('uplyncio_user', JSON.stringify(user));
+// Load user's personal data
+var userData = getUserData(user.uid);
+localStorage.setItem('uplyncio_orders', JSON.stringify(userData.orders||[]));
+}catch(ex){}
+try{closeVerifyModal();}catch(e){} try{closeLogin();}catch(e){} try{closeSignupStep2();}catch(e){} try{closeRoleModal();}catch(e){} if(typeof onBuyerLogin==='function') onBuyerLogin(user);
+}
+function googleLogin(){ alert('Google login requires backend setup. Please use Email/Password.'); }
+function facebookLogin(){ alert('Facebook login requires backend setup. Please use Email/Password.'); }
+function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else facebookLogin(); }
+</script> <link rel="stylesheet" href="/shared.css">
+
+<meta name="keywords" content="buy guest posts, guest posting marketplace, buy backlinks, link building service, DA sites, DR sites, dofollow backlinks, niche edits, link insertion, SEO link building, high DA guest posts, affordable guest posts">
+<meta name="robots" content="noindex, nofollow">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Uplyncio Buyer Marketplace",
+  "url": "https://uplyncio.com/buyer",
+  "description": "Browse 20,000+ verified publisher sites for guest posts, link insertions and niche edits. Filter by DA, DR, niche, country and price.",
+  "applicationCategory": "SEO & Marketing",
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "USD",
+    "lowPrice": "20",
+    "highPrice": "800",
+    "description": "Guest posts starting from $20 on verified publisher sites"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Uplyncio",
+    "url": "https://uplyncio.com"
+  }
+}
+</script>
+
+<style>
+.order-tracker{display:flex;justify-content:space-between;position:relative;margin:16px 0 8px;padding:0 4px}
+.order-tracker::before{content:'';position:absolute;top:14px;left:24px;right:24px;height:3px;background:#e5e7eb;z-index:0}
+.order-tracker .track-bar{position:absolute;top:14px;left:24px;height:3px;background:linear-gradient(90deg,#3b82f6,#10b981);z-index:1;border-radius:2px;transition:width .6s}
+.track-step{display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2;position:relative}
+.track-dot{width:28px;height:28px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#94a3b8;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:all .3s}
+.track-dot.done{background:#10b981;color:#fff}
+.track-dot.active{background:#3b82f6;color:#fff;box-shadow:0 0 0 4px rgba(59,130,246,.2)}
+.track-label{font-size:10px;color:#94a3b8;font-weight:600;text-align:center;max-width:60px}
+.track-label.done{color:#10b981}
+.track-label.active{color:#3b82f6}
+.order-timeline{margin:12px 0;padding:14px 16px;background:#f8faff;border:1px solid #e8ecf1;border-radius:10px}
+.tl-row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f1f5f9}
+.tl-row:last-child{border-bottom:none}
+.tl-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.tl-icon.done{background:#dcfce7;color:#16a34a}
+.tl-icon.pending{background:#f1f5f9;color:#94a3b8}
+.tl-icon.active{background:#dbeafe;color:#3b82f6}
+.tl-text{font-size:12.5px;color:#374151;font-weight:600}
+.tl-date{font-size:11px;color:#94a3b8;margin-top:1px}
+</style>
+</head>
+<body>
+<script>
+// ── ROLE GUARD removed — modal shown on publisher.html instead ──
+</script>
+<nav class="nav">
+<a href="uplyncio-full.html" class="nav-logo" style="display:flex;align-items:center;gap:10px">
+<svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+<rect width="64" height="64" rx="14" fill="#0f1628"/>
+<g style="animation:chainMove 2.5s ease-in-out infinite">
+<rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/>
+</g>
+<g style="animation:chainMove 2.5s ease-in-out infinite reverse">
+<rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/>
+</g>
+<rect x="31" y="26" width="6" height="8" fill="#0f1628"/>
+</svg>
+<span class="logo-txt">Uply<em>ncio</em></span>
+</a>
+<div class="nav-right">
+<a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none">🛒 Cart<span id="navCartCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span></a>
+<a href="cart.html" class="nav-btn btn-ghost" style="position:relative;text-decoration:none" onclick="localStorage.setItem('cartTab','saved')">❤️ Saved<span id="navSavedCount" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:100px;font-size:10px;font-weight:700;padding:1px 5px;display:none;min-width:16px;text-align:center"></span></a>
+<div id="guestNav" style="display:flex;gap:7px">
+<button class="nav-btn btn-ghost" onclick="openLogin()">Sign In</button>
+<button class="nav-btn btn-accent" onclick="openBuyerSignup()">Get Started</button>
+</div>
+<div id="userNav" style="display:none;align-items:center;gap:8px">
+<div class="bal-wrap">
+<div class="bal-item"><div class="bal-lbl">Balance</div><div class="bal-val green" id="navBalance">$0.00</div></div>
+<div style="width:1px;height:18px;background:#e2e8f0"></div>
+<div class="bal-item"><div class="bal-lbl">Reserved</div><div class="bal-val">$0.00</div></div>
+</div>
+<button class="nav-btn btn-accent" onclick="openAddFunds()">+ Add Funds</button>
+<div style="position:relative;cursor:pointer" id="buyerNotifBell" onclick="toggleBuyerNotifPanel()" title="Notifications">
+<div style="width:36px;height:36px;border-radius:9px;background:#f8faff;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .15s" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8faff'">🔔</div>
+<span id="buyerNotifDot" style="display:none;position:absolute;top:-3px;right:-3px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:2px solid #fff;font-family:Arial,sans-serif;font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:14px"></span>
+</div>
+<div id="buyerNotifPanel" style="display:none;position:fixed;top:62px;right:60px;width:340px;max-height:480px;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.15);z-index:99998;overflow:hidden;flex-direction:column">
+<div style="padding:14px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+<span style="font-size:14px;font-weight:800;color:#0f172a">Notifications</span>
+<button onclick="markAllBuyerNotifsRead()" style="font-size:11px;font-weight:600;color:#4f7cff;background:none;border:none;cursor:pointer;font-family:inherit">Mark all read</button>
+</div>
+<div id="buyerNotifList" style="overflow-y:auto;max-height:380px"></div>
+</div>
+<div style="position:relative">
+<div class="nav-avatar" id="navAvatar" onclick="toggleBuyerMenu()" style="cursor:pointer;user-select:none;position:relative">B
+  <span id="navCrownBadge" style="display:none;position:absolute;top:-6px;right:-6px;font-size:11px;line-height:1">👑</span>
+</div>
+<div id="buyerMenu" style="display:none;position:absolute;top:44px;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.12);width:230px;z-index:9999;overflow:hidden;animation:menuFade .18s ease">
+<div style="padding:14px 16px;border-bottom:1px solid #f1f5f9">
+<div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;display:flex;align-items:center;gap:6px">Buyer <span id="buyerVerifiedBadge" style="display:none;background:#fef9c3;color:#92400e;border:1px solid #fbbf24;border-radius:5px;padding:1px 6px;font-size:9px;font-weight:700">👑 Verified</span></div>
+<div style="font-size:13px;font-weight:600;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="buyerMenuEmail">—</div>
+</div>
+<div style="padding:6px 0">
+<div onclick="closeBuyerMenu();openAddFunds()" class="bmenu-item">
+<span>💳</span> Add Funds
+            </div>
+<div onclick="closeBuyerMenu();openBalancePage()" class="bmenu-item">
+<span>💰</span> Balance
+            </div>
+<a href="cart.html" onclick="closeBuyerMenu()" class="bmenu-item" style="text-decoration:none;color:inherit">
+<span>🛒</span> My Orders
+            </a>
+<div onclick="closeBuyerMenu();showBuyerSettings()" class="bmenu-item">
+<span>⚙️</span> Account Settings
+            </div>
+<div onclick="closeBuyerMenu();showToast('Blocklist coming soon')" class="bmenu-item">
+<span>🚫</span> Blocklist
+            </div>
+<div onclick="closeBuyerMenu();showToast('Referral program coming soon')" class="bmenu-item">
+<span>🔗</span> Referral Program
+            </div>
+<div onclick="closeProfileMenu();showBuyerVerifyPopup()" style="display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;font-weight:500;color:#d97706;cursor:pointer;transition:background .15s" onmouseover="this.style.background='#fffbeb'" onmouseout="this.style.background=''">
+<span>👑</span> Get Verified Badge
+</div>
+<div onclick="closeBuyerMenu();showBuyerSwitchModal()" class="bmenu-item" style="color:#4f7cff;font-weight:600">
+<span>🔄</span> Switch to Publisher
+            </div>
+</div>
+<div style="padding:6px 0;border-top:1px solid #f1f5f9">
+<div onclick="buyerLogout()" class="bmenu-item" style="color:#ef4444">
+<span>🚪</span> Log out
+            </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+
 <div class="layout">
 <aside class="sidebar">
 <div class="sb-section">
@@ -5324,10 +5928,7 @@ function readBulkFile(file){
   var reader = new FileReader();
   reader.onload = function(e){
     document.getElementById('bulkCsvText').value = e.target.result;
-    document.getElementById('bulkDropZone').innerHTML = '<div style="font-size:24px;margin-bottom:6px">✅</div><div style="font-size:14px;font-weight:600;color:#16a34a">' + file.name + ' loaded</div><div onclick="closeProfileMenu();showBuyerVerifyPopup()" style="display:flex;align-items:center;gap:10px;padding:10px 18px;cursor:pointer;font-size:13.5px;color:#d97706;font-weight:600;transition:background .15s" onmouseover="this.style.background='#fffbeb'" onmouseout="this.style.background=''">
-<span>👑</span> Get Verified Badge
-</div>
-<div style="font-size:12px;color:#64748b">' + Math.round(file.size/1024) + ' KB</div>';
+    document.getElementById('bulkDropZone').innerHTML = '<div style="font-size:24px;margin-bottom:6px">✅</div><div style="font-size:14px;font-weight:600;color:#16a34a">' + file.name + ' loaded</div><div style="font-size:12px;color:#64748b">' + Math.round(file.size/1024) + ' KB</div>';
     parseBulkCSV();
   };
   reader.readAsText(file);
@@ -5390,78 +5991,27 @@ function submitBulkOrders(){
 </script>
 <script>
 function showSwitchRolePopupBuyer(){
-var email = '';
-try{ email = JSON.parse(localStorage.getItem('uplyncio_user')||'{}').email || ''; }catch(e){}
-var old = document.getElementById('switchRolePopup'); if(old) old.remove();
-var el = document.createElement('div');
-el.id = 'switchRolePopup';
-el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px';
-el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
-var box = document.createElement('div');
-box.style.cssText = 'background:#fff;border-radius:20px;width:440px;max-width:93vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)';
-box.innerHTML = '<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:22px 26px;display:flex;align-items:center;gap:14px">'
-+'<div style="width:44px;height:44px;background:rgba(59,130,246,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px">🔄</div>'
-+'<div><div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff">Switch to Publisher</div>'
-+'<div style="font-size:12px;color:rgba(255,255,255,.5)">Separate accounts required</div></div></div>'
-+'<div style="padding:26px 28px">'
-+'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-bottom:20px">'
-+'<div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:6px">⚠ Same email cannot be used</div>'
-+'<div style="font-size:13px;color:#78350f;line-height:1.7">'
-+(email?'<strong>'+email+'</strong> is registered as a <strong>Buyer</strong>.<br>':'')
-+'For security, Buyer and Publisher accounts must use <strong>separate email addresses</strong>.</div></div>'
-+'<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin-bottom:22px">'
-+'<div style="font-size:12.5px;font-weight:700;color:#0369a1;margin-bottom:8px">💡 How to create a Publisher account:</div>'
-+'<div style="font-size:13px;color:#0c4a6e;line-height:1.8">'
-+'1. Open <strong>uplyncio.com</strong> in a new tab<br>'
-+'2. Click <strong>"Become a Publisher"</strong><br>'
-+'3. Sign up with a <strong>different email</strong></div></div>'
-+'<div style="display:flex;gap:10px">'
-+'<button id="swClose" style="flex:1;padding:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button>'
-+'<a href="/" target="_blank" style="flex:1;padding:12px;background:linear-gradient(135deg,#7c3aed,#4f7cff);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center">🌐 Go to Homepage</a>'
-+'</div></div>';
-el.appendChild(box);
-document.body.appendChild(el);
-document.getElementById('swClose').addEventListener('click', function(){ el.remove(); });
+var email='';try{email=JSON.parse(localStorage.getItem('uplyncio_user')||'{}').email||'';}catch(e){}
+var old=document.getElementById('switchRolePopup');if(old)old.remove();
+var el=document.createElement('div');el.id='switchRolePopup';
+el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px';
+el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+var box=document.createElement('div');box.style.cssText='background:#fff;border-radius:20px;width:440px;max-width:93vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)';
+box.innerHTML='<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:22px 26px"><div style="font-family:Manrope,sans-serif;font-size:17px;font-weight:800;color:#fff">🔄 Switch to Publisher</div><div style="font-size:12px;color:rgba(255,255,255,.5)">Separate accounts required</div></div><div style="padding:26px 28px"><div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-bottom:20px"><div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:6px">⚠ Same email cannot be used</div><div style="font-size:13px;color:#78350f;line-height:1.7">'+(email?'<strong>'+email+'</strong> is registered as a <strong>Buyer</strong>.<br>':'')+'For security, use a <strong>separate email</strong> for Publisher account.</div></div><div style="display:flex;gap:10px"><button id="swClose" style="flex:1;padding:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button><a href="/" target="_blank" style="flex:1;padding:12px;background:linear-gradient(135deg,#7c3aed,#4f7cff);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center">🌐 Homepage</a></div></div>';
+el.appendChild(box);document.body.appendChild(el);
+document.getElementById('swClose').addEventListener('click',function(){el.remove();});
 }
-
 function showBuyerVerifyPopup(){
-var old = document.getElementById('buyerVerifyPopup'); if(old) old.remove();
-var user = {};
-try{ user = JSON.parse(localStorage.getItem('uplyncio_user')||'{}'); }catch(e){}
-var orders = 0;
-try{ orders = JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]').filter(function(o){return o.status==='Completed';}).length; }catch(e){}
-var isVerified = orders >= 10 || user.buyer_verified;
-var el = document.createElement('div');
-el.id = 'buyerVerifyPopup';
-el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px';
-el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
-var box = document.createElement('div');
-box.style.cssText = 'background:#fff;border-radius:20px;width:480px;max-width:93vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)';
-box.innerHTML = '<div style="background:linear-gradient(135deg,#92400e,#d97706);padding:24px 28px;text-align:center">'
-+'<div style="font-size:36px;margin-bottom:8px">👑</div>'
-+'<div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#fff">Gold Verified Badge</div>'
-+'<div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px">Stand out as a trusted buyer</div></div>'
-+'<div style="padding:28px">'
-+(isVerified?'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px"><div style="font-size:28px;margin-bottom:8px">✅</div><div style="font-size:16px;font-weight:800;color:#16a34a">You are Verified!</div><div style="font-size:13px;color:#166534;margin-top:4px">Your Gold Badge is active on your profile</div></div>'
-:'<div style="margin-bottom:20px"><div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:14px">Two ways to get verified:</div>'
-+'<div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin-bottom:12px">'
-+'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="background:#dcfce7;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#16a34a">FREE</span><span style="font-size:14px;font-weight:700;color:#0f172a">Complete 10 Orders</span></div>'
-+'<div style="font-size:13px;color:#64748b;margin-bottom:10px">Place and confirm 10 orders to automatically earn your badge</div>'
-+'<div style="background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden"><div style="background:linear-gradient(90deg,#d97706,#f59e0b);height:100%;border-radius:4px;width:'+Math.min(100,orders*10)+'%"></div></div>'
-+'<div style="font-size:12px;color:#94a3b8;margin-top:4px">'+orders+' / 10 orders completed</div></div>'
-+'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:12px;color:#94a3b8">OR</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div>'
-+'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px 18px">'
-+'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="background:#fef3c7;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#92400e">INSTANT</span><span style="font-size:14px;font-weight:700;color:#0f172a">Pay $20 One-Time</span></div>'
-+'<div style="font-size:13px;color:#64748b;margin-bottom:12px">Get verified instantly — badge appears immediately on your profile</div>'
-+'<button id="buyVerifyPayBtn" style="width:100%;padding:12px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Pay $20 — Get Verified Now</button>'
-+'</div></div>')
-+'<button id="bvClose" style="width:100%;padding:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569;margin-top:12px">Close</button>'
-+'</div>';
-el.appendChild(box);
-document.body.appendChild(el);
-document.getElementById('bvClose').addEventListener('click', function(){ el.remove(); });
-var payBtn = document.getElementById('buyVerifyPayBtn');
-if(payBtn) payBtn.addEventListener('click', function(){ el.remove(); showPaymentComingSoon(); });
+var old=document.getElementById('buyerVerifyPopup');if(old)old.remove();
+var orders=0;try{orders=JSON.parse(localStorage.getItem('uplyncio_buyer_orders')||'[]').filter(function(o){return o.status==='Completed';}).length;}catch(e){}
+var el=document.createElement('div');el.id='buyerVerifyPopup';
+el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:16px';
+el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+var box=document.createElement('div');box.style.cssText='background:#fff;border-radius:20px;width:460px;max-width:93vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)';
+box.innerHTML='<div style="background:linear-gradient(135deg,#92400e,#d97706);padding:24px 28px;text-align:center"><div style="font-size:36px;margin-bottom:8px">👑</div><div style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#fff">Gold Verified Badge</div></div><div style="padding:28px"><div style="background:#f8faff;border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="background:#dcfce7;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#16a34a">FREE</span><span style="font-size:14px;font-weight:700;color:#0f172a">Complete 10 Orders</span></div><div style="background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden;margin-bottom:4px"><div style="background:linear-gradient(90deg,#d97706,#f59e0b);height:100%;border-radius:4px;width:'+Math.min(100,orders*10)+'%"></div></div><div style="font-size:12px;color:#94a3b8">'+orders+' / 10 completed</div></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><div style="flex:1;height:1px;background:#e2e8f0"></div><span style="font-size:12px;color:#94a3b8">OR</span><div style="flex:1;height:1px;background:#e2e8f0"></div></div><div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px 18px;margin-bottom:20px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="background:#fef3c7;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;color:#92400e">INSTANT</span><span style="font-size:14px;font-weight:700;color:#0f172a">Pay $20 One-Time</span></div><button id="bvPayBtn" style="width:100%;padding:12px;background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Pay $20 — Get Verified</button></div><button id="bvClose" style="width:100%;padding:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">Close</button></div>';
+el.appendChild(box);document.body.appendChild(el);
+document.getElementById('bvClose').addEventListener('click',function(){el.remove();});
+var pb=document.getElementById('bvPayBtn');if(pb)pb.addEventListener('click',function(){el.remove();if(typeof showPaymentComingSoon==='function')showPaymentComingSoon();});
 }
 </script>
 </body>
