@@ -1447,7 +1447,8 @@ if(comp && (s.comp||0)<comp) return false;
 if(tat<999 && (s.tat||999)>tat) return false;
 return true;
 });
-// Sort — default: verified/team first, then price ascending
+// Sort — when searching: price ascending. Default: best quality first (DA + traffic)
+var isSearching = search && search.length > 0;
 filteredSites.sort(function(a,b){
 // Always put team/official (info@uplyncio.com) sites first
 var aTeam = a.isTeamSite || a._uid==='uplyncio_team_official' ? 1 : 0;
@@ -1476,12 +1477,18 @@ if(sort==='completion'){
 if(aTeam !== bTeam) return bTeam - aTeam;
 return b.comp - a.comp;
 }
-// Default: team first → verified (has profile) first → price ascending
+// Default sort depends on whether user is searching
 if(aTeam !== bTeam) return bTeam - aTeam;
 var aVerified = a.isTeamSite ? 2 : (a.publisherUid && a.publisherUid !== 'uplyncio_team_official' ? 1 : 0);
 var bVerified = b.isTeamSite ? 2 : (b.publisherUid && b.publisherUid !== 'uplyncio_team_official' ? 1 : 0);
 if(aVerified !== bVerified) return bVerified - aVerified;
+if(isSearching){
+// When searching: lowest price first (same site, cheapest on top)
 return (a.gP||0) - (b.gP||0);
+}
+// Default: best quality first — sort by DA descending, then traffic descending
+if(b.da !== a.da) return b.da - a.da;
+return (b.traffic||0) - (a.traffic||0);
 });
 currentPage=1;
 renderSites();
