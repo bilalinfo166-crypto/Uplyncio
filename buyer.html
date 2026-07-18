@@ -1134,7 +1134,7 @@ _localSitesCache = Object.values(urlMap);
 _localCacheTime = now;
 return _localSitesCache;
 }
-// Fetch from Supabase — try direct first, fallback to API
+// Fetch sites from API — fast, reliable
 var _sbFetching = false;
 function fetchSitesFromSupabase(){
 if(_sbFetching) return;
@@ -1142,29 +1142,12 @@ _sbFetching = true;
 var _sbAll = [];
 var _sbOffset = 0;
 var _firstBatchRendered = false;
-var _useFallback = false;
 
 function _fetchPage(){
-// Try direct Supabase first (faster), fallback to API
-var url = _useFallback
-  ? '/api/sites?status=Live&limit=1000&offset='+_sbOffset
-  : SUPABASE_URL+'/rest/v1/publisher_sites?select=*&status=in.(Live,live,Approved,approved,Active,active)&order=da.desc&limit=1000&offset='+_sbOffset;
-var headers = _useFallback ? {'Content-Type':'application/json'} : SB_HEADERS;
-
-fetch(url, { headers: headers })
+fetch('/api/sites?limit=1000&offset='+_sbOffset)
 .then(function(r){ return r.json(); })
-.then(function(data){
-// Handle API wrapper format vs direct Supabase format
-var sites = Array.isArray(data) ? data : (data.success && Array.isArray(data.sites) ? data.sites : []);
-
-// If direct Supabase returned empty/error, try API fallback
-if(!sites.length && !_useFallback && _sbOffset === 0){
-  console.warn('[Buyer] Direct Supabase returned empty, trying API fallback...');
-  _useFallback = true;
-  _fetchPage();
-  return;
-}
-
+.then(function(res){
+var sites = (res.success && Array.isArray(res.sites)) ? res.sites : [];
 _sbAll = _sbAll.concat(sites);
 // Render FIRST batch immediately
 if(!_firstBatchRendered && _sbAll.length > 0){
@@ -1180,15 +1163,7 @@ if(_sbAll.length > 0) _processSBSites(_sbAll);
 }
 }).catch(function(e){
 console.warn('[Buyer] Fetch error:', e.message);
-// If direct failed, try API
-if(!_useFallback){
-  console.warn('[Buyer] Switching to API fallback...');
-  _useFallback = true;
-  _fetchPage();
-  return;
-}
 _sbFetching = false;
-if(_sbAll.length > 0) _processSBSites(_sbAll);
 });
 }
 _fetchPage();
