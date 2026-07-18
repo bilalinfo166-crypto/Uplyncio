@@ -277,7 +277,22 @@ export default async function handler(req, res) {
     // ADMIN
     if (resource === 'admin') {
       const k = req.headers['x-admin-key'];
-      if (k !== process.env.ADMIN_SECRET_KEY && k !== 'uplyncio_admin_2026') return apiError(res,403,'Unauthorized');
+      if (!k) return apiError(res,403,'Unauthorized');
+      // Verify: either direct ADMIN_SECRET_KEY match, or validate session token
+      const adminSecret = process.env.ADMIN_SECRET_KEY;
+      const adminPwd = process.env.ADMIN_PASSWORD;
+      let authorized = false;
+      // Direct key match (for server-to-server)
+      if (adminSecret && k === adminSecret) authorized = true;
+      // Session token match: re-derive expected token from admin password
+      if (!authorized && adminPwd) {
+        const enc = new TextEncoder();
+        const buf = enc.encode(adminPwd + '_admin_token_salt_2026');
+        const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+        const expectedToken = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        if (k === expectedToken) authorized = true;
+      }
+      if (!authorized) return apiError(res,403,'Unauthorized');
 
       if (action === 'stats') {
         const [ords,usrs,sites,wds,revs] = await Promise.all([

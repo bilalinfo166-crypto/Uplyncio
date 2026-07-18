@@ -40,11 +40,47 @@ async function sbUpdate(table, filter, data) {
   return r.ok;
 }
 
-async function hashPass(pass) {
+// PBKDF2 hashing (100k iterations — much stronger than plain SHA-256)
+const PBKDF2_ITERATIONS = 100000;
+const PBKDF2_PREFIX = 'pbkdf2$';
+
+async function hashPassPBKDF2(pass, salt) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: enc.encode(salt), iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    keyMaterial, 256
+  );
+  const hex = Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2,'0')).join('');
+  return PBKDF2_PREFIX + salt + '$' + hex;
+}
+
+// Legacy SHA-256 hash (for backward compat with existing users)
+async function hashPassLegacy(pass) {
   const enc = new TextEncoder();
   const buf = enc.encode(pass + '_uply_2026_salt');
   const hash = await crypto.subtle.digest('SHA-256', buf);
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// Main hashPass — creates new PBKDF2 hashes
+async function hashPass(pass) {
+  const salt = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2,'0')).join('');
+  return hashPassPBKDF2(pass, salt);
+}
+
+// Verify password against stored hash (supports both PBKDF2 and legacy)
+async function verifyPass(pass, storedHash) {
+  if (storedHash.startsWith(PBKDF2_PREFIX)) {
+    // PBKDF2 hash: extract salt and re-derive
+    const parts = storedHash.slice(PBKDF2_PREFIX.length).split('$');
+    if (parts.length !== 2) return false;
+    const expected = await hashPassPBKDF2(pass, parts[0]);
+    return expected === storedHash;
+  }
+  // Legacy SHA-256 hash
+  const legacy = await hashPassLegacy(pass);
+  return legacy === storedHash;
 }
 
 async function sendEmail(to, subject, html) {
@@ -226,9 +262,15 @@ export default async function handler(req, res) {
         user = allUsers[0];
       }
 
-      const hash = await hashPass(password);
-      if (user.password_hash !== hash)
+      const passValid = await verifyPass(password, user.password_hash);
+      if (!passValid)
         return res.status(401).json({ error: 'Incorrect password' });
+
+      // Auto-upgrade legacy SHA-256 hash to PBKDF2
+      if (!user.password_hash.startsWith(PBKDF2_PREFIX)) {
+        const newHash = await hashPass(password);
+        sbUpdate('users', `id=eq.${user.id}`, { password_hash: newHash }).catch(()=>{});
+      }
 
       if (!user.email_verified && !isTeam)
         return res.status(403).json({ error: 'Please verify your email first', needsVerify: true, email: emailLow });
@@ -403,8 +445,8 @@ export default async function handler(req, res) {
       const users = await sbGet('users', `id=eq.${userId}`);
       const user = users?.[0];
       if (!user) return res.status(404).json({ error: 'User not found' });
-      const hash = await hashPass(password);
-      if (hash !== user.password_hash) return res.status(401).json({ error: 'Incorrect password' });
+      const passOk = await verifyPass(password, user.password_hash);
+      if (!passOk) return res.status(401).json({ error: 'Incorrect password' });
       await sbUpdate('users', `id=eq.${userId}`, { twofa_enabled: false, twofa_pending: null, twofa_backup: null });
       return res.status(200).json({ success: true });
     }
@@ -499,6 +541,24 @@ export default async function handler(req, res) {
       }
 
       return res.status(200).json({ success: true });
+    }
+
+    // ── ADMIN LOGIN (server-side only — no password in client code) ──
+    if (action === 'admin_login') {
+      const { password } = body;
+      if (!password) return res.status(400).json({ error: 'Password required' });
+      const adminPwd = process.env.ADMIN_PASSWORD;
+      if (!adminPwd) return res.status(500).json({ error: 'Admin not configured' });
+      if (password !== adminPwd) {
+        return res.status(401).json({ error: 'Invalid password' });
+      }
+      // Derive a deterministic session token from the password
+      // This way orders.js can verify it by re-deriving from the same env var
+      const enc = new TextEncoder();
+      const buf = enc.encode(adminPwd + '_admin_token_salt_2026');
+      const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+      const sessionToken = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+      return res.status(200).json({ success: true, token: sessionToken });
     }
 
     return res.status(400).json({ error: 'Unknown action: ' + action });

@@ -142,5 +142,17 @@ const UplyncioDB = {
   }
 };
 
+// ── XSS Protection: HTML escape utility ──
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+window.escapeHtml = escapeHtml;
+
 window.UplyncioAuth = UplyncioAuth;
 window.UplyncioDB = UplyncioDB;

@@ -240,27 +240,39 @@ tr:hover td{background:#fafbff}
 <div class="toast" id="adminToast"></div>
 
 <script>
-const ADMIN_KEY = 'uplyncio_admin_2026';
 var _currentDisputeId = null;
 var _allOrders = [], _allUsers = [];
 
-function adminLogin(){
+async function adminLogin(){
   var pwd = document.getElementById('adminPwd').value;
-  if(pwd === ADMIN_KEY || pwd === (localStorage.getItem('uplyncio_admin_pwd')||'')){
-    document.getElementById('loginScreen').style.display='none';
-    document.getElementById('adminPanel').style.display='block';
-    localStorage.setItem('uplyncio_admin_auth','1');
-    loadStats();
-    loadOrders(document.querySelector('.tab.on'),'');
-    loadWithdrawals(null,'Pending');
-    loadDisputes();
-  } else {
-    document.getElementById('loginErr').textContent='Invalid password';
+  if(!pwd){ document.getElementById('loginErr').textContent='Enter password'; return; }
+  try {
+    var r = await fetch('/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'admin_login', password: pwd })
+    });
+    var d = await r.json();
+    if(d.success && d.token){
+      localStorage.setItem('uplyncio_admin_auth','1');
+      localStorage.setItem('uplyncio_admin_token', d.token);
+      document.getElementById('loginScreen').style.display='none';
+      document.getElementById('adminPanel').style.display='block';
+      loadStats();
+      loadOrders(document.querySelector('.tab.on'),'');
+      loadWithdrawals(null,'Pending');
+      loadDisputes();
+    } else {
+      document.getElementById('loginErr').textContent=d.error||'Invalid password';
+    }
+  } catch(e){
+    document.getElementById('loginErr').textContent='Connection error';
   }
 }
 
 function adminLogout(){
   localStorage.removeItem('uplyncio_admin_auth');
+  localStorage.removeItem('uplyncio_admin_token');
   location.reload();
 }
 
@@ -285,7 +297,10 @@ function showPage(name, el){
   if(name==='disputes') loadDisputes();
 }
 
-function api(path, opts){ return fetch('/api/orders'+path, { headers:{'Content-Type':'application/json','x-admin-key':ADMIN_KEY}, ...opts }).then(r=>r.json()); }
+function api(path, opts){
+  var token = localStorage.getItem('uplyncio_admin_token')||'';
+  return fetch('/api/orders'+path, { headers:{'Content-Type':'application/json','x-admin-key':token}, ...opts }).then(r=>r.json());
+}
 function sitesApi(path, opts){ return fetch('/api/sites'+path, opts).then(r=>r.json()); }
 
 function toast(msg, color){
