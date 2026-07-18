@@ -1526,9 +1526,9 @@ if(isSearching){
 // When searching: lowest price first (same site, cheapest on top)
 return (a.gP||0) - (b.gP||0);
 }
-// Default: best quality first — sort by DA descending, then traffic descending
-if(b.da !== a.da) return b.da - a.da;
-return (b.traffic||0) - (a.traffic||0);
+// Default: highest traffic first, then DA
+if((b.traffic||0) !== (a.traffic||0)) return (b.traffic||0) - (a.traffic||0);
+return b.da - a.da;
 });
 currentPage=1;
 renderSites();
