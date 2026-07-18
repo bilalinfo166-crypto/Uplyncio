@@ -13,7 +13,7 @@ function header(category, accent = '#4f7cff') {
       <td style="vertical-align:middle">
         <table cellpadding="0" cellspacing="0" border="0"><tr>
           <td style="vertical-align:middle;padding-right:10px">
-            <img src="data:image/png;base64,${logoB64}" width="38" height="38" alt="Uplyncio" style="display:block;border-radius:9px;border:0"/>
+            <img src="https://uplyncio.com/logo128.png" width="38" height="38" alt="Uplyncio" style="display:block;border-radius:9px;border:0"/>
           </td>
           <td style="vertical-align:middle">
             <div style="font-family:Arial,sans-serif;font-size:20px;font-weight:900;color:#ffffff;letter-spacing:-0.5px;line-height:1.1">Uply<span style="color:#4f7cff">ncio</span></div>
@@ -36,7 +36,7 @@ function footer() {
     + '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
     + '<td style="vertical-align:middle;width:55%">'
     + '<table cellpadding="0" cellspacing="0" border="0"><tr>'
-    + '<td style="padding-right:10px;vertical-align:middle"><img src="data:image/png;base64,'+lb+'" width="32" height="32" style="display:block;border-radius:8px;border:0"/></td>'
+    + '<td style="padding-right:10px;vertical-align:middle"><img src="https://uplyncio.com/logo128.png" width="32" height="32" alt="Uplyncio" style="display:block;border-radius:8px;border:0"/></td>'
     + '<td style="vertical-align:middle">'
     + '<p style="font-family:Arial,sans-serif;font-size:15px;font-weight:900;color:#fff;margin:0 0 2px">Uply<span style="color:#4f7cff">ncio</span></p>'
     + '<p style="font-family:Arial,sans-serif;font-size:10px;color:#8892a4;margin:0">Guest posting &amp; link building marketplace.</p>'

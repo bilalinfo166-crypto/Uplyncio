@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     '<tr><td style="background:linear-gradient(135deg,#0f1628 0%,#1a2d5a 100%);padding:20px 24px;border-bottom:3px solid '+accent+'">',
     '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>',
     '<td><table cellpadding="0" cellspacing="0" border="0"><tr>',
-    '<td style="padding-right:10px"><img src="data:image/png;base64,'+LOGO+'" width="36" height="36" style="display:block;border-radius:9px;border:0"/></td>',
+    '<td style="padding-right:10px"><img src="https://uplyncio.com/logo128.png" width="36" height="36" alt="Uplyncio" style="display:block;border-radius:9px;border:0"/></td>',
     '<td><div style="font-size:19px;font-weight:900;color:#fff;font-family:Arial,sans-serif">Uply<span style="color:#4f7cff">ncio</span></div><div style="font-size:10px;color:#8892a4;font-family:Arial,sans-serif;margin-top:2px">Guest Posting Marketplace</div></td>',
     '</tr></table></td>',
     '<td align="right"><div style="font-size:10px;font-weight:700;color:#8892a4;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;font-family:Arial,sans-serif">'+(isContact?'Contact Message':'New Inquiry')+'</div><div style="font-size:11px;color:rgba(255,255,255,.4);font-family:Arial,sans-serif">'+dateStr+'</div></td>',
