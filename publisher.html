@@ -2445,6 +2445,11 @@ if(d && !supaMap[d]) supaList.push(m);
 mySites = supaList;
 saveSites();
 applyFilters();
+updateTabCounts();
+var countEl = document.getElementById('siteCount');
+if(countEl) countEl.textContent = mySites.length + ' site' + (mySites.length!==1?'s':'');
+var totalEl = document.getElementById('totalSiteCount');
+if(totalEl) totalEl.textContent = mySites.length;
 console.log('[Supabase] Loaded '+mySites.length+' total sites');
 }
 // Reload sites when UID becomes available (after login)
@@ -2454,8 +2459,11 @@ if(!uid) return;
 mySites = loadSites();
 applyFilters();
 }
-var mySites = loadSites();
-// Immediately load ALL sites from Supabase (primary source)
+var mySites = [];
+// Load from localStorage as fast cache
+var _cachedSites = loadSites();
+if(_cachedSites.length > 0) mySites = _cachedSites;
+// Immediately load ALL sites from Supabase (replaces cache)
 loadSitesFromSupabase();
 // Show loading indicator if localStorage is empty
 if(mySites.length === 0){
