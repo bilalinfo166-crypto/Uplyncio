@@ -3950,12 +3950,21 @@ if(document.getElementById('campaignsModal')) return;
 var modal = document.createElement('div');
 modal.id = 'campaignsModal';
 modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(5px);z-index:9999;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px';
-modal.innerHTML = '<div class="modal" style="max-width:760px">'
-+ '<div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2">'
-+ '<div style="font-size:18px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">📊 Campaigns</div>'
+modal.innerHTML = '<div class="modal" style="max-width:820px">'
++ '<div style="padding:0;border-bottom:1px solid #e2e8f0;position:sticky;top:0;background:#fff;z-index:2;border-radius:18px 18px 0 0">'
++ '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px 0">'
++ '<div style="font-size:20px;font-weight:800;color:#0f172a;font-family:Manrope,sans-serif">Campaigns & Orders</div>'
 + '<button onclick="closeCampaigns()" style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px">✕</button>'
 + '</div>'
++ '<div style="display:flex;gap:0;padding:0 24px;margin-top:12px">'
++ '<button id="campTabCamp" onclick="switchCampTab(\'campaigns\')" style="padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:none;color:#4f7cff;border-bottom:2px solid #4f7cff">Campaigns</button>'
++ '<button id="campTabBulk" onclick="switchCampTab(\'bulk\')" style="padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:none;color:#94a3b8;border-bottom:2px solid transparent">Bulk Orders</button>'
++ '<button id="campTabHistory" onclick="switchCampTab(\'history\')" style="padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:none;color:#94a3b8;border-bottom:2px solid transparent">Order History</button>'
++ '</div>'
++ '</div>'
 + '<div id="campModalBody" style="padding:20px 24px"></div>'
++ '<div id="campBulkBody" style="padding:20px 24px;display:none"></div>'
++ '<div id="campHistoryBody" style="padding:20px 24px;display:none"></div>'
 + '</div>';
 document.body.appendChild(modal);
 }
@@ -3979,7 +3988,10 @@ var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none'
 ensureCampaignsModal();
 document.getElementById('campaignsModal').style.display='flex';
 document.body.style.overflow='hidden';
+switchCampTab('campaigns');
 renderCampaignsList();
+renderBulkOrdersTab();
+renderOrderHistory();
 // Background sync from Supabase (non-blocking)
 try{
 var uid = localStorage.getItem('uplyncio_currentUid')||'';
@@ -4021,6 +4033,127 @@ var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='block
 var modal=document.getElementById('campaignsModal');
 if(modal) modal.style.display='none';
 document.body.style.overflow='';
+}
+function switchCampTab(tab){
+['campaigns','bulk','history'].forEach(function(t){
+var btn = document.getElementById('campTab'+(t==='campaigns'?'Camp':t==='bulk'?'Bulk':'History'));
+var body = document.getElementById(t==='campaigns'?'campModalBody':t==='bulk'?'campBulkBody':'campHistoryBody');
+if(btn){btn.style.color=t===tab?'#4f7cff':'#94a3b8';btn.style.borderBottom=t===tab?'2px solid #4f7cff':'2px solid transparent';}
+if(body) body.style.display=t===tab?'block':'none';
+});
+}
+function renderBulkOrdersTab(){
+var body = document.getElementById('campBulkBody');
+if(!body) return;
+var bulkOrders = [];
+try{ bulkOrders = JSON.parse(localStorage.getItem('uplyncio_bulk_orders_'+(localStorage.getItem('uplyncio_currentUid')||''))||'[]'); }catch(e){}
+body.innerHTML = '<div style="background:#f0f4ff;border:1px solid #c7d7ff;border-radius:12px;padding:16px 20px;margin-bottom:16px">'
++'<div style="font-size:14px;font-weight:700;color:#1a202c;margin-bottom:8px">How Bulk Orders work</div>'
++'<div style="font-size:12.5px;color:#475569;line-height:1.7">Upload a CSV file with your sites list (domain, target URL, anchor text) and we process all orders at once. Download the template, fill it in, upload, review, and submit.</div>'
++'</div>'
++'<div style="display:flex;gap:10px;margin-bottom:20px">'
++'<button onclick="downloadBulkTemplate()" style="padding:10px 20px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:#475569">⬇ Download CSV Template</button>'
++'<label style="padding:10px 20px;background:#4f7cff;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">'
++'📤 Upload CSV<input type="file" accept=".csv" onchange="handleBulkCSV(this)" style="display:none">'
++'</label>'
++'</div>'
++'<div id="bulkPreview"></div>'
++(bulkOrders.length ? '<div style="margin-top:20px;font-size:13px;font-weight:700;color:#1a202c;margin-bottom:10px">Previous Bulk Orders</div>' + bulkOrders.map(function(bo,i){
+return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8faff;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px">'
++'<div><span style="font-weight:700;font-size:13px;color:#1a202c">Batch #'+(i+1)+'</span> <span style="font-size:12px;color:#94a3b8">'+bo.count+' orders • '+bo.date+'</span></div>'
++'<span style="padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:700;background:'+(bo.status==='Processed'?'#d1fae5;color:#065f46':'#fef3c7;color:#92400e')+'">'+bo.status+'</span>'
++'</div>';
+}).join('') : '');
+}
+function downloadBulkTemplate(){
+var csv = 'site_domain,target_url,anchor_text,content_source,notes\\n';
+csv += 'example.com,https://yoursite.com/page,your keyword,publisher_writes,Any special notes\\n';
+csv += 'another-site.com,https://yoursite.com/other,another anchor,you_provide,\\n';
+var blob = new Blob([csv], {type:'text/csv'});
+var a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'uplyncio-bulk-order-template.csv';
+a.click();
+showToast('📥 CSV template downloaded!');
+}
+function handleBulkCSV(input){
+var file = input.files[0];
+if(!file) return;
+var reader = new FileReader();
+reader.onload = function(e){
+var lines = e.target.result.split('\\n').filter(function(l){return l.trim();});
+if(lines.length < 2){ showToast('CSV is empty'); return; }
+var headers = lines[0].split(',').map(function(h){return h.trim().toLowerCase();});
+var orders = [];
+for(var i=1;i<lines.length;i++){
+var cols = lines[i].split(',');
+if(cols.length < 3) continue;
+orders.push({domain:cols[0].trim(), targetUrl:cols[1].trim(), anchor:cols[2].trim(), content:cols[3]?cols[3].trim():'publisher_writes', notes:cols[4]?cols[4].trim():''});
+}
+if(!orders.length){ showToast('No valid rows found'); return; }
+renderBulkPreview(orders);
+};
+reader.readAsText(file);
+input.value='';
+}
+function renderBulkPreview(orders){
+var preview = document.getElementById('bulkPreview');
+if(!preview) return;
+window._pendingBulkOrders = orders;
+var total = 0;
+var html = '<div style="font-size:14px;font-weight:700;color:#1a202c;margin-bottom:10px">Review '+orders.length+' orders</div>'
++'<div style="max-height:300px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:10px">'
++'<table style="width:100%;border-collapse:collapse;font-size:12px">'
++'<thead><tr style="background:#f8faff"><th style="padding:8px 12px;text-align:left;font-weight:700;color:#64748b;border-bottom:1px solid #e2e8f0">Site</th><th style="padding:8px 12px;text-align:left;font-weight:700;color:#64748b;border-bottom:1px solid #e2e8f0">Target URL</th><th style="padding:8px 12px;text-align:left;font-weight:700;color:#64748b;border-bottom:1px solid #e2e8f0">Anchor</th><th style="padding:8px 12px;text-align:right;font-weight:700;color:#64748b;border-bottom:1px solid #e2e8f0">Est. Price</th></tr></thead><tbody>';
+orders.forEach(function(o){
+var site = _allSites.find(function(s){return s.url.toLowerCase().indexOf(o.domain.toLowerCase())>=0;});
+var price = site ? (o.content==='you_provide'?site.gP:site.wP||site.gP) : 0;
+total += price;
+html += '<tr><td style="padding:8px 12px;border-bottom:1px solid #f8faff;font-weight:600;color:#4f7cff">'+escapeHtml(o.domain)+'</td>'
++'<td style="padding:8px 12px;border-bottom:1px solid #f8faff;color:#475569;max-width:200px;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(o.targetUrl)+'</td>'
++'<td style="padding:8px 12px;border-bottom:1px solid #f8faff;color:#475569">'+escapeHtml(o.anchor)+'</td>'
++'<td style="padding:8px 12px;border-bottom:1px solid #f8faff;text-align:right;font-weight:700">'+(price?'$'+price:'TBD')+'</td></tr>';
+});
+html += '</tbody></table></div>';
+html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding:14px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px">'
++'<div><span style="font-size:12px;color:#64748b">Estimated total:</span> <span style="font-size:18px;font-weight:800;color:#1a202c;font-family:Manrope,sans-serif">$'+total+'</span></div>'
++'<button onclick="submitBulkOrders()" style="padding:10px 24px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Submit '+orders.length+' Orders</button>'
++'</div>';
+preview.innerHTML = html;
+}
+function submitBulkOrders(){
+var orders = window._pendingBulkOrders||[];
+if(!orders.length){ showToast('No orders to submit'); return; }
+var uid = localStorage.getItem('uplyncio_currentUid')||'';
+var bulkHistory = [];
+try{ bulkHistory = JSON.parse(localStorage.getItem('uplyncio_bulk_orders_'+uid)||'[]'); }catch(e){}
+bulkHistory.push({count:orders.length, date:new Date().toLocaleDateString(), status:'Pending', orders:orders});
+localStorage.setItem('uplyncio_bulk_orders_'+uid, JSON.stringify(bulkHistory));
+window._pendingBulkOrders = [];
+showToast('📦 '+orders.length+' bulk orders submitted! We will process them shortly.');
+renderBulkOrdersTab();
+}
+function renderOrderHistory(){
+var body = document.getElementById('campHistoryBody');
+if(!body) return;
+var uid = localStorage.getItem('uplyncio_currentUid')||'';
+var data = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
+var orders = data.orders || [];
+if(!orders.length){
+body.innerHTML = '<div style="text-align:center;padding:50px 20px;color:#94a3b8"><div style="font-size:44px;margin-bottom:14px;opacity:.3">📦</div><div style="font-size:15px;font-weight:700;color:#374151;margin-bottom:6px">No orders yet</div><div style="font-size:13px">Your order history will appear here after your first purchase.</div></div>';
+return;
+}
+var html = '<div style="max-height:500px;overflow-y:auto">';
+orders.slice().reverse().forEach(function(o){
+var sc = {Pending:'#f59e0b',Accepted:'#4f7cff',Delivered:'#7c3aed',Completed:'#16a34a',Disputed:'#ef4444',Cancelled:'#94a3b8'};
+html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f8faff">'
++'<div><div style="font-size:13px;font-weight:700;color:#1a202c">'+(o.siteUrl||o.site_url||'—')+'</div><div style="font-size:11px;color:#94a3b8;margin-top:2px">'+(o.orderId||o.order_id||'')+ ' • '+(o.createdAt?new Date(o.createdAt).toLocaleDateString():'')+'</div></div>'
++'<div style="display:flex;align-items:center;gap:10px"><span style="font-weight:700;font-size:13px">$'+(o.price||0)+'</span>'
++'<span style="padding:3px 10px;border-radius:20px;font-size:10.5px;font-weight:700;background:'+(sc[o.status]||'#94a3b8')+'22;color:'+(sc[o.status]||'#94a3b8')+'">'+(o.status||'Pending')+'</span></div>'
++'</div>';
+});
+html += '</div>';
+body.innerHTML = html;
 }
 function campSyncRemote(method, payload, idForPatch){
 try{
@@ -4064,7 +4197,8 @@ campaigns.forEach(function(c){ listHTML += campaignCardHTML(c); });
 }
 body.innerHTML = helpHTML
 + balanceHTML
-+ '<div style="display:flex;justify-content:flex-end;margin-bottom:14px">'
++ '<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px">'
++ '<button onclick="openBulkOrder()" style="padding:9px 18px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">📦 Bulk Order (CSV)</button>'
 + '<button onclick="openNewCampaignForm()" style="padding:9px 18px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">+ New Campaign</button>'
 + '</div>'
 + listHTML;
@@ -5824,10 +5958,8 @@ if(m){ m.style.display='flex'; m.onclick=function(e){if(e.target===m)m.style.dis
 <script src="/chatbot.js?v=4" defer></script>
 
 <style>
-.bulk-btn{position:fixed;bottom:24px;left:24px;display:flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#7c3aed,#4f7cff);color:#fff;border:none;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(124,58,237,.35);z-index:999;transition:all .2s}
-.bulk-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.45)}
+.bulk-btn{display:none}
 </style>
-<button class="bulk-btn" onclick="openBulkOrder()">📦 Bulk Order (CSV)</button>
 
 <script>
 function openBulkOrder(){
