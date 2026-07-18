@@ -635,7 +635,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <div class="sb-section-title">Browse</div>
 <button class="sb-link active" id="sb-all" onclick="filterByCategory('')">
 <div class="sb-icon">🌐</div> All Sites
-        <span class="sb-count" id="cnt-all">0</span>
+        <span class="sb-count" id="cnt-all" style="display:none">0</span>
 </button>
 <button class="sb-link" onclick="openOrdersPage()">
 <div class="sb-icon">📦</div> My Orders
@@ -851,13 +851,13 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 <div class="tabs-bar">
 <button class="svc-tab active" id="tab-article" onclick="switchTab('article')">
-        Article Posting <span class="tab-cnt" id="tcnt-article">0</span>
+        Article Posting <span class="tab-cnt" id="tcnt-article" style="display:none">0</span>
 </button>
 <button class="svc-tab" id="tab-link" onclick="switchTab('link')">
-        Link Insertion <span class="tab-cnt" id="tcnt-link">0</span>
+        Link Insertion <span class="tab-cnt" id="tcnt-link" style="display:none">0</span>
 </button>
 <button class="svc-tab" id="tab-press" onclick="switchTab('press')">
-        Press Release <span class="tab-cnt" id="tcnt-press">0</span>
+        Press Release <span class="tab-cnt" id="tcnt-press" style="display:none">0</span>
 </button>
 <div class="tabs-right">
 <select class="sort-sel" id="sortBy" onchange="applyFilters()">
@@ -869,7 +869,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <option value="traffic-desc">Traffic: Highest</option>
 <option value="completion">Completion Rate</option>
 </select>
-<div class="res-info" id="resInfo">Loading...</div>
+<div class="res-info" id="resInfo" style="display:none">Loading...</div>
 </div>
 </div>
 <div class="content">
@@ -1266,7 +1266,7 @@ all.forEach(function(s){
 var cats = Object.keys(catMap).sort(function(a,b){ return catMap[b]-catMap[a]; });
 var html = cats.map(function(c){
 return '<div class="sb-cat-item'+(currentCat===c?' active':'')+'" onclick="filterByCategory(\''+c+'\')">'
-+'<span>'+c+'</span><span class="cat-cnt">'+catMap[c]+'</span></div>';
++'<span>'+c+'</span></div>';
 }).join('');
 document.getElementById('catList').innerHTML = html;
 }
