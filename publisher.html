@@ -2498,32 +2498,52 @@ requirements: reqVal,
 req: reqVal,
 id: Date.now()
 };
-// ── AUTO STATUS LOGIC ──
+// ── FULL SITE APPROVAL SYSTEM ──
 var daNum = parseFloat(site.da) || 0;
 var drNum = parseFloat(site.dr) || 0;
+var domain = (site.url||'').toLowerCase();
+var domainAge = site.domainAge || 0; // months
+
+// ── AUTO-REJECT checks ──
+var rejectReason = '';
+if(daNum === 0 && drNum === 0) rejectReason = 'DA and DR are both 0 — site has no authority';
+else if(/\.(blogspot|wordpress|wix|weebly|tumblr|squarespace)\.(com|co)/.test(domain)) rejectReason = 'Free hosting platforms are not accepted (blogspot, wix, etc.)';
+else if(/casino|gambl|porn|xxx|adult|escort|viagra|cialis/i.test(domain)) rejectReason = 'Adult, gambling or pharmaceutical domains are not allowed';
+else if(mySites.find(function(x){ return x.url===site.url && String(x.id)!==String(site.id); })) rejectReason = 'This domain is already listed in your account';
+
 if(window._editingId){
-// Editing existing site — keep approved if already approved
-var idx=mySites.findIndex(function(x){return x.id===window._editingId;});
-if(idx>-1){
-site.id=window._editingId;
-site.status = mySites[idx].status || 'pending';
-mySites[idx]=site;
-}
-window._editingId=null;
-toast('✅ Site updated successfully!', '#16a34a');
+  var idx=mySites.findIndex(function(x){return String(x.id)===String(window._editingId);});
+  if(idx>-1){
+    site.id=window._editingId;
+    site.status = mySites[idx].status || 'pending';
+    mySites[idx]=site;
+  }
+  window._editingId=null;
+  toast('✅ Site updated successfully!', '#16a34a');
+} else if(rejectReason){
+  // ── AUTO-REJECT ──
+  site.status = 'rejected';
+  site.rejectReason = rejectReason;
+  mySites.push(site);
+  showSiteRejection(site.url, rejectReason);
+} else if(daNum >= 20 && drNum >= 10){
+  // ── AUTO-APPROVE: DA 20+, DR 10+ ──
+  site.status = 'Live';
+  mySites.push(site);
+  showSiteApproval(site.url, daNum, drNum, 'auto');
+} else if(daNum >= 5 || drNum >= 5){
+  // ── PENDING REVIEW: DA 5-19 ──
+  site.status = 'pending';
+  mySites.push(site);
+  toast('⏳ Site submitted for review! Our team will verify within 24 hours.', '#4f7cff');
+  // Auto-approve after review simulation (3-5 min)
+  var delay = (180 + Math.floor(Math.random()*120)) * 1000;
+  scheduleApproval(site.id, delay);
 } else {
-if(daNum < 5 || drNum < 5){
-site.status = 'hold';
-mySites.push(site);
-toast('⏸ Site added on Hold — DA/DR too low. We will auto-approve once metrics improve.', '#d97706');
-startHoldMonitor(site.id);
-} else {
-site.status = 'pending';
-mySites.push(site);
-toast('⏳ Site submitted! Pending review — will be approved in 2-3 minutes if everything looks good.', '#4f7cff');
-var delay = (120 + Math.floor(Math.random()*60)) * 1000;
-scheduleApproval(site.id, delay);
-}
+  // ── ON HOLD: DA < 5 ──
+  site.status = 'hold';
+  mySites.push(site);
+  toast('⏸ Site on hold — DA/DR too low (minimum DA 5 required). Build more authority first.', '#d97706');
 }
 // Run price analysis — if issues found, site goes to Issues tab
 checkAndMarkSiteIssues(mySites[mySites.length-1]);
@@ -7449,6 +7469,62 @@ box.innerHTML = '<div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);
 el.appendChild(box);
 document.body.appendChild(el);
 document.getElementById('switchPopClose').addEventListener('click', function(){ el.remove(); });
+}
+</script>
+<script>
+function showSiteApproval(domain, da, dr, type){
+var old = document.getElementById('siteApprovalPopup'); if(old) old.remove();
+var el = document.createElement('div');
+el.id = 'siteApprovalPopup';
+el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
+var box = document.createElement('div');
+box.style.cssText = 'background:#fff;border-radius:20px;width:440px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)';
+box.innerHTML = '<div style="padding:40px 36px;text-align:center">'
++'<div style="width:72px;height:72px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px">✅</div>'
++'<div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px">Site Approved!</div>'
++'<div style="font-size:14px;color:#64748b;margin-bottom:20px">'+domain+' is now live on the marketplace</div>'
++'<div style="display:flex;justify-content:center;gap:12px;margin-bottom:20px">'
++'<div style="background:#eff6ff;border-radius:10px;padding:12px 20px;text-align:center"><div style="font-size:11px;color:#94a3b8;font-weight:600">DA</div><div style="font-size:20px;font-weight:800;color:#3b82f6;font-family:Manrope,sans-serif">'+da+'</div></div>'
++'<div style="background:#f0fdf4;border-radius:10px;padding:12px 20px;text-align:center"><div style="font-size:11px;color:#94a3b8;font-weight:600">DR</div><div style="font-size:20px;font-weight:800;color:#16a34a;font-family:Manrope,sans-serif">'+dr+'</div></div>'
++'<div style="background:#f0fdf4;border-radius:10px;padding:12px 20px;text-align:center"><div style="font-size:11px;color:#94a3b8;font-weight:600">Status</div><div style="font-size:16px;font-weight:800;color:#16a34a">● Live</div></div>'
++'</div>'
++'<div style="background:#f8faff;border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;color:#475569;line-height:1.6">'
++'Your site is now visible to all buyers. Set competitive pricing to start receiving orders!</div>'
++'<button id="siteApproveClose" style="padding:12px 32px;background:#16a34a;color:#fff;border:none;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Got it!</button>'
++'</div>';
+el.appendChild(box);
+document.body.appendChild(el);
+document.getElementById('siteApproveClose').addEventListener('click', function(){ el.remove(); });
+}
+
+function showSiteRejection(domain, reason){
+var old = document.getElementById('siteRejectPopup'); if(old) old.remove();
+var el = document.createElement('div');
+el.id = 'siteRejectPopup';
+el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)';
+el.addEventListener('click', function(e){ if(e.target===el) el.remove(); });
+var box = document.createElement('div');
+box.style.cssText = 'background:#fff;border-radius:20px;width:440px;max-width:92vw;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)';
+box.innerHTML = '<div style="padding:40px 36px;text-align:center">'
++'<div style="width:72px;height:72px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 16px">❌</div>'
++'<div style="font-family:Manrope,sans-serif;font-size:22px;font-weight:800;color:#0f172a;margin-bottom:6px">Site Not Accepted</div>'
++'<div style="font-size:14px;color:#64748b;margin-bottom:20px">'+domain+'</div>'
++'<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 18px;margin-bottom:20px;text-align:left">'
++'<div style="font-size:13px;font-weight:700;color:#991b1b;margin-bottom:6px">❌ Reason for rejection:</div>'
++'<div style="font-size:13px;color:#7f1d1d;line-height:1.6">'+reason+'</div></div>'
++'<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin-bottom:20px;text-align:left">'
++'<div style="font-size:12.5px;font-weight:700;color:#0369a1;margin-bottom:6px">💡 What you can do:</div>'
++'<div style="font-size:13px;color:#0c4a6e;line-height:1.7">'
++'• Make sure your domain is a real website with original content<br>'
++'• Build DA to at least 5+ using quality backlinks<br>'
++'• Ensure your site has SSL (https) enabled<br>'
++'• Contact info@uplyncio.com if you think this was a mistake</div></div>'
++'<button id="siteRejectClose" style="padding:12px 32px;background:#64748b;color:#fff;border:none;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Understood</button>'
++'</div>';
+el.appendChild(box);
+document.body.appendChild(el);
+document.getElementById('siteRejectClose').addEventListener('click', function(){ el.remove(); });
 }
 </script>
 </body>
