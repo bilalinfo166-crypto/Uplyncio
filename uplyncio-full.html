@@ -2637,7 +2637,7 @@ localStorage.setItem('uplyncio_currentUid',uid);
 localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'publisher',verified:false}));
 document.getElementById('publisherModal').style.display='none';
 document.body.style.overflow='';
-setTimeout(function(){openVerifyModal(email,true);},300);
+openVerifyModal(email,true);
 } else {
 if(result.error && result.error.toLowerCase().includes('buyer')){
 showRoleConflictPopup('buyer','publisher',email); return;
@@ -2769,7 +2769,7 @@ localStorage.setItem('uplyncio_currentUid',uid);
 localStorage.setItem('uplyncio_user', JSON.stringify({uid:uid,id:uid,name:name,email:email.toLowerCase(),role:'buyer',verified:false}));
 document.getElementById('buyerModal').style.display='none';
 document.body.style.overflow='';
-setTimeout(function(){openVerifyModal(email,true);},300);
+openVerifyModal(email,false);
 } else {
 // Check for role conflict from API
 if(result.error && result.error.toLowerCase().includes('publisher')){
