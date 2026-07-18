@@ -7626,10 +7626,16 @@ document.getElementById('siteRejectClose').addEventListener('click', function(){
 }
 </script>
 <script>
-// ── FILE UPLOAD LISTENER ──
+// ── FILE UPLOAD: DRAG DROP + CLICK ──
 document.addEventListener('DOMContentLoaded', function(){
   var fi = document.getElementById('fileInput');
+  var dz = document.getElementById('dropZone');
   if(fi) fi.addEventListener('change', function(){ if(this.files && this.files[0]) handleFile(this.files[0]); });
+  if(dz){
+    dz.addEventListener('dragover', function(e){ e.preventDefault(); e.stopPropagation(); dz.style.background='#eff6ff'; dz.style.borderColor='#4f7cff'; });
+    dz.addEventListener('dragleave', function(e){ e.preventDefault(); dz.style.background='#f8faff'; dz.style.borderColor='#c7d7ff'; });
+    dz.addEventListener('drop', function(e){ e.preventDefault(); e.stopPropagation(); dz.style.background='#f8faff'; dz.style.borderColor='#c7d7ff'; if(e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  }
 });
 </script>
 <script>
