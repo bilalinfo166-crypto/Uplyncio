@@ -137,11 +137,23 @@ export default async function handler(req, res) {
         user = Array.isArray(result.data) ? result.data[0] : result.data;
         console.log('Insert result:', JSON.stringify(result));
 
-        // Send welcome email async
+        // Send welcome email + notification for new Google user
         try {
           const { sendWelcomeEmail } = await import('./email.js');
-          sendWelcomeEmail({ to: email, name, role }).catch(() => {});
-        } catch(e) {}
+          const emailRes = await sendWelcomeEmail({ to: email, name, role }).catch(e => ({ ok: false, error: e.message }));
+          console.log('[Google Auth] Welcome email result:', JSON.stringify(emailRes));
+        } catch(e) { console.error('[Google Auth] Welcome email error:', e.message); }
+        // In-app notification
+        if(user && user.id) {
+          try {
+            const key = process.env.SUPABASE_SECRET_KEY;
+            await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
+              method: 'POST',
+              headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user_id: user.id, title: 'Welcome to Uplyncio!', message: 'Your account has been created via Google. Start exploring!', type: 'success', read: false, created_at: new Date().toISOString() })
+            });
+          } catch(e) {}
+        }
       }
 
       // If user creation failed, try to get existing user
