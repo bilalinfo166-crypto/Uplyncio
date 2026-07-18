@@ -2396,17 +2396,24 @@ _mergeSBSites(_allSupabaseSites);
 }).catch(function(e){ console.warn('Load page error:', e); });
 }
 function _mergeSBSites(sbSites){
-if(!sbSites.length) return;
-var localMap = {};
-mySites.forEach(function(m){
-var d=(m.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
-if(d) localMap[d]=m;
-});
-var added=0;
+// Remove loading indicator
+var li = document.getElementById('loadingIndicator');
+if(li) li.remove();
+
+if(!sbSites.length){
+  if(mySites.length === 0) applyFilters(); // show empty state
+  return;
+}
+
+// Build full list from Supabase (Supabase is source of truth)
+var supaMap = {};
+var supaList = [];
 sbSites.forEach(function(sb){
 var d=(sb.url||sb.domain||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
 if(!d) return;
-var site = {
+if(supaMap[d]) return; // skip dupes
+supaMap[d] = true;
+supaList.push({
 id: sb.site_id_local || sb.id || ('sb_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)),
 url: d, da: String(sb.da||0), dr: String(sb.dr||0),
 traffic: String(sb.traffic||0),
@@ -2426,20 +2433,19 @@ req: (sb.requirements||'').substring(0,150),
 status: sb.status==='Live'?'Live':(sb.status==='On Hold'?'hold':(sb.status==='Rejected'?'rejected':'pending')),
 publisherName: sb.publisher_name||'',
 role: sb.role||'Owner'
-};
-if(localMap[d]){
-Object.assign(localMap[d], site);
-} else {
-mySites.push(site);
-localMap[d]=site;
-added++;
-}
 });
-if(added>0){
+});
+
+// Also add any localStorage-only sites not in Supabase
+mySites.forEach(function(m){
+var d=(m.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
+if(d && !supaMap[d]) supaList.push(m);
+});
+
+mySites = supaList;
 saveSites();
 applyFilters();
-console.log('[Supabase] Loaded '+added+' new sites, total: '+mySites.length);
-}
+console.log('[Supabase] Loaded '+mySites.length+' total sites');
 }
 // Reload sites when UID becomes available (after login)
 function reloadSitesForUser(){
@@ -2449,8 +2455,13 @@ mySites = loadSites();
 applyFilters();
 }
 var mySites = loadSites();
-// Pull any sites from Supabase that aren't in localStorage yet (cross-device sync)
-setTimeout(loadSitesFromSupabase, 1500);
+// Immediately load ALL sites from Supabase (primary source)
+loadSitesFromSupabase();
+// Show loading indicator if localStorage is empty
+if(mySites.length === 0){
+  var mainEl = document.querySelector('.mp-table-wrap');
+  if(mainEl) mainEl.insertAdjacentHTML('beforebegin', '<div id="loadingIndicator" style="text-align:center;padding:40px"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:14px;color:#64748b;font-weight:600">Loading your sites from database...</div></div>');
+}
 // Force-push ALL local sites to Supabase on load (catches sites added before sync was implemented)
 setTimeout(function(){
 var uid = localStorage.getItem('uplyncio_currentUid')||'';
