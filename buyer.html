@@ -730,130 +730,50 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div> </div>
 </div>
 </div>
-</div> <div class="filter-bar"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 14px">
+</div> <div class="filter-bar" style="padding:10px 24px 8px">
+<!-- Search Bar -->
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 14px">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-<input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off" oninput="applyFiltersDebounced()" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}" style="flex:1;border:none;outline:none;font-size:14px;font-family:inherit;background:transparent;color:#1a202c">
-<button onclick="applyFilters()" style="padding:6px 16px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Search</button>
+<input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off" oninput="applyFiltersDebounced()" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;background:transparent;color:#1a202c">
+<button onclick="applyFilters()" style="padding:6px 18px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Search</button>
 <button onclick="document.getElementById('globalSearch').value='';applyFilters();" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px;padding:0;display:none" id="searchClearBtn">✕</button>
 </div>
-<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none" onclick="var b=document.getElementById('advFiltersBody');var ic=document.getElementById('advFilterIcon');if(b.style.display==='none'){b.style.display='block';ic.textContent='▲'}else{b.style.display='none';ic.textContent='▼'}">
-<div style="display:flex;align-items:center;gap:8px">
-<div style="width:28px;height:28px;background:#4f7cff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">⚙️</div>
-<span style="font-size:13px;font-weight:800;color:#1a202c;letter-spacing:.3px">Advanced Filters</span>
-<span id="activeFilterCount" style="display:none;background:#4f7cff;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">0 active</span>
-<span id="advFilterIcon" style="font-size:10px;color:#94a3b8;margin-left:4px">▼</span>
+<!-- Most popular filters -->
+<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px">Most popular filters</div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">
+<div class="fgroup"><label class="flbl">Price ($)</label><div style="display:flex;gap:4px"><input class="fi" id="fPriceMin" type="number" placeholder="Min" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fPriceMax" type="number" placeholder="Max" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Ahrefs DR</label><div style="display:flex;gap:4px"><input class="fi" id="fDRMin" type="number" placeholder="1" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fDRMax" type="number" placeholder="100" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Ahrefs Traffic, from</label><div style="display:flex;gap:4px"><input class="fi" id="fTrMin" type="number" placeholder="From" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fTrMax" type="number" placeholder="Any" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Country</label><select class="fi" id="fCountry" onchange="applyFilters()" style="cursor:pointer"><option value="">Nothing selected</option><option>USA</option><option>UK</option><option>Canada</option><option>Australia</option><option>India</option><option>Germany</option><option>France</option><option>Pakistan</option><option>Global</option></select></div>
+<div class="fgroup"><label class="flbl">Language</label><select class="fi" id="fLang" onchange="applyFilters()" style="cursor:pointer"><option value="">All</option><option>English</option><option>Spanish</option><option>French</option><option>German</option><option>Arabic</option><option>Hindi</option><option>Urdu</option></select></div>
 </div>
-<button onclick="event.stopPropagation();clearAllFilters()" style="font-size:11.5px;color:#94a3b8;background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:4px">✕ Clear all</button>
+<!-- SEO filters -->
+<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;padding-top:8px;border-top:1px solid #f1f5f9">SEO filters</div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">
+<div class="fgroup"><label class="flbl">Moz DA</label><div style="display:flex;gap:4px"><input class="fi" id="fDAMin" type="number" placeholder="1" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fDAMax" type="number" placeholder="100" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Spam Score</label><div style="display:flex;gap:4px"><input class="fi" id="fSpamMin" type="number" placeholder="1" style="width:100%"><input class="fi" id="fSpamMax" type="number" placeholder="100" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Categories</label><select class="fi" id="fCategory" onchange="applyFilters()" style="cursor:pointer"><option value="">Nothing selected</option></select></div>
+<div class="fgroup"><label class="flbl">Link Type</label><select class="fi" id="fLinkType" onchange="applyFilters()" style="cursor:pointer"><option value="">All types</option><option>Dofollow</option><option>Nofollow</option><option>Sponsored</option></select></div>
+<div class="fgroup"><label class="flbl">Google Indexed</label><select class="fi" id="fIndexed" onchange="applyFilters()" style="cursor:pointer"><option value="">All</option><option value="yes">Indexed Only</option></select></div>
 </div>
-<div id="advFiltersBody" style="display:none">
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px">
-<div class="fgroup">
-<label class="flbl">Price ($)</label>
-<div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fPriceMin" type="number" placeholder="Min" style="width:100%" oninput="applyFiltersDebounced()">
-<span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fPriceMax" type="number" placeholder="Max" style="width:100%" oninput="applyFiltersDebounced()">
-</div>
-</div>
-<div class="fgroup">
-<label class="flbl">Moz DA</label>
-<div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fDAMin" type="number" oninput="applyFiltersDebounced()" placeholder="1" style="width:100%">
-<span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fDAMax" type="number" oninput="applyFiltersDebounced()" placeholder="100" style="width:100%">
-</div>
-</div>
-<div class="fgroup">
-<label class="flbl">Ahrefs DR</label>
-<div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fDRMin" type="number" oninput="applyFiltersDebounced()" placeholder="1" style="width:100%">
-<span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fDRMax" type="number" oninput="applyFiltersDebounced()" placeholder="100" style="width:100%">
+<!-- More filters (collapsed) -->
+<div id="moreFiltersBody" style="display:none">
+<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;padding-top:8px;border-top:1px solid #f1f5f9">Publisher filters</div>
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">
+<div class="fgroup"><label class="flbl">Completion Rate</label><select class="fi" id="fCompletion" onchange="applyFilters()" style="cursor:pointer"><option value="">All</option><option value="70">More than 70%</option><option value="80">More than 80%</option><option value="90">More than 90%</option><option value="95">More than 95%</option></select></div>
+<div class="fgroup"><label class="flbl">TAT</label><select class="fi" id="fTAT" onchange="applyFilters()" style="cursor:pointer"><option value="">All</option><option value="3">Up to 3 days</option><option value="7">Up to 7 days</option><option value="14">Up to 14 days</option><option value="30">Up to 30 days</option></select></div>
+<div class="fgroup"><label class="flbl">Publisher</label><select class="fi" id="fVerified" onchange="applyFilters()" style="cursor:pointer"><option value="">All Publishers</option><option value="verified">Verified Only</option></select></div>
+<div class="fgroup"><label class="flbl">Sponsored Tag</label><select class="fi" id="fSponsored" onchange="applyFilters()" style="cursor:pointer"><option value="">All</option><option value="no">No Sponsored Tag</option><option value="yes">Sponsored Tag OK</option></select></div>
+<div class="fgroup"><label class="flbl">Sort By</label><select class="fi" id="sortBy" onchange="applyFilters()" style="cursor:pointer"><option value="">Top Recommended</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option><option value="da-desc">DA: High → Low</option><option value="dr-desc">DR: High → Low</option><option value="traffic-desc">Traffic: High → Low</option></select></div>
 </div>
 </div>
-<div class="fgroup">
-<label class="flbl">Ahrefs Traffic</label>
-<div style="display:flex;align-items:center;gap:6px">
-<input class="fi" id="fTrMin" type="number" oninput="applyFiltersDebounced()" placeholder="100" style="width:100%">
-<span style="color:#94a3b8;font-size:12px">—</span>
-<input class="fi" id="fTrMax" type="number" oninput="applyFiltersDebounced()" placeholder="Any" style="width:100%">
+<!-- Bottom buttons -->
+<div style="display:flex;gap:8px;padding-top:8px;border-top:1px solid #f1f5f9">
+<button onclick="var b=document.getElementById('moreFiltersBody');if(b.style.display==='none'){b.style.display='block';this.innerHTML='More filters ▲'}else{b.style.display='none';this.innerHTML='More filters ▼'}" style="padding:7px 18px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">More filters ▼</button>
+<button onclick="clearAllFilters()" style="padding:7px 18px;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✕ Clear all</button>
 </div>
 </div>
-<div class="fgroup">
-<label class="flbl">Country</label>
-<select class="fi-sel" id="fCountry" onchange="applyFilters()" style="width:100%">
-<option value="">All Countries</option>
-<option>USA</option><option>UK</option><option>Canada</option>
-<option>Australia</option><option>India</option><option>Germany</option>
-<option>France</option><option>Global</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">Language</label>
-<select class="fi-sel" id="fLang" onchange="applyFilters()" style="width:100%">
-<option value="">All Languages</option>
-<option>English</option><option>Spanish</option><option>French</option>
-<option>German</option><option>Arabic</option><option>Hindi</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">Link Type</label>
-<select class="fi-sel" id="fLinkType" onchange="applyFilters()" style="width:100%">
-<option value="">All Types</option>
-<option>Dofollow</option><option>Nofollow</option><option>Sponsored</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">TAT (Days)</label>
-<select class="fi-sel" id="fTAT" onchange="applyFilters()" style="width:100%">
-<option value="">Any</option>
-<option value="3">Up to 3 days</option>
-<option value="7">Up to 7 days</option>
-<option value="14">Up to 14 days</option>
-<option value="30">Up to 30 days</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">Completion Rate</label>
-<select class="fi-sel" id="fCompletion" onchange="applyFilters()" style="width:100%">
-<option value="">All</option>
-<option value="70">70%+</option>
-<option value="80">80%+</option>
-<option value="90">90%+</option>
-<option value="95">95%+</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">Publisher</label>
-<select class="fi-sel" id="fVerified" onchange="applyFilters()" style="width:100%">
-<option value="">All Publishers</option>
-<option value="verified">👑 Verified Only</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">Sponsored Tag</label>
-<select class="fi-sel" id="fSponsored" onchange="applyFilters()" style="width:100%">
-<option value="">Any</option>
-<option value="no">No Sponsored Tag</option>
-<option value="yes">Sponsored Tag OK</option>
-</select>
-</div>
-<div class="fgroup">
-<label class="flbl">Google Indexed</label>
-<select class="fi-sel" id="fIndexed" onchange="applyFilters()" style="width:100%">
-<option value="">Any</option>
-<option value="yes">Indexed Only</option>
-</select>
-</div>
-</div>
-<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9">
-<div style="font-size:12px;color:#94a3b8">Set your filters above then click Apply</div>
-<button onclick="applyFilters();updateActiveFilterCount()" style="padding:10px 28px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,124,255,.3);display:flex;align-items:center;gap:8px;transition:all .2s">
-          🔍 Apply Filters
-        </button>
-</div>
-</div>
-</div>
+<span id="activeFilterCount" style="display:none"></span>
 <div class="tabs-bar">
 <button class="svc-tab active" id="tab-article" onclick="switchTab('article')">
         Article Posting <span class="tab-cnt" id="tcnt-article" style="display:none">0</span>
@@ -865,15 +785,6 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
         Press Release <span class="tab-cnt" id="tcnt-press" style="display:none">0</span>
 </button>
 <div class="tabs-right">
-<select class="sort-sel" id="sortBy" onchange="applyFilters()">
-<option value="recommended">Top Recommended</option>
-<option value="price-asc">Price: Low → High</option>
-<option value="price-desc">Price: High → Low</option>
-<option value="da-desc">DA: Highest</option>
-<option value="dr-desc">DR: Highest</option>
-<option value="traffic-desc">Traffic: Highest</option>
-<option value="completion">Completion Rate</option>
-</select>
 <div class="res-info" id="resInfo" style="display:none">Loading...</div>
 </div>
 </div>
@@ -1253,6 +1164,12 @@ return '<div class="sb-cat-item'+(currentCat===c?' active':'')+'" onclick="filte
 +'<span>'+c+'</span></div>';
 }).join('');
 document.getElementById('catList').innerHTML = html;
+// Also populate category filter dropdown
+var catSel = document.getElementById('fCategory');
+if(catSel){
+var curVal = catSel.value;
+catSel.innerHTML = '<option value="">Nothing selected</option>' + cats.map(function(c){ return '<option'+(c===curVal?' selected':'')+'>'+c+'</option>'; }).join('');
+}
 }
 function filterByCategory(cat){
 currentCat = cat;
@@ -1453,8 +1370,10 @@ filteredSites = all.filter(function(s){
 if(tab==='link' && (!s.liOk || !s.liP || s.liP <= 0)) return false;
 if(tab==='press') return false;
 var price = tab==='link' ? s.liP : s.gP;
-// Category filter
-if(currentCat && (s.cats||[]).indexOf(currentCat)<0) return false;
+// Category filter (from sidebar or dropdown)
+var fCatVal = (document.getElementById('fCategory')||{}).value||'';
+var activeCat = currentCat || fCatVal;
+if(activeCat && (s.cats||[]).indexOf(activeCat)<0) return false;
 // Search: domain, category, publisher name, requirements
 if(search){
 var haystack = (s.url+' '+(s.cats||[]).join(' ')+' '+(s.publisherName||'')+' '+(s.req||'')).toLowerCase();
