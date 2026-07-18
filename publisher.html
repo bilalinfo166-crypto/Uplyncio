@@ -3320,20 +3320,15 @@ s.dupReason = changed
 duplicates++;
 newSites.push(s);
 } else {
-// Brand new site — queue for checking
+// Brand new site — run approval checks
 var daNum = parseFloat(s.da)||0;
-var drNum = parseFloat(s.dr)||0;
-if(daNum < 10 || drNum < 10){
-s.status = 'hold';
-held++;
-startHoldMonitor(s.id);
-} else {
-s.status = isTeam ? 'Live' : 'pending';
-if(!isTeam){
-pending++;
-scheduleApproval(s.id, 5000);
-} else { approved++; }
-}
+var rejectReason = '';
+if(daNum === 0) rejectReason = 'DA is 0';
+else if(/\.(blogspot|wordpress|wix|weebly|tumblr|squarespace)\.(com|co)/.test(cleanUrl)) rejectReason = 'Free hosting not accepted';
+else if(/casino|gambl|porn|xxx|adult|escort|viagra|cialis/i.test(cleanUrl)) rejectReason = 'Prohibited domain';
+if(rejectReason){ s.status='rejected'; s.rejectReason=rejectReason; rejected++; }
+else if(daNum >= 5){ s.status='Live'; approved++; }
+else { s.status='hold'; held++; }
 newSites.push(s);
 }
 });
@@ -3357,12 +3352,42 @@ go(1);
 setTimeout(function(){
 var parts = [];
 if(approved) parts.push('✅ '+approved+' approved');
-if(pending) parts.push('⏳ '+pending+' pending review');
 if(held) parts.push('⏸ '+held+' on hold');
 if(priceUpdated) parts.push('💰 '+priceUpdated+' prices updated');
-if(duplicates - priceUpdated > 0) parts.push('🔁 '+(duplicates-priceUpdated)+' duplicates skipped');
-if(rejected) parts.push('❌ '+rejected+' invalid domains');
+if(duplicates - priceUpdated > 0) parts.push('🔁 '+(duplicates-priceUpdated)+' unchanged');
+if(rejected) parts.push('❌ '+rejected+' rejected');
 toast(parts.join(' · '), '#4f7cff');
+// Send email notification to publisher
+var userEmail = '';
+var userName = '';
+try{ var u = JSON.parse(localStorage.getItem('uplyncio_user')||'{}'); userEmail = u.email||''; userName = u.name||'Publisher'; }catch(e){}
+if(userEmail){
+fetch('/api/email', {
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+to: userEmail,
+subject: '📊 Sheet Upload Complete — Uplyncio',
+html: '<div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto">'
++'<div style="background:#0f1628;padding:24px;border-radius:12px 12px 0 0;text-align:center">'
++'<h2 style="color:#fff;margin:0;font-size:20px">📊 Sheet Upload Complete</h2></div>'
++'<div style="background:#fff;padding:28px;border:1px solid #e2e8f0;border-radius:0 0 12px 12px">'
++'<p style="font-size:15px;color:#374151">Hi <strong>'+userName+'</strong>,</p>'
++'<p style="font-size:14px;color:#64748b">Your sites sheet has been processed. Here is the summary:</p>'
++'<table style="width:100%;border-collapse:collapse;margin:16px 0">'
++(approved?'<tr><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:14px">✅ Sites Approved (Live)</td><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;color:#16a34a">'+approved+'</td></tr>':'')
++(priceUpdated?'<tr><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:14px">💰 Sites Updated (prices changed)</td><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;color:#4f7cff">'+priceUpdated+'</td></tr>':'')
++((duplicates-priceUpdated>0)?'<tr><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:14px">🔁 Sites Unchanged (already listed)</td><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;color:#94a3b8">'+(duplicates-priceUpdated)+'</td></tr>':'')
++(held?'<tr><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:14px">⏸ Sites On Hold (DA too low)</td><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;color:#d97706">'+held+'</td></tr>':'')
++(rejected?'<tr><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:14px">❌ Sites Rejected</td><td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;text-align:right;color:#ef4444">'+rejected+'</td></tr>':'')
++'<tr style="background:#f8faff"><td style="padding:10px 14px;font-size:14px;font-weight:700">📦 Total Sites in Dashboard</td><td style="padding:10px 14px;font-weight:800;text-align:right;color:#0f172a">'+mySites.length+'</td></tr>'
++'</table>'
++'<p style="font-size:13px;color:#94a3b8">Set competitive pricing to attract more buyers!</p>'
++'<a href="https://uplyncio.com/publisher.html" style="display:inline-block;margin-top:10px;padding:12px 24px;background:#4f7cff;color:#fff;text-decoration:none;border-radius:8px;font-weight:700">Go to Dashboard →</a>'
++'</div></div>'
+})
+}).catch(function(){});
+}
 }, 300);
 }
 function clearUpload(){
