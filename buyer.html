@@ -1469,20 +1469,26 @@ return true;
 // Sort — verified first (by traffic), then unverified (by traffic). Search: lowest price.
 var isSearching = search && search.length > 0;
 
-// Helper: check if publisher is verified
-function _isVerified(s){
-if(s.isTeamSite) return true;
-if(!s.publisherUid) return false;
+// Pre-compute verified status ONCE (not inside sort comparator)
+var _verifiedCache = {};
+filteredSites.forEach(function(s){
+var key = s.publisherUid || s._uid || '';
+if(_verifiedCache[key] !== undefined) { s._vf = _verifiedCache[key]; return; }
+var v = false;
+if(s.isTeamSite) v = true;
+else if(key) {
 try{
-var pd = JSON.parse(localStorage.getItem('uplyncio_data_'+s.publisherUid)||'{}');
-if(pd.publisherVerified || pd.ordersCompleted >= 10 || pd.orders_completed >= 10) return true;
+var pd = JSON.parse(localStorage.getItem('uplyncio_data_'+key)||'{}');
+if(pd.publisherVerified || pd.ordersCompleted >= 10 || pd.orders_completed >= 10) v = true;
 }catch(e){}
-return false;
 }
+_verifiedCache[key] = v;
+s._vf = v;
+});
 
 filteredSites.sort(function(a,b){
-var aV = _isVerified(a) ? 1 : 0;
-var bV = _isVerified(b) ? 1 : 0;
+var aV = a._vf ? 1 : 0;
+var bV = b._vf ? 1 : 0;
 
 if(sort==='price-asc'){
 if(aV !== bV) return bV - aV;
