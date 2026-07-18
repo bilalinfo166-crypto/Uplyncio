@@ -1,4 +1,4 @@
-import { sanitize, sanitizeObj, checkBodySize, isValidEmail as _isValidEmail } from './_security.js';
+import { sanitize, sanitizeObj, checkBodySize, isValidEmail as _isValidEmail, authRateLimit, otpRateLimit, getIp, setCors, setApiHeaders, apiError, isSuspicious } from './_security.js';
 import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './email.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -123,18 +123,15 @@ function isValidPassword(p) { return typeof p === 'string' && p.length >= 8; }
 
 export default async function handler(req, res) {
   // Security headers
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Access-Control-Allow-Origin', 'https://uplyncio.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  setApiHeaders(res);
+  setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') return apiError(res, 405, 'Method not allowed');
   
   // Rate limiting by IP
-  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.headers['x-real-ip'] || 'unknown';
-  if (rateLimit(`auth:${ip}`, 20, 60000)) {
-    return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
+  const ip = getIp(req);
+  if (authRateLimit(ip)) {
+    return apiError(res, 429, 'Too many requests. Please wait a moment.');
   }
 
   const body = req.body || {};
@@ -245,6 +242,8 @@ export default async function handler(req, res) {
     }
 
     if (action === 'verify') {
+      // Strict OTP rate limit — 3 attempts per minute
+      if (otpRateLimit(ip)) return apiError(res, 429, 'Too many verification attempts. Wait 60 seconds.');
       const { email, code } = body;
       if (!email || !code) return res.status(400).json({ error: 'Missing email or code' });
 
