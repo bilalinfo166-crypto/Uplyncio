@@ -2239,9 +2239,25 @@ function saveSites(){
 try{
 var uid = localStorage.getItem('uplyncio_currentUid')||'';
 if(!uid) return;
+// Strip heavy text to fit in localStorage (5MB limit)
+var lightSites = mySites.map(function(s){
+var lite = {};
+// Only keep essential fields
+['id','url','da','dr','traffic','cat','lt','price','p1','p2','p3',
+'liAccepted','liPrice','liOk','liP','lang','country','maxLinks',
+'wordCount','status','samplePost','guestPostPrice','writePublishPrice',
+'publisherUid','isTeamSite','role','priceIssues','rejectReason'].forEach(function(k){
+if(s[k] !== undefined && s[k] !== '') lite[k] = s[k];
+});
+// Trim long text fields to 150 chars max
+if(s.notes) lite.notes = s.notes.substring(0, 150);
+if(s.requirements) lite.req = s.requirements.substring(0, 150);
+if(s.liReq) lite.liReq = s.liReq.substring(0, 100);
+return lite;
+});
 var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
-userData.sites = mySites;
-localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData));
+userData.sites = lightSites;
+try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData)); }catch(e){ console.warn('Storage full, trimming...'); userData.sites = lightSites.map(function(s){ delete s.notes; delete s.req; delete s.liReq; return s; }); try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData)); }catch(e2){ console.error('Cannot save sites:', e2); } }
 localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
 // ── Sync registry for same-browser buyer page ──
 try{
