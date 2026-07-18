@@ -873,7 +873,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 </div>
 <div class="content">
-<div class="sites-list" id="sitesList"></div>
+<div class="sites-list" id="sitesList"><div id="sitesLoading" style="text-align:center;padding:40px 20px"><div style="display:inline-block;width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#4f7cff;border-radius:50%;animation:spin .6s linear infinite"></div><div style="margin-top:10px;font-size:13px;color:#94a3b8;font-weight:600">Loading sites...</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style></div></div>
 <div class="pagination" id="pagination"></div>
 </div>
 </div>
@@ -1133,23 +1133,34 @@ _localSitesCache = Object.values(urlMap);
 _localCacheTime = now;
 return _localSitesCache;
 }
-// Fetch from Supabase and update global store
+// Fetch from Supabase DIRECTLY (skip API middleman for speed)
+var _sbFetching = false;
 function fetchSitesFromSupabase(){
+if(_sbFetching) return;
+_sbFetching = true;
 var _sbAll = [];
 var _sbOffset = 0;
+var _firstBatchRendered = false;
 function _fetchPage(){
-fetch('/api/sites?status=Live&limit=1000&offset='+_sbOffset)
+var url = SUPABASE_URL+'/rest/v1/publisher_sites?select=*&status=in.(Live,live,Approved,approved,Active,active)&order=da.desc&limit=1000&offset='+_sbOffset;
+fetch(url, { headers: SB_HEADERS })
 .then(function(r){ return r.json(); })
-.then(function(res){
-var sites = (res.success && Array.isArray(res.sites)) ? res.sites : [];
+.then(function(sites){
+if(!Array.isArray(sites)) sites = [];
 _sbAll = _sbAll.concat(sites);
-if(sites.length === 1000){
-_sbOffset += 1000;
-setTimeout(_fetchPage, 100);
-} else {
+// Render FIRST batch immediately — don't wait for all pages
+if(!_firstBatchRendered && _sbAll.length > 0){
+_firstBatchRendered = true;
 _processSBSites(_sbAll);
 }
-}).catch(function(e){ console.warn('Supabase fetch error:', e.message); _processSBSites(_sbAll); });
+if(sites.length === 1000){
+_sbOffset += 1000;
+_fetchPage(); // no delay — fire next page immediately
+} else {
+_sbFetching = false;
+_processSBSites(_sbAll);
+}
+}).catch(function(e){ console.warn('Supabase fetch error:', e.message); _sbFetching = false; _processSBSites(_sbAll); });
 }
 _fetchPage();
 }
@@ -1190,8 +1201,8 @@ return _allSites;
 function processSiteToEntry(s, uid){ return _siteEntry(s, uid); }
 // Poll Supabase every 30s
 if(!_sbTimer){ _sbTimer = setInterval(fetchSitesFromSupabase, 30000); }
-// Load immediately on script run
-setTimeout(fetchSitesFromSupabase, 500);
+// Load IMMEDIATELY on script run — zero delay
+fetchSitesFromSupabase();
 // ── LIVE COUNTER: total sites across platform ──
 function updateLiveSiteCount(){
 var all = _allSites.length > 0 ? _allSites : _loadLocal();
