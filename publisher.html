@@ -2409,17 +2409,13 @@ if(!url){ alert('Please go back and enter your site URL'); return; }
 // Validate sample links match site domain
 if(!validateAllSampleLinks()){ return; }
 // ── DOMAIN VALIDATION ──
-var cleanUrl = url.replace(/https?:\/\//, '').replace(/\/.*/, '').toLowerCase().trim();
-// Reject if domain has extra text like "Price Increased", "- 1 Jun" etc
-var invalidPattern = /\s|price|increased|updated|discount|promo|\d{1,2}\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i;
-if(invalidPattern.test(cleanUrl)){
-toast('❌ Invalid domain format. Please enter only the domain name (e.g. example.com)', '#ef4444');
-return;
-}
+var cleanUrl = url.replace(/https?:\/\//i, '').replace(/^www\./i, '').replace(/\/.*/, '').replace(/\s+/g,'').toLowerCase().trim();
+// Remove any trailing dots or special chars
+cleanUrl = cleanUrl.replace(/[,;:!?'"<>(){}[\]]/g, '').replace(/\.+$/, '');
 // Must look like a real domain
-var domainPattern = /^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$/i;
-if(!domainPattern.test(cleanUrl)){
-toast('❌ Invalid domain. Enter a valid domain like example.com or blog.example.com', '#ef4444');
+var domainPattern = /^[a-z0-9][a-z0-9\-\.]*\.[a-z]{2,}$/i;
+if(!cleanUrl || !domainPattern.test(cleanUrl)){
+toast('❌ Invalid domain. Enter like: example.com or blog.example.co.uk', '#ef4444');
 return;
 }
 // ── DUPLICATE CHECK ──
