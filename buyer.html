@@ -1142,6 +1142,8 @@ _sbFetching = true;
 var _sbAll = [];
 var _sbOffset = 0;
 var _firstBatchRendered = false;
+var loadEl = document.getElementById('sitesLoading');
+if(loadEl) loadEl.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:13px">Fetching sites...</div>';
 
 function _fetchPage(){
 fetch('/api/sites?limit=1000&offset='+_sbOffset)
@@ -1149,20 +1151,22 @@ fetch('/api/sites?limit=1000&offset='+_sbOffset)
 .then(function(res){
 var sites = (res.success && Array.isArray(res.sites)) ? res.sites : [];
 _sbAll = _sbAll.concat(sites);
+if(loadEl) loadEl.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:13px">Loaded '+_sbAll.length+' sites...</div>';
 // Render FIRST batch immediately
 if(!_firstBatchRendered && _sbAll.length > 0){
 _firstBatchRendered = true;
-_processSBSites(_sbAll);
+try { _processSBSites(_sbAll); } catch(e) { if(loadEl) loadEl.innerHTML = '<div style="color:red;padding:20px">Error A: '+e.message+'</div>'; }
 }
 if(sites.length === 1000){
 _sbOffset += 1000;
 _fetchPage();
 } else {
 _sbFetching = false;
-if(_sbAll.length > 0) _processSBSites(_sbAll);
+if(_sbAll.length > 0) { try { _processSBSites(_sbAll); } catch(e) { if(loadEl) loadEl.innerHTML = '<div style="color:red;padding:20px">Error B: '+e.message+'</div>'; } }
+else if(loadEl) loadEl.innerHTML = '<div style="text-align:center;padding:20px;color:#ef4444;font-size:13px">No sites returned from API</div>';
 }
 }).catch(function(e){
-console.warn('[Buyer] Fetch error:', e.message);
+if(loadEl) loadEl.innerHTML = '<div style="color:red;padding:20px">Fetch error: '+e.message+'</div>';
 _sbFetching = false;
 });
 }
