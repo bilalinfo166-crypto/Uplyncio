@@ -1591,8 +1591,11 @@ var expandHtml='<div class="card-expand" id="'+expandId+'" onclick="event.stopPr
 +'<div class="expand-grid">'
 +'<div class="eg-col">'
 +'<div class="eg-title">📋 Publisher Requirements</div>'
-+(s.req&&s.req.trim()?s.req.split(/\n|\r\n|[.,;|]+/).filter(function(r){return r.trim()&&r.trim().length>2;}).map(function(r){return '<div class="eg-item"><div class="eg-dot amber"></div>'+r.trim()+'</div>';}).join('')
-:'<div class="eg-item"><div class="eg-dot green"></div>No special requirements</div>')
++'<div class="eg-item"><div class="eg-dot amber"></div><strong>'+(s.minWords||500)+'+</strong> words — original & unique</div>'
++'<div class="eg-item"><div class="eg-dot amber"></div>Plagiarism-free, no AI-spun content</div>'
++'<div class="eg-item"><div class="eg-dot amber"></div>Max <strong>'+(s.maxL||2)+'</strong> outbound links allowed</div>'
++'<div class="eg-item"><div class="eg-dot amber"></div>Niche-relevant & well-structured</div>'
++(s.req&&s.req.trim()&&s.req.trim().length>5?'<div class="eg-item"><div class="eg-dot" style="background:#4f7cff"></div><em>'+escapeHtml(s.req.trim().substring(0,120))+'</em></div>':'')
 +'</div>'
 +'<div class="eg-col">'
 +'<div class="eg-title">✍️ Content Guidelines</div>'
