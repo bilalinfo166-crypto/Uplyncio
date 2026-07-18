@@ -3,27 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1280">
-  <meta http-equiv="refresh" content="0; url=uplyncio-full.html">
   <link rel="canonical" href="https://uplyncio.com/">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="shortcut icon" href="favicon.svg">
   <title>Uplyncio — Guest Posting & Link Building Marketplace</title>
-  <meta name="description" content="Buy guest posts from 20,000+ verified publisher sites. Filter by DA, niche, country and price.">
+  <meta name="description" content="Buy guest posts from 20,000+ verified publisher sites. Filter by DA, niche, country and price. Dofollow backlinks with 12-month guarantee.">
+  <meta name="robots" content="index, follow">
   <script>
-    var u = null;
-    try { u = JSON.parse(localStorage.getItem('uplyncio_user')||'null'); } catch(e){}
-    var li = localStorage.getItem('uplyncio_loggedIn')==='1';
-    if(u && li) {
-      window.location.replace(u.role==='publisher' ? 'publisher.html' : 'buyer.html');
-    } else {
-      window.location.replace('uplyncio-full.html');
-    }
+    // If logged in, redirect to dashboard
+    try {
+      var u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
+      var li = localStorage.getItem('uplyncio_loggedIn')==='1';
+      if(u && li) {
+        window.location.replace(u.role==='publisher' ? '/publisher' : '/buyer');
+      }
+    } catch(e){}
   </script>
 </head>
 <body>
-  <h1>Uplyncio — Guest Posting Marketplace</h1>
-  <p>Redirecting to <a href="uplyncio-full.html">Uplyncio</a>...</p>
-
-<script src="/chatbot.js" defer></script>
+  <script>
+    // Not logged in — vercel rewrite will serve uplyncio-full.html at /
+    // This file only runs if rewrite doesn't catch (shouldn't happen)
+  </script>
 </body>
 </html>

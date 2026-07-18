@@ -2,7 +2,7 @@
 <html lang="en">
 <head> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link rel="dns-prefetch" href="https://ridafwpazwqjhimecyyl.supabase.co">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="shortcut icon" href="favicon.svg"> <meta name="description" content="Uplyncio Buyer Dashboard — Browse and order guest posts from verified publishers."> <meta name="robots" content="noindex, nofollow"> <meta property="og:title" content="Buyer Dashboard — Uplyncio"> <meta property="og:description" content="Uplyncio Buyer Dashboard — Browse and order guest posts from verified publishers."> <meta property="og:image" content="https://uplyncio.com/logo.png"> <meta property="og:url" content="https://uplyncio.com"> <meta name="twitter:card" content="summary_large_image"> <meta charset="UTF-8"> <link rel="canonical" href="https://uplyncio.com/buyer.html"> <meta name="viewport" content="width=1280">
+<link rel="shortcut icon" href="favicon.svg"> <meta name="description" content="Uplyncio Buyer Dashboard — Browse and order guest posts from verified publishers."> <meta name="robots" content="noindex, nofollow"> <meta property="og:title" content="Buyer Dashboard — Uplyncio"> <meta property="og:description" content="Uplyncio Buyer Dashboard — Browse and order guest posts from verified publishers."> <meta property="og:image" content="https://uplyncio.com/logo.png"> <meta property="og:url" content="https://uplyncio.com"> <meta name="twitter:card" content="summary_large_image"> <meta charset="UTF-8"> <link rel="canonical" href="https://uplyncio.com/buyer"> <meta name="viewport" content="width=1280">
 <title>Browse Publisher Sites — Uplyncio</title>
 <script src="/supabase-client.js"></script>
 <script>
@@ -13,10 +13,10 @@ var loggedIn = localStorage.getItem('uplyncio_loggedIn');
 var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
 var uid = localStorage.getItem('uplyncio_currentUid');
 if(!loggedIn||loggedIn!=='1'||!user||!uid){
-window.location.replace('uplyncio-full.html?openBuyer=1'); return;
+window.location.replace('/?openBuyer=1'); return;
 }
 if(!user.verified&&!user.email_verified){
-window.location.replace('uplyncio-full.html?openBuyer=1'); return;
+window.location.replace('/?openBuyer=1'); return;
 }
 if(user.role==='publisher'){
 window.location.replace('publisher.html'); return;
@@ -28,7 +28,7 @@ if(user.account_status==='restricted'){
 document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#07090f;font-family:Arial"><div style="text-align:center;color:#fff"><div style="font-size:48px;margin-bottom:16px">⚠️</div><h2 style="color:#f59e0b;margin:0 0 8px">Account Restricted</h2><p style="color:rgba(255,255,255,.5);margin:0 0 16px">Your account is under review due to policy violations.</p><p style="color:rgba(255,255,255,.3);font-size:13px">Contact support@uplyncio.com to appeal</p></div></div>'; return;
 }
 }catch(e){
-window.location.replace('uplyncio-full.html?openBuyer=1');
+window.location.replace('/?openBuyer=1');
 }
 })();
 </script>
@@ -545,7 +545,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 // ── ROLE GUARD removed — modal shown on publisher.html instead ──
 </script>
 <nav class="nav">
-<a href="uplyncio-full.html" class="nav-logo" style="display:flex;align-items:center;gap:10px">
+<a href="/" class="nav-logo" style="display:flex;align-items:center;gap:10px">
 <svg width="30" height="30" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
 <rect width="64" height="64" rx="14" fill="#0f1628"/>
 <g style="animation:chainMove 2.5s ease-in-out infinite">
@@ -655,7 +655,7 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 </div>
 </aside>
 <div class="main-wrap"> <div style="padding:0 18px 0">
-<div class="bc" style="margin:10px 0 8px"><a href="uplyncio-full.html" style="color:#94a3b8;text-decoration:none;cursor:pointer">Home</a><span>&rsaquo;</span><span class="cu">Marketplace</span></div>
+<div class="bc" style="margin:10px 0 8px"><a href="/" style="color:#94a3b8;text-decoration:none;cursor:pointer">Home</a><span>&rsaquo;</span><span class="cu">Marketplace</span></div>
 <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:6px;overflow:hidden">
 <div onclick="toggleBuyerHelp()" style="padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8faff" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background='#f8faff'">
 <div style="display:flex;align-items:center;gap:10px">
@@ -2006,12 +2006,12 @@ var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
 var uid = localStorage.getItem('uplyncio_currentUid');
 // NOT logged in → redirect to login
 if(!loggedIn || loggedIn !== '1' || !user || !uid){
-window.location.replace('uplyncio-full.html?openBuyer=1');
+window.location.replace('/?openBuyer=1');
 return;
 }
 // Not verified → redirect
 if(!user.verified && !user.email_verified){
-window.location.replace('uplyncio-full.html?openBuyer=1');
+window.location.replace('/?openBuyer=1');
 return;
 }
 // Publisher trying to access buyer page
@@ -2022,7 +2022,7 @@ return;
 // All good - load buyer dashboard
 onBuyerLogin(user);
 }catch(e){
-window.location.replace('uplyncio-full.html?openBuyer=1');
+window.location.replace('/?openBuyer=1');
 }
 })();
 // ── BALANCE PAGE ──
@@ -2203,7 +2203,7 @@ closeBuyerMenu();
 localStorage.removeItem('uplyncio_loggedIn');
 localStorage.removeItem('uplyncio_currentUid');
 localStorage.removeItem('uplyncio_user');
-window.location.href='uplyncio-full.html';
+window.location.href='/';
 }
 function toggleSave(idx,btn){
 var site=filteredSites[idx]; if(!site) return;
@@ -5798,7 +5798,7 @@ localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
 </div>
 </div>
 <div id="siteFooter" style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e8f0;padding:0;display:flex;align-items:stretch;z-index:200">
-<a href="uplyncio-full.html" style="width:220px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:11px 18px;font-size:12.5px;font-weight:600;color:#64748b;text-decoration:none;border-right:1px solid #e2e8f0;background:#fff;transition:color .15s" onmouseover="this.style.color='#4f7cff'" onmouseout="this.style.color='#64748b'">
+<a href="/" style="width:220px;flex-shrink:0;display:flex;align-items:center;gap:8px;padding:11px 18px;font-size:12.5px;font-weight:600;color:#64748b;text-decoration:none;border-right:1px solid #e2e8f0;background:#fff;transition:color .15s" onmouseover="this.style.color='#4f7cff'" onmouseout="this.style.color='#64748b'">
 <span style="font-size:14px">←</span> Back to Main Site
     </a>
 <div style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:11px 24px">
@@ -5940,7 +5940,7 @@ localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
 <div style="font-size:12.5px;color:#475569;line-height:1.7">Open a <strong>new tab</strong> and sign up with a <strong>different email address</strong> to create a separate Publisher account.</div>
 </div>
 <div style="display:flex;flex-direction:column;gap:10px">
-<button onclick="window.open('uplyncio-full.html?openPublisher=1','_blank')" style="width:100%;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🌐 Create Publisher Account in New Tab</button>
+<button onclick="window.open('/?openPublisher=1','_blank')" style="width:100%;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🌐 Create Publisher Account in New Tab</button>
 <button onclick="document.getElementById('buyerSwitchModal').style.display='none'" style="width:100%;padding:11px;background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">← Back to Buyer Dashboard</button>
 </div>
 </div>
