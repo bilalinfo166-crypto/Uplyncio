@@ -2256,7 +2256,7 @@ if(s.liReq) lite.liReq = s.liReq.substring(0, 100);
 return lite;
 });
 var userData = JSON.parse(localStorage.getItem('uplyncio_data_'+uid)||'{}');
-userData.sites = lightSites;
+userData.sites = lightSites.slice(0, 500); // Cache only first 500 in localStorage, rest in Supabase
 try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData)); }catch(e){ console.warn('Storage full, trimming...'); userData.sites = lightSites.map(function(s){ delete s.notes; delete s.req; delete s.liReq; return s; }); try{ localStorage.setItem('uplyncio_data_'+uid, JSON.stringify(userData)); }catch(e2){ console.error('Cannot save sites:', e2); } }
 localStorage.setItem('uplyncio_sites_lastUpdate', Date.now().toString());
 // ── Sync registry for same-browser buyer page ──
@@ -2308,7 +2308,7 @@ site_id_local: s.id ? s.id.toString() : ''
 });
 });
 // Send in batches of 50
-var batchSize = 50;
+var batchSize = 20;
 var i = 0;
 function sendBatch(){
 if(i >= batch.length){ console.log('[Sync] All '+batch.length+' sites synced to Supabase'); return; }
@@ -2369,27 +2369,46 @@ toast('✅ '+done+' sites synced to buyer marketplace!','#16a34a');
 }
 });
 };
+// Load ALL sites from Supabase using pagination
+var _allSupabaseSites = [];
+var _loadOffset = 0;
 function loadSitesFromSupabase(){
 var uid = localStorage.getItem('uplyncio_currentUid')||'';
 if(!uid) return;
-fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=10000')
+_allSupabaseSites = [];
+_loadOffset = 0;
+_loadPage(uid);
+}
+function _loadPage(uid){
+fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=1000&offset='+_loadOffset)
 .then(function(r){ return r.json(); })
 .then(function(res){
 if(!res.success || !Array.isArray(res.sites)) return;
-if(!res.sites.length) return;
-// Build map of local sites by domain for dedup
+_allSupabaseSites = _allSupabaseSites.concat(res.sites);
+if(res.sites.length === 1000){
+// More pages exist
+_loadOffset += 1000;
+setTimeout(function(){ _loadPage(uid); }, 100);
+} else {
+// All pages loaded — merge into mySites
+_mergeSBSites(_allSupabaseSites);
+}
+}).catch(function(e){ console.warn('Load page error:', e); });
+}
+function _mergeSBSites(sbSites){
+if(!sbSites.length) return;
 var localMap = {};
-mySites.forEach(function(m){ 
+mySites.forEach(function(m){
 var d=(m.url||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
 if(d) localMap[d]=m;
 });
 var added=0;
-res.sites.forEach(function(sb){
+sbSites.forEach(function(sb){
 var d=(sb.url||sb.domain||'').replace(/https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
 if(!d) return;
 var site = {
 id: sb.site_id_local || sb.id || ('sb_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)),
-url: d, da: String(sb.da||0), dr: String(sb.dr||0), 
+url: d, da: String(sb.da||0), dr: String(sb.dr||0),
 traffic: String(sb.traffic||0),
 cat: sb.category||'General', lt: sb.link_type||'Dofollow',
 price: '$'+(sb.price||0), p1: String(sb.price||0),
@@ -2409,7 +2428,6 @@ publisherName: sb.publisher_name||'',
 role: sb.role||'Owner'
 };
 if(localMap[d]){
-// Update existing
 Object.assign(localMap[d], site);
 } else {
 mySites.push(site);
@@ -2422,7 +2440,6 @@ saveSites();
 applyFilters();
 console.log('[Supabase] Loaded '+added+' new sites, total: '+mySites.length);
 }
-}).catch(function(e){ console.warn('loadSitesFromSupabase error:', e); });
 }
 // Reload sites when UID becomes available (after login)
 function reloadSitesForUser(){

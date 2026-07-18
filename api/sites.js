@@ -26,8 +26,8 @@ export default async function handler(req, res) {
   try {
 
     if (req.method === 'GET') {
-      const { publisher_id, limit = 2000 } = req.query;
-      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}`;
+      const { publisher_id, limit = 1000, offset = 0 } = req.query;
+      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}&offset=${offset}&order=da.desc`;
       if (publisher_id) {
         url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else {
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       // ── BATCH UPSERT ──
       if (b.sites && Array.isArray(b.sites)) {
         const results = [];
-        for (const site of b.sites.slice(0, 100)) { // Max 100 per batch
+        for (const site of b.sites.slice(0, 50)) { // Max 100 per batch
           const domain = (site.url||site.domain||'').replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
           if (!domain || !site.publisher_id) continue;
           const safe = {
