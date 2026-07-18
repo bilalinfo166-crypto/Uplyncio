@@ -230,7 +230,33 @@
 <style>
 /* Ensure signup buttons are always clickable above Turnstile iframe */
 button[onclick*="doPubSignup"],button[onclick*="doBuyerSignup"]{position:relative!important;z-index:10!important}
+/* After Turnstile verifies, kill pointer events on its iframes */
+.turnstile-done iframe{pointer-events:none!important}
 </style>
+<script>
+// Poll every 500ms: if Turnstile verified, disable iframe pointer-events so button is clickable
+setInterval(function(){
+  ['pub','buyer'].forEach(function(key){
+    if(_turnstileTokens && _turnstileTokens[key]) return; // already got token
+    if(typeof turnstile==='undefined') return;
+    var wid = _turnstileWidgets && _turnstileWidgets[key];
+    if(!wid && wid !== 0) return;
+    try{
+      var resp = turnstile.getResponse(wid);
+      if(resp){
+        _turnstileTokens[key] = resp;
+        // Disable iframe pointer events
+        var cid = key==='pub'?'pubTurnstile':'buyerTurnstile';
+        var el = document.getElementById(cid);
+        if(el) el.parentElement.classList.add('turnstile-done');
+        var errEl = document.getElementById(key==='pub'?'pubCaptchaErr':'buyerCaptchaErr');
+        if(errEl) errEl.style.display='none';
+        console.log('[Turnstile Poll] Got token for:', key);
+      }
+    }catch(e){}
+  });
+}, 500);
+</script>
 </head>
 <body>
 <nav class="nav">
@@ -2367,7 +2393,7 @@ alert('Google login error. Please use Email/Password.');
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Full Name</label><input id="pubName" type="text" placeholder="Enter your name" autocomplete="name" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Email</label><input id="pubEmail" type="email" placeholder="Enter your email" autocomplete="email" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:4px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><label style="font-size:12.5px;font-weight:700;color:#374151">Password</label></div><div style="position:relative"><input id="pubPass" type="password" placeholder="Create a password" autocomplete="off" style="background:#fff;color:#1a202c;width:100%;padding:11px 40px 11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'pubPassBar','pubPassTxt')"><button type="button" onclick="togglePwd('pubPass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:11px;font-family:inherit">Show</button></div><div style="margin-top:5px;height:3px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="pubPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div><span id="pubPassTxt" style="font-size:10px;font-weight:600"></span></div>
-<div style="margin:10px 0;display:flex;justify-content:center">
+<div style="margin:10px 0;display:flex;justify-content:center;max-height:70px;overflow:hidden;contain:paint">
 <div id="pubTurnstile"></div>
 </div>
 <div id="pubCaptchaOk" style="display:none"></div>
@@ -2416,7 +2442,7 @@ alert('Google login error. Please use Email/Password.');
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Full Name</label><input id="buyerName" type="text" placeholder="Enter your name" autocomplete="name" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:12px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Email</label><input id="buyerEmail" type="email" placeholder="Enter your email" autocomplete="email" style="background:#fff;color:#1a202c;width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'"></div>
 <div style="margin-bottom:4px"><label style="display:block;font-size:12.5px;font-weight:700;color:#374151;margin-bottom:4px">Password</label><div style="position:relative"><input id="buyerPass" type="password" placeholder="Create a password" autocomplete="off" style="background:#fff;color:#1a202c;width:100%;padding:11px 40px 11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'" oninput="showPassStrength(this.value,'buyerPassBar','buyerPassTxt')"><button type="button" onclick="togglePwd('buyerPass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:11px;font-family:inherit">Show</button></div><div style="margin-top:5px;height:3px;background:#e5e7eb;border-radius:2px;overflow:hidden"><div id="buyerPassBar" style="height:100%;width:0%;border-radius:2px;transition:all .3s"></div></div><span id="buyerPassTxt" style="font-size:10px;font-weight:600"></span></div>
-<div style="margin:10px 0;display:flex;justify-content:center">
+<div style="margin:10px 0;display:flex;justify-content:center;max-height:70px;overflow:hidden;contain:paint">
 <div id="buyerTurnstile"></div>
 </div>
 <div id="buyerCaptchaOk" style="display:none"></div>
