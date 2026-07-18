@@ -7712,5 +7712,34 @@ go(1);
 }, speed);
 }
 </script>
+<script>
+function deleteAllSites(){
+if(!mySites.length){ showToast('No sites to delete'); return; }
+var count = mySites.length;
+if(!confirm('⚠️ DELETE ALL '+count+' SITES?\n\nThis will permanently remove every site from your dashboard.\nThis cannot be undone!')) return;
+if(!confirm('Are you absolutely sure? Type OK to confirm.')) return;
+var uid = localStorage.getItem('uplyncio_currentUid')||'';
+// Delete from Supabase
+mySites.forEach(function(s){
+var domain = (s.url||'').replace(/https?:\/\//,'').replace(/\/.*/,'').toLowerCase();
+if(domain && uid){
+fetch('/api/sites?domain='+encodeURIComponent(domain)+'&publisher_id='+encodeURIComponent(uid),{method:'DELETE'}).catch(function(){});
+}
+});
+mySites = [];
+saveSites();
+applyFilters();
+updateTabCounts();
+var countEl = document.getElementById('siteCount');
+if(countEl) countEl.textContent = '0 sites';
+var totalEl = document.getElementById('totalSiteCount');
+if(totalEl) totalEl.textContent = '0';
+var emptyEl = document.getElementById('emptyState');
+var listEl = document.getElementById('sitesList');
+if(emptyEl) emptyEl.style.display = 'block';
+if(listEl) listEl.style.display = 'none';
+showToast('🗑️ All '+count+' sites deleted!');
+}
+</script>
 </body>
 </html>
