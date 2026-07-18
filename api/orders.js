@@ -11,6 +11,16 @@ const KEY = process.env.SUPABASE_SECRET_KEY;
 function h() {
   return { 'apikey': KEY, 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 }
+// Store in-app notification in Supabase
+async function notify(userId, title, message, type='info') {
+  if(!SB || !KEY || !userId) return;
+  try {
+    await fetch(`${SB}/rest/v1/notifications`, {
+      method: 'POST', headers: h(),
+      body: JSON.stringify({ user_id: userId, title, message, type, read: false, created_at: new Date().toISOString() })
+    });
+  } catch(e) { console.warn('Notification insert error:', e.message); }
+}
 async function sb(path, method='GET', body=null) {
   const r = await fetch(`${SB}/rest/v1/${path}`, { method, headers: h(), body: body ? JSON.stringify(body) : null });
   const d = await r.json().catch(()=>({}));
@@ -95,10 +105,13 @@ export default async function handler(req, res) {
           await sb('users?id=eq.'+b.buyer_id,'PATCH',{ balance:Math.max(0,parseFloat(u.balance||0)-order.price), reserved:parseFloat(u.reserved||0)+order.price });
         }
       }
-      // Emails
+      // Emails + In-app notifications
       sendBuyerOrderPlaced({ to:b.buyer_email, name:b.buyer_name, orderId:order.order_id, siteUrl:order.site_url, siteDA:order.site_da, siteDR:order.site_dr, price:order.price, anchorText:order.anchor_text, targetUrl:order.target_url, deadline:fmt(deadline) }).catch(()=>{});
       if (b.publisher_email) sendPublisherNewOrder({ to:b.publisher_email, name:b.publisher_name, orderId:order.order_id, siteUrl:order.site_url, buyerName:b.buyer_name, price:order.publisher_price, anchorText:order.anchor_text, targetUrl:order.target_url, deadline:fmt(deadline), requirements:order.requirements }).catch(()=>{});
       sendBuyerOrderInvoice({ to:b.buyer_email, name:b.buyer_name, invoiceNum:order.invoice_number, date:fmt(new Date()), orderId:order.order_id, siteUrl:order.site_url, siteDA:order.site_da, siteDR:order.site_dr, serviceType:order.service_type, anchorText:order.anchor_text, targetUrl:order.target_url, subtotal:order.price, platformFee:0, total:order.price }).catch(()=>{});
+      // In-app notifications
+      notify(b.buyer_id, 'Order Placed', 'Your order '+order.order_id+' for '+order.site_url+' has been placed ($'+order.price+')', 'order').catch(()=>{});
+      if(order.publisher_id) notify(order.publisher_id, 'New Order', 'New order '+order.order_id+' on '+order.site_url+' from '+b.buyer_name, 'order').catch(()=>{});
       return res.status(200).json({ success:true, order:Array.isArray(data)?data[0]:data });
     }
 
@@ -110,6 +123,7 @@ export default async function handler(req, res) {
       if (!o) return apiError(res,404,'Order not found');
       await sb('orders?order_id=eq.'+order_id,'PATCH',{ status:'Accepted', accepted_at:new Date().toISOString(), updated_at:new Date().toISOString() });
       sendBuyerOrderAccepted({ to:o.buyer_email, name:o.buyer_name, orderId:order_id, siteUrl:o.site_url, publisherName:o.publisher_name, deadline:fmt(o.deadline) }).catch(()=>{});
+      notify(o.buyer_id, 'Order Accepted', o.publisher_name+' accepted your order '+order_id+' for '+o.site_url, 'success').catch(()=>{});
       return res.status(200).json({ success:true });
     }
 
@@ -130,6 +144,7 @@ export default async function handler(req, res) {
         }
       }
       sendBuyerOrderRejected({ to:o.buyer_email, name:o.buyer_name, orderId:order_id, siteUrl:o.site_url, reason:b.reason||'Publisher rejected', price:o.price }).catch(()=>{});
+      notify(o.buyer_id, "Order Rejected", "Your order "+order_id+" for "+o.site_url+" was rejected. $"+o.price+" refunded.", "warning").catch(()=>{});
       return res.status(200).json({ success:true });
     }
 
@@ -143,6 +158,7 @@ export default async function handler(req, res) {
       if (!o) return apiError(res,404,'Order not found');
       await sb('orders?order_id=eq.'+order_id,'PATCH',{ status:'Delivered', live_url:b.live_url, delivery_note:b.note||'', delivered_at:new Date().toISOString(), updated_at:new Date().toISOString() });
       sendBuyerOrderDelivered({ to:o.buyer_email, name:o.buyer_name, orderId:order_id, siteUrl:o.site_url, liveUrl:b.live_url, publisherName:o.publisher_name }).catch(()=>{});
+      notify(o.buyer_id, "Order Delivered", o.publisher_name+" delivered order "+order_id+" for "+o.site_url+". Review and approve it.", "success").catch(()=>{});
       return res.status(200).json({ success:true });
     }
 
@@ -168,6 +184,7 @@ export default async function handler(req, res) {
         if (Array.isArray(br.data)&&br.data[0]) await sb('users?id=eq.'+o.buyer_id,'PATCH',{ reserved:Math.max(0,parseFloat(br.data[0].reserved||0)-o.price) });
       }
       sendPublisherOrderComplete({ to:o.publisher_email, name:o.publisher_name, orderId:order_id, siteUrl:o.site_url, price:o.publisher_price||o.price, liveUrl:o.live_url }).catch(()=>{});
+      notify(o.publisher_id, "Payment Released", "Order "+order_id+" completed! $"+(o.publisher_price||o.price)+" added to your balance.", "success").catch(()=>{});
       // Save review
       if (b.rating) await sb('reviews','POST',{ order_id, buyer_id:o.buyer_id, publisher_id:o.publisher_id, site_url:o.site_url, rating:parseInt(b.rating)||5, review:b.review||'', created_at:new Date().toISOString() }).catch(()=>{});
       return res.status(200).json({ success:true });
@@ -205,6 +222,7 @@ export default async function handler(req, res) {
         }
       }
       sendBuyerOrderCancelled({ to:o.buyer_email, name:o.buyer_name, orderId:order_id, siteUrl:o.site_url, reason:b.reason, price:o.price }).catch(()=>{});
+      notify(o.buyer_id, "Order Cancelled", "Order "+order_id+" for "+o.site_url+" has been cancelled. $"+o.price+" refunded.", "warning").catch(()=>{});
       return res.status(200).json({ success:true });
     }
 

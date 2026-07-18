@@ -4,6 +4,19 @@ import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './ema
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const RESEND_KEY = process.env.RESEND_API_KEY;
 
+// In-app notification helper
+async function notifyUser(userId, title, message, type='info') {
+  if(!SUPABASE_URL || !userId) return;
+  const key = process.env.SUPABASE_SECRET_KEY;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
+      method: 'POST',
+      headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, title, message, type, read: false, created_at: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
 function sbHeaders() {
   const key = process.env.SUPABASE_SECRET_KEY;
   return {
@@ -194,6 +207,9 @@ export default async function handler(req, res) {
 
       const user = Array.isArray(result.data) ? result.data[0] : result.data;
 
+      // In-app welcome notification
+      if(user && user.id) notifyUser(user.id, 'Welcome to Uplyncio!', 'Your account has been created. Please verify your email to get started.', 'info').catch(()=>{});
+
       // Send OTP verification email only (welcome email sent after verify)
       if (!isTeam) {
         const emailResult = await sendVerifyEmail({ to: emailLow, name, code }).catch(e => ({ ok: false, error: e.message }));
@@ -233,6 +249,7 @@ export default async function handler(req, res) {
       const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
       sendWelcomeEmail({ to: emailLow, name: user.name, role: user.role }).catch(e => console.log('Welcome email err:', e.message));
       sendEmailVerifiedEmail({ to: emailLow, name: user.name, role: user.role, email: emailLow, verifiedAt: now }).catch(e => console.log('Verified email err:', e.message));
+      notifyUser(user.id, 'Email Verified', 'Your email has been verified successfully. Welcome to Uplyncio!', 'success').catch(()=>{});
 
       return res.status(200).json({
         success: true,

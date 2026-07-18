@@ -85,6 +85,7 @@ export default async function handler(req, res) {
           } catch(e) { results.push({domain, action:'error', error:e.message}); }
         }
         return res.status(200).json({ success: true, batch: true, count: results.length, results });
+        // Note: site add notifications handled client-side since publisher is logged in
       }
 
       // ── SINGLE UPSERT ──

@@ -2529,10 +2529,11 @@ localStorage.setItem('uplyncio_content_orders', JSON.stringify(orders));
 try{
 var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
 var buyerEmail = user ? user.email : '';
-fetch('/api/notify-order', {
+fetch('/api/inquiry', {
 method:'POST',
 headers:{'Content-Type':'application/json'},
 body: JSON.stringify({
+type:'content_order',
 orderId:orderId, category:_cpType, topic:topic,
 keywords:kw, brief:brief, goal:goal, audience:audience,
 wordCount:wc, language:lang, productUrl:productUrl,
