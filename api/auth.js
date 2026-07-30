@@ -207,12 +207,10 @@ export default async function handler(req, res) {
       // In-app welcome notification
       if(user && user.id) notifyUser(user.id, 'Welcome to Uplyncio!', 'Your account has been created. Please verify your email to get started.', 'info').catch(()=>{});
 
-      // Send OTP verification + Welcome email on signup
+      // Send ONLY OTP verification email at signup (welcome email sent after verify)
       if (!isTeam) {
         const emailResult = await sendVerifyEmail({ to: emailLow, name, code }).catch(e => ({ ok: false, error: e.message }));
         console.log('OTP email result:', JSON.stringify(emailResult));
-        // Also send welcome email immediately (don't wait for verify)
-        sendWelcomeEmail({ to: emailLow, name, role }).catch(e => console.log('Welcome email at signup err:', e.message));
         return res.status(200).json({
           success: true,
           emailSent: emailResult.ok,

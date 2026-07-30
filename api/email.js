@@ -225,7 +225,7 @@ export async function sendVerifyEmail({ to, name, code }) {
       '⏰ This code expires in <strong>5 minutes</strong>. If you did not create an Uplyncio account, please ignore this email.') +
     sign() + footer()
   );
-  return send(to, `Your Uplyncio verification code: ${code}`, html);
+  return send(to, 'Verify your Uplyncio account — OTP inside', html);
 }
 
 // ══════════════════════════════════════════
