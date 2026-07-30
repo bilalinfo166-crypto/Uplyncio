@@ -601,11 +601,35 @@ av.textContent = initials.toUpperCase();
 </select>
 </div>
 </div>
-<div style="display:flex;justify-content:flex-end">
-<button onclick="pubApplyFilters()" style="display:flex;align-items:center;gap:8px;padding:10px 28px;background:linear-gradient(135deg,var(--ac),#6366f1);color:#fff;border:none;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,124,255,.3);transition:all .2s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
-              🔍 Apply Filters
-            </button>
+<!-- Advanced Filters (collapsed) -->
+<div id="pubAdvFilters" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)">
+<div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:8px">Advanced filters</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+<div>
+<div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Ahrefs DR</div>
+<div style="display:flex;gap:4px"><input id="drMin" type="number" placeholder="0" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box"><input id="drMax" type="number" placeholder="100" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box"></div>
 </div>
+<div>
+<div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Traffic</div>
+<div style="display:flex;gap:4px"><input id="trafficMin" type="number" placeholder="From" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box"><input id="trafficMax" type="number" placeholder="Any" oninput="clearTimeout(window._pubFT);window._pubFT=setTimeout(applyFilters,30)" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;color:var(--tx);box-sizing:border-box"></div>
+</div>
+<div>
+<div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Country</div>
+<select id="countryFilter" onchange="applyFilters()" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
+<option value="">All countries</option><option>USA</option><option>UK</option><option>Canada</option><option>Australia</option><option>India</option><option>Germany</option><option>France</option><option>Pakistan</option><option>Global</option>
+</select>
+</div>
+<div>
+<div style="font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">Language</div>
+<select id="langFilter" onchange="applyFilters()" style="width:100%;background:var(--wh);border:1.5px solid var(--br);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;outline:none;color:var(--t2);cursor:pointer;box-sizing:border-box">
+<option value="">All languages</option><option>English</option><option>Spanish</option><option>French</option><option>German</option><option>Arabic</option><option>Hindi</option><option>Urdu</option>
+</select>
+</div>
+</div>
+</div>
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+<button onclick="var b=document.getElementById('pubAdvFilters');if(b.style.display==='none'){b.style.display='block';this.textContent='Less filters ▲'}else{b.style.display='none';this.textContent='More filters ▼'}" style="padding:8px 16px;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">More filters ▼</button>
+<button onclick="clearFilters()" style="font-size:12px;font-weight:600;color:#ef4444;background:none;border:none;cursor:pointer;font-family:inherit">✕ Clear all</button>
 </div>
 <div style="padding:10px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between">
 <div id="siteCount" style="font-size:12px;color:var(--mu)"></div>
@@ -2664,6 +2688,13 @@ var pMin=parseInt((document.getElementById('priceMin')||{value:''}).value)||0;
 var pMax=parseInt((document.getElementById('priceMax')||{value:''}).value)||999999;
 var daMin=parseInt((document.getElementById('daMin')||{value:''}).value)||0;
 var daMax=parseInt((document.getElementById('daMax')||{value:''}).value)||100;
+// Advanced filters
+var drMin=parseInt((document.getElementById('drMin')||{value:''}).value)||0;
+var drMax=parseInt((document.getElementById('drMax')||{value:''}).value)||100;
+var tMin=parseInt((document.getElementById('trafficMin')||{value:''}).value)||0;
+var tMax=parseInt((document.getElementById('trafficMax')||{value:''}).value)||999999999;
+var country=(document.getElementById('countryFilter')||{value:''}).value.toLowerCase();
+var lang=(document.getElementById('langFilter')||{value:''}).value.toLowerCase();
 var filtered = mySites.filter(function(s){
 if(q && !s.url.toLowerCase().includes(q)) return false;
 if(lt && s.lt !== lt) return false;
@@ -2672,6 +2703,12 @@ var sp = parseInt(String(s.price||'0').replace('$',''))||0;
 if(sp < pMin || sp > pMax) return false;
 var da = parseInt(s.da)||0;
 if(da < daMin || da > daMax) return false;
+var dr = parseInt(s.dr)||0;
+if(dr < drMin || dr > drMax) return false;
+var traffic = parseInt(s.traffic)||0;
+if(traffic < tMin || traffic > tMax) return false;
+if(country && (s.country||'').toLowerCase().indexOf(country)<0) return false;
+if(lang && (s.lang||s.language||'').toLowerCase().indexOf(lang)<0) return false;
 if(currentTab==='live' && s.status!=='Live') return false;
 if(currentTab==='pending' && s.status!=='pending') return false;
 if(currentTab==='hold' && s.status!=='hold') return false;
@@ -2683,7 +2720,7 @@ return true;
 renderSites(filtered);
 }
 function clearFilters(){
-['siteSearch','ltFilter','catFilter','priceMin','priceMax','daMin','daMax'].forEach(function(id){
+['siteSearch','ltFilter','catFilter','priceMin','priceMax','daMin','daMax','drMin','drMax','trafficMin','trafficMax','countryFilter','langFilter'].forEach(function(id){
 var el=document.getElementById(id);
 if(el) el.value='';
 });
