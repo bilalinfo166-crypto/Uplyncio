@@ -505,7 +505,6 @@ av.textContent = initials.toUpperCase();
 <div class="gh">
 <p>Want to monetize your site while placing or creating unique and relevant content?</p>
 <button class="gh-btn" onclick="go(2)">Add or update websites</button>
-<button onclick="downloadTemplate()" style="background:#fff;color:#4f7cff;border:2px solid #4f7cff;border-radius:100px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📥 Download CSV Template</button>
 </div>
 <div id="sitesTable">
 <div class="empty" id="emptyState">
@@ -698,6 +697,16 @@ av.textContent = initials.toUpperCase();
 
 <!-- Tab 2: Upload via file -->
 <div id="t2" style="display:none">
+
+<!-- Download Template -->
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 18px;background:#f0f4ff;border:1px solid #c7d7ff;border-radius:12px">
+<span style="font-size:22px">📥</span>
+<div style="flex:1">
+<div style="font-size:13.5px;font-weight:700;color:#0f172a">Download our CSV template first</div>
+<div style="font-size:12px;color:#64748b;margin-top:2px">Fill in your sites data using this template, then upload the file below</div>
+</div>
+<button onclick="downloadTemplate()" style="padding:9px 20px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📥 Download Template</button>
+</div>
 
 <!-- Recently uploaded files -->
 <div id="recentUploadsWrap" style="margin-bottom:24px">
