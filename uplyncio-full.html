@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <script>
-// Redirect logged-in users to their dashboard
+// Redirect logged-in users to their dashboard (skip if ?home or coming from dashboard)
 try {
   var _u = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
   var _li = localStorage.getItem('uplyncio_loggedIn')==='1';
-  if(_u && _li) {
+  var _skip = window.location.search.indexOf('home')>=0 || document.referrer.indexOf('/publisher')>=0 || document.referrer.indexOf('/buyer')>=0;
+  if(_u && _li && !_skip) {
     window.location.replace(_u.role==='publisher' ? '/publisher' : '/buyer');
   }
 } catch(e){}
