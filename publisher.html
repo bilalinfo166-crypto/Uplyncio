@@ -705,7 +705,7 @@ av.textContent = initials.toUpperCase();
 <div style="font-size:13.5px;font-weight:700;color:#0f172a">Download our CSV template first</div>
 <div style="font-size:12px;color:#64748b;margin-top:2px">Fill in your sites data using this template, then upload the file below</div>
 </div>
-<button onclick="downloadTemplate()" style="padding:9px 20px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📥 Download Template</button>
+<button onclick="downloadTemplate()" style="padding:9px 20px;background:#4f7cff;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📊 Open Template</button>
 </div>
 
 <!-- Recently uploaded files -->
@@ -5793,14 +5793,7 @@ if(shareUrl) window.open(shareUrl,'_blank');
 }
 // Initialization handled by DOMContentLoaded above
 function downloadTemplate(){
-  // Save as CSV template
-  var csv = 'URL,DA,DR,Traffic (monthly),Category,Link Type (Dofollow/Nofollow/Sponsored),GP Price ($),Link Insertion Price ($),Write & Publish Price ($),Language,Country,TAT (days),Requirements\nexample.com,35,30,50000,Tech,Dofollow,30,0,50,English,USA,7,Min 500 words\n';
-  var blob = new Blob([csv], {type:'text/csv'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'uplyncio_sites_template.csv';
-  a.click();
-  toast('📥 Template downloaded!', '#16a34a');
+  window.open('https://docs.google.com/spreadsheets/d/1f06c5Mxfq9UNB1LH_Z6BmTsQOHV2GuZlTCDFZoDvZsQ/edit?usp=sharing', '_blank');
 }
 
 // ── RECENT UPLOADS SYSTEM ──
