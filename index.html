@@ -3131,13 +3131,22 @@ err.textContent='Connection error. Try again.';err.style.color='#ef4444';
 });
 }
 function verifyForgotCode(){
+var email=document.getElementById('forgotEmail').value.trim();
 var code=document.getElementById('forgotCode').value.trim();
 var err=document.getElementById('forgotError2');
 if(!code||code.length!==6){err.textContent='Please enter the 6-digit code';err.style.color='#ef4444';return;}
-err.textContent='';
+err.textContent='Verifying...';err.style.color='#64748b';
+fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify_reset_code',email:email,code:code})})
+.then(function(r){return r.json();})
+.then(function(res){
+if(res.success){
 document.getElementById('forgotStep2').style.display='none';
 document.getElementById('forgotStep3').style.display='block';
 setTimeout(function(){ document.getElementById('forgotNewPass').focus(); },100);
+} else {
+err.textContent=res.error||'Invalid code. Please try again.';err.style.color='#ef4444';
+}
+}).catch(function(){err.textContent='Connection error. Try again.';err.style.color='#ef4444';});
 }
 function resetForgotPassword(){
 var email=document.getElementById('forgotEmail').value.trim();

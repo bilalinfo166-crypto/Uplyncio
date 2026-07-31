@@ -417,6 +417,43 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // ── VERIFY RESET CODE (check only, don't reset yet) ──
+    if (action === 'verify_reset_code') {
+      const { email, code } = body;
+      if (!email || !code) return res.status(400).json({ error: 'Missing email or code' });
+      const emailLow = email.toLowerCase().trim();
+      const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
+      if (!users?.length) return res.status(400).json({ error: 'Invalid code' });
+      const user = users[0];
+      const stored = user.verify_code || '';
+      if (!stored.startsWith('RESET:')) return res.status(400).json({ error: 'No reset code found. Please request a new one.' });
+      const parts = stored.split(':');
+      const savedCode = parts[1];
+      const expiresAt = parts[2];
+      if (new Date(expiresAt) < new Date()) return res.status(400).json({ error: 'Code expired. Please request a new one.' });
+      if (savedCode !== code) return res.status(400).json({ error: 'Incorrect code. Please try again.' });
+      return res.status(200).json({ success: true, message: 'Code verified' });
+    }
+
+    // ── RESET PASSWORD (after code verified) ──
+    if (action === 'reset_password') {
+      const { email, code, newPassword } = body;
+      if (!email || !code || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+      if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      const emailLow = email.toLowerCase().trim();
+      const users = await sbGet('users', `email=eq.${encodeURIComponent(emailLow)}`);
+      if (!users?.length) return res.status(400).json({ error: 'User not found' });
+      const user = users[0];
+      const stored = user.verify_code || '';
+      if (!stored.startsWith('RESET:')) return res.status(400).json({ error: 'No reset code found' });
+      const parts = stored.split(':');
+      if (parts[1] !== code) return res.status(400).json({ error: 'Invalid code' });
+      if (new Date(parts[2]) < new Date()) return res.status(400).json({ error: 'Code expired' });
+      const newHash = await hashPass(newPassword);
+      await sbUpdate('users', `id=eq.${user.id}`, { password_hash: newHash, verify_code: null });
+      return res.status(200).json({ success: true, message: 'Password reset successful' });
+    }
+
     // ── SEND MESSAGE NOTIFICATION ──
     if (action === 'send_message_notif') {
       const { to, name, from: fromName, role, orderId, siteUrl } = body;
