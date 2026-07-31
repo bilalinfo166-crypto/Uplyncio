@@ -5712,6 +5712,7 @@ if(s.textContent.trim().includes(text)) s.classList.add('on');
 });
 }
 function showReferral(){
+console.log('[Uplyncio] showReferral called');
 var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
 saveState("referral");
 hideAllPages();
@@ -6116,6 +6117,7 @@ rejected: {label:'Rejected', bg:'#fee2e2',color:'#ef4444',icon:'❌'},
 archived: {label:'Archived', bg:'#f1f5f9',color:'#64748b',icon:'📦'},
 };
 async function showOrders(){
+console.log('[Uplyncio] showOrders called');
 var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
 saveState("orders");
 hideAllPages();
@@ -6199,10 +6201,12 @@ document.querySelector('.si').classList.add('on');
 renderSites();
 }
 function showTrending(){
+console.log('[Uplyncio] showTrending called');
 var tk=document.getElementById('verifiedTicker'); if(tk) tk.style.display='none';
 saveState("trending");
 hideAllPages();
 var tp=document.getElementById('trendingPage');
+console.log('[Uplyncio] trendingPage element:', tp);
 if(tp) tp.style.display='block';
 setActiveSidebar('Trending');
 renderTrending('all');
