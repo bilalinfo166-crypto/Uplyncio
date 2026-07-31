@@ -3458,85 +3458,104 @@ showStatus('success','✅ Found '+parsedSites.length+' sites'+(errors?' ('+error
 showPreview();
 }
 function parseCSV(text, fname){
+// Proper CSV parser that handles quoted fields with commas
+function csvSplit(line){
+var result=[], current='', inQuotes=false;
+for(var c=0;c<line.length;c++){
+var ch=line[c];
+if(ch==='"'){ inQuotes=!inQuotes; continue; }
+if(ch===','&&!inQuotes){ result.push(current.trim()); current=''; continue; }
+current+=ch;
+}
+result.push(current.trim());
+return result;
+}
 var lines=text.trim().split(/\r?\n/);
 if(lines.length<2){showStatus('error','❌ File is empty or has no data rows');return;}
-var headers=lines[0].split(',').map(function(h){
-return h.trim().toLowerCase()
-.replace(/['"]/g,'') // remove quotes
-.replace(/\s+/g,' ') // normalize spaces
-.trim();
+var headers=csvSplit(lines[0]).map(function(h){
+return h.trim().replace(/['"]/g,'').trim();
 });
+console.log('[CSV] Headers found:', headers);
 function col(names){
 for(var i=0;i<names.length;i++){
-// exact match
-var idx=headers.indexOf(names[i].toLowerCase().trim());
-if(idx>-1) return idx;
-// partial match
 for(var j=0;j<headers.length;j++){
-if(headers[j].indexOf(names[i].toLowerCase().trim())>-1 || names[i].toLowerCase().trim().indexOf(headers[j])>-1){
-return j;
+if(headers[j].toLowerCase()===names[i].toLowerCase()) return j;
 }
+}
+// Partial match fallback
+for(var i=0;i<names.length;i++){
+for(var j=0;j<headers.length;j++){
+if(headers[j].toLowerCase().indexOf(names[i].toLowerCase())>-1) return j;
 }
 }
 return -1;
 }
-var urlIdx=col(['website url','website_url','url','site url','site_url','website','domain','url*']);
-var daIdx =col(['da','da (domain authority)','domain authority','domain_authority','moz da','moz_da']);
-var drIdx =col(['dr','dr (domain rating)','domain rating','domain_rating','ahrefs dr','ahrefs_dr']);
-var trIdx =col(['traffic','monthly traffic','monthly_traffic','visitors','monthly organic traffic']);
-var catIdx=col(['category','categories','niche','topic']);
-var ltIdx =col(['link type (df/nf)','link type','link_type','linktype','dofollow','links']);
-var prIdx =col(['guest post price ($)','guest post price','guest_post_price','price','cost','rate','amount']);
-var wpIdx =col(['write & publish price ($)','write and publish price','write & publish price','writing price','write_publish_price']);
-var spIdx =col(['sample post url','sample post','sample_post','example post','sample article']);
-var liAccIdx=col(['link insertion accepted (yes/no)','link insertion accepted','link_insertion_accepted','link insertion','li accepted','li_accepted']);
-var liPrIdx =col(['link insertion price ($)','link insertion price','link_insertion_price','li price','li_price']);
-var liReqIdx=col(['link insertion requirements','link_insertion_requirements','li requirements','li_requirements']);
-var langIdx=col(['language','lang']);
-var cntIdx =col(['country','location']);
-var mlIdx =col(['max links per article','max links','max_links','maxlinks','links per article','links_per_article']);
-var reqIdx =col(['guest post requirements','requirements','notes','special_requirements','guest_post_requirements']);
-if(urlIdx===-1){showStatus('error','❌ Could not find "website_url" column. Check your sheet format.');return;}
+var urlIdx=col(['Url','URL','Website URL','website_url','Domain','site url']);
+var daIdx =col(['DA','da','Domain Authority']);
+var drIdx =col(['DR','dr','Domain Rating']);
+var trIdx =col(['Traffic (monthly)','Traffic','Monthly Traffic','traffic']);
+var ltIdx =col(['Link Type (Dofollow/Nofollow/Sponsored)','Link Type (DF/NF)','Link Type','link type']);
+var mlIdx =col(['How many links are allow','How many links','Max Links Per Article','Max Links','max links']);
+var prIdx =col(['GP Price ($)','GP Price','Guest Post Price ($)','Guest Post Price','Price','price']);
+var wpIdx =col(['Write & Publish Price ($)','Write & Publish Price','writing price']);
+var liPrIdx=col(['Link Insertion Price ($)','Link Insertion Price','LI Price','li price']);
+var spIdx =col(['Sample post','Sample Post','Sample Post URL','sample post']);
+var tatIdx=col(['TAT (days)','TAT','tat','Turnaround']);
+var reqIdx=col(['Requirements','requirements','Guest Post Requirements','notes']);
+var catIdx=col(['Category','category','Niche','niche']);
+var langIdx=col(['Language','lang']);
+var cntIdx=col(['Country','location']);
+if(urlIdx===-1){showStatus('error','❌ Could not find "Url" column. Check your sheet format.');return;}
+console.log('[CSV] Column mapping:', {url:urlIdx,da:daIdx,dr:drIdx,tr:trIdx,lt:ltIdx,ml:mlIdx,pr:prIdx,wp:wpIdx,li:liPrIdx,sp:spIdx,tat:tatIdx,req:reqIdx});
 parsedSites=[];
 var errors=0;
 for(var i=1;i<lines.length;i++){
-var row=lines[i].split(',');
+var row=csvSplit(lines[i]);
 if(!row[urlIdx]||!row[urlIdx].trim()){errors++;continue;}
-var url=row[urlIdx].trim().replace(/https?:\/\//,'').replace(/\/.*$/,'');
+var url=row[urlIdx].trim().replace(/https?:\/\//,'').replace(/\/.*$/,'').replace(/['"]/g,'');
 if(!url){errors++;continue;}
-// AUTO DETECT from URL
 var detected=autoDetectInfo(url);
-// Sheet values override auto-detect only if provided
-var finalCat =(catIdx>-1&&row[catIdx]&&row[catIdx].trim()) ? row[catIdx].trim() : detected.cats.join(', ');
+var finalCat=(catIdx>-1&&row[catIdx]&&row[catIdx].trim()) ? row[catIdx].trim() : detected.cats.join(', ');
 var finalLang=(langIdx>-1&&row[langIdx]&&row[langIdx].trim()) ? row[langIdx].trim() : detected.lang;
 var finalCnt =(cntIdx>-1&&row[cntIdx]&&row[cntIdx].trim()) ? row[cntIdx].trim() : detected.country;
-var priceVal=prIdx>-1?(row[prIdx]||'').trim().replace('$',''):'0';
-var liAcc = liAccIdx>-1?(row[liAccIdx]||'').trim().toLowerCase():'';
-var liAccepted = (liAcc==='yes'||liAcc==='true'||liAcc==='1') ? 'Yes' : (liAcc==='no'||liAcc==='false'||liAcc==='0') ? 'No' : 'Yes';
-var liPrice = liPrIdx>-1?(row[liPrIdx]||'').trim().replace('$',''):'';
-var liReq = liReqIdx>-1?(row[liReqIdx]||'').trim():'';
-var wpPrice = wpIdx>-1?(row[wpIdx]||'').trim().replace('$',''):'';
-var samplePost = spIdx>-1?(row[spIdx]||'').trim():'';
+function cleanN(v){ return parseFloat(String(v||'0').replace(/[^0-9.]/g,''))||0; }
+function cleanS(v){ return String(v||'').replace(/['"]/g,'').trim(); }
+var gpPrice = prIdx>-1 ? Math.round(cleanN(row[prIdx])) : 0;
+var wpPrice = wpIdx>-1 ? Math.round(cleanN(row[wpIdx])) : 0;
+var liPrice = liPrIdx>-1 ? Math.round(cleanN(row[liPrIdx])) : 0;
+var liAccepted = liPrice > 0 ? 'Yes' : 'No';
+var spVal = spIdx>-1 ? cleanS(row[spIdx]) : '';
+var tatVal = tatIdx>-1 ? (parseInt(String(row[tatIdx]||'7').replace(/[^0-9]/g,''))||7) : 7;
+var reqVal = reqIdx>-1 ? cleanS(row[reqIdx]) : '';
 parsedSites.push({
 id:Date.now()+i,
 url:url,
-da: daIdx>-1?(row[daIdx]||'').trim():'—',
-dr: drIdx>-1?(row[drIdx]||'').trim():'—',
-traffic:trIdx>-1?(row[trIdx]||'').trim():'—',
+da: daIdx>-1 ? String(Math.round(cleanN(row[daIdx]))) : '0',
+dr: drIdx>-1 ? String(Math.round(cleanN(row[drIdx]))) : '0',
+traffic: trIdx>-1 ? String(Math.round(cleanN(row[trIdx]))) : '0',
 cat: finalCat,
-lt: ltIdx>-1?(row[ltIdx]||'Dofollow').trim():'Dofollow',
-price:'$'+(priceVal||'0'),
-p1:priceVal,
-p2:wpPrice,
-p3:liPrice,
-liAccepted:liAccepted,
-liPrice:liPrice,
-liReq:liReq,
-samplePost:samplePost,
-lang:finalLang, country:finalCnt,
-maxLinks:mlIdx>-1?(row[mlIdx]||'No limit').trim():'No limit',
-notes:reqIdx>-1?(row[reqIdx]||'').trim():'',
-status:'Live'
+lt: ltIdx>-1 ? cleanS(row[ltIdx])||'Dofollow' : 'Dofollow',
+price: gpPrice,
+wpPrice: wpPrice,
+p1: String(gpPrice),
+p2: String(wpPrice),
+p3: liPrice ? String(liPrice) : '',
+liAccepted: liAccepted,
+liPrice: liPrice ? String(liPrice) : '',
+liOk: liAccepted==='Yes',
+liP: liPrice,
+liReq: '',
+samplePost: spVal,
+tat: String(tatVal),
+lang: finalLang, country: finalCnt,
+maxLinks: mlIdx>-1 ? cleanS(row[mlIdx])||'No limit' : 'No limit',
+notes: reqVal,
+requirements: reqVal,
+req: reqVal,
+guestPostPrice: String(gpPrice),
+writePublishPrice: String(wpPrice),
+wordCount: reqVal.match(/(\d+)\s*word/i) ? reqVal.match(/(\d+)\s*word/i)[1] : '500',
+status: 'pending'
 });
 }
 if(parsedSites.length===0){showStatus('error','❌ No valid sites found in the file');return;}
