@@ -2358,8 +2358,14 @@ var i = 0;
 function sendBatch(){
 if(i >= batch.length){ 
 console.log('[Sync] All '+batch.length+' sites synced to Supabase');
-// ── START MODERATION PROCESS ──
-startSiteModeration(actualUid, batch.length);
+// ── START MODERATION PROCESS (only for non-admin publishers) ──
+var userEmail = (JSON.parse(localStorage.getItem('uplyncio_user')||'{}')).email||'';
+if(userEmail.toLowerCase() !== 'info@uplyncio.com'){
+  startSiteModeration(actualUid, batch.length);
+} else {
+  console.log('[Sync] Admin account — sites added directly as Live, no moderation needed');
+  if(typeof renderSites === 'function'){ mySites = loadSites(); renderSites(); }
+}
 return; 
 }
 var chunk = batch.slice(i, i+batchSize);

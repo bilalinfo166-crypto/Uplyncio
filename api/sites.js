@@ -115,8 +115,9 @@ export default async function handler(req, res) {
               results.push({domain, action:'updated'});
               updated++;
             } else {
-              // NEW site — all go to Pending Review first, moderation approves gradually
-              safe.status = 'Pending Review';
+              // NEW site — admin goes Live instantly, others go Pending Review
+              var isAdmin = site.publisher_id === 'uplyncio_team_official';
+              safe.status = isAdmin ? 'Live' : 'Pending Review';
               safe.created_at = new Date().toISOString();
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, { method: 'POST', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'inserted'});
