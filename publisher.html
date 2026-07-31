@@ -367,7 +367,7 @@ av.textContent = initials.toUpperCase();
 <div class="sb-tx" style="line-height:30px">Up<em>lyncio</em></div>
 </a>
 </div>
-<button class="si on" onclick="showMain()" style="background:#f0f4ff;color:#4f7cff;border-left-color:#4f7cff;font-weight:600;width:100%;text-align:left;cursor:pointer;font-family:inherit;border:none;border-left:3px solid #4f7cff">🌐&nbsp; My Platforms</button>
+<button class="si on" onclick="showMain()" style="width:100%;text-align:left;cursor:pointer;font-family:inherit;border:none;background:none;border-left:3px solid transparent">🌐&nbsp; My Platforms</button>
 <button class="si" onclick="showTrending()" style="width:100%;text-align:left;cursor:pointer;font-family:inherit;border:none;background:none;border-left:3px solid transparent">🔥&nbsp; Trending</button>
 <button class="si" onclick="showOrders()" style="width:100%;text-align:left;cursor:pointer;font-family:inherit;border:none;background:none;border-left:3px solid transparent">📦&nbsp; Orders</button>
 <button class="si" onclick="showReferral()" style="width:100%;text-align:left;cursor:pointer;font-family:inherit;border:none;background:none;border-left:3px solid transparent">🔗&nbsp; Referral Program</button>
@@ -5709,7 +5709,17 @@ var se=document.getElementById('emptyState'); if(se) se.style.display='none';
 function setActiveSidebar(text){
 document.querySelectorAll('.si').forEach(function(s){
 s.classList.remove('on');
-if(s.textContent.trim().includes(text)) s.classList.add('on');
+s.style.background='none';
+s.style.color='';
+s.style.borderLeftColor='transparent';
+s.style.fontWeight='500';
+if(s.textContent.trim().includes(text)){
+s.classList.add('on');
+s.style.background='#f0f4ff';
+s.style.color='#4f7cff';
+s.style.borderLeftColor='#4f7cff';
+s.style.fontWeight='600';
+}
 });
 }
 function showReferral(){
@@ -6197,8 +6207,7 @@ nudge.style.display = isVerif2 ? 'none' : 'flex';
 var e=document.getElementById(id); if(e) e.style.display='none';
 });
 go(1);
-document.querySelectorAll('.si').forEach(function(s){s.classList.remove('on');});
-document.querySelector('.si').classList.add('on');
+setActiveSidebar('My Platforms');
 renderSites();
 }
 function showTrending(){
