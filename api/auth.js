@@ -311,13 +311,41 @@ export default async function handler(req, res) {
 
       // Send new device login alert
       try {
-        const ua = req.headers['user-agent'] || 'Unknown device';
+        const rawUA = req.headers['user-agent'] || '';
         const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'Unknown';
         const now2 = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        
+        // Parse User-Agent into readable device name
+        function parseUA(ua) {
+          let browser = 'Unknown Browser', os = 'Unknown OS';
+          // Browser detection
+          if (ua.includes('Edg/')) browser = 'Microsoft Edge';
+          else if (ua.includes('OPR/') || ua.includes('Opera')) browser = 'Opera';
+          else if (ua.includes('Brave')) browser = 'Brave';
+          else if (ua.includes('Vivaldi')) browser = 'Vivaldi';
+          else if (ua.includes('Chrome/') && !ua.includes('Chromium')) browser = 'Google Chrome';
+          else if (ua.includes('Firefox/')) browser = 'Mozilla Firefox';
+          else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Safari';
+          else if (ua.includes('MSIE') || ua.includes('Trident/')) browser = 'Internet Explorer';
+          // OS detection
+          if (ua.includes('Windows NT 10')) os = 'Windows 10/11';
+          else if (ua.includes('Windows NT 6.3')) os = 'Windows 8.1';
+          else if (ua.includes('Windows NT 6.1')) os = 'Windows 7';
+          else if (ua.includes('Windows')) os = 'Windows';
+          else if (ua.includes('Mac OS X')) os = 'macOS';
+          else if (ua.includes('iPhone')) os = 'iPhone';
+          else if (ua.includes('iPad')) os = 'iPad';
+          else if (ua.includes('Android')) os = 'Android';
+          else if (ua.includes('Linux')) os = 'Linux';
+          else if (ua.includes('CrOS')) os = 'Chrome OS';
+          return browser + ' on ' + os;
+        }
+        const deviceName = rawUA ? parseUA(rawUA) : 'Unknown device';
+        
         const { sendNewDeviceLoginEmail } = await import('./_email.js');
         sendNewDeviceLoginEmail({
           to: emailLow, name: user.name,
-          device: ua.substring(0, 80),
+          device: deviceName,
           location: 'Unknown', ipAddress: ip, loginTime: now2
         }).catch(() => {});
       } catch(e) {}
