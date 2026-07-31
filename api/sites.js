@@ -17,7 +17,8 @@ export default async function handler(req, res) {
       if (req.method === 'OPTIONS') return res.status(200).end();
 
   const _ip = getIp(req);
-  if(rateLimit(`sites:${_ip}`, 60, 60000)) return apiError(res, 429, 'Too many requests. Please slow down.');
+  // Skip rate limit for GET (reading sites) — only limit POST/PATCH/DELETE
+  if(req.method !== 'GET' && rateLimit(`sites:${_ip}`, 60, 60000)) return apiError(res, 429, 'Too many requests. Please slow down.');
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return res.status(500).json({ error: 'Supabase not configured' });

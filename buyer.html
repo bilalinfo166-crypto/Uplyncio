@@ -1080,7 +1080,7 @@ try { _processSBSites(_sbAll); } catch(e) { if(loadEl) loadEl.innerHTML = '<div 
 }
 if(sites.length === 1000){
 _sbOffset += 1000;
-_fetchPage();
+setTimeout(_fetchPage, 500);
 } else {
 _sbFetching = false;
 if(_sbAll.length > 0) { try { _processSBSites(_sbAll); } catch(e) { if(loadEl) loadEl.innerHTML = '<div style="color:red;padding:20px">Error B: '+e.message+'</div>'; } }
@@ -1129,7 +1129,7 @@ return _allSites;
 // Also expose as processSiteToEntry for backward compat
 function processSiteToEntry(s, uid){ return _siteEntry(s, uid); }
 // Poll Supabase every 30s
-if(!_sbTimer){ _sbTimer = setInterval(fetchSitesFromSupabase, 30000); }
+if(!_sbTimer){ _sbTimer = setInterval(fetchSitesFromSupabase, 120000); }
 // Load IMMEDIATELY on script run — zero delay
 fetchSitesFromSupabase();
 // ── LIVE COUNTER: total sites across platform ──
