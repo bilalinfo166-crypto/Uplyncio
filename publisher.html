@@ -300,6 +300,9 @@ if(typeof renderSites==='function') renderSites();
 }
 // Restore on page load
 window.addEventListener('DOMContentLoaded', function(){
+// Remove any stale moderation progress bar
+var oldMod = document.getElementById('modProgressBar');
+if(oldMod) oldMod.remove();
 // ── CRITICAL: Reload sites for current user on every page load ──
 var _currentUid = localStorage.getItem('uplyncio_currentUid')||'';
 if(_currentUid){
@@ -2375,6 +2378,7 @@ sendBatch();
 // ── SITE MODERATION SYSTEM ──
 var _modStats = { approved: 0, rejected: 0, duplicate: 0, reasons: [] };
 function startSiteModeration(publisherId, totalSites){
+if(!totalSites || totalSites < 1) return; // Don't show for 0 sites
 _modStats = { approved: 0, rejected: 0, duplicate: 0, reasons: [] };
 // Show moderation progress UI
 showModProgress(totalSites);
