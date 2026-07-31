@@ -319,12 +319,16 @@
       if (data.reply) {
         aceBotMsg(data.reply);
         var lw = text.toLowerCase();
-        if (lw.includes('price') || lw.includes('cost')) {
+        if (lw.includes('otp') || lw.includes('code') || lw.includes('verification') || lw.includes('not received')) {
+          renderQuickReplies(['📧 Resend OTP', '🔑 Reset Password', '📞 Contact support']);
+        } else if (lw.includes('password') || lw.includes('forgot') || lw.includes('login') || lw.includes('sign in')) {
+          renderQuickReplies(['🔑 Forgot Password', '📧 Resend OTP', '📞 Contact support']);
+        } else if (lw.includes('price') || lw.includes('cost')) {
           renderQuickReplies(['📝 How to order', '🌐 Become Publisher', '📞 Talk to human']);
         } else if (lw.includes('publisher')) {
           renderQuickReplies(['💰 Publisher pricing', '📝 How to sign up', '💬 Contact support']);
         } else {
-          renderQuickReplies(['💰 Pricing', '📝 Place an order', '📞 Contact support']);
+          renderQuickReplies(['💰 Pricing', '📝 Place an order', '📧 Resend OTP', '📞 Contact support']);
         }
       } else {
         aceBotMsg('Sorry, I couldn\'t get a response. Please email info@uplyncio.com for help.');

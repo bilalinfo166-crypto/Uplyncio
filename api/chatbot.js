@@ -17,6 +17,35 @@ const SYSTEM_PROMPT = `You are Max, the official AI assistant for Uplyncio — a
 Your personality: Friendly, knowledgeable, professional, concise. You speak naturally — not robotic. Always respond in English only, regardless of what language the user writes in.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT: ACCOUNT HELP (OTP, PASSWORD, LOGIN)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+You can DIRECTLY help users with:
+
+1. OTP/VERIFICATION CODE NOT RECEIVED:
+→ Ask user for their registered email address
+→ Once they share email, the system will automatically send a new OTP
+→ Tell them to check inbox AND spam/junk folder
+→ Code expires in 5 minutes
+
+2. FORGOT PASSWORD:
+→ Ask user for their registered email address  
+→ Once they share email, the system will send a password reset code
+→ Guide them: Sign In → Forgot Password → Enter code → Set new password
+→ Code expires in 10 minutes
+
+3. ACCOUNT VERIFICATION:
+→ Ask for their email
+→ System will check if already verified
+→ If not verified, will send new code
+→ Guide them through the verification process
+
+4. CAN'T LOGIN / SIGN IN ISSUES:
+→ Ask if they forgot password or need verification
+→ Ask for email and handle accordingly
+
+ALWAYS ask for the email address first before taking any action. The system handles the actual sending — you just need to collect the email.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 GREETINGS & SMALL TALK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 When someone says Hi/Hello/Salam/Assalamualaikum etc:
@@ -258,6 +287,86 @@ export default async function handler(req, res) {
   // If no API key, use smart fallbacks
   if (!ANTHROPIC_KEY) {
     const lastMsg = messages[messages.length - 1]?.content || '';
+    
+    // ── SMART ACTION DETECTION ──
+    // Detect OTP/verification requests and handle directly
+    const lm = lastMsg.toLowerCase();
+    const emailMatch = lastMsg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    
+    // Check if conversation is in OTP flow
+    const prevMsgs = messages.slice(-5).map(m => (m.content||'').toLowerCase()).join(' ');
+    const isOtpFlow = prevMsgs.includes('otp') || prevMsgs.includes('verification code') || prevMsgs.includes('code not received') || prevMsgs.includes('verify');
+    const isPasswordFlow = prevMsgs.includes('password') || prevMsgs.includes('forgot') || prevMsgs.includes('reset');
+    
+    // If user shared an email in OTP flow → send OTP
+    if (emailMatch && (isOtpFlow || lm.includes('send') || lm.includes('code') || lm.includes('otp') || lm.includes('verify'))) {
+      const email = emailMatch[0].toLowerCase();
+      try {
+        const otpRes = await fetch(`${process.env.SUPABASE_URL || ''}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,email,email_verified`, {
+          headers: { 'apikey': process.env.SUPABASE_SECRET_KEY, 'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY}` }
+        });
+        const users = await otpRes.json();
+        if (!users?.length) {
+          return res.status(200).json({ reply: `I couldn't find an account with **${email}**. Please double-check the email address. If you haven't signed up yet, go to [uplyncio.com](https://uplyncio.com) and create an account first! 🔗` });
+        }
+        const user = users[0];
+        if (user.email_verified) {
+          return res.status(200).json({ reply: `Great news! Your email **${email}** is already verified. ✅ You can log in directly at [uplyncio.com](https://uplyncio.com). If you're having trouble logging in, let me know — I can help with password reset too! 🔑` });
+        }
+        // Send OTP
+        const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+        await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
+          method: 'PATCH',
+          headers: { 'apikey': process.env.SUPABASE_SECRET_KEY, 'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ verify_code: newCode })
+        });
+        const { sendVerifyEmail } = await import('./email.js');
+        const emailRes = await sendVerifyEmail({ to: email, name: user.name || 'there', code: newCode }).catch(e => ({ ok: false, error: e.message }));
+        if (emailRes.ok) {
+          return res.status(200).json({ reply: `I've sent a new 6-digit verification code to **${email}**! 📩\n\nPlease check your inbox (and spam/junk folder). The code expires in 5 minutes.\n\nOnce you have it, go to the login page, sign in, and enter the code when prompted. If you still don't receive it, please email us at **info@uplyncio.com** and we'll verify your account manually! 🙌` });
+        } else {
+          return res.status(200).json({ reply: `I tried to send the code but the email delivery failed. 😔\n\nPlease try these steps:\n1. Go to [uplyncio.com](https://uplyncio.com) and click **Sign In**\n2. Enter your email and password\n3. Click **Resend Code** on the verification screen\n\nIf it still doesn't work, email us at **info@uplyncio.com** with your email address and we'll verify your account manually within 24 hours! 📧` });
+        }
+      } catch(e) {
+        console.error('Bot OTP error:', e.message);
+      }
+    }
+    
+    // If user shared email in password reset flow → send reset
+    if (emailMatch && (isPasswordFlow || lm.includes('reset') || lm.includes('forgot') || lm.includes('new password'))) {
+      const email = emailMatch[0].toLowerCase();
+      try {
+        const otpRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,email`, {
+          headers: { 'apikey': process.env.SUPABASE_SECRET_KEY, 'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY}` }
+        });
+        const users = await otpRes.json();
+        if (!users?.length) {
+          return res.status(200).json({ reply: `I couldn't find an account with **${email}**. Please check the email address and try again. 🔍` });
+        }
+        const user = users[0];
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        await fetch(`${process.env.SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
+          method: 'PATCH',
+          headers: { 'apikey': process.env.SUPABASE_SECRET_KEY, 'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ verify_code: resetCode })
+        });
+        const { sendOtpEmail } = await import('./email.js');
+        await sendOtpEmail({ to: email, name: user.name || 'there', code: resetCode, expiresIn: '10 minutes' }).catch(() => {});
+        return res.status(200).json({ reply: `I've sent a password reset code to **${email}**! 🔑\n\nPlease check your inbox (and spam folder). Use this code to verify your identity, then you can set a new password.\n\nGo to [uplyncio.com](https://uplyncio.com) → Click **Sign In** → Click **Forgot Password** → Enter the code → Set your new password.\n\nThe code expires in 10 minutes. If you need help, email **info@uplyncio.com**! 💪` });
+      } catch(e) {
+        console.error('Bot password reset error:', e.message);
+      }
+    }
+    
+    // Detect OTP/password queries WITHOUT email → ask for email
+    if ((lm.includes('otp') || lm.includes('verification') || lm.includes('code') || lm.includes('not received') || lm.includes('didn\'t receive') || lm.includes('no code')) && !emailMatch) {
+      return res.status(200).json({ reply: `I can help you with that! 🛠️\n\nPlease share your **registered email address** and I'll send you a new verification code right away.\n\nJust type your email below (example: your@email.com) 📧` });
+    }
+    
+    if ((lm.includes('forgot') || lm.includes('password') || lm.includes('reset') || lm.includes('can\'t login') || lm.includes('cant login') || lm.includes('unable to login')) && !emailMatch) {
+      return res.status(200).json({ reply: `No worries! I can help you reset your password. 🔐\n\nPlease share your **registered email address** and I'll send you a reset code.\n\nJust type your email below (example: your@email.com) 📧` });
+    }
+
     return res.status(200).json({ reply: getFallback(lastMsg) });
   }
 
