@@ -25,6 +25,15 @@ export default async function handler(req, res) {
 
   try {
 
+    // ── QUICK FIX: Restore all Pending sites to Live ──
+    if (req.query?.mod === 'fix') {
+      await fetch(
+        `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending Review`,
+        { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) }
+      );
+      return res.status(200).json({ success: true, message: 'All Pending Review sites restored to Live!' });
+    }
+
     if (req.method === 'GET') {
       const { publisher_id, limit = 1000, offset = 0 } = req.query;
       let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}&offset=${offset}&order=da.desc`;
