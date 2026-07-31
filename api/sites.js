@@ -27,12 +27,26 @@ export default async function handler(req, res) {
 
     // ── QUICK FIX: Restore admin's Pending sites to Live (one-time) ──
     if (req.query?.mod === 'fix') {
-      // Only fix uplyncio_team_official sites — other publishers stay in Pending Review
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending%20Review&publisher_id=eq.uplyncio_team_official`,
-        { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) }
-      );
-      return res.status(200).json({ success: true, message: 'Admin sites restored to Live! Other publishers sites unchanged.' });
+      if (!SUPABASE_URL || !SUPABASE_KEY) {
+        return res.status(200).json({ error: 'Missing env vars', hasUrl: !!SUPABASE_URL, hasKey: !!SUPABASE_KEY });
+      }
+      try {
+        const fixUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.${encodeURIComponent('Pending Review')}&publisher_id=eq.uplyncio_team_official`;
+        const r = await fetch(fixUrl, { 
+          method: 'PATCH', 
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+          }, 
+          body: JSON.stringify({ status: 'Live' }) 
+        });
+        const status = r.status;
+        const body = await r.text();
+        return res.status(200).json({ success: status >= 200 && status < 300, httpStatus: status, response: body.substring(0, 500), url: fixUrl.replace(SUPABASE_KEY, '***') });
+      } catch(e) {
+        return res.status(200).json({ error: e.message });
+      }
     }
 
     if (req.method === 'GET') {
