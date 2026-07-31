@@ -3377,37 +3377,41 @@ function parseJSON(rows, fname){
 parsedSites=[];
 var errors=0;
 rows.forEach(function(row, i){
-// Find URL column (try multiple names)
+// Find URL column — match exact sheet header "Url"
 var url='';
-['Website URL','website url','website_url','URL','url','Domain','domain','Site URL'].forEach(function(k){
+['Url','url','URL','Website URL','website url','website_url','Domain','domain','Site URL'].forEach(function(k){
 if(!url && row[k]) url=String(row[k]).trim().replace(/https?:\/\//,'').replace(/\/.*$/,'');
 });
 if(!url){errors++;return;}
 var da=0,dr=0;
-['DA (Domain Authority)','DA','da','Domain Authority'].forEach(function(k){ if(row[k]) da=parseFloat(row[k])||0; });
-['DR (Domain Rating)','DR','dr','Domain Rating'].forEach(function(k){ if(row[k]) dr=parseFloat(row[k])||0; });
+['DA','da','DA (Domain Authority)','Domain Authority'].forEach(function(k){ if(row[k]) da=parseFloat(String(row[k]).replace(/[^0-9.]/g,''))||0; });
+['DR','dr','DR (Domain Rating)','Domain Rating'].forEach(function(k){ if(row[k]) dr=parseFloat(String(row[k]).replace(/[^0-9.]/g,''))||0; });
 var traffic=0;
-['Monthly Traffic','traffic','monthly traffic','Visitors'].forEach(function(k){ if(row[k]) traffic=parseFloat(row[k])||0; });
+['Traffic (monthly)','Traffic','traffic','Monthly Traffic','monthly traffic','Visitors'].forEach(function(k){ if(row[k]) traffic=parseFloat(String(row[k]).replace(/[^0-9]/g,''))||0; });
 var cat='';
 ['Category','category','Niche','niche','Categories'].forEach(function(k){ if(row[k]) cat=String(row[k]).trim(); });
 var lt='Dofollow';
-['Link Type (DF/NF)','Link Type','link type','linktype'].forEach(function(k){ if(row[k]) lt=String(row[k]).trim(); });
+['Link Type (Dofollow/Nofollow/Sponsored)','Link Type (DF/NF)','Link Type','link type','linktype'].forEach(function(k){ if(row[k]) lt=String(row[k]).trim(); });
 var gpPrice=0;
-['Guest Post Price ($)','Guest Post Price','guest_post_price','Price','price'].forEach(function(k){ if(row[k]) gpPrice=parseFloat(String(row[k]).replace('$',''))||0; });
+['GP Price ($)','GP Price','Guest Post Price ($)','Guest Post Price','guest_post_price','Price','price'].forEach(function(k){ if(row[k]) gpPrice=parseFloat(String(row[k]).replace(/[^0-9.]/g,''))||0; });
 var wpPrice=0;
-['Write & Publish Price ($)','Write & Publish Price','writing price'].forEach(function(k){ if(row[k]) wpPrice=parseFloat(String(row[k]).replace('$',''))||0; });
+['Write & Publish Price ($)','Write & Publish Price','W&P Price','writing price'].forEach(function(k){ if(row[k]) wpPrice=parseFloat(String(row[k]).replace(/[^0-9.]/g,''))||0; });
 var maxLinks='No limit';
-['Max Links Per Article','max links','Max Links'].forEach(function(k){ if(row[k]) maxLinks=String(row[k]).trim(); });
+['How many links are allow','How many links','Max Links Per Article','max links','Max Links'].forEach(function(k){ if(row[k]) maxLinks=String(row[k]).trim(); });
 var samplePost='';
-['Sample Post URL','sample post','Sample Post'].forEach(function(k){ if(row[k]) samplePost=String(row[k]).trim(); });
+['Sample post','Sample Post','Sample Post URL','sample post'].forEach(function(k){ if(row[k]) samplePost=String(row[k]).trim(); });
+var tat=7;
+['TAT (days)','TAT','tat','Turnaround Time','turnaround'].forEach(function(k){ if(row[k]) tat=parseInt(String(row[k]).replace(/[^0-9]/g,''))||7; });
 var gpReq='';
-['Guest Post Requirements','requirements','Requirements'].forEach(function(k){ if(row[k]) gpReq=String(row[k]).trim(); });
+['Requirements','requirements','Guest Post Requirements'].forEach(function(k){ if(row[k]) gpReq=String(row[k]).trim(); });
 var liAccepted='No';
 ['Link Insertion Accepted (Yes/No)','Link Insertion Accepted','li accepted'].forEach(function(k){
 if(row[k]){var v=String(row[k]).trim().toLowerCase(); liAccepted=(v==='yes'||v==='true'||v==='1')?'Yes':'No';}
 });
 var liPrice=0;
-['Link Insertion Price ($)','Link Insertion Price','li price'].forEach(function(k){ if(row[k]) liPrice=parseFloat(String(row[k]).replace('$',''))||0; });
+['Link Insertion Price ($)','Link Insertion Price','LI Price','li price'].forEach(function(k){ if(row[k]) liPrice=parseFloat(String(row[k]).replace(/[^0-9.]/g,''))||0; });
+// Auto-detect LI accepted from LI price
+if(liPrice > 0) liAccepted='Yes';
 var liReq='';
 ['Link Insertion Requirements','li requirements'].forEach(function(k){ if(row[k]) liReq=String(row[k]).trim(); });
 var detected=autoDetectInfo(url);
@@ -3420,7 +3424,8 @@ dr:dr?String(Math.round(dr)):'0',
 traffic:traffic?String(Math.round(traffic)):'0',
 cat:cat||'General',
 lt:lt||'Dofollow',
-price:'$'+Math.round(gpPrice),
+price:Math.round(gpPrice),
+wpPrice:Math.round(wpPrice),
 p1:String(Math.round(gpPrice)),
 p2:String(Math.round(wpPrice)),
 guestPostPrice:String(Math.round(gpPrice)),
@@ -3432,13 +3437,14 @@ liOk:liAccepted==='Yes',
 liP:liPrice,
 liReq:liReq,
 samplePost:samplePost,
+tat:String(tat),
 lang:detected.lang,
 country:detected.country,
-maxLinks:maxLinks==='1'||maxLinks==='1.0'?'1':maxLinks==='3'||maxLinks==='3.0'?'3':maxLinks,
+maxLinks:maxLinks,
 notes:gpReq,
 requirements:gpReq,
 req:gpReq,
-wordCount:'500',
+wordCount:gpReq.match(/(\d+)\s*word/i)?gpReq.match(/(\d+)\s*word/i)[1]:'500',
 status:'pending'
 });
 });
