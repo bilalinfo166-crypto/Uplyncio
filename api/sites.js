@@ -36,13 +36,19 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const { publisher_id, limit = 10000, offset = 0 } = req.query;
-      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}&offset=${offset}&order=da.desc`;
+      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc`;
       if (publisher_id) {
         url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else {
         url += `&status=in.(Live,live,Approved,approved,Active,active)`;
       }
-      const r = await fetch(url, { headers: h() });
+      
+      // Supabase has 1000 row default limit - use Range header for more
+      const rangeStart = parseInt(offset) || 0;
+      const rangeEnd = rangeStart + (parseInt(limit) || 10000) - 1;
+      const headers = { ...h(), 'Range': `${rangeStart}-${rangeEnd}`, 'Prefer': 'count=exact' };
+      
+      const r = await fetch(url, { headers });
       const data = await r.json();
       if (!Array.isArray(data)) {
         console.error('GET error:', JSON.stringify(data).substring(0,300));
