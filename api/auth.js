@@ -301,8 +301,13 @@ export default async function handler(req, res) {
         sbUpdate('users', `id=eq.${user.id}`, { password_hash: newHash }).catch(()=>{});
       }
 
-      if (!user.email_verified && !isTeam)
+      if (!user.email_verified && !isTeam) {
+        // Send a fresh OTP so user can verify
+        const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+        await sbUpdate('users', `email=eq.${encodeURIComponent(emailLow)}`, { verify_code: newCode });
+        sendVerifyEmail({ to: emailLow, name: user.name || 'there', code: newCode }).catch(e => console.log('Login OTP err:', e.message));
         return res.status(403).json({ error: 'Please verify your email first', needsVerify: true, email: emailLow });
+      }
 
       // Send new device login alert
       try {
