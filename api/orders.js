@@ -3,7 +3,7 @@ import {
   sendBuyerOrderPlaced, sendBuyerOrderAccepted, sendBuyerOrderDelivered,
   sendBuyerOrderCancelled, sendBuyerOrderRejected, sendBuyerOrderInvoice,
   sendPublisherNewOrder, sendPublisherOrderComplete, sendPublisherOrderCancelled
-} from './email.js';
+} from './_email.js';
 
 const SB = process.env.SUPABASE_URL;
 const KEY = process.env.SUPABASE_SECRET_KEY;

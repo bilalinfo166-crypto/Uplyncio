@@ -1,5 +1,5 @@
 import { sanitize, sanitizeObj, checkBodySize, isValidEmail as _isValidEmail, authRateLimit, otpRateLimit, getIp, setCors, setApiHeaders, apiError, isSuspicious } from './_security.js';
-import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './email.js';
+import { sendVerifyEmail, sendWelcomeEmail, sendEmailVerifiedEmail } from './_email.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const RESEND_KEY = process.env.RESEND_API_KEY;
@@ -314,7 +314,7 @@ export default async function handler(req, res) {
         const ua = req.headers['user-agent'] || 'Unknown device';
         const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'Unknown';
         const now2 = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
-        const { sendNewDeviceLoginEmail } = await import('./email.js');
+        const { sendNewDeviceLoginEmail } = await import('./_email.js');
         sendNewDeviceLoginEmail({
           to: emailLow, name: user.name,
           device: ua.substring(0, 80),
@@ -406,7 +406,7 @@ export default async function handler(req, res) {
       });
 
       // Send OTP email
-      const { sendOtpEmail } = await import('./email.js');
+      const { sendOtpEmail } = await import('./_email.js');
       await sendOtpEmail({
         to: emailLow,
         name: user.name || 'there',
@@ -425,11 +425,11 @@ export default async function handler(req, res) {
         const recipient = await sbGet('users', `email=eq.${encodeURIComponent(to)}`);
         const waNumber = Array.isArray(recipient) && recipient[0] ? recipient[0].whatsapp_number : null;
         if (role === 'buyer') {
-          const { sendBuyerNewMessage, sendWA_BuyerNewMessage } = await import('./email.js');
+          const { sendBuyerNewMessage, sendWA_BuyerNewMessage } = await import('./_email.js');
           sendBuyerNewMessage({ to, name, publisherName: fromName, orderId, siteUrl }).catch(()=>{});
           if (waNumber) sendWA_BuyerNewMessage({ to: waNumber, senderName: fromName, orderId }).catch(()=>{});
         } else {
-          const { sendPublisherNewMessage, sendWA_PublisherNewMessage } = await import('./email.js');
+          const { sendPublisherNewMessage, sendWA_PublisherNewMessage } = await import('./_email.js');
           sendPublisherNewMessage({ to, name, buyerName: fromName, orderId, siteUrl }).catch(()=>{});
           if (waNumber) sendWA_PublisherNewMessage({ to: waNumber, senderName: fromName, orderId }).catch(()=>{});
         }
@@ -454,7 +454,7 @@ export default async function handler(req, res) {
       const users = await sbGet('users', `id=eq.${userId}`);
       const user = users?.[0];
       if (user) {
-        const { sendOtpEmail } = await import('./email.js');
+        const { sendOtpEmail } = await import('./_email.js');
         sendOtpEmail({ to: user.email, name: user.name, code: code2fa, expiresIn: '10 minutes' }).catch(()=>{});
       }
       return res.status(200).json({ success: true, message: 'Verification code sent to your email' });
@@ -518,7 +518,7 @@ export default async function handler(req, res) {
       if (!/[^A-Za-z0-9]/.test(newPassword)) return res.status(400).json({ error: 'Add special character' });
       const hash = await hashPass(newPassword);
       await sbUpdate('users', `id=eq.${userId}`, { password_hash: hash });
-      const { sendPasswordChangedEmail, sendPasswordResetSuccessEmail } = await import('./email.js');
+      const { sendPasswordChangedEmail, sendPasswordResetSuccessEmail } = await import('./_email.js');
       const users2 = await sbGet('users', `id=eq.${userId}`);
       if (users2?.length) {
         const u = users2[0];
@@ -539,7 +539,7 @@ export default async function handler(req, res) {
       if (!users3?.length) return res.status(404).json({ error: 'User not found' });
       const oldUser = users3[0];
       await sbUpdate('users', `id=eq.${userId}`, { email: newEmailLow, email_verified: false });
-      const { sendEmailChangedEmail } = await import('./email.js');
+      const { sendEmailChangedEmail } = await import('./_email.js');
       const now = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
       sendEmailChangedEmail({ to: oldUser.email, name: oldUser.name, oldEmail: oldUser.email, newEmail: newEmailLow, changedAt: now }).catch(()=>{});
       return res.status(200).json({ success: true });

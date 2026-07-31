@@ -320,7 +320,7 @@ export default async function handler(req, res) {
           headers: { 'apikey': process.env.SUPABASE_SECRET_KEY, 'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ verify_code: newCode })
         });
-        const { sendVerifyEmail } = await import('./email.js');
+        const { sendVerifyEmail } = await import('./_email.js');
         const emailRes = await sendVerifyEmail({ to: email, name: user.name || 'there', code: newCode }).catch(e => ({ ok: false, error: e.message }));
         if (emailRes.ok) {
           return res.status(200).json({ reply: `I've sent a new 6-digit verification code to **${email}**! 📩\n\nPlease check your inbox (and spam/junk folder). The code expires in 5 minutes.\n\nOnce you have it, go to the login page, sign in, and enter the code when prompted. If you still don't receive it, please email us at **info@uplyncio.com** and we'll verify your account manually! 🙌` });
@@ -350,7 +350,7 @@ export default async function handler(req, res) {
           headers: { 'apikey': process.env.SUPABASE_SECRET_KEY, 'Authorization': `Bearer ${process.env.SUPABASE_SECRET_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ verify_code: resetCode })
         });
-        const { sendOtpEmail } = await import('./email.js');
+        const { sendOtpEmail } = await import('./_email.js');
         await sendOtpEmail({ to: email, name: user.name || 'there', code: resetCode, expiresIn: '10 minutes' }).catch(() => {});
         return res.status(200).json({ reply: `I've sent a password reset code to **${email}**! 🔑\n\nPlease check your inbox (and spam folder). Use this code to verify your identity, then you can set a new password.\n\nGo to [uplyncio.com](https://uplyncio.com) → Click **Sign In** → Click **Forgot Password** → Enter the code → Set your new password.\n\nThe code expires in 10 minutes. If you need help, email **info@uplyncio.com**! 💪` });
       } catch(e) {
