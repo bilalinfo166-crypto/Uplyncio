@@ -826,16 +826,18 @@ av.textContent = initials.toUpperCase();
 <div style="overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px;max-height:280px;overflow-y:auto">
 <table style="width:100%;border-collapse:collapse;min-width:700px">
 <thead><tr style="background:#f8faff;position:sticky;top:0">
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Website URL</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">URL</th>
 <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DA</th>
 <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">DR</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Traffic</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Category</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Link Type</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">GP Price</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">LI Price</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Language</th>
-<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Country</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Traffic (monthly)</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Link Type</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Max Links</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">GP Price ($)</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">W&P Price ($)</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">LI Price ($)</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">Sample Post</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0;white-space:nowrap">TAT (days)</th>
+<th style="padding:9px 12px;font-size:11px;font-weight:700;color:#64748b;text-align:left;border-bottom:1px solid #e2e8f0">Requirements</th>
 </tr></thead>
 <tbody id="previewTbody"></tbody>
 </table>
@@ -3551,21 +3553,21 @@ document.getElementById('previewWrap').style.display='block';
 document.getElementById('previewCount').textContent='('+parsedSites.length+' sites)';
 var tbody=document.getElementById('previewTbody');
 tbody.innerHTML=parsedSites.slice(0,50).map(function(s){
-var liColor = s.liAccepted==='Yes'?'background:#dcfce7;color:#16a34a':'background:#fee2e2;color:#ef4444';
 return "<tr style='border-bottom:1px solid #f1f5f9'>" +
 "<td style='padding:8px 12px;font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap'>"+s.url+"</td>" +
 "<td style='padding:8px 12px'><span style='background:#e0e7ff;color:#4f7cff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.da+"</span></td>" +
 "<td style='padding:8px 12px'><span style='background:#ccfbf1;color:#0d9488;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.dr+"</span></td>" +
 "<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+s.traffic+"</td>" +
-"<td style='padding:8px 12px'><span style='background:#fef3c7;color:#d97706;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.cat.split(',')[0].trim()+"</span></td>" +
 "<td style='padding:8px 12px'><span style='background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.lt+"</span></td>" +
-"<td style='padding:8px 12px;font-weight:800;color:#0f172a'>"+s.price+"</td>" +
-"<td style='padding:8px 12px'><span style='"+liColor+";font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px'>"+s.liAccepted+"</span></td>" +
-"<td style='padding:8px 12px;font-weight:700;color:#0f172a'>"+(s.liPrice?'$'+s.liPrice:'—')+"</td>" +
-"<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+s.lang+"</td>" +
-"<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+s.country+"</td>" +
+"<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+(s.maxLinks||'No limit')+"</td>" +
+"<td style='padding:8px 12px;font-weight:800;color:#0f172a'>$"+s.price+"</td>" +
+"<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+(s.wpPrice?'$'+s.wpPrice:'—')+"</td>" +
+"<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+(s.liPrice?'$'+s.liPrice:'—')+"</td>" +
+"<td style='padding:8px 12px;font-size:12px;color:#4f7cff;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+(s.samplePost||'—')+"</td>" +
+"<td style='padding:8px 12px;font-size:12px;color:#64748b'>"+(s.tat||'7')+" days</td>" +
+"<td style='padding:8px 12px;font-size:12px;color:#64748b;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+(s.req||'—')+"</td>" +
 "</tr>";
-}).join('')+(parsedSites.length>50?'<tr><td colspan="11" style="padding:10px;text-align:center;font-size:12px;color:#64748b">...and '+(parsedSites.length-50)+' more sites</td></tr>':'');
+}).join('')+(parsedSites.length>50?'<tr><td colspan="12" style="padding:10px;text-align:center;font-size:12px;color:#64748b">...and '+(parsedSites.length-50)+' more sites</td></tr>':'');
 }
 function importSites(){
 if(!parsedSites.length) return;
