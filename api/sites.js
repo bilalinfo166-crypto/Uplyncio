@@ -115,9 +115,8 @@ export default async function handler(req, res) {
               results.push({domain, action:'updated'});
               updated++;
             } else {
-              // NEW site — admin sites go Live directly, others go to Pending Review
-              var isAdmin = site.publisher_id === 'uplyncio_team_official';
-              safe.status = isAdmin ? 'Live' : 'Pending Review';
+              // NEW site — all go to Pending Review first, moderation approves gradually
+              safe.status = 'Pending Review';
               safe.created_at = new Date().toISOString();
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, { method: 'POST', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'inserted'});
@@ -224,7 +223,7 @@ export default async function handler(req, res) {
         const pubR = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(publisher_id)}&select=name,email&limit=1`, { headers: h() });
         const pubs = await pubR.json();
         const pub = pubs?.[0] || { name: 'Publisher', email: '' };
-        const countR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id`, { headers: h() });
+        const countR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.${encodeURIComponent('Pending Review')}&select=id`, { headers: h() });
         const pending = await countR.json();
         const total = Array.isArray(pending) ? pending.length : 0;
         if (total === 0) return res.status(200).json({ success: true, message: 'No pending sites', total: 0 });
@@ -234,20 +233,22 @@ export default async function handler(req, res) {
       }
 
       if (modAction === 'process') {
-        const pendR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id,domain,da,price&limit=75&order=created_at.asc`, { headers: h() });
+        const pendR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.${encodeURIComponent('Pending Review')}&select=id,domain,da,price&limit=75&order=created_at.asc`, { headers: h() });
         const pending = await pendR.json();
         if (!Array.isArray(pending) || !pending.length) return res.status(200).json({ success: true, done: true, processed: 0, remaining: 0 });
+        const isAdmin = publisher_id === 'uplyncio_team_official';
         const approveIds = [], rejectIds = [], reasons = [];
         for (const site of pending) {
           const domain = (site.domain || '').toLowerCase().trim();
-          if (!isValidDomain(domain)) { rejectIds.push(site.id); reasons.push({ domain, reason: 'Invalid domain' }); }
+          if (isAdmin) { approveIds.push(site.id); }
+          else if (!isValidDomain(domain)) { rejectIds.push(site.id); reasons.push({ domain, reason: 'Invalid domain' }); }
           else if ((parseInt(site.da) || 0) < 5) { rejectIds.push(site.id); reasons.push({ domain, reason: `DA too low (${site.da||0})` }); }
           else if (!site.price || parseFloat(site.price) <= 0) { rejectIds.push(site.id); reasons.push({ domain, reason: 'No price set' }); }
           else { approveIds.push(site.id); }
         }
         if (approveIds.length) await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${approveIds.map(id=>`"${id}"`).join(',')})`, { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) });
         if (rejectIds.length) await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${rejectIds.map(id=>`"${id}"`).join(',')})`, { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Rejected', reviewed_at: new Date().toISOString() }) });
-        const remR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id`, { headers: h() });
+        const remR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.${encodeURIComponent('Pending Review')}&select=id`, { headers: h() });
         const rem = await remR.json();
         return res.status(200).json({ success: true, done: !Array.isArray(rem) || !rem.length, processed: pending.length, approved: approveIds.length, rejected: rejectIds.length, remaining: Array.isArray(rem) ? rem.length : 0, reasons: reasons.slice(0, 10) });
       }
@@ -274,7 +275,7 @@ export default async function handler(req, res) {
 
       if (modAction === 'status') {
         const [pendR, liveR, rejR] = await Promise.all([
-          fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id`, { headers: h() }),
+          fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.${encodeURIComponent('Pending Review')}&select=id`, { headers: h() }),
           fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=in.(Live,Approved)&select=id`, { headers: h() }),
           fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Rejected&select=id`, { headers: h() })
         ]);
