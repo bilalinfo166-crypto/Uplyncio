@@ -51,25 +51,29 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       const { publisher_id, limit = 10000, offset = 0 } = req.query;
-      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc`;
+      let baseUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc`;
       if (publisher_id) {
-        url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
+        baseUrl += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else {
-        url += `&status=in.(Live,live,Approved,approved,Active,active)`;
+        baseUrl += `&status=in.(Live,live,Approved,approved,Active,active)`;
       }
       
-      // Supabase has 1000 row default limit - use Range header for more
-      const rangeStart = parseInt(offset) || 0;
-      const rangeEnd = rangeStart + (parseInt(limit) || 10000) - 1;
-      const headers = { ...h(), 'Range': `${rangeStart}-${rangeEnd}`, 'Prefer': 'count=exact' };
-      
-      const r = await fetch(url, { headers });
-      const data = await r.json();
-      if (!Array.isArray(data)) {
-        console.error('GET error:', JSON.stringify(data).substring(0,300));
-        return res.status(200).json({ success: true, sites: [] });
+      // Paginate through all results (Supabase max 1000 per request)
+      let allData = [];
+      let page = 0;
+      const pageSize = 1000;
+      while (true) {
+        const url = baseUrl + `&limit=${pageSize}&offset=${page * pageSize}`;
+        const r = await fetch(url, { headers: h() });
+        const data = await r.json();
+        if (!Array.isArray(data) || data.length === 0) break;
+        allData = allData.concat(data);
+        if (data.length < pageSize) break; // last page
+        page++;
+        if (allData.length >= parseInt(limit)) break; // respect limit
       }
-      return res.status(200).json({ success: true, sites: data });
+      
+      return res.status(200).json({ success: true, sites: allData, total: allData.length });
     }
 
     if (req.method === 'POST') {
