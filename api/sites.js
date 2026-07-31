@@ -49,7 +49,7 @@ export default async function handler(req, res) {
       if (b.sites && Array.isArray(b.sites)) {
         const results = [];
         let inserted = 0, updated = 0, skipped = 0;
-        for (const site of b.sites.slice(0, 2000)) { // Max 2000 per batch
+        for (const site of b.sites.slice(0, 2000)) {
           const domain = (site.url||site.domain||'').replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
           if (!domain || !site.publisher_id) { skipped++; continue; }
           const safe = {
@@ -60,7 +60,6 @@ export default async function handler(req, res) {
             price: parseFloat(site.price)||0,
             category: site.category||'General',
             link_type: site.link_type||'Dofollow',
-            status: 'Pending Review',
             updated_at: new Date().toISOString()
           };
           const optional = ['publisher_name','publisher_email','write_publish_price',
@@ -71,15 +70,19 @@ export default async function handler(req, res) {
           }
           try {
             const chk = await fetch(
-              `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(site.publisher_id)}&select=id&limit=1`,
+              `${SUPABASE_URL}/rest/v1/publisher_sites?domain=eq.${encodeURIComponent(domain)}&publisher_id=eq.${encodeURIComponent(site.publisher_id)}&select=id,status&limit=1`,
               { headers: h() }
             );
             const existing = await chk.json();
             if (Array.isArray(existing) && existing.length > 0) {
+              // EXISTING site — keep current status (don't change Live to Pending)
+              // Only update data fields, NOT status
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`, { method: 'PATCH', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'updated'});
               updated++;
             } else {
+              // NEW site — set to Pending Review for moderation
+              safe.status = 'Pending Review';
               safe.created_at = new Date().toISOString();
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, { method: 'POST', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'inserted'});
