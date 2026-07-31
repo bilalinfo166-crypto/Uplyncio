@@ -973,7 +973,7 @@ var _sbTimer = null;
 function _mkupFromPub(publisherPrice){
 var p = parseFloat(publisherPrice)||0;
 if(p <= 0) return 0;
-return Math.ceil(p);
+return Math.ceil(p * 1.3);
 }
 function _siteEntry(s, uid){
 if(!s || !s.url) return null;
