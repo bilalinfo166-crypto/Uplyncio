@@ -154,6 +154,88 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // ═══════════════════════════════════════
+    // MODERATION SYSTEM (action-based via query param)
+    // ═══════════════════════════════════════
+    const modAction = req.query?.mod || (req.body?.action);
+    if (modAction === 'start' || modAction === 'process' || modAction === 'complete' || modAction === 'status') {
+      const publisher_id = req.query?.publisher_id || req.body?.publisher_id;
+      if (!publisher_id) return res.status(400).json({ error: 'Missing publisher_id' });
+
+      const RESEND_KEY = process.env.RESEND_API_KEY;
+      async function sendModEmail(to, name, subject, bodyHtml) {
+        if (!RESEND_KEY) return { ok: false };
+        try {
+          const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST', headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from: 'Uplyncio <info@uplyncio.com>', to: [to], subject,
+              html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0"><div style="background:linear-gradient(135deg,#0f1628,#1a2d5a);padding:20px 24px;text-align:center"><div style="font-size:18px;font-weight:800;color:#fff">Uplyncio</div><div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px">Site Review System</div></div><div style="padding:24px 28px"><p style="font-size:14px;color:#333;margin:0 0 16px">Hi <strong>${name}</strong>,</p>${bodyHtml}</div><div style="background:#f8faff;border-top:1px solid #e2e8f0;padding:14px 24px;text-align:center;font-size:11px;color:#94a3b8">© 2026 Uplyncio</div></div>` })
+          });
+          return { ok: r.ok };
+        } catch(e) { return { ok: false }; }
+      }
+
+      function isValidDomain(domain) {
+        if (!domain || domain.length < 4 || !domain.includes('.')) return false;
+        if (/[^a-z0-9.\-]/.test(domain)) return false;
+        const blocked = ['example.com','test.com','localhost','abc.com','fake.com','spam.com'];
+        return !blocked.includes(domain);
+      }
+
+      if (modAction === 'start') {
+        const pubR = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(publisher_id)}&select=name,email&limit=1`, { headers: h() });
+        const pubs = await pubR.json();
+        const pub = pubs?.[0] || { name: 'Publisher', email: '' };
+        const countR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id`, { headers: h() });
+        const pending = await countR.json();
+        const total = Array.isArray(pending) ? pending.length : 0;
+        if (total === 0) return res.status(200).json({ success: true, message: 'No pending sites', total: 0 });
+        const estMinutes = Math.max(1, Math.ceil(total / 80));
+        await sendModEmail(pub.email, pub.name, `🔍 Site review started — ${total} sites`, `<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-bottom:16px"><p style="font-size:13px;color:#1e40af;margin:0">📋 Our team has started reviewing your <strong>${total} submitted sites</strong>.</p></div><p style="font-size:13px;color:#64748b">Estimated time: ~${estMinutes} minutes. You'll receive a summary when complete.</p>`);
+        return res.status(200).json({ success: true, total, estMinutes });
+      }
+
+      if (modAction === 'process') {
+        const pendR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id,domain,da,price&limit=75&order=created_at.asc`, { headers: h() });
+        const pending = await pendR.json();
+        if (!Array.isArray(pending) || !pending.length) return res.status(200).json({ success: true, done: true, processed: 0, remaining: 0 });
+        const approveIds = [], rejectIds = [], reasons = [];
+        for (const site of pending) {
+          const domain = (site.domain || '').toLowerCase().trim();
+          if (!isValidDomain(domain)) { rejectIds.push(site.id); reasons.push({ domain, reason: 'Invalid domain' }); }
+          else if ((parseInt(site.da) || 0) < 5) { rejectIds.push(site.id); reasons.push({ domain, reason: `DA too low (${site.da||0})` }); }
+          else if (!site.price || parseFloat(site.price) <= 0) { rejectIds.push(site.id); reasons.push({ domain, reason: 'No price set' }); }
+          else { approveIds.push(site.id); }
+        }
+        if (approveIds.length) await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${approveIds.map(id=>`"${id}"`).join(',')})`, { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) });
+        if (rejectIds.length) await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${rejectIds.map(id=>`"${id}"`).join(',')})`, { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Rejected', reviewed_at: new Date().toISOString() }) });
+        const remR = await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id`, { headers: h() });
+        const rem = await remR.json();
+        return res.status(200).json({ success: true, done: !Array.isArray(rem) || !rem.length, processed: pending.length, approved: approveIds.length, rejected: rejectIds.length, remaining: Array.isArray(rem) ? rem.length : 0, reasons: reasons.slice(0, 10) });
+      }
+
+      if (modAction === 'complete') {
+        const { totalApproved = 0, totalRejected = 0, totalDuplicate = 0, reasons = [] } = req.body || {};
+        const pubR = await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(publisher_id)}&select=name,email&limit=1`, { headers: h() });
+        const pubs = await pubR.json();
+        const pub = pubs?.[0] || { name: 'Publisher', email: '' };
+        const reasonsHtml = reasons.length ? `<div style="margin-top:12px"><strong>Rejection details:</strong><br>${reasons.slice(0,20).map(r => `• ${r.domain}: ${r.reason}`).join('<br>')}</div>` : '';
+        await sendModEmail(pub.email, pub.name, `✅ Review complete — ${totalApproved} approved, ${totalRejected} rejected`,
+          `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px"><p style="font-size:14px;color:#15803d;margin:0;font-weight:700">✅ Review complete!</p></div><p style="font-size:13px;color:#333"><strong style="color:#16a34a">${totalApproved} approved</strong> · <strong style="color:#dc2626">${totalRejected} rejected</strong> · <strong style="color:#d97706">${totalDuplicate} duplicates</strong></p><p style="font-size:13px;color:#64748b">Approved sites are now live in the marketplace.</p>${reasonsHtml}<div style="margin-top:16px;text-align:center"><a href="https://uplyncio.com/publisher" style="display:inline-block;background:#4f7cff;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700">Go to Dashboard →</a></div>`);
+        return res.status(200).json({ success: true, message: 'Summary email sent' });
+      }
+
+      if (modAction === 'status') {
+        const [pendR, liveR, rejR] = await Promise.all([
+          fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Pending Review&select=id`, { headers: h() }),
+          fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=in.(Live,Approved)&select=id`, { headers: h() }),
+          fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?publisher_id=eq.${encodeURIComponent(publisher_id)}&status=eq.Rejected&select=id`, { headers: h() })
+        ]);
+        const [pend, live, rej] = await Promise.all([pendR.json(), liveR.json(), rejR.json()]);
+        return res.status(200).json({ success: true, pending: Array.isArray(pend) ? pend.length : 0, approved: Array.isArray(live) ? live.length : 0, rejected: Array.isArray(rej) ? rej.length : 0 });
+      }
+    }
+
   } catch (e) {
     console.error('Sites API error:', e.message);
     return res.status(500).json({ error: e.message });

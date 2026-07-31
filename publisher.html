@@ -2379,9 +2379,9 @@ _modStats = { approved: 0, rejected: 0, duplicate: 0, reasons: [] };
 // Show moderation progress UI
 showModProgress(totalSites);
 // Call start
-fetch('/api/moderate', {
+fetch('/api/sites', {
 method:'POST', headers:{'Content-Type':'application/json'},
-body: JSON.stringify({ action:'start', publisher_id: publisherId })
+body: JSON.stringify({ action:'start', mod:'start', publisher_id: publisherId })
 }).then(function(r){ return r.json(); }).then(function(res){
 console.log('[Mod] Started:', res);
 // Begin processing batches
@@ -2389,9 +2389,9 @@ setTimeout(function(){ processModBatch(publisherId); }, 12000); // Wait 12s befo
 }).catch(function(e){ console.log('[Mod] Start error:', e); });
 }
 function processModBatch(publisherId){
-fetch('/api/moderate', {
+fetch('/api/sites', {
 method:'POST', headers:{'Content-Type':'application/json'},
-body: JSON.stringify({ action:'process', publisher_id: publisherId })
+body: JSON.stringify({ action:'process', mod:'process', publisher_id: publisherId })
 }).then(function(r){ return r.json(); }).then(function(res){
 if(!res.success) return;
 _modStats.approved += (res.approved||0);
@@ -2400,9 +2400,9 @@ if(res.reasons) _modStats.reasons = _modStats.reasons.concat(res.reasons);
 updateModProgress(_modStats.approved, _modStats.rejected, res.remaining||0);
 if(res.done){
 // All done — send summary email
-fetch('/api/moderate', {
+fetch('/api/sites', {
 method:'POST', headers:{'Content-Type':'application/json'},
-body: JSON.stringify({ action:'complete', publisher_id: publisherId, totalApproved: _modStats.approved, totalRejected: _modStats.rejected, totalDuplicate: _modStats.duplicate, reasons: _modStats.reasons.slice(0,20) })
+body: JSON.stringify({ action:'complete', mod:'complete', publisher_id: publisherId, totalApproved: _modStats.approved, totalRejected: _modStats.rejected, totalDuplicate: _modStats.duplicate, reasons: _modStats.reasons.slice(0,20) })
 }).then(function(){ console.log('[Mod] Complete email sent'); }).catch(function(){});
 hideModProgress(true);
 // Reload sites to show updated statuses
