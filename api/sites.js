@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     // ── QUICK FIX: Restore all Pending sites to Live ──
     if (req.query?.mod === 'fix') {
       await fetch(
-        `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending Review`,
+        `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending%20Review`,
         { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) }
       );
       return res.status(200).json({ success: true, message: 'All Pending Review sites restored to Live!' });
