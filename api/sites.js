@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      const { publisher_id, limit = 1000, offset = 0 } = req.query;
+      const { publisher_id, limit = 10000, offset = 0 } = req.query;
       let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&limit=${limit}&offset=${offset}&order=da.desc`;
       if (publisher_id) {
         url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
