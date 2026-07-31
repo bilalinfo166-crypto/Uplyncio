@@ -140,8 +140,8 @@ if(_changed) localStorage.setItem('uplyncio_user', JSON.stringify(user));
 // Auto-setup for Uplyncio Team account
 var TEAM_EMAIL = 'info@uplyncio.com';
 var TEAM_UID = 'uplyncio_team_official';
-if(user && user.email === TEAM_EMAIL){
-// Set special team UID
+if(user && user.email && user.email.toLowerCase() === TEAM_EMAIL){
+// Set special team UID — ONLY for info@uplyncio.com
 if(uid !== TEAM_UID){
 localStorage.setItem('uplyncio_currentUid', TEAM_UID);
 uid = TEAM_UID;
@@ -159,6 +159,10 @@ user.publisherVerified = true;
 localStorage.setItem('uplyncio_user', JSON.stringify(user));
 // Also run badge update immediately
 setTimeout(function(){ if(typeof applyVerifiedBadges==='function') applyVerifiedBadges(); }, 100);
+} else if(user && user.email && user.email.toLowerCase() !== TEAM_EMAIL && uid === TEAM_UID) {
+// User is NOT info@uplyncio.com but somehow has team UID — reset to their own UID
+uid = user.uid || user.id || 'uid_'+Date.now();
+localStorage.setItem('uplyncio_currentUid', uid);
 }
 // Load this user's orders/sites from their personal storage
 if(uid){
