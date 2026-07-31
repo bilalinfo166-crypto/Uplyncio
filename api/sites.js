@@ -48,9 +48,10 @@ export default async function handler(req, res) {
       // ── BATCH UPSERT ──
       if (b.sites && Array.isArray(b.sites)) {
         const results = [];
-        for (const site of b.sites.slice(0, 50)) { // Max 100 per batch
+        let inserted = 0, updated = 0, skipped = 0;
+        for (const site of b.sites.slice(0, 2000)) { // Max 2000 per batch
           const domain = (site.url||site.domain||'').replace(/^https?:\/\//i,'').replace(/\/.*/,'').toLowerCase().trim();
-          if (!domain || !site.publisher_id) continue;
+          if (!domain || !site.publisher_id) { skipped++; continue; }
           const safe = {
             publisher_id: site.publisher_id,
             url: site.url||domain, domain: domain,
@@ -59,7 +60,7 @@ export default async function handler(req, res) {
             price: parseFloat(site.price)||0,
             category: site.category||'General',
             link_type: site.link_type||'Dofollow',
-            status: site.status||'Live',
+            status: 'Pending Review',
             updated_at: new Date().toISOString()
           };
           const optional = ['publisher_name','publisher_email','write_publish_price',
@@ -77,14 +78,16 @@ export default async function handler(req, res) {
             if (Array.isArray(existing) && existing.length > 0) {
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=eq.${existing[0].id}`, { method: 'PATCH', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'updated'});
+              updated++;
             } else {
               safe.created_at = new Date().toISOString();
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, { method: 'POST', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'inserted'});
+              inserted++;
             }
-          } catch(e) { results.push({domain, action:'error', error:e.message}); }
+          } catch(e) { results.push({domain, action:'error', error:e.message}); skipped++; }
         }
-        return res.status(200).json({ success: true, batch: true, count: results.length, results });
+        return res.status(200).json({ success: true, batch: true, count: results.length, inserted, updated, skipped, results });
         // Note: site add notifications handled client-side since publisher is logged in
       }
 

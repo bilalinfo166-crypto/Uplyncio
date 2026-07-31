@@ -2351,7 +2351,12 @@ site_id_local: s.id ? s.id.toString() : ''
 var batchSize = 20;
 var i = 0;
 function sendBatch(){
-if(i >= batch.length){ console.log('[Sync] All '+batch.length+' sites synced to Supabase'); return; }
+if(i >= batch.length){ 
+console.log('[Sync] All '+batch.length+' sites synced to Supabase');
+// ── START MODERATION PROCESS ──
+startSiteModeration(actualUid, batch.length);
+return; 
+}
 var chunk = batch.slice(i, i+batchSize);
 i += batchSize;
 fetch('/api/sites?upsert=1&batch=1', {
@@ -2363,6 +2368,94 @@ body: JSON.stringify({sites: chunk})
 .catch(function(){ setTimeout(sendBatch, 500); });
 }
 sendBatch();
+}
+
+// ── SITE MODERATION SYSTEM ──
+var _modStats = { approved: 0, rejected: 0, duplicate: 0, reasons: [] };
+function startSiteModeration(publisherId, totalSites){
+_modStats = { approved: 0, rejected: 0, duplicate: 0, reasons: [] };
+// Show moderation progress UI
+showModProgress(totalSites);
+// Call start
+fetch('/api/moderate', {
+method:'POST', headers:{'Content-Type':'application/json'},
+body: JSON.stringify({ action:'start', publisher_id: publisherId })
+}).then(function(r){ return r.json(); }).then(function(res){
+console.log('[Mod] Started:', res);
+// Begin processing batches
+setTimeout(function(){ processModBatch(publisherId); }, 12000); // Wait 12s before first batch
+}).catch(function(e){ console.log('[Mod] Start error:', e); });
+}
+function processModBatch(publisherId){
+fetch('/api/moderate', {
+method:'POST', headers:{'Content-Type':'application/json'},
+body: JSON.stringify({ action:'process', publisher_id: publisherId })
+}).then(function(r){ return r.json(); }).then(function(res){
+if(!res.success) return;
+_modStats.approved += (res.approved||0);
+_modStats.rejected += (res.rejected||0);
+if(res.reasons) _modStats.reasons = _modStats.reasons.concat(res.reasons);
+updateModProgress(_modStats.approved, _modStats.rejected, res.remaining||0);
+if(res.done){
+// All done — send summary email
+fetch('/api/moderate', {
+method:'POST', headers:{'Content-Type':'application/json'},
+body: JSON.stringify({ action:'complete', publisher_id: publisherId, totalApproved: _modStats.approved, totalRejected: _modStats.rejected, totalDuplicate: _modStats.duplicate, reasons: _modStats.reasons.slice(0,20) })
+}).then(function(){ console.log('[Mod] Complete email sent'); }).catch(function(){});
+hideModProgress(true);
+// Reload sites to show updated statuses
+if(typeof renderSites === 'function'){ mySites = loadSites(); renderSites(); }
+} else {
+// Process next batch in 12-18 seconds
+var delay = 12000 + Math.floor(Math.random()*6000);
+setTimeout(function(){ processModBatch(publisherId); }, delay);
+}
+}).catch(function(e){
+console.log('[Mod] Process error:', e);
+setTimeout(function(){ processModBatch(publisherId); }, 15000);
+});
+}
+function showModProgress(total){
+var existing = document.getElementById('modProgressBar');
+if(existing) existing.remove();
+var el = document.createElement('div');
+el.id = 'modProgressBar';
+el.style.cssText = 'position:fixed;top:58px;left:210px;right:0;background:#fff;border-bottom:2px solid #e2e8f0;padding:12px 24px;z-index:300;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,.08)';
+el.innerHTML = '<div style="width:20px;height:20px;border:3px solid #e2e8f0;border-top-color:#4f7cff;border-radius:50%;animation:spin 1s linear infinite;flex-shrink:0"></div>'
++'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#0f172a">🔍 Reviewing your sites...</div>'
++'<div id="modProgressText" style="font-size:12px;color:#64748b;margin-top:2px">Our team is checking each site for quality standards. This may take a few minutes.</div></div>'
++'<div style="text-align:right;min-width:120px"><div id="modCountApproved" style="font-size:11px;color:#16a34a;font-weight:700">✓ 0 approved</div>'
++'<div id="modCountRejected" style="font-size:11px;color:#ef4444;font-weight:700">✗ 0 rejected</div></div>';
+document.body.appendChild(el);
+// Add spin animation if not exists
+if(!document.getElementById('modSpinStyle')){
+var s = document.createElement('style');
+s.id = 'modSpinStyle';
+s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(s);
+}
+}
+function updateModProgress(approved, rejected, remaining){
+var at = document.getElementById('modCountApproved');
+var rt = document.getElementById('modCountRejected');
+var pt = document.getElementById('modProgressText');
+if(at) at.textContent = '✓ ' + approved + ' approved';
+if(rt) rt.textContent = '✗ ' + rejected + ' rejected';
+if(pt) pt.textContent = remaining + ' sites remaining — reviewing quality, DA, and domain validity...';
+}
+function hideModProgress(success){
+var el = document.getElementById('modProgressBar');
+if(!el) return;
+if(success){
+el.style.background = '#f0fdf4';
+el.style.borderBottomColor = '#bbf7d0';
+el.innerHTML = '<div style="font-size:18px;flex-shrink:0">✅</div>'
++'<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#15803d">Review complete!</div>'
++'<div style="font-size:12px;color:#16a34a;margin-top:2px">' + _modStats.approved + ' sites approved, ' + _modStats.rejected + ' rejected. Check your email for the full report.</div></div>'
++'<button onclick="document.getElementById(\'modProgressBar\').remove()" style="background:#16a34a;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">OK</button>';
+} else {
+el.remove();
+}
 }
 // Force push ALL sites to Supabase with visible feedback
 window.forceSyncAllSites = function(){
