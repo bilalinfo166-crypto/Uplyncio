@@ -1758,6 +1758,34 @@ const nav=document.querySelector('.nav');
 if(nav && !nav.contains(e.target))closeAll();
 });
 </script>
+<div id="forgotModal" onclick="if(event.target===this)closeForgotModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10003;align-items:center;justify-content:center;backdrop-filter:blur(12px);padding:16px">
+<div style="background:#fff;border-radius:20px;width:420px;max-width:95vw;padding:32px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.4)">
+<button onclick="closeForgotModal()" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:1px solid #e2e8f0;background:#f8faff;cursor:pointer;font-size:16px;color:#64748b;display:flex;align-items:center;justify-content:center">✕</button>
+<div style="text-align:center;margin-bottom:20px">
+<div style="width:48px;height:48px;background:#0f1628;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><svg width="28" height="28" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0f1628"/><rect x="8" y="22" width="22" height="16" rx="8" fill="none" stroke="#4f7cff" stroke-width="5"/><rect x="34" y="22" width="22" height="16" rx="8" fill="none" stroke="#00d4aa" stroke-width="5"/><rect x="31" y="26" width="6" height="8" fill="#0f1628"/></svg></div>
+<h2 style="font-family:Manrope,sans-serif;font-size:20px;font-weight:800;color:#0f172a;margin-bottom:4px">Reset Password</h2>
+<p style="font-size:13px;color:#64748b">Enter your email and we'll send you a reset code</p>
+</div>
+<div id="forgotStep1">
+<label style="font-size:12.5px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Email Address</label>
+<input id="forgotEmail" type="email" placeholder="your@email.com" style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:6px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+<div id="forgotError" style="font-size:12px;color:#ef4444;min-height:18px;margin-bottom:8px"></div>
+<button onclick="sendForgotCode()" id="forgotSendBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Send Reset Code →</button>
+</div>
+<div id="forgotStep2" style="display:none">
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;margin-bottom:14px;text-align:center">
+<p style="font-size:13px;color:#15803d;margin:0">✅ Code sent! Check your email inbox.</p>
+</div>
+<label style="font-size:12.5px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Enter 6-Digit Code</label>
+<input id="forgotCode" type="text" maxlength="6" placeholder="000000" style="width:100%;padding:13px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:24px;font-family:monospace;letter-spacing:10px;text-align:center;outline:none;box-sizing:border-box;margin-bottom:10px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+<label style="font-size:12.5px;font-weight:700;color:#374151;display:block;margin-bottom:4px">New Password</label>
+<input id="forgotNewPass" type="password" placeholder="Min 8 chars, uppercase, number, special" style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:6px" onfocus="this.style.borderColor='#4f7cff'" onblur="this.style.borderColor='#e2e8f0'">
+<div id="forgotError2" style="font-size:12px;color:#ef4444;min-height:18px;margin-bottom:8px"></div>
+<button onclick="resetForgotPassword()" style="width:100%;padding:13px;background:linear-gradient(135deg,#00c27a,#00d4aa);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Reset Password ✓</button>
+</div>
+</div>
+</div>
+
 <div id="verifyModal" onclick="if(event.target===this)closeVerifyModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:10002;align-items:center;justify-content:center;backdrop-filter:blur(12px);padding:16px;overflow-y:auto">
 <div style="background:linear-gradient(160deg,#0d1f3c 0%,#0a1628 100%);border:1px solid rgba(79,124,255,.25);border-radius:28px;width:100%;max-width:420px;padding:28px 28px 22px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(79,124,255,.1);margin:auto">
 <button onclick="closeVerifyModal()" style="position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);cursor:pointer;font-size:16px;color:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1" onmouseover="this.style.background='rgba(239,68,68,.25)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,.05)';this.style.color='rgba(255,255,255,.5)'">✕</button>
@@ -3078,6 +3106,59 @@ setTimeout(function(){ err.style.display='none'; err.style.color='#ef4444'; }, 3
 // openBuyerSignup defined above
 // closePublisherModal defined above
 function closeSignupStep2(){ document.getElementById('signupStep2Modal').style.display='none'; document.body.style.overflow=''; }
+function openForgotModal(){
+document.getElementById('forgotModal').style.display='flex';
+document.getElementById('forgotStep1').style.display='block';
+document.getElementById('forgotStep2').style.display='none';
+document.getElementById('forgotEmail').value='';
+document.getElementById('forgotError').textContent='';
+document.body.style.overflow='hidden';
+setTimeout(function(){ document.getElementById('forgotEmail').focus(); },100);
+}
+function closeForgotModal(){
+document.getElementById('forgotModal').style.display='none';
+document.body.style.overflow='';
+}
+function sendForgotCode(){
+var email=document.getElementById('forgotEmail').value.trim();
+var err=document.getElementById('forgotError');
+if(!email||!email.includes('@')){err.textContent='Please enter a valid email';return;}
+err.textContent='Sending code...';err.style.color='#64748b';
+document.getElementById('forgotSendBtn').disabled=true;
+fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'forgot_password',email:email})})
+.then(function(r){return r.json();})
+.then(function(res){
+document.getElementById('forgotSendBtn').disabled=false;
+if(res.success||res.message){
+document.getElementById('forgotStep1').style.display='none';
+document.getElementById('forgotStep2').style.display='block';
+} else {
+err.textContent=res.error||'Email not found';err.style.color='#ef4444';
+}
+}).catch(function(){
+document.getElementById('forgotSendBtn').disabled=false;
+err.textContent='Connection error. Try again.';err.style.color='#ef4444';
+});
+}
+function resetForgotPassword(){
+var email=document.getElementById('forgotEmail').value.trim();
+var code=document.getElementById('forgotCode').value.trim();
+var pass=document.getElementById('forgotNewPass').value;
+var err=document.getElementById('forgotError2');
+if(!code||code.length!==6){err.textContent='Enter the 6-digit code';return;}
+if(!pass||pass.length<8){err.textContent='Password must be at least 8 characters';return;}
+err.textContent='Resetting...';err.style.color='#64748b';
+fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset_password',email:email,code:code,newPassword:pass})})
+.then(function(r){return r.json();})
+.then(function(res){
+if(res.success){
+closeForgotModal();
+alert('✅ Password reset successful! You can now login with your new password.');
+} else {
+err.textContent=res.error||'Invalid code or error';err.style.color='#ef4444';
+}
+}).catch(function(){err.textContent='Connection error';err.style.color='#ef4444';});
+}
 function openLogin(){
 // Show role picker to choose publisher or buyer login
 var role = showRolePicker();
