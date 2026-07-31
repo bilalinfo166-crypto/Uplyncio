@@ -2826,7 +2826,6 @@ document.getElementById('buyerModal').style.display='none';
 openVerifyModal(u.email||email, false);
 return;
 }
-// Team email with both roles - show selector
 if(result.teamRoles && result.teamRoles.length > 1){
 showTeamRoleSelector(email, pass, result.teamRoles);
 return;
@@ -2835,7 +2834,6 @@ if(u.role!=='buyer'){errEl.textContent='This email is registered as a '+u.role+'
 completeAuth('buyer',u.email,u.name,u.id, u);
 } else {
 errEl.textContent=result.error||'Invalid email or password';errEl.style.color='#ef4444';
-}
 }
 })
 .catch(function(){errEl.textContent='Connection error. Please try again.';errEl.style.color='#ef4444';});
