@@ -143,7 +143,12 @@ menu.innerHTML =
 '<div style="padding:16px 18px;border-bottom:1px solid #f1f5f9">'
 + '<div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:flex;align-items:center;gap:6px">'+(role==='publisher'?'Publisher':'Buyer')+' '+verBadge+'</div>'
 + '<div style="font-size:15px;font-weight:800;color:#0f172a">'+(name||'User')+'</div>'
-
++ '</div>';
+document.body.appendChild(menu);
+}
+}catch(e){}
+})();
+</script>
 
 <div class="faq-hero">
 <h1>Frequently Asked Questions</h1>
