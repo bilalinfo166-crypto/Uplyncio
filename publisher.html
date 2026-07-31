@@ -132,7 +132,6 @@ var user = JSON.parse(localStorage.getItem('uplyncio_user')||'null');
 // Always ensure verified:true and role:publisher are saved
 if(user){
 var _changed = false;
-if(!user.verified){ user.verified = true; _changed = true; }
 if(!user.role){ user.role = 'publisher'; _changed = true; }
 if(_changed) localStorage.setItem('uplyncio_user', JSON.stringify(user));
 }
