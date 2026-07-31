@@ -2932,7 +2932,7 @@ return "<tr style='border-bottom:1px solid #e2e8f0' onmouseover=\"this.style.bac
 "<td style='padding:12px 16px;font-size:13px;color:#475569;white-space:nowrap'>" + s.traffic + "</td>" +
 "<td style='padding:12px 16px;white-space:nowrap'><span style='background:#fef3c7;color:#d97706;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px'>" + (s.cat||'').split(',')[0] + "</span></td>" +
 "<td style='padding:12px 16px;white-space:nowrap'><span style='background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap'>" + (s.lt||'Dofollow') + "</span></td>" +
-"<td style='padding:12px 16px;font-family:Manrope,sans-serif;font-size:14px;font-weight:800;white-space:nowrap'>" + (s.gP?'$'+s.gP:(s.price||'N/A')) + "</td>" +
+"<td style='padding:12px 16px;font-family:Manrope,sans-serif;font-size:14px;font-weight:800;white-space:nowrap'>$" + (s.gP||String(s.price||'0').replace('$','')) + "</td>" +
 "<td style='padding:12px 16px;white-space:nowrap'><span style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:"+statusColor+"'><span style='width:6px;height:6px;border-radius:50%;background:"+statusBg+";display:inline-block;flex-shrink:0'></span>" + statusText + "</span></td>" +
 "<td style='padding:12px 16px;white-space:nowrap'>" +
 "<div style='display:flex;align-items:center;gap:6px'>" +
