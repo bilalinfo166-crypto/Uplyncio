@@ -25,13 +25,14 @@ export default async function handler(req, res) {
 
   try {
 
-    // ── QUICK FIX: Restore all Pending sites to Live ──
+    // ── QUICK FIX: Restore admin's Pending sites to Live (one-time) ──
     if (req.query?.mod === 'fix') {
+      // Only fix uplyncio_team_official sites — other publishers stay in Pending Review
       await fetch(
-        `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending%20Review`,
+        `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending%20Review&publisher_id=eq.uplyncio_team_official`,
         { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) }
       );
-      return res.status(200).json({ success: true, message: 'All Pending Review sites restored to Live!' });
+      return res.status(200).json({ success: true, message: 'Admin sites restored to Live! Other publishers sites unchanged.' });
     }
 
     if (req.method === 'GET') {
@@ -96,8 +97,9 @@ export default async function handler(req, res) {
               results.push({domain, action:'updated'});
               updated++;
             } else {
-              // NEW site — set to Pending Review for moderation
-              safe.status = 'Pending Review';
+              // NEW site — admin sites go Live directly, others go to Pending Review
+              var isAdmin = site.publisher_id === 'uplyncio_team_official';
+              safe.status = isAdmin ? 'Live' : 'Pending Review';
               safe.created_at = new Date().toISOString();
               await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites`, { method: 'POST', headers: h(), body: JSON.stringify(safe) });
               results.push({domain, action:'inserted'});
