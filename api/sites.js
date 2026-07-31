@@ -50,30 +50,19 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      const { publisher_id, limit = 10000, offset = 0 } = req.query;
-      let baseUrl = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc`;
+      const { publisher_id, limit = 1000, offset = 0 } = req.query;
+      let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc&limit=${limit}&offset=${offset}`;
       if (publisher_id) {
-        baseUrl += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
+        url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else {
-        baseUrl += `&status=in.(Live,live,Approved,approved,Active,active)`;
+        url += `&status=in.(Live,live,Approved,approved,Active,active)`;
       }
-      
-      // Paginate through all results (Supabase max 1000 per request)
-      let allData = [];
-      let page = 0;
-      const pageSize = 1000;
-      while (true) {
-        const url = baseUrl + `&limit=${pageSize}&offset=${page * pageSize}`;
-        const r = await fetch(url, { headers: h() });
-        const data = await r.json();
-        if (!Array.isArray(data) || data.length === 0) break;
-        allData = allData.concat(data);
-        if (data.length < pageSize) break; // last page
-        page++;
-        if (allData.length >= parseInt(limit)) break; // respect limit
+      const r = await fetch(url, { headers: h() });
+      const data = await r.json();
+      if (!Array.isArray(data)) {
+        return res.status(200).json({ success: true, sites: [] });
       }
-      
-      return res.status(200).json({ success: true, sites: allData, total: allData.length });
+      return res.status(200).json({ success: true, sites: data });
     }
 
     if (req.method === 'POST') {
