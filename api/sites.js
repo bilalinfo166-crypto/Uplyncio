@@ -161,7 +161,7 @@ export default async function handler(req, res) {
     // MODERATION SYSTEM (action-based via query param)
     // ═══════════════════════════════════════
     const modAction = req.query?.mod || (req.body?.action);
-    if (modAction === 'start' || modAction === 'process' || modAction === 'complete' || modAction === 'status') {
+    if (modAction === 'start' || modAction === 'process' || modAction === 'complete' || modAction === 'status' || modAction === 'fix') {
       const publisher_id = req.query?.publisher_id || req.body?.publisher_id;
       if (!publisher_id) return res.status(400).json({ error: 'Missing publisher_id' });
 
@@ -226,6 +226,15 @@ export default async function handler(req, res) {
         await sendModEmail(pub.email, pub.name, `✅ Review complete — ${totalApproved} approved, ${totalRejected} rejected`,
           `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px"><p style="font-size:14px;color:#15803d;margin:0;font-weight:700">✅ Review complete!</p></div><p style="font-size:13px;color:#333"><strong style="color:#16a34a">${totalApproved} approved</strong> · <strong style="color:#dc2626">${totalRejected} rejected</strong> · <strong style="color:#d97706">${totalDuplicate} duplicates</strong></p><p style="font-size:13px;color:#64748b">Approved sites are now live in the marketplace.</p>${reasonsHtml}<div style="margin-top:16px;text-align:center"><a href="https://uplyncio.com/publisher" style="display:inline-block;background:#4f7cff;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700">Go to Dashboard →</a></div>`);
         return res.status(200).json({ success: true, message: 'Summary email sent' });
+      }
+
+      if (modAction === 'fix') {
+        // Bulk approve all Pending Review sites to Live
+        const upd = await fetch(
+          `${SUPABASE_URL}/rest/v1/publisher_sites?status=eq.Pending Review`,
+          { method: 'PATCH', headers: h(), body: JSON.stringify({ status: 'Live', reviewed_at: new Date().toISOString() }) }
+        );
+        return res.status(200).json({ success: true, message: 'All pending sites set to Live' });
       }
 
       if (modAction === 'status') {
