@@ -132,7 +132,7 @@ export default async function handler(req, res) {
         price: parseFloat(b.price)||0,
         category: b.category||'General',
         link_type: b.link_type||'Dofollow',
-        status: b.status||'Pending Review',
+        status: b.status || ((b.publisher_id === 'uplyncio_team_official') ? 'Live' : 'Pending Review'),
         updated_at: new Date().toISOString()
       };
 
