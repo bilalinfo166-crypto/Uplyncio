@@ -204,6 +204,7 @@ tr:hover td{background:#fafbff}
 <!-- SITES -->
 <div id="page-sites" class="page">
 <div class="header"><div class="page-title">🔗 Publisher Sites</div></div>
+<div style="padding:12px 16px;font-size:13px;color:#64748b" id="sitesCount">Loading...</div>
 <div class="card"><div style="overflow-x:auto"><table><thead><tr><th>URL</th><th>Publisher</th><th>DA</th><th>DR</th><th>Price</th><th>Status</th><th>Category</th></tr></thead><tbody id="sitesTbody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody></table></div></div>
 </div>
 
@@ -504,14 +505,41 @@ async function adminConfirm(orderId){
   } catch(e){ toast('Error','#ef4444'); }
 }
 
+var _adminSitesPage = 0;
+var _adminAllSites = [];
 async function loadSites(){
   var tbody = document.getElementById('sitesTbody');
+  tbody.innerHTML='<tr><td colspan="7" class="empty">Loading sites...</td></tr>';
+  _adminSitesPage = 0;
+  _adminAllSites = [];
+  await _loadAdminSitesPage(tbody);
+}
+async function _loadAdminSitesPage(tbody){
   try {
-    const d = await fetch('/api/sites?limit=100').then(r=>r.json());
+    const d = await fetch('/api/sites?limit=1000&offset='+(_adminSitesPage*1000)).then(function(r){return r.json();});
     var sites = Array.isArray(d.sites)?d.sites:[];
-    if(!sites.length){ tbody.innerHTML='<tr><td colspan="7" class="empty">No sites found</td></tr>'; return; }
-    tbody.innerHTML = sites.map(function(s){ return '<tr><td><a href="https://'+s.domain+'" target="_blank" style="color:#4f7cff;font-size:12px;font-weight:700">'+s.domain+'</a></td><td style="font-size:12px">'+s.publisher_email+'</td><td style="font-weight:700">'+s.da+'</td><td>'+s.dr+'</td><td>$'+s.price+'</td><td>'+statusBadge(s.status)+'</td><td style="font-size:12px">'+s.category+'</td></tr>'; }).join('');
+    _adminAllSites = _adminAllSites.concat(sites);
+    if(sites.length >= 1000){
+      _adminSitesPage++;
+      tbody.innerHTML='<tr><td colspan="7" class="empty">Loading... '+_adminAllSites.length+' sites loaded</td></tr>';
+      setTimeout(function(){ _loadAdminSitesPage(tbody); }, 100);
+    } else {
+      _renderAdminSites(_adminAllSites, tbody);
+    }
   } catch(e){ tbody.innerHTML='<tr><td colspan="7" class="empty">Error loading</td></tr>'; }
+}
+function _renderAdminSites(sites, tbody){
+  if(!sites.length){ tbody.innerHTML='<tr><td colspan="7" class="empty">No sites found</td></tr>'; return; }
+  var info = document.getElementById('sitesCount');
+  if(info) info.textContent = sites.length + ' total sites';
+  var live = sites.filter(function(s){return s.status==='Live';}).length;
+  var pending = sites.filter(function(s){return s.status==='Pending Review';}).length;
+  var rejected = sites.filter(function(s){return s.status==='Rejected';}).length;
+  if(info) info.innerHTML = '<strong>'+sites.length+'</strong> total · <span style="color:#16a34a">'+live+' live</span> · <span style="color:#f59e0b">'+pending+' pending</span> · <span style="color:#ef4444">'+rejected+' rejected</span>';
+  // Show first 200 sites (paginated display)
+  var show = sites.slice(0, 200);
+  tbody.innerHTML = show.map(function(s){ return '<tr><td><a href="https://'+s.domain+'" target="_blank" style="color:#4f7cff;font-size:12px;font-weight:700">'+s.domain+'</a></td><td style="font-size:12px">'+(s.publisher_email||'—')+'</td><td style="font-weight:700">'+s.da+'</td><td>'+s.dr+'</td><td>$'+s.price+'</td><td>'+statusBadge(s.status)+'</td><td style="font-size:12px">'+(s.category||'—')+'</td></tr>'; }).join('')
+  +(sites.length>200?'<tr><td colspan="7" style="padding:12px;text-align:center;color:#94a3b8;font-size:12px">Showing 200 of '+sites.length+' sites</td></tr>':'');
 }
 
 async function loadReviews(){
