@@ -1071,10 +1071,9 @@ fetch('/api/sites?limit=1000&offset='+_sbOffset)
 var sites = (res.success && Array.isArray(res.sites)) ? res.sites : [];
 _sbAll = _sbAll.concat(sites);
 if(loadEl) loadEl.innerHTML = '<div style="text-align:center;padding:12px;color:#4f7cff;font-size:13px;font-weight:600">⏳ Loading sites... '+_sbAll.length+' loaded</div>';
-// Render after first batch AND update every 3 batches for speed
+// Render first batch immediately, then update every 3 batches
 if(_sbAll.length > 0 && (_sbAll.length <= 1000 || _sbOffset % 3000 === 0)){
-var hasSearch = (document.getElementById('globalSearch').value||'').trim();
-if(!hasSearch){ try { _processSBSites(_sbAll); } catch(e) {} }
+try { _processSBSites(_sbAll); } catch(e) {}
 }
 if(sites.length === 1000){
 _sbOffset += 1000;
