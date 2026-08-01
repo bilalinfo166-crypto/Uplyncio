@@ -1627,7 +1627,7 @@ return '<div class="site-card" id="card_'+idx+'" onclick="toggleExpand('+idx+')"
 +'</div>';
 } else {
 var priceCols2 = '<div class="price-cols">'
-+'<div class="pc"><div class="pc-lbl">Link Insertion</div><div class="pc-val">$'+s.liP+'</div><div class="pc-sub">Add link to existing post</div></div>'
++'<div class="pc"><div class="pc-lbl">Link Insertion</div><div class="pc-val">'+(s.liOk && s.liP > 0 ? '$'+s.liP : 'Not available')+'</div><div class="pc-sub">'+(s.liOk && s.liP > 0 ? 'Add link to existing post' : 'This publisher does not offer LI')+'</div></div>'
 +(s.liReq?'<div class="pc-sep"></div><div class="pc"><div class="pc-lbl">Requirements</div><div class="pc-val" style="font-size:12px;font-weight:600;color:#64748b;line-height:1.4">'+s.liReq+'</div></div>':'')
 +'</div>';
 var inCartBtn2 = localStorage.getItem('cart_li_'+s.url)==='1';
