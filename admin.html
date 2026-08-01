@@ -332,8 +332,11 @@ async function loadStats(){
     document.getElementById('st-orders').textContent = s.totalOrders;
     document.getElementById('st-revenue').textContent = '$'+s.totalRevenue.toLocaleString();
     document.getElementById('st-users').textContent = s.totalUsers;
-    document.getElementById('st-sites').textContent = s.liveSites;
+    document.getElementById('st-sites').textContent = s.totalSites;
     document.getElementById('st-pending').textContent = s.pendingOrders;
+    // Update sites label to show breakdown
+    var sitesCard = document.getElementById('st-sites');
+    if(sitesCard) sitesCard.innerHTML = s.totalSites + '<div style="font-size:11px;font-weight:600;color:#16a34a;margin-top:2px">' + s.liveSites + ' live</div>';
     document.getElementById('st-disputes').textContent = s.disputedOrders;
     document.getElementById('st-withdrawals').textContent = '$'+s.pendingWithdrawals;
     document.getElementById('st-rating').textContent = s.avgRating+'⭐';

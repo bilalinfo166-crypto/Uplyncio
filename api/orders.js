@@ -331,20 +331,39 @@ export default async function handler(req, res) {
       if (!authorized) return apiError(res,403,'Unauthorized');
 
       if (action === 'stats') {
-        const [ords,usrs,sites,wds,revs] = await Promise.all([
-          sb('orders?select=status,price'), sb('users?select=role'),
-          sb('publisher_sites?select=status'), sb('withdrawals?select=status,net_amount'), sb('reviews?select=rating')
+        // Use count queries for accurate totals (not limited by 1000 row default)
+        async function getCount(table, filter) {
+          const url = `${SB}/rest/v1/${table}?select=id${filter?'&'+filter:''}&limit=0`;
+          const r = await fetch(url, { method: 'HEAD', headers: { ...h(), 'Prefer': 'count=exact' } });
+          const range = r.headers.get('content-range') || '*/0';
+          return parseInt(range.split('/')[1]) || 0;
+        }
+        const [totalOrders,pendingOrders,completedOrders,disputedOrders,totalUsers,buyers,publishers,totalSites,liveSites,pendingSites] = await Promise.all([
+          getCount('orders'),
+          getCount('orders','status=eq.Pending'),
+          getCount('orders','status=eq.Completed'),
+          getCount('orders','status=eq.Disputed'),
+          getCount('users'),
+          getCount('users','role=eq.buyer'),
+          getCount('users','role=eq.publisher'),
+          getCount('publisher_sites'),
+          getCount('publisher_sites','status=eq.Live'),
+          getCount('publisher_sites','status=eq.Pending%20Review')
+        ]);
+        // Get revenue and ratings (these need actual data, small result sets)
+        const [ords,wds,revs] = await Promise.all([
+          sb('orders?select=price&status=eq.Completed&limit=10000'),
+          sb('withdrawals?select=status,net_amount&limit=1000'),
+          sb('reviews?select=rating&limit=1000')
         ]);
         const os=Array.isArray(ords.data)?ords.data:[];
-        const us=Array.isArray(usrs.data)?usrs.data:[];
         const ws=Array.isArray(wds.data)?wds.data:[];
         const rs=Array.isArray(revs.data)?revs.data:[];
         return res.status(200).json({ success:true, stats:{
-          totalOrders:os.length, pendingOrders:os.filter(o=>o.status==='Pending').length,
-          completedOrders:os.filter(o=>o.status==='Completed').length, disputedOrders:os.filter(o=>o.status==='Disputed').length,
-          totalRevenue:parseFloat(os.filter(o=>o.status==='Completed').reduce((s,o)=>s+parseFloat(o.price||0),0).toFixed(2)),
-          totalUsers:us.length, buyers:us.filter(u=>u.role==='buyer').length, publishers:us.filter(u=>u.role==='publisher').length,
-          totalSites:Array.isArray(sites.data)?sites.data.length:0, liveSites:Array.isArray(sites.data)?sites.data.filter(s=>s.status==='Live').length:0,
+          totalOrders, pendingOrders, completedOrders, disputedOrders,
+          totalRevenue:parseFloat(os.reduce((s,o)=>s+parseFloat(o.price||0),0).toFixed(2)),
+          totalUsers, buyers, publishers,
+          totalSites, liveSites, pendingSites,
           pendingWithdrawals:parseFloat(ws.filter(w=>w.status==='Pending').reduce((s,w)=>s+parseFloat(w.net_amount||0),0).toFixed(2)),
           avgRating:rs.length?Math.round(rs.reduce((s,r)=>s+(r.rating||5),0)/rs.length*10)/10:5
         }});
