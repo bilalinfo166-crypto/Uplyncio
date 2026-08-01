@@ -3395,11 +3395,29 @@ r.readAsArrayBuffer(file);
 function parseJSON(rows, fname){
 parsedSites=[];
 var errors=0;
+// Debug: log first row keys
+if(rows.length > 0){
+var keys = Object.keys(rows[0]);
+console.log('[Excel] Column headers found:', keys);
+console.log('[Excel] First row data:', JSON.stringify(rows[0]).substring(0,500));
+}
 rows.forEach(function(row, i){
-// Find URL column — match exact sheet header "Url"
+// Find URL column — try ALL possible header names + first column fallback
 var url='';
-['Url','url','URL','Website URL','website url','website_url','Domain','domain','Site URL'].forEach(function(k){
-if(!url && row[k]) url=String(row[k]).trim().replace(/https?:\/\//,'').replace(/\/.*$/,'');
+var allKeys = Object.keys(row);
+['Url','url','URL','Website URL','website url','website_url','Domain','domain','Site URL','site url','Website','website','Site','site'].forEach(function(k){
+if(!url && row[k]) url=String(row[k]).trim().replace(/https?:\/\//,'').replace(/\/.*$/,'').replace(/['"]/g,'');
+});
+// Fallback: if no match, try first column that looks like a domain
+if(!url && allKeys.length > 0){
+for(var ki=0; ki<Math.min(allKeys.length, 3); ki++){
+var val = String(row[allKeys[ki]]||'').trim();
+if(val.includes('.') && val.length > 3 && !val.includes(' ') && /\.[a-z]{2,}$/i.test(val)){
+url = val.replace(/https?:\/\//,'').replace(/\/.*$/,'').replace(/['"]/g,'');
+break;
+}
+}
+}
 });
 if(!url){errors++;return;}
 var da=0,dr=0;
