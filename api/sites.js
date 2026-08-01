@@ -50,6 +50,59 @@ export default async function handler(req, res) {
       }
     }
 
+    // ── DEDUP: Remove duplicate domains per publisher ──
+    if (req.query?.mod === 'dedup') {
+      const pid = req.query.publisher_id;
+      try {
+        // Fetch all sites (paginate through all)
+        let allSites = [], offset = 0;
+        while (true) {
+          let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=id,domain,da,created_at&order=created_at.asc&limit=1000&offset=${offset}`;
+          if (pid) url += `&publisher_id=eq.${encodeURIComponent(pid)}`;
+          const r = await fetch(url, { headers: h() });
+          const data = await r.json();
+          if (!Array.isArray(data) || !data.length) break;
+          allSites = allSites.concat(data);
+          if (data.length < 1000) break;
+          offset += 1000;
+        }
+        
+        // Find duplicates - keep first (oldest), delete rest
+        const seen = {};
+        const dupeIds = [];
+        allSites.forEach(s => {
+          const domain = (s.domain || '').toLowerCase().trim();
+          const key = pid ? domain : (domain + '|' + (s.publisher_id || ''));
+          if (seen[key]) {
+            dupeIds.push(s.id);
+          } else {
+            seen[key] = true;
+          }
+        });
+
+        // Delete duplicates in batches of 50
+        let deleted = 0;
+        for (let i = 0; i < dupeIds.length; i += 50) {
+          const batch = dupeIds.slice(i, i + 50);
+          const ids = batch.map(id => `"${id}"`).join(',');
+          await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${ids})`, {
+            method: 'DELETE', headers: h()
+          });
+          deleted += batch.length;
+        }
+
+        return res.status(200).json({ 
+          success: true, 
+          message: `Removed ${deleted} duplicate sites out of ${allSites.length} total`,
+          totalScanned: allSites.length,
+          duplicatesRemoved: deleted,
+          remaining: allSites.length - deleted
+        });
+      } catch(e) {
+        return res.status(200).json({ error: e.message });
+      }
+    }
+
     if (req.method === 'GET') {
       const { publisher_id, limit = 1000, offset = 0, search } = req.query;
       let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc&limit=${limit}&offset=${offset}`;
@@ -283,4 +336,3 @@ export default async function handler(req, res) {
     console.error('Sites API error:', e.message);
     return res.status(500).json({ error: e.message });
   }
-}
