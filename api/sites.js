@@ -54,9 +54,9 @@ export default async function handler(req, res) {
     if (req.query?.mod === 'dedup') {
       const pid = req.query.publisher_id;
       try {
-        // Fetch sites sorted by created_at (oldest first) - 1000 at a time
-        let allSites = [], offset = 0;
-        for (let page = 0; page < 25; page++) { // Max 25 pages = 25,000 sites
+        // Only fetch 2000 sites per call to avoid timeout
+        let allSites = [];
+        for (let page = 0; page < 2; page++) {
           let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=id,domain,publisher_id&order=created_at.asc&limit=1000&offset=${page * 1000}`;
           if (pid) url += `&publisher_id=eq.${encodeURIComponent(pid)}`;
           const r = await fetch(url, { headers: h() });
@@ -65,25 +65,18 @@ export default async function handler(req, res) {
           allSites = allSites.concat(data);
           if (data.length < 1000) break;
         }
-
-        // Find duplicates in memory - keep first occurrence (oldest)
         const seen = {};
         const dupeIds = [];
         allSites.forEach(s => {
           const key = (s.domain || '').toLowerCase().trim() + '|' + (s.publisher_id || '');
-          if (seen[key]) { dupeIds.push(s.id); }
-          else { seen[key] = true; }
+          if (seen[key]) dupeIds.push(s.id);
+          else seen[key] = true;
         });
-
-        // Delete in batches of 30
-        let deleted = 0;
         for (let i = 0; i < dupeIds.length; i += 30) {
           const batch = dupeIds.slice(i, i + 30);
           await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${batch.map(id => `"${id}"`).join(',')})`, { method: 'DELETE', headers: h() });
-          deleted += batch.length;
         }
-
-        return res.status(200).json({ success: true, totalScanned: allSites.length, duplicatesRemoved: deleted, remaining: allSites.length - deleted });
+        return res.status(200).json({ success: true, scanned: allSites.length, removed: dupeIds.length, message: dupeIds.length ? 'Removed '+dupeIds.length+' duplicates. Run again to scan more.' : 'No duplicates found in this batch.' });
       } catch(e) { return res.status(200).json({ error: e.message }); }
     }
 
