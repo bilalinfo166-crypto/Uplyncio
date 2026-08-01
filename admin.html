@@ -291,6 +291,8 @@ if(localStorage.getItem('uplyncio_admin_auth')==='1'){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('adminPanel').style.display='block';
   setTimeout(function(){ loadStats(); loadOrders(document.querySelector('.tab.on'),''); loadWithdrawals(null,'Pending'); loadDisputes(); }, 100);
+  // Auto-refresh stats every 30 seconds for live updates
+  setInterval(function(){ loadStats(); }, 30000);
 }
 
 function showPage(name, el){
