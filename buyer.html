@@ -739,23 +739,23 @@ function completeSignupSocial(pr){ if(pr==='google') googleLogin(); else faceboo
 <!-- Search Bar -->
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:8px 14px">
 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-<input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off" oninput="applyFiltersDebounced()" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;background:transparent;color:#1a202c">
+<input type="text" id="globalSearch" placeholder="Search by domain, niche, or keyword..." autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();applyFilters();}" style="flex:1;border:none;outline:none;font-size:13.5px;font-family:inherit;background:transparent;color:#1a202c">
 <button onclick="applyFilters()" style="padding:6px 18px;background:#4f7cff;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Search</button>
 <button onclick="document.getElementById('globalSearch').value='';applyFilters();" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px;padding:0;display:none" id="searchClearBtn">✕</button>
 </div>
 <!-- Most popular filters -->
 <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px">Most popular filters</div>
 <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">
-<div class="fgroup"><label class="flbl">Price ($)</label><div style="display:flex;gap:4px"><input class="fi" id="fPriceMin" type="number" placeholder="Min" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fPriceMax" type="number" placeholder="Max" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
-<div class="fgroup"><label class="flbl">Ahrefs DR</label><div style="display:flex;gap:4px"><input class="fi" id="fDRMin" type="number" placeholder="1" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fDRMax" type="number" placeholder="100" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
-<div class="fgroup"><label class="flbl">Ahrefs Traffic, from</label><div style="display:flex;gap:4px"><input class="fi" id="fTrMin" type="number" placeholder="From" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fTrMax" type="number" placeholder="Any" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Price ($)</label><div style="display:flex;gap:4px"><input class="fi" id="fPriceMin" type="number" placeholder="Min"  style="width:100%"><input class="fi" id="fPriceMax" type="number" placeholder="Max"  style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Ahrefs DR</label><div style="display:flex;gap:4px"><input class="fi" id="fDRMin" type="number" placeholder="1"  style="width:100%"><input class="fi" id="fDRMax" type="number" placeholder="100"  style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Ahrefs Traffic, from</label><div style="display:flex;gap:4px"><input class="fi" id="fTrMin" type="number" placeholder="From"  style="width:100%"><input class="fi" id="fTrMax" type="number" placeholder="Any"  style="width:100%"></div></div>
 <div class="fgroup"><label class="flbl">Country</label><select class="fi" id="fCountry" onchange="applyFilters()" style="cursor:pointer"><option value="">Nothing selected</option><option>USA</option><option>UK</option><option>Canada</option><option>Australia</option><option>India</option><option>Germany</option><option>France</option><option>Pakistan</option><option>Global</option></select></div>
 <div class="fgroup"><label class="flbl">Language</label><select class="fi" id="fLang" onchange="applyFilters()" style="cursor:pointer"><option value="">All</option><option>English</option><option>Spanish</option><option>French</option><option>German</option><option>Arabic</option><option>Hindi</option><option>Urdu</option></select></div>
 </div>
 <!-- SEO filters -->
 <div style="font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;padding-top:8px;border-top:1px solid #f1f5f9">SEO filters</div>
 <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">
-<div class="fgroup"><label class="flbl">Moz DA</label><div style="display:flex;gap:4px"><input class="fi" id="fDAMin" type="number" placeholder="1" oninput="applyFiltersDebounced()" style="width:100%"><input class="fi" id="fDAMax" type="number" placeholder="100" oninput="applyFiltersDebounced()" style="width:100%"></div></div>
+<div class="fgroup"><label class="flbl">Moz DA</label><div style="display:flex;gap:4px"><input class="fi" id="fDAMin" type="number" placeholder="1"  style="width:100%"><input class="fi" id="fDAMax" type="number" placeholder="100"  style="width:100%"></div></div>
 <div class="fgroup"><label class="flbl">Spam Score</label><div style="display:flex;gap:4px"><input class="fi" id="fSpamMin" type="number" placeholder="1" style="width:100%"><input class="fi" id="fSpamMax" type="number" placeholder="100" style="width:100%"></div></div>
 <div class="fgroup"><label class="flbl">Categories</label><select class="fi" id="fCategory" onchange="applyFilters()" style="cursor:pointer"><option value="">Nothing selected</option></select></div>
 <div class="fgroup"><label class="flbl">Link Type</label><select class="fi" id="fLinkType" onchange="applyFilters()" style="cursor:pointer"><option value="">All types</option><option>Dofollow</option><option>Nofollow</option><option>Sponsored</option></select></div>
@@ -1073,7 +1073,8 @@ _sbAll = _sbAll.concat(sites);
 if(loadEl) loadEl.innerHTML = '<div style="text-align:center;padding:12px;color:#4f7cff;font-size:13px;font-weight:600">⏳ Loading sites... '+_sbAll.length+' loaded</div>';
 // Render after first batch AND update every 3 batches for speed
 if(_sbAll.length > 0 && (_sbAll.length <= 1000 || _sbOffset % 3000 === 0)){
-try { _processSBSites(_sbAll); } catch(e) {}
+var hasSearch = (document.getElementById('globalSearch').value||'').trim();
+if(!hasSearch){ try { _processSBSites(_sbAll); } catch(e) {} }
 }
 if(sites.length === 1000){
 _sbOffset += 1000;
