@@ -2526,17 +2526,19 @@ _loadOffset = 0;
 _loadPage(uid);
 }
 function _loadPage(uid){
-fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=10000&offset='+_loadOffset)
+fetch('/api/sites?publisher_id='+encodeURIComponent(uid)+'&limit=1000&offset='+_loadOffset)
 .then(function(r){ return r.json(); })
 .then(function(res){
 if(!res.success || !Array.isArray(res.sites)) return;
 _allSupabaseSites = _allSupabaseSites.concat(res.sites);
-if(res.sites.length >= 10000){
+console.log('[Supabase] Loaded page, offset='+_loadOffset+', got='+res.sites.length+', total so far='+_allSupabaseSites.length);
+if(res.sites.length >= 1000){
 // More pages exist
-_loadOffset += 10000;
-setTimeout(function(){ _loadPage(uid); }, 100);
+_loadOffset += 1000;
+setTimeout(function(){ _loadPage(uid); }, 300);
 } else {
 // All pages loaded — merge into mySites
+console.log('[Supabase] All pages loaded, total='+_allSupabaseSites.length);
 _mergeSBSites(_allSupabaseSites);
 }
 }).catch(function(e){ console.warn('Load page error:', e); });
