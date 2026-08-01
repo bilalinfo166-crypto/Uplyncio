@@ -134,7 +134,7 @@ tr:hover td{background:#fafbff}
 <div id="page-dashboard" class="page active">
 <div class="header">
 <div class="page-title">📊 Dashboard Overview</div>
-<button onclick="loadStats()" class="btn btn-ghost">🔄 Refresh</button>
+<button onclick="loadStats();loadUsers();toast('✅ Dashboard refreshed','#16a34a')" class="btn btn-ghost">🔄 Refresh</button>
 </div>
 <div class="stat-grid" id="statGrid">
 <div class="stat-card"><div class="stat-val" id="st-orders">—</div><div class="stat-label">Total Orders</div></div>
@@ -292,7 +292,7 @@ if(localStorage.getItem('uplyncio_admin_auth')==='1'){
   document.getElementById('adminPanel').style.display='block';
   setTimeout(function(){ loadStats(); loadOrders(document.querySelector('.tab.on'),''); loadWithdrawals(null,'Pending'); loadDisputes(); }, 100);
   // Auto-refresh stats every 30 seconds for live updates
-  setInterval(function(){ loadStats(); }, 30000);
+  setInterval(function(){ loadStats(); }, 300000);
 }
 
 function showPage(name, el){
