@@ -34,6 +34,7 @@
   }
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 </head>
 <body>
 <script>
@@ -3363,9 +3364,17 @@ r.onload=function(e){parseCSV(e.target.result,file.name);};
 r.readAsText(file);
 } else if(name.endsWith('.xlsx')||name.endsWith('.xls')){
 if(typeof XLSX==='undefined'){
+showStatus('processing','⏳ Loading Excel reader...');
 var s=document.createElement('script');
 s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-s.onload=function(){readExcel(file);};
+s.onload=function(){
+console.log('[Upload] SheetJS loaded successfully');
+readExcel(file);
+};
+s.onerror=function(){
+console.error('[Upload] Failed to load SheetJS from CDN');
+showStatus('error','❌ Could not load Excel reader. Please try uploading as CSV instead, or check your internet connection.');
+};
 document.head.appendChild(s);
 } else { readExcel(file); }
 } else { showStatus('error','❌ Please upload .csv, .xlsx or .xls file'); }
