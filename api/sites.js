@@ -54,10 +54,9 @@ export default async function handler(req, res) {
     if (req.query?.mod === 'dedup') {
       const pid = req.query.publisher_id;
       try {
-        // Only fetch 2000 sites per call to avoid timeout
         let allSites = [];
-        for (let page = 0; page < 2; page++) {
-          let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=id,domain,publisher_id&order=created_at.asc&limit=1000&offset=${page * 1000}`;
+        for (let page = 0; page < 30; page++) {
+          let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=id,domain${pid ? '' : ',publisher_id'}&order=created_at.asc&limit=1000&offset=${page * 1000}`;
           if (pid) url += `&publisher_id=eq.${encodeURIComponent(pid)}`;
           const r = await fetch(url, { headers: h() });
           const data = await r.json();
@@ -68,7 +67,7 @@ export default async function handler(req, res) {
         const seen = {};
         const dupeIds = [];
         allSites.forEach(s => {
-          const key = (s.domain || '').toLowerCase().trim() + '|' + (s.publisher_id || '');
+          const key = (s.domain || '').toLowerCase().trim() + '|' + (pid || s.publisher_id || '');
           if (seen[key]) dupeIds.push(s.id);
           else seen[key] = true;
         });
@@ -76,7 +75,7 @@ export default async function handler(req, res) {
           const batch = dupeIds.slice(i, i + 30);
           await fetch(`${SUPABASE_URL}/rest/v1/publisher_sites?id=in.(${batch.map(id => `"${id}"`).join(',')})`, { method: 'DELETE', headers: h() });
         }
-        return res.status(200).json({ success: true, scanned: allSites.length, removed: dupeIds.length, message: dupeIds.length ? 'Removed '+dupeIds.length+' duplicates. Run again to scan more.' : 'No duplicates found in this batch.' });
+        return res.status(200).json({ success: true, scanned: allSites.length, removed: dupeIds.length });
       } catch(e) { return res.status(200).json({ error: e.message }); }
     }
 
