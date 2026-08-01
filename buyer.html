@@ -1093,21 +1093,30 @@ _fetchPage();
 }
 function _processSBSites(sbSites){
 if(!sbSites.length && _allSites.length > 0) return;
-var urlMap = {};
+var allEntries = [];
 sbSites.forEach(function(s){
 var entry = _siteEntry(s, s.publisher_id);
-if(entry && !urlMap[entry.url]) urlMap[entry.url] = entry;
+if(entry) allEntries.push(entry);
 });
 // Also keep any local-only sites
-_loadLocal().forEach(function(e){ if(e && !urlMap[e.url]) urlMap[e.url]=e; });
-var merged = Object.values(urlMap);
+_loadLocal().forEach(function(e){ if(e) allEntries.push(e); });
+// Remove exact duplicates (same domain + same publisher)
+var seen = {};
+var merged = [];
+allEntries.forEach(function(e){
+var key = (e.url||'') + '|' + (e._uid||e.publisherUid||'');
+if(!seen[key]){ seen[key]=true; merged.push(e); }
+});
 if(merged.length > 0 || _allSites.length === 0){
 _allSites = merged;
 _localCacheTime = 0;
 _pubPerfCache = {};
+// Sort: verified/team first, then by price lowest
 _allSites.sort(function(a,b){
 var aT=a.isTeamSite?1:0, bT=b.isTeamSite?1:0;
 if(aT!==bT) return bT-aT;
+var aV=a._vf?1:0, bV=b._vf?1:0;
+if(aV!==bV) return bV-aV;
 return (a.gP||0)-(b.gP||0);
 });
 applyFilters();
