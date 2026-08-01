@@ -293,6 +293,24 @@ export default async function handler(req, res) {
     }
 
     // ADMIN
+    // ── BUYER ACTIVITY TRACKING ──
+    if (resource === 'track') {
+      const { buyer_id, query } = req.query;
+      if (buyer_id && query) {
+        try {
+          const { data: user } = await sb('users?id=eq.'+encodeURIComponent(buyer_id)+'&select=id,search_history');
+          if (Array.isArray(user) && user[0]) {
+            var history = [];
+            try { history = JSON.parse(user[0].search_history || '[]'); } catch(e) { history = []; }
+            history.unshift({ query, time: new Date().toISOString() });
+            if (history.length > 50) history = history.slice(0, 50);
+            await sb('users?id=eq.'+encodeURIComponent(buyer_id), 'PATCH', { search_history: JSON.stringify(history), last_active: new Date().toISOString() });
+          }
+        } catch(e) {}
+      }
+      return res.status(200).json({ success: true });
+    }
+
     if (resource === 'admin') {
       const k = req.headers['x-admin-key'];
       if (!k) return apiError(res,403,'Unauthorized');
@@ -368,6 +386,16 @@ export default async function handler(req, res) {
       if (action==='top_sites') {
         const { data } = await sb('publisher_sites?select=domain,da,price,publisher_name,status&status=eq.Live&order=da.desc&limit=50');
         return res.status(200).json({ success:true, sites:Array.isArray(data)?data:[] });
+      }
+      if (action==='buyer_activity') {
+        const { buyer_id } = req.query;
+        if (!buyer_id) return apiError(res, 400, 'Missing buyer_id');
+        const { data } = await sb('users?id=eq.'+encodeURIComponent(buyer_id)+'&select=search_history,last_active');
+        var activity = [];
+        if (Array.isArray(data) && data[0] && data[0].search_history) {
+          try { activity = JSON.parse(data[0].search_history); } catch(e) {}
+        }
+        return res.status(200).json({ success: true, activity, lastActive: data?.[0]?.last_active });
       }
       if (action==='all_withdrawals') {
         const { data } = await sb('withdrawals?select=*&order=created_at.desc&limit=100');

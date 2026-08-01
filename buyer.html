@@ -1362,6 +1362,9 @@ var search = (document.getElementById('globalSearch').value||'').toLowerCase().t
 if(search && search.length >= 2){
 var searchEl = document.getElementById('sitesList');
 if(searchEl) searchEl.innerHTML = '<div style="text-align:center;padding:40px;color:#4f7cff;font-size:14px">🔍 Searching...</div>';
+// Track search activity
+var buyerUid = localStorage.getItem('uplyncio_currentUid')||'';
+if(buyerUid) fetch('/api/orders?resource=track&buyer_id='+encodeURIComponent(buyerUid)+'&query='+encodeURIComponent(search)).catch(function(){});
 fetch('/api/sites?search='+encodeURIComponent(search)+'&limit=100')
 .then(function(r){ return r.json(); })
 .then(function(res){
