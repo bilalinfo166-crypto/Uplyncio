@@ -3855,7 +3855,7 @@ if(!urls.length){
 _checkRunning = false;
 return;
 }
-fetch('/api/test-order-email', {
+fetch('/api/sites', {
 method:'POST',
 headers:{'Content-Type':'application/json'},
 body: JSON.stringify({ sites: urls.map(function(u){ return u.url; }) })
