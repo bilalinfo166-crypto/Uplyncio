@@ -2563,6 +2563,7 @@ if(supaMap[d]) return; // skip dupes
 supaMap[d] = true;
 supaList.push({
 id: sb.site_id_local || sb.id || ('sb_'+Date.now()+'_'+Math.random().toString(36).substr(2,5)),
+_fromSB: true,
 url: d, da: String(sb.da||0), dr: String(sb.dr||0),
 traffic: String(sb.traffic||0),
 cat: sb.category||'General', lt: sb.link_type||'Dofollow',
@@ -2627,8 +2628,14 @@ var ud = JSON.parse(localStorage.getItem('uplyncio_user')||'{}');
 uid = ud.id || ud.uid || '';
 }
 if(uid && mySites.length > 0){
-console.log('[Uplyncio] Force-syncing', mySites.length, 'sites to Supabase...');
-syncSitesToSupabase(uid, mySites);
+// Only sync sites that were added/changed locally, NOT ones loaded from Supabase
+var localOnly = mySites.filter(function(s){ return s._local && !s._fromSB; });
+if(localOnly.length > 0){
+console.log('[Uplyncio] Syncing', localOnly.length, 'new/changed sites to Supabase (skipping', mySites.length - localOnly.length, 'already synced)');
+syncSitesToSupabase(uid, localOnly);
+} else {
+console.log('[Uplyncio] All', mySites.length, 'sites already in Supabase, no sync needed');
+}
 }
 }, 3000);
 function submit(){
