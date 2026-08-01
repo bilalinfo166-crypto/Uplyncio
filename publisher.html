@@ -3711,9 +3711,10 @@ parsedSites=[];
 saveSites();
 clearUpload();
 
-// Show loading progress popup for gradual approval
+// Show loading progress popup for gradual approval (skip for admin)
 var totalNew = newSites.filter(function(s){return s.status!=='duplicate'&&s.status!=='rejected';}).length;
-if(totalNew > 10){
+var isAdminUser = (JSON.parse(localStorage.getItem('uplyncio_user')||'{}')).email||'';
+if(totalNew > 10 && isAdminUser.toLowerCase() !== 'info@uplyncio.com'){
 showImportProgress(totalNew, approved, priceUpdated, duplicates-priceUpdated, held, rejected);
 } else {
 applyFilters();
