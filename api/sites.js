@@ -313,3 +313,4 @@ export default async function handler(req, res) {
     console.error('Sites API error:', e.message);
     return res.status(500).json({ error: e.message });
   }
+}
