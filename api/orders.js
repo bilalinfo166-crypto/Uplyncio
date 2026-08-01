@@ -359,6 +359,16 @@ export default async function handler(req, res) {
         const { data } = await sb('users?select=*&order=created_at.desc&limit=200');
         return res.status(200).json({ success:true, users:Array.isArray(data)?data:[] });
       }
+      if (action==='publisher_sites') {
+        const { publisher_id } = req.query;
+        if (!publisher_id) return apiError(res, 400, 'Missing publisher_id');
+        const { data } = await sb('publisher_sites?publisher_id=eq.'+encodeURIComponent(publisher_id)+'&select=domain,da,dr,price,status&order=da.desc&limit=50');
+        return res.status(200).json({ success:true, sites:Array.isArray(data)?data:[] });
+      }
+      if (action==='top_sites') {
+        const { data } = await sb('publisher_sites?select=domain,da,price,publisher_name,status&status=eq.Live&order=da.desc&limit=50');
+        return res.status(200).json({ success:true, sites:Array.isArray(data)?data:[] });
+      }
       if (action==='all_withdrawals') {
         const { data } = await sb('withdrawals?select=*&order=created_at.desc&limit=100');
         return res.status(200).json({ success:true, withdrawals:Array.isArray(data)?data:[] });
