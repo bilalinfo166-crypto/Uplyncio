@@ -51,12 +51,16 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      const { publisher_id, limit = 1000, offset = 0 } = req.query;
+      const { publisher_id, limit = 1000, offset = 0, search } = req.query;
       let url = `${SUPABASE_URL}/rest/v1/publisher_sites?select=*&order=da.desc&limit=${limit}&offset=${offset}`;
       if (publisher_id) {
         url += `&publisher_id=eq.${encodeURIComponent(publisher_id)}`;
       } else {
         url += `&status=in.(Live,live,Approved,approved,Active,active)`;
+      }
+      // Server-side search by domain
+      if (search) {
+        url += `&domain=ilike.*${encodeURIComponent(search.toLowerCase())}*`;
       }
       const r = await fetch(url, { headers: h() });
       const data = await r.json();

@@ -1356,9 +1356,48 @@ _filterTimer = setTimeout(applyFilters, 30);
 // FILTERS + RENDER
 // ═══════════════════════════════════
 function applyFilters(){
+var search = (document.getElementById('globalSearch').value||'').toLowerCase().trim();
+
+// SERVER-SIDE SEARCH: if user searched, fetch from API directly (instant!)
+if(search && search.length >= 2){
+var searchEl = document.getElementById('sitesList');
+if(searchEl) searchEl.innerHTML = '<div style="text-align:center;padding:40px;color:#4f7cff;font-size:14px">🔍 Searching...</div>';
+fetch('/api/sites?search='+encodeURIComponent(search)+'&limit=100')
+.then(function(r){ return r.json(); })
+.then(function(res){
+if(!res.success || !Array.isArray(res.sites) || !res.sites.length){
+if(searchEl) searchEl.innerHTML = '<div style="text-align:center;padding:60px"><div style="font-size:40px;margin-bottom:12px">🔍</div><div style="font-size:16px;font-weight:700;color:#1a202c">No sites found</div><div style="font-size:13px;color:#94a3b8;margin-top:4px">Try a different domain name</div></div>';
+var info = document.getElementById('resInfo');
+if(info) info.innerHTML = 'Results: <strong>0 sites</strong>';
+return;
+}
+// Process API results
+var searchResults = [];
+res.sites.forEach(function(s){
+var entry = _siteEntry(s, s.publisher_id);
+if(entry) searchResults.push(entry);
+});
+// Sort: verified first, then lowest price
+searchResults.sort(function(a,b){
+var aT=a.isTeamSite?1:0, bT=b.isTeamSite?1:0;
+if(aT!==bT) return bT-aT;
+return (a.gP||0)-(b.gP||0);
+});
+filteredSites = searchResults;
+currentPage = 1;
+renderSites();
+var info = document.getElementById('resInfo');
+if(info) info.innerHTML = 'Results: <strong>'+searchResults.length+' sites</strong>';
+}).catch(function(e){
+if(searchEl) searchEl.innerHTML = '<div style="color:red;padding:20px">Search error: '+e.message+'</div>';
+});
+return;
+}
+
+// LOCAL FILTER: no search text, filter loaded sites locally
 var all = _allSites.length > 0 ? _allSites : _loadLocal();
 buildCatSidebar(all);
-var search = (document.getElementById('globalSearch').value||'').toLowerCase().trim();
+var search = ''; // empty because server-side handles text search
 var pMin = parseFloat(document.getElementById('fPriceMin').value)||0;
 var pMax = parseFloat(document.getElementById('fPriceMax').value)||999999;
 var daMin = parseInt(document.getElementById('fDAMin').value)||0;
