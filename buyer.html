@@ -1136,7 +1136,7 @@ return _allSites;
 // Also expose as processSiteToEntry for backward compat
 function processSiteToEntry(s, uid){ return _siteEntry(s, uid); }
 // Poll Supabase every 30s
-if(!_sbTimer){ _sbTimer = setInterval(fetchSitesFromSupabase, 120000); }
+if(!_sbTimer){ _sbTimer = setInterval(fetchSitesFromSupabase, 30000); }
 // Load IMMEDIATELY on script run — zero delay
 fetchSitesFromSupabase();
 // ── LIVE COUNTER: total sites across platform ──
