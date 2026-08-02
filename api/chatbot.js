@@ -319,7 +319,7 @@ export default async function handler(req, res) {
         const users = await r.json();
         if (users?.[0]) {
           const stored = users[0].verify_code || '';
-          if (stored.startsWith('RESET:') && stored.split(':')[1] === code) {
+          if (stored.startsWith('RESET|') &&  stored.split('|')[1] === code) {
             // Hash and set new password
             const enc = new TextEncoder();
             const buf = await crypto.subtle.digest('SHA-256', enc.encode(newPassword + '_uplyncio_salt'));
@@ -354,8 +354,8 @@ export default async function handler(req, res) {
           let isValid = false;
           
           // Check RESET:code:expiry format
-          if (stored.startsWith('RESET:')) {
-            const parts = stored.split(':');
+          if (stored.startsWith('RESET|')) {
+            const parts =  stored.split('|');
             if (parts[1] === code && new Date(parts[2]) > new Date()) isValid = true;
             else if (new Date(parts[2]) < new Date()) {
               return res.status(200).json({ reply: `❌ This code has **expired**. Please say **"forgot password"** to get a new code. ⏰` });
@@ -368,7 +368,7 @@ export default async function handler(req, res) {
             const expiresAt = new Date(Date.now() + 10*60*1000).toISOString();
             await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
               method: 'PATCH', headers: sbHeaders,
-              body: JSON.stringify({ verify_code: `RESET:${code}:${expiresAt}` })
+              body: JSON.stringify({ verify_code: `RESET|${code}|${expiresAt}` })
             });
           }
           
@@ -403,7 +403,7 @@ export default async function handler(req, res) {
       const expiresAt = new Date(Date.now() + 10*60*1000).toISOString();
       await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
         method: 'PATCH', headers: sbHeaders,
-        body: JSON.stringify({ verify_code: `RESET:${resetCode}:${expiresAt}` })
+        body: JSON.stringify({ verify_code: `RESET|${resetCode}|${expiresAt}` })
       });
       const { sendVerifyEmail } = await import('./_email.js');
       await sendVerifyEmail({ to: email, name: user.name || 'there', code: resetCode }).catch(() => {});

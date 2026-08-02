@@ -430,7 +430,7 @@ export default async function handler(req, res) {
 
       // Save OTP to DB
       await sbUpdate('users', `id=eq.${user.id}`, {
-        verify_code: `RESET:${code}:${expiresAt}`
+        verify_code: `RESET|${code}|${expiresAt}`
       });
 
       // Send OTP email
@@ -454,8 +454,8 @@ export default async function handler(req, res) {
       if (!users?.length) return res.status(400).json({ error: 'Invalid code' });
       const user = users[0];
       const stored = user.verify_code || '';
-      if (!stored.startsWith('RESET:')) return res.status(400).json({ error: 'No reset code found. Please request a new one.' });
-      const parts = stored.split(':');
+      if (!stored.startsWith('RESET|')) return res.status(400).json({ error: 'No reset code found. Please request a new one.' });
+      const parts = stored.split('|');
       const savedCode = parts[1];
       const expiresAt = parts[2];
       if (new Date(expiresAt) < new Date()) return res.status(400).json({ error: 'Code expired. Please request a new one.' });
@@ -473,8 +473,8 @@ export default async function handler(req, res) {
       if (!users?.length) return res.status(400).json({ error: 'User not found' });
       const user = users[0];
       const stored = user.verify_code || '';
-      if (!stored.startsWith('RESET:')) return res.status(400).json({ error: 'No reset code found' });
-      const parts = stored.split(':');
+      if (!stored.startsWith('RESET|')) return res.status(400).json({ error: 'No reset code found' });
+      const parts = stored.split('|');
       if (parts[1] !== code) return res.status(400).json({ error: 'Invalid code' });
       if (new Date(parts[2]) < new Date()) return res.status(400).json({ error: 'Code expired' });
       const newHash = await hashPass(newPassword);
@@ -623,9 +623,9 @@ export default async function handler(req, res) {
       const stored = user.verify_code || '';
 
       // Format: RESET:CODE:EXPIRY
-      if (!stored.startsWith('RESET:')) return res.status(400).json({ error: 'No reset code found. Please request a new one.' });
+      if (!stored.startsWith('RESET|')) return res.status(400).json({ error: 'No reset code found. Please request a new one.' });
 
-      const parts = stored.split(':');
+      const parts = stored.split('|');
       const savedCode = parts[1];
       const expiresAt = parts[2];
 
