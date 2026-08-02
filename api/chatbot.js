@@ -351,13 +351,29 @@ export default async function handler(req, res) {
         const users = await r.json();
         if (users?.[0]) {
           const stored = users[0].verify_code || '';
+          let isValid = false;
+          
+          // Check RESET:code:expiry format
           if (stored.startsWith('RESET:')) {
             const parts = stored.split(':');
-            if (parts[1] === code && new Date(parts[2]) > new Date()) {
-              return res.status(200).json({ reply: `✅ **Code verified!**\n\nNow please **enter your new password** below. Make sure it's at least 8 characters with uppercase, number, and special character.\n\nJust type your new password here 👇` });
-            } else if (new Date(parts[2]) < new Date()) {
+            if (parts[1] === code && new Date(parts[2]) > new Date()) isValid = true;
+            else if (new Date(parts[2]) < new Date()) {
               return res.status(200).json({ reply: `❌ This code has **expired**. Please say **"forgot password"** to get a new code. ⏰` });
             }
+          }
+          // Check plain code format (from resend OTP)
+          else if (stored === code) {
+            isValid = true;
+            // Convert to RESET format for password step
+            const expiresAt = new Date(Date.now() + 10*60*1000).toISOString();
+            await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
+              method: 'PATCH', headers: sbHeaders,
+              body: JSON.stringify({ verify_code: `RESET:${code}:${expiresAt}` })
+            });
+          }
+          
+          if (isValid) {
+            return res.status(200).json({ reply: `✅ **Code verified!**\n\nNow please **enter your new password** below. Make sure it's at least 8 characters with uppercase, number, and special character.\n\nJust type your new password here 👇` });
           }
         }
         return res.status(200).json({ reply: `❌ **Invalid code**. Please check the code in your email and try again.\n\nIf you need a new code, say **"forgot password"**. 🔄` });
