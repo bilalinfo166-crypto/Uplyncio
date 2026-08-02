@@ -479,6 +479,11 @@ export default async function handler(req, res) {
       if (new Date(parts[2]) < new Date()) return res.status(400).json({ error: 'Code expired' });
       const newHash = await hashPass(newPassword);
       await sbUpdate('users', `id=eq.${user.id}`, { password_hash: newHash, verify_code: null });
+      // Send password changed confirmation email
+      try {
+        const { sendPasswordChangedEmail } = await import('./_email.js');
+        sendPasswordChangedEmail({ to: emailLow, name: user.name, email: emailLow, changedAt: new Date().toLocaleString(), ipAddress: getIp(req) || 'Unknown' }).catch(() => {});
+      } catch(e) {}
       return res.status(200).json({ success: true, message: 'Password reset successful' });
     }
 

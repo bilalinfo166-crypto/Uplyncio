@@ -327,10 +327,10 @@ export default async function handler(req, res) {
             await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
               method: 'PATCH', headers: sbHeaders, body: JSON.stringify({ password_hash: hash, verify_code: null })
             });
-            // Send confirmation email
+            // Send password changed confirmation email
             try {
-              const { sendVerifyEmail } = await import('./_email.js');
-              await sendVerifyEmail({ to: email, name: users[0].name || 'there', code: 'Your password has been changed successfully. If you did not make this change, please contact info@uplyncio.com immediately.' }).catch(() => {});
+              const { sendPasswordChangedEmail } = await import('./_email.js');
+              await sendPasswordChangedEmail({ to: email, name: users[0].name || 'there', email: email, changedAt: new Date().toLocaleString(), ipAddress: 'Via Chatbot' }).catch(() => {});
             } catch(e) {}
             return res.status(200).json({ reply: `✅ **Password changed successfully!**\n\nYour new password has been set for **${email}**. A confirmation email has been sent.\n\nYou can now log in at [uplyncio.com](https://uplyncio.com) with your new password. Stay safe! 🔐` });
           }
