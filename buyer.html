@@ -2177,26 +2177,25 @@ var customInp = document.getElementById('afCustomAmt');
 if(customInp && document.getElementById('afCustomWrap') && document.getElementById('afCustomWrap').style.display!=='none'){
 _afAmt = parseFloat(customInp.value)||0;
 }
-// No processing fees - USDT is free
+// 3% processing fee on USDT
 var method = _afMethod || 'usdt';
-var tax = 0;
-var bonus = 0;
-var totalCharge = _afAmt;
+var fee = method === 'usdt' ? parseFloat((_afAmt * 0.03).toFixed(2)) : 0;
+var totalCharge = _afAmt + fee;
 _afTotal = totalCharge;
 // Update UI
 var bonusRow = document.getElementById('afBonusRow');
 if(bonusRow) bonusRow.style.display = 'none';
 var taxRow = document.getElementById('afTaxRow');
-if(taxRow) taxRow.style.display = 'none';
+if(taxRow) taxRow.style.display = fee > 0 ? 'flex' : 'none';
 var el1=document.getElementById('afSumAmt'); if(el1) el1.textContent='$'+_afAmt.toFixed(2);
 var el2=document.getElementById('afSumBonus'); if(el2) el2.textContent='+$0.00';
-var el3=document.getElementById('afSumTax'); if(el3) el3.textContent='$0.00';
+var el3=document.getElementById('afSumTax'); if(el3) el3.textContent='+$'+fee.toFixed(2);
 var el4=document.getElementById('afSumTotal'); if(el4) el4.textContent='$'+totalCharge.toFixed(2);
 var el5=document.getElementById('afSumCredit'); if(el5) el5.textContent='$'+_afAmt.toFixed(2);
 var taxNote = document.getElementById('afTaxNote');
-if(taxNote) taxNote.textContent = method==='usdt' ? 'No processing fee on USDT 🎉' : '';
+if(taxNote) taxNote.textContent = method==='usdt' ? 'Network fee: 3%' : '';
 var payBtn = document.getElementById('afPayBtn');
-if(payBtn) payBtn.innerHTML = method==='usdt' ? '🪙 Pay with USDT — $'+totalCharge.toFixed(2) : '💳 Pay with PayPal — $'+totalCharge.toFixed(2);
+if(payBtn) payBtn.innerHTML = method==='usdt' ? '🪙 Pay $'+totalCharge.toFixed(2)+' USDT — Get $'+_afAmt.toFixed(2)+' credited' : '💳 Pay with PayPal — $'+totalCharge.toFixed(2);
 }
 function submitAddFunds(){
 if(_afAmt < 10){ showToast('⚠️ Minimum top-up amount is $10'); return; }
