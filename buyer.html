@@ -2140,7 +2140,7 @@ return '<div class="tx-row">'
 +'</div>';
 }).join('');
 }
-var _afMethod = 'paypal';
+var _afMethod = 'usdt';
 var _afAmt = 100;
 function openAddFunds(){
 saveBuyerState('addFunds');
@@ -2198,10 +2198,14 @@ var payBtn = document.getElementById('afPayBtn');
 if(payBtn) payBtn.innerHTML = method==='usdt' ? '🪙 Pay $'+totalCharge.toFixed(2)+' USDT — Get $'+_afAmt.toFixed(2)+' credited' : '💳 Pay with PayPal — $'+totalCharge.toFixed(2);
 }
 function submitAddFunds(){
-if(_afAmt < 10){ showToast('⚠️ Minimum top-up amount is $10'); return; }
+if(_afAmt < 10){ document.getElementById('afPayErr').innerHTML='<span style="color:#ef4444;font-size:12px;font-weight:600">⚠️ Minimum top-up is $10</span>'; return; }
+if(_afMethod === 'paypal'){
+document.getElementById('afPayErr').innerHTML='<span style="color:#ef4444;font-size:12px;font-weight:600">⚠️ PayPal is coming soon! Please select USDT TRC20 to proceed.</span>';
+return;
+}
+document.getElementById('afPayErr').innerHTML='';
 if(_afMethod === 'usdt'){
 closeAddFunds();
-// Show USDT TRC20 payment modal
 var usdtAddr = 'TSuGGoDjDkRxaYrunyHSSZJt9HZuT6QwZ6';
 var total = _afTotal || _afAmt;
 var old = document.getElementById('usdtPayModal'); if(old) old.remove();
@@ -2239,14 +2243,18 @@ m.innerHTML = '<div style="background:#fff;border-radius:20px;width:460px;max-wi
 +'<label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;display:block;margin-bottom:4px">Transaction Hash (TxID)</label>'
 +'<input id="usdtTxHash" type="text" placeholder="Paste your TxID here after sending" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box" onfocus="this.style.borderColor=\'#4f7cff\'" onblur="this.style.borderColor=\'#e2e8f0\'">'
 +'</div>'
++'<div style="margin-bottom:14px">'
++'<label style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;display:block;margin-bottom:4px">Payment Screenshot (Proof)</label>'
++'<div style="border:1.5px dashed #e2e8f0;border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .2s" onclick="document.getElementById(\'usdtProofFile\').click()" onmouseover="this.style.borderColor=\'#4f7cff\';this.style.background=\'#f8faff\'" onmouseout="this.style.borderColor=\'#e2e8f0\';this.style.background=\'#fff\'">'
++'<div id="usdtProofPreview" style="font-size:12px;color:#94a3b8">📸 Click to upload screenshot</div>'
++'<input type="file" id="usdtProofFile" accept="image/*" style="display:none" onchange="var f=this.files[0];if(f){document.getElementById(\'usdtProofPreview\').innerHTML=\'✅ \'+f.name;}">'
++'</div></div>'
 +'<button onclick="submitUsdtPayment('+total+')" style="width:100%;padding:13px;background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">✅ I\'ve Sent the Payment</button>'
 +'<div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:10px">Need help? Email <a href="mailto:info@uplyncio.com" style="color:#4f7cff">info@uplyncio.com</a></div>'
 +'</div>';
 document.body.appendChild(m);
 } else {
-closeAddFunds();
-showToast('⚠️ PayPal is coming soon! Please use USDT TRC20 for now.');
-setTimeout(function(){ openAddFunds(); }, 1500);
+document.getElementById('afPayErr').innerHTML='<span style="color:#ef4444;font-size:12px;font-weight:600">⚠️ This payment method is coming soon! Please use USDT TRC20.</span>';
 }
 }
 function submitUsdtPayment(amount){
@@ -5240,11 +5248,11 @@ localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
 <div style="margin-bottom:16px">
 <label style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">Payment Method</label>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="afMethods">
-<div onclick="selectAFMethod(this,'paypal')" class="af-method sel" data-method="paypal">
+<div onclick="selectAFMethod(this,'paypal')" class="af-method" data-method="paypal">
 <span style="font-size:18px">💳</span>
 <span>PayPal</span>
 </div>
-<div onclick="selectAFMethod(this,'usdt')" class="af-method" data-method="usdt">
+<div onclick="selectAFMethod(this,'usdt')" class="af-method sel" data-method="usdt">
 <span style="font-size:18px">🪙</span>
 <span>USDT TRC20</span>
 </div>
@@ -5289,6 +5297,7 @@ localStorage.setItem('uplyncio_pub_registry', JSON.stringify(registry));
 <span style="font-family:Manrope,sans-serif;color:#16a34a" id="afSumCredit">$100.00</span>
 </div>
 </div>
+<div id="afPayErr" style="min-height:20px;margin-bottom:6px;text-align:center"></div>
 <button onclick="submitAddFunds()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4f7cff,#6366f1);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:0 4px 16px rgba(79,124,255,.3)" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'" id="afPayBtn">
         💳 Pay with PayPal — $100.00
       </button>
