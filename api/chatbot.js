@@ -288,11 +288,84 @@ export default async function handler(req, res) {
   // ── SMART ACTION DETECTION (runs ALWAYS, before Claude API) ──
   const lm = lastMsg.toLowerCase();
   const emailMatch = lastMsg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-  const prevMsgs = messages.slice(-5).map(m => (m.content||'').toLowerCase()).join(' ');
+  const prevMsgs = messages.slice(-8).map(m => (m.content||'').toLowerCase()).join(' ');
+  const prevMsgsRaw = messages.slice(-8).map(m => m.content||'');
   const isOtpFlow = prevMsgs.includes('otp') || prevMsgs.includes('verification code') || prevMsgs.includes('code not received') || prevMsgs.includes('verify');
-  const isPasswordFlow = prevMsgs.includes('password') || prevMsgs.includes('forgot') || prevMsgs.includes('reset') || prevMsgs.includes('lost');
+  const isPasswordFlow = prevMsgs.includes('password') || prevMsgs.includes('forgot') || prevMsgs.includes('reset') || prevMsgs.includes('lost') || prevMsgs.includes('posword');
+  const SB_URL = process.env.SUPABASE_URL;
+  const SB_KEY = process.env.SUPABASE_SECRET_KEY;
+  const sbHeaders = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
 
-  // Password/forgot queries → ask for email
+  // Find email from conversation history
+  function findEmailInHistory() {
+    for (let i = prevMsgsRaw.length - 1; i >= 0; i--) {
+      const m = prevMsgsRaw[i].match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+      if (m) return m[0].toLowerCase();
+    }
+    return null;
+  }
+
+  // STEP 3: User sent new password after code was verified
+  const codeVerifiedInHistory = prevMsgs.includes('code verified') || prevMsgs.includes('enter your new password') || prevMsgs.includes('set your new password');
+  if (codeVerifiedInHistory && lastMsg.length >= 8 && !emailMatch && !/^\d{6}$/.test(lastMsg.trim())) {
+    const newPassword = lastMsg.trim();
+    const email = findEmailInHistory();
+    if (email && SB_URL) {
+      try {
+        // Find the code from history
+        let code = '';
+        for (const m of prevMsgsRaw) { const c = m.trim().match(/^\d{6}$/); if (c) code = c[0]; }
+        const r = await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,verify_code`, { headers: sbHeaders });
+        const users = await r.json();
+        if (users?.[0]) {
+          const stored = users[0].verify_code || '';
+          if (stored.startsWith('RESET:') && stored.split(':')[1] === code) {
+            // Hash and set new password
+            const enc = new TextEncoder();
+            const buf = await crypto.subtle.digest('SHA-256', enc.encode(newPassword + '_uplyncio_salt'));
+            const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+            await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
+              method: 'PATCH', headers: sbHeaders, body: JSON.stringify({ password_hash: hash, verify_code: null })
+            });
+            // Send confirmation email
+            try {
+              const { sendVerifyEmail } = await import('./_email.js');
+              await sendVerifyEmail({ to: email, name: users[0].name || 'there', code: 'Your password has been changed successfully. If you did not make this change, please contact info@uplyncio.com immediately.' }).catch(() => {});
+            } catch(e) {}
+            return res.status(200).json({ reply: `✅ **Password changed successfully!**\n\nYour new password has been set for **${email}**. A confirmation email has been sent.\n\nYou can now log in at [uplyncio.com](https://uplyncio.com) with your new password. Stay safe! 🔐` });
+          }
+        }
+        return res.status(200).json({ reply: `Something went wrong. Please start the password reset process again by saying **"forgot password"**. 🔄` });
+      } catch(e) { console.error('Bot set password error:', e.message); }
+    }
+  }
+
+  // STEP 2: User sent 6-digit code → verify it
+  const isCodeInput = /^\d{6}$/.test(lastMsg.trim());
+  if (isCodeInput && isPasswordFlow) {
+    const email = findEmailInHistory();
+    const code = lastMsg.trim();
+    if (email && SB_URL) {
+      try {
+        const r = await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=verify_code`, { headers: sbHeaders });
+        const users = await r.json();
+        if (users?.[0]) {
+          const stored = users[0].verify_code || '';
+          if (stored.startsWith('RESET:')) {
+            const parts = stored.split(':');
+            if (parts[1] === code && new Date(parts[2]) > new Date()) {
+              return res.status(200).json({ reply: `✅ **Code verified!**\n\nNow please **enter your new password** below. Make sure it's at least 8 characters with uppercase, number, and special character.\n\nJust type your new password here 👇` });
+            } else if (new Date(parts[2]) < new Date()) {
+              return res.status(200).json({ reply: `❌ This code has **expired**. Please say **"forgot password"** to get a new code. ⏰` });
+            }
+          }
+        }
+        return res.status(200).json({ reply: `❌ **Invalid code**. Please check the code in your email and try again.\n\nIf you need a new code, say **"forgot password"**. 🔄` });
+      } catch(e) { console.error('Bot verify code error:', e.message); }
+    }
+  }
+
+  // STEP 1a: Password/forgot queries → ask for email
   if ((lm.includes('forgot') || lm.includes('password') || lm.includes('lost') || lm.includes('reset') || lm.includes('can\'t login') || lm.includes('cant login') || lm.includes('unable to login') || lm.includes('posword') || lm.includes('pasword')) && !emailMatch) {
     return res.status(200).json({ reply: `No worries, I can help! 🔐\n\nPlease share your **registered email address** and I'll send you a password reset code right away.\n\nJust type your email here 👇` });
   }
@@ -302,27 +375,23 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply: `I can help with that! 🛠️\n\nPlease share your **registered email address** and I'll send you a new verification code.\n\nJust type your email here 👇` });
   }
 
-  // User shared email in password flow → send reset code
+  // STEP 1b: User shared email in password flow → send reset code
   if (emailMatch && isPasswordFlow) {
     const email = emailMatch[0].toLowerCase();
     try {
-      const SB_URL = process.env.SUPABASE_URL;
-      const SB_KEY = process.env.SUPABASE_SECRET_KEY;
-      const otpRes = await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,email`, {
-        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-      });
+      const otpRes = await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,email`, { headers: sbHeaders });
       const users = await otpRes.json();
       if (!users?.length) return res.status(200).json({ reply: `I couldn't find an account with **${email}**. Please check the spelling and try again. 🔍` });
       const user = users[0];
       const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10*60*1000).toISOString();
       await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
-        method: 'PATCH', headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+        method: 'PATCH', headers: sbHeaders,
         body: JSON.stringify({ verify_code: `RESET:${resetCode}:${expiresAt}` })
       });
       const { sendVerifyEmail } = await import('./_email.js');
       await sendVerifyEmail({ to: email, name: user.name || 'there', code: resetCode }).catch(() => {});
-      return res.status(200).json({ reply: `Done! I've sent a password reset code to **${email}** 📩\n\nHere's what to do:\n1. Check your inbox (and spam folder)\n2. Go to the login page\n3. Click **Forgot Password**\n4. Enter the code and set a new password\n\nThe code expires in 10 minutes. Let me know if you need anything else! 🙌` });
+      return res.status(200).json({ reply: `Done! I've sent a **6-digit reset code** to **${email}** 📩\n\nCheck your inbox (and spam folder) and type the code here 👇\n\nThe code expires in 10 minutes.` });
     } catch(e) { console.error('Bot password reset error:', e.message); }
   }
 
@@ -330,18 +399,14 @@ export default async function handler(req, res) {
   if (emailMatch && (isOtpFlow || lm.includes('send') || lm.includes('code') || lm.includes('otp') || lm.includes('verify'))) {
     const email = emailMatch[0].toLowerCase();
     try {
-      const SB_URL = process.env.SUPABASE_URL;
-      const SB_KEY = process.env.SUPABASE_SECRET_KEY;
-      const otpRes = await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,email,email_verified`, {
-        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-      });
+      const otpRes = await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id,name,email,email_verified`, { headers: sbHeaders });
       const users = await otpRes.json();
       if (!users?.length) return res.status(200).json({ reply: `I couldn't find an account with **${email}**. Please check the spelling. If you haven't signed up yet, go to [uplyncio.com](https://uplyncio.com) and create an account first! 🔗` });
       const user = users[0];
       if (user.email_verified) return res.status(200).json({ reply: `Good news! Your email **${email}** is already verified ✅\n\nYou can log in directly. If you're having trouble with your password, just tell me and I'll help you reset it! 🔑` });
       const newCode = Math.floor(100000 + Math.random() * 900000).toString();
       await fetch(`${SB_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}`, {
-        method: 'PATCH', headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+        method: 'PATCH', headers: sbHeaders,
         body: JSON.stringify({ verify_code: newCode })
       });
       const { sendVerifyEmail } = await import('./_email.js');
