@@ -96,6 +96,7 @@ export default async function handler(req, res) {
       if (!Array.isArray(data)) {
         return res.status(200).json({ success: true, sites: [] });
       }
+      res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60');
       return res.status(200).json({ success: true, sites: data });
     }
 
